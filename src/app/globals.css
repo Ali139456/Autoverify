@@ -1,26 +1,70 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* Near-black surfaces */
+  --color-ink-950: #030407;
+  --color-ink-900: #06080f;
+  --color-ink-800: #0b0f1c;
+  --color-ink-700: #131a2e;
+  /* Electric blue accent */
+  --color-accent-300: #93c5fd;
+  --color-accent-400: #60a5fa;
+  --color-accent-500: #3b82f6;
+  --color-accent-600: #2563eb;
+  --color-accent-700: #1d4ed8;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body {
+  background: #030407;
+  color: #e2e8f0;
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.plate-input {
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* Soft blue glow used behind hero imagery and CTAs */
+.glow-blue {
+  box-shadow: 0 0 60px rgba(59, 130, 246, 0.35);
+}
+
+.text-gradient-blue {
+  background: linear-gradient(90deg, #3b82f6, #60a5fa, #2563eb);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Light sweep across a button on hover */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shine::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -80%;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transform: skewX(-20deg);
+  pointer-events: none;
+}
+.btn-shine:hover::after {
+  animation: btn-shine-sweep 0.9s ease;
+}
+@keyframes btn-shine-sweep {
+  to {
+    left: 130%;
+  }
 }
