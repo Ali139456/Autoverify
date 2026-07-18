@@ -72,19 +72,19 @@ export function Footer() {
       <div className="pointer-events-none absolute -top-32 left-1/2 h-[300px] w-[700px] -translate-x-1/2 rounded-full bg-accent-600/10 blur-[120px]" />
 
       {/* CTA band */}
-      <div className="relative mx-auto max-w-6xl px-4 pt-16 sm:px-6">
-        <div className="glow-blue flex flex-col items-center gap-6 rounded-3xl border border-accent-500/25 bg-gradient-to-r from-accent-700/25 via-ink-800 to-ink-800 p-8 text-center sm:flex-row sm:justify-between sm:p-10 sm:text-left">
+      <div className="relative mx-auto max-w-6xl px-4 pt-12 sm:px-6 sm:pt-16">
+        <div className="flex flex-col items-center gap-5 rounded-3xl border border-accent-500/25 bg-gradient-to-r from-accent-700/25 via-ink-800 to-ink-800 p-6 text-center sm:gap-6 sm:p-8 md:flex-row md:justify-between md:text-left lg:p-10">
           <div>
-            <h2 className="text-2xl font-extrabold text-white sm:text-3xl">
+            <h2 className="text-xl font-extrabold text-white sm:text-2xl lg:text-3xl">
               Ready to know what you&apos;re buying?
             </h2>
-            <p className="mt-2 text-slate-400">
+            <p className="mt-2 text-sm text-slate-400 sm:text-base">
               Past, present and future insights — in your hands in under two minutes.
             </p>
           </div>
           <Link
             href="/#check"
-            className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-gradient-to-r from-accent-600 to-accent-500 px-8 py-4 font-bold text-white shadow-[0_0_30px_rgba(59,130,246,0.5)] transition hover:shadow-[0_0_44px_rgba(59,130,246,0.7)]"
+            className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-gradient-to-r from-accent-600 to-accent-500 px-6 py-3 text-sm font-bold text-white transition hover:from-accent-500 hover:to-accent-400 sm:px-8 sm:py-4 sm:text-base"
           >
             Buy Report
             <ArrowRight

@@ -99,7 +99,7 @@ export default async function ReportPage({
         </p>
         <Link
           href={`/check?rego=${vehicle.rego}&state=${vehicle.state}`}
-          className="glow-blue mt-8 inline-block rounded-xl bg-accent-600 px-6 py-3 font-bold text-white hover:bg-accent-500"
+          className="mt-8 inline-block rounded-xl bg-accent-600 px-6 py-3 font-bold text-white hover:bg-accent-500"
         >
           Complete purchase
         </Link>
@@ -130,17 +130,17 @@ export default async function ReportPage({
                 <ShieldCheck className="h-4 w-4" aria-hidden />
                 Auto Verifi Report · {report.id}
               </p>
-              <h1 className="mt-2 text-3xl font-extrabold text-white sm:text-4xl">
+              <h1 className="mt-2 text-2xl font-extrabold text-white sm:text-3xl lg:text-4xl">
                 {vehicle.year} {vehicle.make} {vehicle.model}
               </h1>
-              <p className="mt-1 text-slate-400">
+              <p className="mt-1 break-all text-sm text-slate-400 sm:break-normal sm:text-base">
                 {vehicle.variant} · {vehicle.rego} ({vehicle.state}) · VIN{" "}
                 {vehicle.vin || "—"}
               </p>
             </div>
             <a
               href={`/api/report/${report.id}/pdf`}
-              className="glow-blue inline-flex items-center justify-center gap-2 rounded-xl bg-accent-600 px-6 py-3 font-bold text-white transition hover:bg-accent-500"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent-600 px-6 py-3 font-bold text-white transition hover:bg-accent-500"
             >
               <Download className="h-5 w-5" aria-hidden />
               Download PDF
@@ -448,7 +448,7 @@ export default async function ReportPage({
           </div>
           <a
             href={`/api/report/${report.id}/pdf`}
-            className="glow-blue inline-flex shrink-0 items-center gap-2 rounded-xl bg-accent-600 px-6 py-3 font-bold text-white transition hover:bg-accent-500"
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-accent-600 px-6 py-3 font-bold text-white transition hover:bg-accent-500"
           >
             <Download className="h-5 w-5" aria-hidden />
             Download PDF

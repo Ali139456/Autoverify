@@ -44,7 +44,7 @@ export function PayButton({
       <button
         onClick={pay}
         disabled={loading}
-        className="glow-blue flex w-full items-center justify-center gap-2 rounded-xl bg-accent-600 px-8 py-4 text-lg font-bold text-white transition hover:bg-accent-500 disabled:opacity-60"
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent-600 px-8 py-4 text-lg font-bold text-white transition hover:bg-accent-500 disabled:opacity-60"
       >
         {loading ? (
           <Loader2 className="h-5 w-5 animate-spin" aria-hidden />

@@ -41,7 +41,7 @@ export function Header() {
       >
         {/* Brand */}
         <Link href="/" className="group flex shrink-0 items-center gap-2.5">
-          <span className="glow-blue flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-accent-500 to-accent-700 transition group-hover:from-accent-400 group-hover:to-accent-600">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-accent-500 to-accent-700 transition group-hover:from-accent-400 group-hover:to-accent-600">
             <ShieldCheck className="h-5 w-5 text-white" aria-hidden />
           </span>
           <span className="whitespace-nowrap text-base font-extrabold tracking-tight text-white sm:text-lg">
@@ -60,7 +60,7 @@ export function Header() {
                 href={l.href}
                 className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition ${
                   active
-                    ? "bg-accent-600/90 text-white shadow-[0_0_16px_rgba(59,130,246,0.5)]"
+                    ? "bg-accent-600/90 text-white"
                     : "text-slate-300 hover:bg-white/10 hover:text-white"
                 }`}
               >
@@ -73,7 +73,7 @@ export function Header() {
         <div className="flex shrink-0 items-center gap-2">
           <Link
             href="/#check"
-            className="group hidden items-center gap-2 whitespace-nowrap rounded-full bg-gradient-to-r from-accent-600 to-accent-500 px-5 py-2.5 text-sm font-bold text-white shadow-[0_0_24px_rgba(59,130,246,0.45)] transition hover:shadow-[0_0_36px_rgba(59,130,246,0.65)] sm:inline-flex"
+            className="group hidden items-center gap-2 whitespace-nowrap rounded-full bg-gradient-to-r from-accent-600 to-accent-500 px-5 py-2.5 text-sm font-bold text-white transition hover:from-accent-500 hover:to-accent-400 sm:inline-flex"
           >
             Buy Report
             <ArrowRight
@@ -116,7 +116,7 @@ export function Header() {
           <Link
             href="/#check"
             onClick={() => setOpen(false)}
-            className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent-600 to-accent-500 px-5 py-3.5 font-bold text-white shadow-[0_0_24px_rgba(59,130,246,0.45)]"
+            className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent-600 to-accent-500 px-5 py-3.5 font-bold text-white"
           >
             Buy Report
             <ArrowRight className="h-4 w-4" aria-hidden />

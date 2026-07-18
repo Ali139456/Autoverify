@@ -42,7 +42,7 @@ export default async function CheckoutSuccessPage({
       </p>
       <Link
         href="/"
-        className="glow-blue mt-8 inline-block rounded-xl bg-accent-600 px-6 py-3 font-bold text-white hover:bg-accent-500"
+        className="mt-8 inline-block rounded-xl bg-accent-600 px-6 py-3 font-bold text-white hover:bg-accent-500"
       >
         Back to home
       </Link>
