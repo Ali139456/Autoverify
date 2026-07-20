@@ -14,6 +14,7 @@ import {
   TrendingDown,
   Wallet,
 } from "lucide-react";
+import { ComparisonTable } from "@/components/ComparisonTable";
 import { RegoSearchForm } from "@/components/RegoSearchForm";
 import { Reveal } from "@/components/Reveal";
 import { formatPrice } from "@/lib/stripe";
@@ -178,6 +179,31 @@ export default function HomePage() {
               <div className="absolute inset-x-8 bottom-0 h-px bg-gradient-to-r from-transparent via-accent-500 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             </Reveal>
           ))}
+        </div>
+      </section>
+
+      {/* Comparison */}
+      <section
+        id="comparison"
+        className="relative scroll-mt-24 overflow-hidden border-t border-white/10 bg-ink-900 py-12 sm:py-16 lg:py-20"
+      >
+        <div className="pointer-events-none absolute -top-40 left-1/2 h-[350px] w-[750px] -translate-x-1/2 rounded-full bg-accent-600/10 blur-[120px]" />
+        <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
+          <Reveal className="mx-auto max-w-2xl text-center">
+            <p className="text-xs font-bold uppercase tracking-[0.25em] text-accent-400">
+              Comparison
+            </p>
+            <h2 className="mt-3 text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl">
+              The Auto Verifi <span className="text-accent-400">Advantage</span>
+            </h2>
+            <p className="mt-3 text-sm text-slate-400 sm:text-base">
+              See how Auto Verifi compares to PPSR and competitor reports
+              across every category.
+            </p>
+          </Reveal>
+          <Reveal delay={150} className="mt-8 sm:mt-12">
+            <ComparisonTable />
+          </Reveal>
         </div>
       </section>
 
