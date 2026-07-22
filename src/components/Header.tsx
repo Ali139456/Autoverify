@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowRight, Menu, ShieldCheck, X } from "lucide-react";
+import { ArrowRight, Menu, X } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 const LINKS = [
   { href: "/#how-it-works", label: "How it works" },
@@ -40,14 +41,7 @@ export function Header() {
         }`}
       >
         {/* Brand */}
-        <Link href="/" className="group flex shrink-0 items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-accent-500 to-accent-700 transition group-hover:from-accent-400 group-hover:to-accent-600">
-            <ShieldCheck className="h-5 w-5 text-white" aria-hidden />
-          </span>
-          <span className="whitespace-nowrap text-base font-extrabold tracking-tight text-white sm:text-lg">
-            AUTO <span className="text-gradient-blue">VERIFI</span>
-          </span>
-        </Link>
+        <Logo height={36} priority />
 
         {/* Desktop nav — inner glass pill */}
         <nav className="hidden items-center gap-1 rounded-full border border-white/10 bg-white/[0.05] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] md:flex">

@@ -5,8 +5,8 @@ import {
   CreditCard,
   Lock,
   Mail,
-  ShieldCheck,
 } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -99,14 +99,7 @@ export function Footer() {
       <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-12">
         {/* Brand */}
         <div className="md:col-span-5">
-          <Link href="/" className="inline-flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-accent-500 to-accent-700">
-              <ShieldCheck className="h-5 w-5 text-white" aria-hidden />
-            </span>
-            <span className="text-lg font-extrabold tracking-tight text-white">
-              AUTO <span className="text-gradient-blue">VERIFI</span>
-            </span>
-          </Link>
+          <Logo height={36} />
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-400">
             Australia&apos;s smarter vehicle report. We combine official history
             records, live market data and AI predictions so you can buy your

@@ -1,6 +1,8 @@
 import React from "react";
+import path from "path";
 import {
   Document,
+  Image,
   Page,
   StyleSheet,
   Text,
@@ -12,6 +14,7 @@ const NAVY = "#0a0f1e";
 const ACCENT = "#3b82f6";
 const GREY = "#64748b";
 const LIGHT = "#f1f5f9";
+const LOGO_PATH = path.join(process.cwd(), "public/logo/logo-inverse.png");
 
 const styles = StyleSheet.create({
   page: { padding: 36, fontSize: 9, fontFamily: "Helvetica", color: "#1e293b" },
@@ -25,6 +28,7 @@ const styles = StyleSheet.create({
   },
   brand: { color: "#ffffff", fontSize: 20, fontFamily: "Helvetica-Bold" },
   brandAccent: { color: ACCENT },
+  logo: { width: 180, height: 39, marginBottom: 6 },
   headerSub: { color: "#94a3b8", fontSize: 9, marginTop: 4 },
   vehicleTitle: {
     color: "#ffffff",
@@ -125,9 +129,7 @@ export function ReportPdf({ report }: { report: VehicleReport }) {
     <Document title={`Auto Verifi Report ${report.id}`}>
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
-          <Text style={styles.brand}>
-            AUTO <Text style={styles.brandAccent}>VERIFI</Text>
-          </Text>
+          <Image src={LOGO_PATH} style={styles.logo} />
           <Text style={styles.headerSub}>
             Vehicle History · Market Valuation · AI Future Insights
           </Text>

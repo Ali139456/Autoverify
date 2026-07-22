@@ -44,14 +44,20 @@ export const metadata: Metadata = {
     description:
       "Past history, current market value and AI future insights in one vehicle report. Enter a rego and get your report in minutes.",
     url: baseUrl,
+    images: [{ url: "/logo/logo-blue-on-white.png", width: 3600, height: 2401, alt: "Auto Verifi" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Auto Verifi — Car History Check & AI Vehicle Reports",
     description:
       "Past history, current market value and AI future insights in one vehicle report.",
+    images: ["/logo/logo-blue-on-white.png"],
   },
   robots: { index: true, follow: true },
+  icons: {
+    icon: "/logo/icon.png",
+    apple: "/logo/icon.png",
+  },
 };
 
 export default function RootLayout({
