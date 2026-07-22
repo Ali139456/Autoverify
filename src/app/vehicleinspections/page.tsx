@@ -1,24 +1,13 @@
 import type { Metadata } from "next";
-import { VehicleInspectionsEmbed } from "@/components/VehicleInspectionsEmbed";
-import {
-  getVehicleInspectionsUrl,
-  isDefaultBase44PreviewUrl,
-} from "@/lib/vehicle-inspections";
+import { VehicleInspectionsSite } from "@/components/vehicle-inspections/VehicleInspectionsSite";
 
 export const metadata: Metadata = {
-  title: "Vehicle Inspections",
+  title: "Vehicle Inspection Services",
   description:
-    "Auto Verifi vehicle inspections portal for government and fleet procurement.",
+    "Independent special purpose vehicle inspection, motor dealer assessment and expert witness services from Auto Verifi.",
   robots: { index: true, follow: true },
 };
 
 export default function VehicleInspectionsPage() {
-  const src = getVehicleInspectionsUrl();
-
-  return (
-    <VehicleInspectionsEmbed
-      src={src}
-      showPreviewNotice={isDefaultBase44PreviewUrl(src)}
-    />
-  );
+  return <VehicleInspectionsSite />;
 }
