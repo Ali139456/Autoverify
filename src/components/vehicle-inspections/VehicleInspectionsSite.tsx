@@ -95,22 +95,22 @@ export function VehicleInspectionsSite() {
   return (
     <div className="-mt-[76px] overflow-x-hidden bg-[#010626] text-white sm:-mt-[80px]">
       {/* 1. Hero */}
-      <section className="relative min-h-[620px] overflow-hidden pt-[76px] sm:min-h-[700px] sm:pt-[80px]">
+      <section className="vi-hero-section relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
           <Image
             src="/bcc6e275a_image.png"
             alt=""
             fill
             priority
-            className="vi-hero-image object-cover object-[72%_center] sm:object-[68%_center]"
+            className="vi-hero-image"
           />
         </div>
         <div className="absolute inset-0 bg-gradient-to-r from-[#010626]/82 via-[#010626]/48 to-[#010626]/12" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#010626]/35 via-transparent to-transparent" />
-        <div className="pointer-events-none absolute -left-32 top-24 h-[320px] w-[320px] rounded-full bg-[#2563eb]/10 blur-[100px]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#010626]/35 via-transparent to-transparent sm:from-[#010626]/25" />
+        <div className="pointer-events-none absolute -left-32 top-24 hidden h-[320px] w-[320px] rounded-full bg-[#2563eb]/10 blur-[100px] sm:block" />
 
-        <div className="relative mx-auto flex min-h-[520px] max-w-6xl items-center px-4 py-14 sm:min-h-[600px] sm:px-6 sm:py-20">
-          <div className="max-w-xl">
+        <div className="vi-hero-inner mx-auto max-w-6xl sm:px-6">
+          <div className="vi-hero-content w-full max-w-xl">
             <h1 className="animate-fade-up text-3xl font-extrabold leading-[1.1] tracking-tight sm:text-4xl lg:text-[2.75rem]">
               <span className="block text-white">Independent special purpose</span>
               <span className="mt-1 block bg-gradient-to-r from-[#4da3ff] via-[#93c5fd] to-[#2563eb] bg-clip-text text-transparent">
@@ -132,7 +132,7 @@ export function VehicleInspectionsSite() {
               ))}
             </ul>
 
-            <div className="animate-fade-up delay-300 mt-6 flex flex-col gap-2.5 sm:flex-row">
+            <div className="animate-fade-up delay-300 mt-6 flex flex-col gap-2.5 sm:mt-8 sm:flex-row">
               <a
                 href="#services"
                 className="btn-shine group inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#2563eb] to-[#3b82f6] px-5 py-2.5 text-xs font-semibold text-white shadow-[0_10px_24px_rgba(37,99,235,0.3)] transition hover:from-[#1d4ed8] hover:to-[#2563eb] sm:text-sm"

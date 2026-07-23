@@ -124,8 +124,69 @@ body {
     transform: scale(1.08);
   }
 }
+.vi-hero-section {
+  min-height: 100svh;
+  min-height: 100dvh;
+}
+
+.vi-hero-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 100svh;
+  min-height: 100dvh;
+  padding: calc(76px + 2rem) 1rem 2.5rem;
+}
+
+.vi-hero-content {
+  margin-top: 2.5rem;
+}
+
 .vi-hero-image {
   animation: ken-burns 22s ease-out forwards;
+  object-fit: cover;
+  object-position: 82% center;
+}
+
+@media (min-width: 640px) {
+  .vi-hero-inner {
+    justify-content: center;
+    padding: 5rem 1.5rem;
+  }
+
+  .vi-hero-content {
+    margin-top: 0;
+  }
+
+  .vi-hero-image {
+    object-position: 72% center;
+  }
+}
+
+@media (min-width: 768px) {
+  .vi-hero-inner {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .vi-hero-inner {
+    padding-top: 7rem;
+    padding-bottom: 7rem;
+  }
+
+  .vi-hero-image {
+    object-position: 68% center;
+  }
+}
+
+@media (min-width: 1280px) {
+  .vi-hero-inner {
+    padding-top: 8rem;
+    padding-bottom: 8rem;
+  }
 }
 .vi-card-hover {
   transition:
