@@ -1,8 +1,4 @@
-"use client";
-
-import Image from "next/image";
-import Link from "next/link";
-import { useState } from "react";
+﻿import Image from "next/image";
 import {
   ArrowRight,
   BadgeCheck,
@@ -10,17 +6,9 @@ import {
   ClipboardCheck,
   FileText,
   Mail,
-  Menu,
   Scale,
   ShieldCheck,
-  X,
 } from "lucide-react";
-
-const NAV = [
-  { href: "#services", label: "Services" },
-  { href: "#about", label: "About us" },
-  { href: "#contact", label: "Contact us" },
-];
 
 const SERVICE_ITEMS = [
   {
@@ -62,70 +50,10 @@ const HIGHLIGHTS = [
 ];
 
 export function VehicleInspectionsSite() {
-  const [menuOpen, setMenuOpen] = useState(false);
-
   return (
-    <div className="min-h-screen bg-[#07111f] text-white">
-      {/* Top nav */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#07111f]/95 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-          <div className="flex items-center gap-3">
-            <div className="rounded-md bg-[#1d4ed8] px-3 py-2">
-              <Image
-                src="/logo/logo-white.png"
-                alt="Auto Verifi"
-                width={140}
-                height={28}
-                priority
-                className="h-7 w-auto object-contain"
-              />
-            </div>
-          </div>
-
-          <nav className="hidden items-center gap-8 md:flex">
-            {NAV.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="text-sm font-medium text-slate-200 transition hover:text-white"
-              >
-                {item.label}
-              </a>
-            ))}
-          </nav>
-
-          <button
-            type="button"
-            aria-label={menuOpen ? "Close menu" : "Open menu"}
-            className="rounded-lg border border-white/10 p-2 text-white md:hidden"
-            onClick={() => setMenuOpen((open) => !open)}
-          >
-            {menuOpen ? (
-              <X className="h-5 w-5" aria-hidden />
-            ) : (
-              <Menu className="h-5 w-5" aria-hidden />
-            )}
-          </button>
-        </div>
-
-        {menuOpen && (
-          <nav className="border-t border-white/10 px-4 py-3 md:hidden">
-            {NAV.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="block rounded-lg px-3 py-2 text-sm font-medium text-slate-200 hover:bg-white/5 hover:text-white"
-                onClick={() => setMenuOpen(false)}
-              >
-                {item.label}
-              </a>
-            ))}
-          </nav>
-        )}
-      </header>
-
+    <div className="-mt-[76px] bg-[#07111f] text-white sm:-mt-[80px]">
       {/* Hero */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden pt-[76px] sm:pt-[80px]">
         <div className="absolute inset-0">
           <Image
             src="/vehicle-inspections/hero-reference.png"
@@ -175,7 +103,10 @@ export function VehicleInspectionsSite() {
       </section>
 
       {/* Services */}
-      <section id="services" className="relative scroll-mt-20 overflow-hidden">
+      <section
+        id="services"
+        className="relative scroll-mt-28 overflow-hidden sm:scroll-mt-32"
+      >
         <div className="absolute inset-0">
           <Image
             src="/vehicle-inspections/services-reference.png"
@@ -247,11 +178,14 @@ export function VehicleInspectionsSite() {
       </section>
 
       {/* About */}
-      <section id="about" className="scroll-mt-20 border-t border-white/10 bg-[#081423]">
+      <section
+        id="about"
+        className="scroll-mt-28 border-t border-white/10 bg-[#081423] sm:scroll-mt-32"
+      >
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2 lg:items-center">
           <div>
             <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
-              About Auto Verifi
+              About us
             </h2>
             <p className="mt-4 text-base leading-relaxed text-slate-300">
               Auto Verifi is an independent automotive assessment provider
@@ -279,7 +213,10 @@ export function VehicleInspectionsSite() {
       </section>
 
       {/* Contact */}
-      <section id="contact" className="scroll-mt-20 border-t border-white/10">
+      <section
+        id="contact"
+        className="scroll-mt-28 border-t border-white/10 sm:scroll-mt-32"
+      >
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
           <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr]">
             <div>
@@ -292,17 +229,17 @@ export function VehicleInspectionsSite() {
                 next steps.
               </p>
               <a
-                href="mailto:support@autoverifi.com?subject=Vehicle%20Inspection%20Request"
+                href="mailto:support@autoverifi.com.au?subject=Vehicle%20Inspection%20Request"
                 className="mt-6 inline-flex items-center gap-2 text-[#93c5fd] transition hover:text-white"
               >
                 <Mail className="h-4 w-4" aria-hidden />
-                support@autoverifi.com
+                support@autoverifi.com.au
               </a>
             </div>
 
             <form
               className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 sm:p-8"
-              action="mailto:support@autoverifi.com"
+              action="mailto:support@autoverifi.com.au"
               method="post"
               encType="text/plain"
             >
@@ -353,15 +290,6 @@ export function VehicleInspectionsSite() {
           </div>
         </div>
       </section>
-
-      <footer className="border-t border-white/10 bg-[#050b14]">
-        <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-4 px-4 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:px-6">
-          <p>© {new Date().getFullYear()} Auto Verifi. All rights reserved.</p>
-          <Link href="/" className="text-[#93c5fd] hover:text-white">
-            Back to Auto Verifi home
-          </Link>
-        </div>
-      </footer>
     </div>
   );
 }
