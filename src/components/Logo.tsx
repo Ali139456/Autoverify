@@ -7,6 +7,7 @@ const LOGO_ASPECT = 2363 / 515;
 type LogoProps = {
   className?: string;
   height?: number;
+  maxWidth?: string;
   priority?: boolean;
   linked?: boolean;
 };
@@ -14,6 +15,7 @@ type LogoProps = {
 export function Logo({
   className = "",
   height = 36,
+  maxWidth = "min(220px, 50vw)",
   priority = false,
   linked = true,
 }: LogoProps) {
@@ -27,7 +29,7 @@ export function Logo({
       height={height}
       priority={priority}
       className={`h-auto w-auto object-contain ${className}`}
-      style={{ height, width: "auto", maxWidth: "min(220px, 50vw)" }}
+      style={{ height, width: "auto", maxWidth }}
     />
   );
 
