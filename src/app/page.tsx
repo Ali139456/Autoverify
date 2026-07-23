@@ -5,9 +5,8 @@ import { isComingSoonMode } from "@/lib/site-mode";
 
 export const metadata: Metadata = isComingSoonMode()
   ? {
-      title: "Auto Verifi — Coming Soon",
-      description:
-        "Auto Verifi is launching soon. Contact us at info@autoverifi.com.au.",
+      title: "Auto Verifi — Launching Soon",
+      description: "Auto Verifi is launching soon.",
       robots: { index: true, follow: true },
     }
   : {
