@@ -359,7 +359,7 @@ export function VehicleInspectionsSite() {
       {/* 5. Footer */}
       <footer className="border-t border-white/10 bg-[#010626] px-4 py-8 sm:px-6">
         <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
-          <Logo height={28} linked={false} />
+          <Logo height={36} linked={false} />
           <div className="text-left text-sm leading-relaxed text-slate-400 sm:text-right">
             <p>
               Location: Level 35, Tower One - International Towers, 100
