@@ -9,6 +9,7 @@ import {
   Mail,
   TrendingUp,
 } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 const INTRO =
   "Auto Verifi delivers independent vehicle inspection, motor dealer assessment and expert witness services — combining decades of operational expertise with digital evidence capture and rigorous quality assurance.";
@@ -358,15 +359,7 @@ export function VehicleInspectionsSite() {
       {/* 5. Footer */}
       <footer className="border-t border-white/10 bg-[#010626] px-4 py-8 sm:px-6">
         <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
-          <div className="rounded-md bg-[#1d4ed8] px-3 py-2">
-            <Image
-              src="/logo/logo-white.png"
-              alt="Auto Verifi"
-              width={150}
-              height={30}
-              className="h-7 w-auto object-contain"
-            />
-          </div>
+          <Logo height={28} linked={false} />
           <div className="text-left text-sm leading-relaxed text-slate-400 sm:text-right">
             <p>
               Location: Level 35, Tower One - International Towers, 100
