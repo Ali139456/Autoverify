@@ -116,6 +116,56 @@ body {
   }
 }
 
+@keyframes ken-burns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+.vi-hero-image {
+  animation: ken-burns 22s ease-out forwards;
+}
+.vi-card-hover {
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease,
+    box-shadow 0.35s ease,
+    background-color 0.35s ease;
+}
+.vi-card-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(77, 163, 255, 0.35);
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(77, 163, 255, 0.12);
+}
+.vi-portrait-ring {
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.45s ease,
+    border-color 0.45s ease;
+}
+.vi-portrait-ring:hover {
+  transform: scale(1.03);
+  border-color: rgba(77, 163, 255, 0.45);
+  box-shadow: 0 0 40px rgba(37, 99, 235, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vi-hero-image,
+  .vi-card-hover,
+  .vi-portrait-ring {
+    animation: none;
+    transition: none;
+  }
+  .vi-card-hover:hover,
+  .vi-portrait-ring:hover {
+    transform: none;
+  }
+}
+
 /* Light sweep across a button on hover */
 .btn-shine {
   position: relative;
