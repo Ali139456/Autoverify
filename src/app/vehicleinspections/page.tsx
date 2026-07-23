@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import { VehicleInspectionsEmbed } from "@/components/vehicle-inspections/VehicleInspectionsEmbed";
 import { VehicleInspectionsSite } from "@/components/vehicle-inspections/VehicleInspectionsSite";
-import { getVehicleInspectionsEmbedUrl } from "@/lib/vehicle-inspections";
 
 export const metadata: Metadata = {
   title: "Vehicle Inspection Services",
@@ -11,11 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function VehicleInspectionsPage() {
-  const embedUrl = getVehicleInspectionsEmbedUrl();
-
-  if (embedUrl) {
-    return <VehicleInspectionsEmbed src={embedUrl} />;
-  }
-
   return <VehicleInspectionsSite />;
 }

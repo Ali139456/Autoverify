@@ -1,5 +1,14 @@
 ﻿import Image from "next/image";
-import { ArrowRight, BadgeCheck } from "lucide-react";
+import {
+  ArrowRight,
+  BadgeCheck,
+  Briefcase,
+  Building2,
+  Car,
+  Gavel,
+  Mail,
+  TrendingUp,
+} from "lucide-react";
 
 const INTRO =
   "Auto Verifi delivers independent vehicle inspection, motor dealer assessment and expert witness services — combining decades of operational expertise with digital evidence capture and rigorous quality assurance.";
@@ -10,11 +19,78 @@ const HIGHLIGHTS = [
   "Digital evidence capture & secure reporting",
 ];
 
+const DEALER_BULLETS = [
+  "Pre-sale and post-sale vehicle condition inspections",
+  "Defect identification and severity assessment",
+  "Photographic evidence capture and structured reporting",
+  "Compliance assessment against applicable standards",
+  "Metropolitan and regional NSW coverage",
+];
+
+const EXPERT_BULLETS = [
+  "Independent expert reports for legal proceedings",
+  "Vehicle condition and mechanical failure analysis",
+  "Assessment of dealer conduct and disclosure obligations",
+  "Valuation and loss-of-value opinions",
+  "Court-ready, evidence-based documentation",
+];
+
+const THEO_EXPERTISE = [
+  "Vehicle inspection operations at national scale",
+  "Quality assurance, contractor oversight & operational governance",
+  "Motor dealer assessment and regulatory compliance",
+  "Independent, evidence-based technical reporting",
+  "Litigation support and expert technical opinion",
+];
+
+const DENISE_EXPERTISE = [
+  "Finance & investment management (23+ years)",
+  "Business scaling, M&A and ASX exit execution",
+  "Financial management & profit optimisation",
+  "Governance, risk and compliance frameworks",
+  "Strategy, valuation and fractional executive support",
+];
+
+const DENISE_BADGES = [
+  "Co-Founder, Auto Ventures",
+  "Co-Founder, Hazard Inspect",
+  "Founder, Activator Business Advisors",
+];
+
+function BulletList({ items }: { items: string[] }) {
+  return (
+    <ul className="mt-5 space-y-2.5">
+      {items.map((item) => (
+        <li key={item} className="flex items-start gap-2.5 text-sm text-slate-300">
+          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#4da3ff]" />
+          {item}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function ExpertiseCards({ items }: { items: string[] }) {
+  return (
+    <div className="mt-6 grid gap-3 sm:grid-cols-2">
+      {items.map((item) => (
+        <div
+          key={item}
+          className="rounded-2xl border border-white/5 bg-[#0a1240]/80 px-4 py-3.5 text-sm text-slate-200"
+        >
+          <span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-[#4da3ff]" />
+          {item}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function VehicleInspectionsSite() {
   return (
-    <div className="-mt-[76px] bg-[#07111f] text-white sm:-mt-[80px]">
-      {/* Hero — matches Base44 preview */}
-      <section className="relative min-h-[620px] overflow-hidden pt-[76px] sm:min-h-[720px] sm:pt-[80px]">
+    <div className="-mt-[76px] bg-[#010626] text-white sm:-mt-[80px]">
+      {/* 1. Hero */}
+      <section className="relative min-h-[680px] overflow-hidden pt-[76px] sm:min-h-[760px] sm:pt-[80px]">
         <Image
           src="/vehicle-inspections/hero-bg.jpg"
           alt=""
@@ -22,9 +98,9 @@ export function VehicleInspectionsSite() {
           priority
           className="object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#07111f]/95 via-[#07111f]/85 to-[#0b1f3d]/55" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#010626]/95 via-[#010626]/88 to-[#0b1f3d]/60" />
 
-        <div className="relative mx-auto flex min-h-[540px] max-w-6xl items-center px-4 py-16 sm:min-h-[620px] sm:px-6 sm:py-24">
+        <div className="relative mx-auto flex min-h-[580px] max-w-6xl items-center px-4 py-16 sm:min-h-[660px] sm:px-6 sm:py-24">
           <div className="max-w-2xl">
             <h1 className="text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
               <span className="block text-white">Independent special purpose</span>
@@ -35,94 +111,279 @@ export function VehicleInspectionsSite() {
             <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg">
               {INTRO}
             </p>
-            <div className="mt-6 flex items-center gap-2 text-sm text-slate-200">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#2563eb]">
-                <BadgeCheck className="h-4 w-4 text-white" aria-hidden />
-              </span>
-              Independent, evidence-based assessments
+
+            <ul className="mt-8 space-y-3">
+              {HIGHLIGHTS.map((item) => (
+                <li key={item} className="flex items-start gap-3 text-slate-100">
+                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#2563eb]">
+                    <BadgeCheck className="h-4 w-4 text-white" aria-hidden />
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <a
+                href="#services"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#2563eb] px-6 py-3.5 text-sm font-bold text-white transition hover:bg-[#1d4ed8]"
+              >
+                Explore services
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </a>
+              <a
+                href="#contact"
+                className="inline-flex items-center justify-center rounded-xl border border-[#2563eb] px-6 py-3.5 text-sm font-bold text-[#93c5fd] transition hover:bg-[#2563eb]/10"
+              >
+                Request an inspection
+              </a>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Services — matches Base44 preview */}
+      {/* 2. Services */}
       <section
         id="services"
-        className="relative scroll-mt-28 overflow-hidden sm:scroll-mt-32"
+        className="scroll-mt-28 bg-[#010626] px-4 py-16 sm:scroll-mt-32 sm:px-6 sm:py-24"
       >
-        <Image
-          src="/vehicle-inspections/services-bg.jpg"
-          alt=""
-          fill
-          className="object-cover object-center"
-        />
-        <div className="absolute inset-0 bg-[#07111f]/88" />
-
-        <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-          <h2 className="text-4xl font-extrabold tracking-tight text-[#4da3ff] sm:text-5xl">
-            Services
-          </h2>
-          <p className="mt-5 max-w-3xl text-base leading-relaxed text-slate-300 sm:text-lg">
-            {INTRO}
+        <div className="mx-auto max-w-6xl text-center">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#4da3ff]">
+            What we do
           </p>
+          <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
+            Services built around independence
+          </h2>
+          <p className="mx-auto mt-4 max-w-3xl text-base leading-relaxed text-slate-400 sm:text-lg">
+            Two connected practice areas, each grounded in objective,
+            evidence-based assessment and decades of operational inspection
+            expertise.
+          </p>
+        </div>
 
-          <ul className="mt-8 space-y-4">
-            {HIGHLIGHTS.map((item) => (
-              <li key={item} className="flex items-start gap-3 text-slate-100">
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#2563eb]">
-                  <BadgeCheck className="h-4 w-4 text-white" aria-hidden />
-                </span>
-                {item}
-              </li>
-            ))}
-          </ul>
+        <div className="mx-auto mt-12 grid max-w-6xl gap-6 lg:grid-cols-2">
+          <article className="rounded-3xl border border-white/5 bg-[#0a1240] p-6 sm:p-8">
+            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-full bg-[#2563eb]/20 text-[#93c5fd]">
+              <Car className="h-5 w-5" aria-hidden />
+            </div>
+            <h3 className="text-2xl font-bold text-white">Dealer Inspections</h3>
+            <p className="mt-2 text-sm font-medium text-[#4da3ff]">
+              Independent motor dealer assessment &amp; reporting
+            </p>
+            <p className="mt-4 text-sm leading-relaxed text-slate-300">
+              Independent inspection and assessment of vehicles for motor
+              dealers, regulatory bodies and consumers. Auto Verifi provides
+              objective, evidence-based reporting on vehicle condition,
+              compliance and defects — supporting regulatory decision-making and
+              consumer protection.
+            </p>
+            <BulletList items={DEALER_BULLETS} />
+          </article>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <a
-              href="#services"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#2563eb] px-6 py-3.5 text-sm font-bold text-white transition hover:bg-[#1d4ed8]"
-            >
-              Explore services
-              <ArrowRight className="h-4 w-4" aria-hidden />
-            </a>
-            <a
-              href="#contact"
-              className="inline-flex items-center justify-center rounded-xl border border-[#2563eb] px-6 py-3.5 text-sm font-bold text-[#93c5fd] transition hover:bg-[#2563eb]/10"
-            >
-              Request an inspection
-            </a>
+          <article className="rounded-3xl border border-white/5 bg-[#0a1240] p-6 sm:p-8">
+            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-full bg-[#2563eb]/20 text-[#93c5fd]">
+              <Gavel className="h-5 w-5" aria-hidden />
+            </div>
+            <h3 className="text-2xl font-bold text-white">Expert Witness</h3>
+            <p className="mt-2 text-sm font-medium text-[#4da3ff]">
+              Litigation support &amp; technical opinion
+            </p>
+            <p className="mt-4 text-sm leading-relaxed text-slate-300">
+              Independent expert technical opinion and litigation support for
+              disputes involving vehicle condition, mechanical failure, dealer
+              conduct and valuation. Reports are prepared to be defensible,
+              objective and clearly reasoned for use in legal proceedings.
+            </p>
+            <BulletList items={EXPERT_BULLETS} />
+          </article>
+        </div>
+      </section>
+
+      {/* 3. Co-founders */}
+      <section
+        id="cofounders"
+        className="scroll-mt-28 border-t border-white/5 bg-[#010626] px-4 py-16 sm:scroll-mt-32 sm:px-6 sm:py-24"
+      >
+        <div className="mx-auto max-w-6xl space-y-16 sm:space-y-24">
+          {/* Theo */}
+          <div className="grid items-center gap-10 lg:grid-cols-[280px_1fr]">
+            <div className="mx-auto lg:mx-0">
+              <div className="relative h-56 w-56 overflow-hidden rounded-full border-4 border-white/10 sm:h-64 sm:w-64">
+                <Image
+                  src="/vehicle-inspections/theo-cosmetatos.png"
+                  alt="Theo Cosmetatos"
+                  fill
+                  className="object-cover object-top"
+                />
+              </div>
+            </div>
+            <div>
+              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#4da3ff]">
+                <Briefcase className="h-4 w-4" aria-hidden />
+                Co-founder, Auto Verifi
+              </p>
+              <h3 className="mt-3 text-3xl font-extrabold text-white sm:text-4xl">
+                Theo Cosmetatos
+              </h3>
+              <p className="mt-4 max-w-3xl text-base leading-relaxed text-slate-300">
+                With over 30 years of specialist experience in the automotive
+                industry, Theo co-founded Auto Inspect in 2007 and grew it into
+                Australia&apos;s leading independent vehicle inspections provider
+                — delivering more than one million vehicle inspections
+                nationally.
+              </p>
+              <ExpertiseCards items={THEO_EXPERTISE} />
+            </div>
+          </div>
+
+          {/* Denise */}
+          <div className="grid items-start gap-10 lg:grid-cols-[1fr_280px]">
+            <div className="order-2 lg:order-1">
+              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#4da3ff]">
+                <TrendingUp className="h-4 w-4" aria-hidden />
+                Co-founder, Auto Verifi
+              </p>
+              <h3 className="mt-3 text-3xl font-extrabold text-white sm:text-4xl">
+                Denise Cosmetatos
+              </h3>
+              <p className="mt-4 max-w-3xl text-base leading-relaxed text-slate-300">
+                Denise brings 23+ years of experience in finance and investment
+                management across leading global organisations. As a co-founder
+                and CEO she scaled a business to the BRW Fast 100 Top 10 and
+                executed a successful sale to an ASX-listed company — grounding
+                Auto Verifi&apos;s commercial, governance and growth strategy in
+                real-world achievement.
+              </p>
+              <ExpertiseCards items={DENISE_EXPERTISE} />
+              <div className="mt-6 flex flex-wrap items-center gap-2">
+                <Building2 className="h-4 w-4 text-slate-400" aria-hidden />
+                {DENISE_BADGES.map((badge) => (
+                  <span
+                    key={badge}
+                    className="rounded-full border border-[#2563eb]/40 bg-[#2563eb]/10 px-3 py-1 text-xs font-medium text-[#93c5fd]"
+                  >
+                    {badge}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="order-1 mx-auto lg:order-2 lg:mx-0">
+              <div className="relative h-56 w-56 overflow-hidden rounded-full border-4 border-white/10 sm:h-64 sm:w-64">
+                <Image
+                  src="/vehicle-inspections/denise-cosmetatos.png"
+                  alt="Denise Cosmetatos"
+                  fill
+                  className="object-cover object-top"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Contact us — anchor for Base44 CTA */}
+      {/* 4. CTA */}
       <section
         id="contact"
-        className="scroll-mt-28 border-t border-white/10 bg-[#081423] sm:scroll-mt-32"
+        className="scroll-mt-28 px-4 py-16 sm:scroll-mt-32 sm:px-6 sm:py-24"
       >
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-          <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
-            Contact us
-          </h2>
-          <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-300">
-            Request an inspection or tender capability information. Email us at{" "}
-            <a
-              href="mailto:support@autoverifi.com.au?subject=Vehicle%20Inspection%20Request"
-              className="font-semibold text-[#93c5fd] hover:text-white"
+        <div className="mx-auto max-w-6xl rounded-3xl border border-white/10 bg-[#0a1240] p-6 sm:p-10 lg:p-12">
+          <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr]">
+            <div>
+              <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
+                Request an inspection or consultation
+              </h2>
+              <p className="mt-4 text-base leading-relaxed text-slate-300">
+                Whether you need an independent dealer inspection, expert witness
+                reporting or an audit of your inspection operations — our team is
+                ready to assist across metropolitan and regional New South Wales.
+              </p>
+              <a
+                href="mailto:info@autoverifi.com.au"
+                className="mt-6 inline-flex items-center gap-2 text-[#93c5fd] transition hover:text-white"
+              >
+                <Mail className="h-4 w-4" aria-hidden />
+                info@autoverifi.com.au
+              </a>
+            </div>
+
+            <form
+              className="rounded-2xl border border-white/10 bg-[#010626]/60 p-5 sm:p-6"
+              action="mailto:info@autoverifi.com.au"
+              method="post"
+              encType="text/plain"
             >
-              support@autoverifi.com.au
-            </a>
-            .
-          </p>
-          <a
-            href="mailto:support@autoverifi.com.au?subject=Vehicle%20Inspection%20Request"
-            className="mt-8 inline-flex items-center justify-center gap-2 rounded-xl bg-[#2563eb] px-6 py-3.5 text-sm font-bold text-white transition hover:bg-[#1d4ed8]"
-          >
-            Request an inspection
-            <ArrowRight className="h-4 w-4" aria-hidden />
-          </a>
+              <label className="block text-sm">
+                <span className="mb-1.5 block text-slate-300">Name</span>
+                <input
+                  name="name"
+                  required
+                  placeholder="Name"
+                  className="w-full rounded-xl border border-white/10 bg-[#010626] px-4 py-3 text-white outline-none ring-[#2563eb] placeholder:text-slate-500 focus:ring-2"
+                />
+              </label>
+              <label className="mt-4 block text-sm">
+                <span className="mb-1.5 block text-slate-300">Email</span>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  placeholder="Email"
+                  className="w-full rounded-xl border border-white/10 bg-[#010626] px-4 py-3 text-white outline-none ring-[#2563eb] placeholder:text-slate-500 focus:ring-2"
+                />
+              </label>
+              <label className="mt-4 block text-sm">
+                <span className="mb-1.5 block text-slate-300">Service required</span>
+                <select
+                  name="service"
+                  defaultValue="Dealer Inspection"
+                  className="w-full rounded-xl border border-white/10 bg-[#010626] px-4 py-3 text-white outline-none ring-[#2563eb] focus:ring-2"
+                >
+                  <option>Dealer Inspection</option>
+                  <option>Expert Witness</option>
+                  <option>Inspection operations audit</option>
+                </select>
+              </label>
+              <button
+                type="submit"
+                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#2563eb] px-6 py-3.5 text-sm font-bold text-white transition hover:bg-[#1d4ed8] sm:w-auto"
+              >
+                Submit request
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </button>
+            </form>
+          </div>
         </div>
       </section>
+
+      {/* 5. Footer */}
+      <footer className="border-t border-white/10 bg-[#010626] px-4 py-8 sm:px-6">
+        <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
+          <div className="rounded-md bg-[#1d4ed8] px-3 py-2">
+            <Image
+              src="/logo/logo-white.png"
+              alt="Auto Verifi"
+              width={150}
+              height={30}
+              className="h-7 w-auto object-contain"
+            />
+          </div>
+          <div className="text-left text-sm leading-relaxed text-slate-400 sm:text-right">
+            <p>
+              Location: Level 35, Tower One - International Towers, 100
+              Barangaroo Avenue, Sydney, 2000, NSW, Australia
+            </p>
+            <p className="mt-1">
+              e:{" "}
+              <a
+                href="mailto:info@autoverifi.com.au"
+                className="text-[#4da3ff] hover:text-white"
+              >
+                info@autoverifi.com.au
+              </a>
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
