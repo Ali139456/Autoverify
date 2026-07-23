@@ -92,7 +92,7 @@ export function VehicleInspectionsSite() {
       {/* 1. Hero */}
       <section className="relative min-h-[680px] overflow-hidden pt-[76px] sm:min-h-[760px] sm:pt-[80px]">
         <Image
-          src="/vehicle-inspections/hero-bg.jpg"
+          src="/bcc6e275a_image.png"
           alt=""
           fill
           priority
@@ -210,7 +210,7 @@ export function VehicleInspectionsSite() {
             <div className="mx-auto lg:mx-0">
               <div className="relative h-56 w-56 overflow-hidden rounded-full border-4 border-white/10 sm:h-64 sm:w-64">
                 <Image
-                  src="/vehicle-inspections/theo-cosmetatos.png"
+                  src="/67a7dccc6e9273798fd70280-HeadshotPro-1.webp"
                   alt="Theo Cosmetatos"
                   fill
                   className="object-cover object-top"
@@ -270,7 +270,7 @@ export function VehicleInspectionsSite() {
             <div className="order-1 mx-auto lg:order-2 lg:mx-0">
               <div className="relative h-56 w-56 overflow-hidden rounded-full border-4 border-white/10 sm:h-64 sm:w-64">
                 <Image
-                  src="/vehicle-inspections/denise-cosmetatos.png"
+                  src="/Linkedin-Headshot_DC.webp"
                   alt="Denise Cosmetatos"
                   fill
                   className="object-cover object-top"
