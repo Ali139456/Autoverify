@@ -95,57 +95,57 @@ export function VehicleInspectionsSite() {
   return (
     <div className="-mt-[76px] overflow-x-hidden bg-[#010626] text-white sm:-mt-[80px]">
       {/* 1. Hero */}
-      <section className="relative min-h-[680px] overflow-hidden pt-[76px] sm:min-h-[760px] sm:pt-[80px]">
+      <section className="relative min-h-[620px] overflow-hidden pt-[76px] sm:min-h-[700px] sm:pt-[80px]">
         <div className="absolute inset-0 overflow-hidden">
           <Image
             src="/bcc6e275a_image.png"
             alt=""
             fill
             priority
-            className="vi-hero-image object-cover object-center"
+            className="vi-hero-image object-cover object-[72%_center] sm:object-[68%_center]"
           />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-[#010626]/95 via-[#010626]/88 to-[#0b1f3d]/55" />
-        <div className="pointer-events-none absolute -left-32 top-24 h-[420px] w-[420px] rounded-full bg-[#2563eb]/20 blur-[120px]" />
-        <div className="pointer-events-none absolute -right-24 bottom-0 h-[360px] w-[360px] rounded-full bg-[#4da3ff]/10 blur-[100px]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#010626]/82 via-[#010626]/48 to-[#010626]/12" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#010626]/35 via-transparent to-transparent" />
+        <div className="pointer-events-none absolute -left-32 top-24 h-[320px] w-[320px] rounded-full bg-[#2563eb]/10 blur-[100px]" />
 
-        <div className="relative mx-auto flex min-h-[580px] max-w-6xl items-center px-4 py-16 sm:min-h-[660px] sm:px-6 sm:py-24">
-          <div className="max-w-2xl">
-            <h1 className="animate-fade-up text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
+        <div className="relative mx-auto flex min-h-[520px] max-w-6xl items-center px-4 py-14 sm:min-h-[600px] sm:px-6 sm:py-20">
+          <div className="max-w-xl">
+            <h1 className="animate-fade-up text-3xl font-extrabold leading-[1.1] tracking-tight sm:text-4xl lg:text-[2.75rem]">
               <span className="block text-white">Independent special purpose</span>
               <span className="mt-1 block bg-gradient-to-r from-[#4da3ff] via-[#93c5fd] to-[#2563eb] bg-clip-text text-transparent">
                 Vehicle Inspection Services
               </span>
             </h1>
-            <p className="animate-fade-up delay-100 mt-6 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg">
+            <p className="animate-fade-up delay-100 mt-5 max-w-lg text-sm leading-relaxed text-slate-200 sm:text-base">
               {INTRO}
             </p>
 
-            <ul className="animate-fade-up delay-200 mt-8 space-y-3">
+            <ul className="animate-fade-up delay-200 mt-6 space-y-2.5">
               {HIGHLIGHTS.map((item) => (
-                <li key={item} className="flex items-start gap-3 text-slate-100">
-                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#2563eb] shadow-[0_0_20px_rgba(37,99,235,0.45)]">
-                    <BadgeCheck className="h-4 w-4 text-white" aria-hidden />
+                <li key={item} className="flex items-start gap-2.5 text-sm text-slate-100">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#2563eb] shadow-[0_0_14px_rgba(37,99,235,0.35)]">
+                    <BadgeCheck className="h-3 w-3 text-white" aria-hidden />
                   </span>
                   {item}
                 </li>
               ))}
             </ul>
 
-            <div className="animate-fade-up delay-300 mt-8 flex flex-col gap-3 sm:flex-row">
+            <div className="animate-fade-up delay-300 mt-6 flex flex-col gap-2.5 sm:flex-row">
               <a
                 href="#services"
-                className="btn-shine group inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#2563eb] to-[#3b82f6] px-6 py-3.5 text-sm font-bold text-white shadow-[0_12px_30px_rgba(37,99,235,0.35)] transition hover:from-[#1d4ed8] hover:to-[#2563eb]"
+                className="btn-shine group inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#2563eb] to-[#3b82f6] px-5 py-2.5 text-xs font-semibold text-white shadow-[0_10px_24px_rgba(37,99,235,0.3)] transition hover:from-[#1d4ed8] hover:to-[#2563eb] sm:text-sm"
               >
                 Explore services
                 <ArrowRight
-                  className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                  className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
                   aria-hidden
                 />
               </a>
               <a
                 href="#contact"
-                className="inline-flex items-center justify-center rounded-xl border border-[#2563eb]/70 bg-white/[0.03] px-6 py-3.5 text-sm font-bold text-[#93c5fd] backdrop-blur-sm transition hover:border-[#4da3ff] hover:bg-[#2563eb]/10 hover:text-white"
+                className="inline-flex items-center justify-center rounded-lg border border-[#2563eb]/70 bg-[#010626]/40 px-5 py-2.5 text-xs font-semibold text-[#93c5fd] backdrop-blur-sm transition hover:border-[#4da3ff] hover:bg-[#2563eb]/10 hover:text-white sm:text-sm"
               >
                 Request an inspection
               </a>
@@ -166,10 +166,10 @@ export function VehicleInspectionsSite() {
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#4da3ff]">
             What we do
           </p>
-          <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
+          <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-white sm:text-3xl lg:text-4xl">
             Services built around independence
           </h2>
-          <p className="mx-auto mt-4 max-w-3xl text-base leading-relaxed text-slate-400 sm:text-lg">
+          <p className="mx-auto mt-4 max-w-3xl text-sm leading-relaxed text-slate-400 sm:text-base">
             Two connected practice areas, each grounded in objective,
             evidence-based assessment and decades of operational inspection
             expertise.
@@ -182,7 +182,7 @@ export function VehicleInspectionsSite() {
               <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-full bg-[#2563eb]/20 text-[#93c5fd] ring-1 ring-[#4da3ff]/20">
                 <Car className="h-5 w-5" aria-hidden />
               </div>
-              <h3 className="text-2xl font-bold text-white">Dealer Inspections</h3>
+              <h3 className="text-xl font-bold text-white">Dealer Inspections</h3>
               <p className="mt-2 text-sm font-medium text-[#4da3ff]">
                 Independent motor dealer assessment &amp; reporting
               </p>
@@ -202,7 +202,7 @@ export function VehicleInspectionsSite() {
               <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-full bg-[#2563eb]/20 text-[#93c5fd] ring-1 ring-[#4da3ff]/20">
                 <Gavel className="h-5 w-5" aria-hidden />
               </div>
-              <h3 className="text-2xl font-bold text-white">Expert Witness</h3>
+              <h3 className="text-xl font-bold text-white">Expert Witness</h3>
               <p className="mt-2 text-sm font-medium text-[#4da3ff]">
                 Litigation support &amp; technical opinion
               </p>
@@ -227,7 +227,7 @@ export function VehicleInspectionsSite() {
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#4da3ff]">
             Leadership
           </p>
-          <h2 className="mt-3 text-3xl font-extrabold text-white sm:text-4xl">
+          <h2 className="mt-3 text-2xl font-extrabold text-white sm:text-3xl">
             Co-founders
           </h2>
         </Reveal>
@@ -250,10 +250,10 @@ export function VehicleInspectionsSite() {
                   <Briefcase className="h-4 w-4" aria-hidden />
                   Co-founder, Auto Verifi
                 </p>
-                <h3 className="mt-3 text-3xl font-extrabold text-white sm:text-4xl">
+                <h3 className="mt-3 text-2xl font-extrabold text-white sm:text-3xl">
                   Theo Cosmetatos
                 </h3>
-                <p className="mt-4 max-w-3xl text-base leading-relaxed text-slate-300">
+                <p className="mt-4 max-w-3xl text-sm leading-relaxed text-slate-300 sm:text-base">
                   With over 30 years of specialist experience in the automotive
                   industry, Theo co-founded Auto Inspect in 2007 and grew it into
                   Australia&apos;s leading independent vehicle inspections provider
@@ -272,10 +272,10 @@ export function VehicleInspectionsSite() {
                   <TrendingUp className="h-4 w-4" aria-hidden />
                   Co-founder, Auto Verifi
                 </p>
-                <h3 className="mt-3 text-3xl font-extrabold text-white sm:text-4xl">
+                <h3 className="mt-3 text-2xl font-extrabold text-white sm:text-3xl">
                   Denise Cosmetatos
                 </h3>
-                <p className="mt-4 max-w-3xl text-base leading-relaxed text-slate-300">
+                <p className="mt-4 max-w-3xl text-sm leading-relaxed text-slate-300 sm:text-base">
                   Denise brings 23+ years of experience in finance and investment
                   management across leading global organisations. As a co-founder
                   and CEO she scaled a business to the BRW Fast 100 Top 10 and
@@ -322,10 +322,10 @@ export function VehicleInspectionsSite() {
             <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-[#2563eb]/20 blur-[80px]" />
             <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr]">
               <div>
-                <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
+                <h2 className="text-2xl font-extrabold text-white sm:text-3xl">
                   Request an inspection or consultation
                 </h2>
-                <p className="mt-4 text-base leading-relaxed text-slate-300">
+                <p className="mt-4 text-sm leading-relaxed text-slate-300 sm:text-base">
                   Whether you need an independent dealer inspection, expert witness
                   reporting or an audit of your inspection operations — our team is
                   ready to assist across metropolitan and regional New South Wales.
