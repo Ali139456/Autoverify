@@ -1,4 +1,4 @@
-const PUBLIC_PATHS = ["/vehicleinspections"];
+const PUBLIC_PATHS = ["/vehicleinspections", "/inspect"];
 
 /** Main marketing site is hidden; tender landing page stays public. */
 export function isComingSoonMode(): boolean {

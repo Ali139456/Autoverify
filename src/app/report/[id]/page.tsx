@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { getReport } from "@/lib/store";
 import { DamageUpload } from "@/components/DamageUpload";
+import { InspectionStarter } from "@/components/InspectionStarter";
+import { getInspectionByReportId } from "@/lib/inspections";
 
 export const metadata: Metadata = {
   title: "Vehicle Report",
@@ -83,6 +85,7 @@ export default async function ReportPage({
   const { id } = await params;
   const report = await getReport(id);
   if (!report) notFound();
+  const inspection = await getInspectionByReportId(id);
 
   const { vehicle, registration, valuation, market, ai, damage } = report;
 
@@ -358,6 +361,20 @@ export default async function ReportPage({
 
         {/* Damage analysis */}
         <Section icon={Camera} title="AI photo damage analysis">
+          <InspectionStarter reportId={report.id} />
+
+          {inspection && (
+            <p className="mt-4 text-sm text-slate-400">
+              Inspection status:{" "}
+              <span className="font-semibold text-accent-300">
+                {inspection.status.replace("_", " ")}
+              </span>
+              {inspection.completedAt
+                ? ` · completed ${new Date(inspection.completedAt).toLocaleString("en-AU")}`
+                : ""}
+            </p>
+          )}
+
           {damage ? (
             <>
               <div className="mb-4 flex flex-wrap items-center gap-4">
@@ -388,7 +405,14 @@ export default async function ReportPage({
                     <tbody className="text-slate-300">
                       {damage.findings.map((f, i) => (
                         <tr key={i} className="border-b border-white/5">
-                          <td className="py-3 pr-4 font-medium text-white">{f.panel}</td>
+                          <td className="py-3 pr-4 font-medium text-white">
+                            <div>{f.panel}</div>
+                            {f.description ? (
+                              <p className="mt-1 text-xs font-normal text-slate-500">
+                                {f.description}
+                              </p>
+                            ) : null}
+                          </td>
                           <td className="py-3 pr-4">{f.type}</td>
                           <td className="py-3 pr-4">
                             <span
@@ -426,9 +450,10 @@ export default async function ReportPage({
           ) : (
             <>
               <p className="mb-4 text-sm text-slate-400">
-                Have photos of the car? Upload them and our AI (powered by
-                Ravin.ai) will scan every panel for dents, scratches and damage
-                — the results are added to this report and your PDF.
+                Use the guided mobile inspection above to capture all required
+                vehicle photos. Ravin AI will scan every panel for dents,
+                scratches and damage — the results are added to this report and
+                your PDF.
               </p>
               <DamageUpload reportId={report.id} />
             </>

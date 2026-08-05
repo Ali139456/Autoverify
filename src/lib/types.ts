@@ -79,6 +79,7 @@ export interface DamageFinding {
   severity: "Minor" | "Moderate" | "Severe";
   confidence: number;
   repairEstimate: number;
+  description?: string;
 }
 
 export interface DamageAnalysis {
@@ -89,6 +90,36 @@ export interface DamageAnalysis {
 }
 
 export type ReportStatus = "pending_payment" | "paid";
+
+export type InspectionStatus =
+  | "pending"
+  | "in_progress"
+  | "uploaded"
+  | "processing"
+  | "complete"
+  | "failed"
+  | "expired";
+
+export interface InspectionPhoto {
+  angle: string;
+  label: string;
+  storagePath: string;
+  uploadedAt: string;
+}
+
+export interface InspectionSession {
+  id: string;
+  reportId: string;
+  accessToken: string;
+  status: InspectionStatus;
+  phone: string | null;
+  photos: InspectionPhoto[];
+  ravinInspectionId: string | null;
+  expiresAt: string | null;
+  completedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface VehicleReport {
   id: string;

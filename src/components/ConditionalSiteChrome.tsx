@@ -13,8 +13,9 @@ export function ConditionalSiteChrome({
   const pathname = usePathname();
   const hideMainFooter = pathname.startsWith("/vehicleinspections");
   const isComingSoonHome = pathname === "/" && isComingSoonMode();
+  const isInspectionApp = pathname.startsWith("/inspect/");
 
-  if (isComingSoonHome) {
+  if (isComingSoonHome || isInspectionApp) {
     return <main className="flex-1">{children}</main>;
   }
 
