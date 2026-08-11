@@ -17,6 +17,7 @@ type InspectionRow = {
   phone: string | null;
   photos: InspectionPhoto[];
   ravin_inspection_id: string | null;
+  ravin_invite_url: string | null;
   ravin_payload: unknown;
   expires_at: string | null;
   completed_at: string | null;
@@ -33,6 +34,7 @@ function rowToSession(row: InspectionRow): InspectionSession {
     phone: row.phone,
     photos: Array.isArray(row.photos) ? row.photos : [],
     ravinInspectionId: row.ravin_inspection_id,
+    ravinInviteUrl: row.ravin_invite_url,
     expiresAt: row.expires_at,
     completedAt: row.completed_at,
     createdAt: row.created_at,
@@ -164,6 +166,7 @@ export async function updateInspection(
     status: InspectionStatus;
     photos: InspectionPhoto[];
     ravinInspectionId: string | null;
+    ravinInviteUrl: string | null;
     ravinPayload: unknown;
     completedAt: string | null;
   }>,
@@ -177,6 +180,9 @@ export async function updateInspection(
   if (patch.photos) row.photos = patch.photos;
   if (patch.ravinInspectionId !== undefined) {
     row.ravin_inspection_id = patch.ravinInspectionId;
+  }
+  if (patch.ravinInviteUrl !== undefined) {
+    row.ravin_invite_url = patch.ravinInviteUrl;
   }
   if (patch.ravinPayload !== undefined) row.ravin_payload = patch.ravinPayload;
   if (patch.completedAt !== undefined) row.completed_at = patch.completedAt;

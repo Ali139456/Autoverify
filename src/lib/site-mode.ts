@@ -1,4 +1,4 @@
-const PUBLIC_PATHS = ["/vehicleinspections", "/inspect"];
+const PUBLIC_PATHS = ["/vehicleinspections", "/inspect", "/terms", "/privacy"];
 
 /** Main marketing site is hidden; tender landing page stays public. */
 export function isComingSoonMode(): boolean {
@@ -11,6 +11,10 @@ export function isPublicWhileComingSoon(pathname: string): boolean {
       (path) => pathname === path || pathname.startsWith(`${path}/`),
     )
   ) {
+    return true;
+  }
+
+  if (pathname.startsWith("/api/webhooks/")) {
     return true;
   }
 

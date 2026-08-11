@@ -115,6 +115,7 @@ export interface InspectionSession {
   phone: string | null;
   photos: InspectionPhoto[];
   ravinInspectionId: string | null;
+  ravinInviteUrl: string | null;
   expiresAt: string | null;
   completedAt: string | null;
   createdAt: string;

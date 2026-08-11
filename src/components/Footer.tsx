@@ -169,7 +169,13 @@ export function Footer() {
       <div className="relative border-t border-white/10">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-6 text-xs text-slate-500 sm:flex-row sm:px-6">
           <p>© {new Date().getFullYear()} Auto Verifi. All rights reserved.</p>
-          <div className="flex items-center gap-5">
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:justify-end sm:gap-5">
+            <Link href="/terms" className="hover:text-accent-400">
+              Terms of Use
+            </Link>
+            <Link href="/privacy" className="hover:text-accent-400">
+              Privacy Policy
+            </Link>
             <span className="inline-flex items-center gap-1.5">
               <Lock className="h-3.5 w-3.5 text-accent-500" aria-hidden />
               SSL encrypted

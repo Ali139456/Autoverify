@@ -12,12 +12,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
         changeFrequency: "monthly",
         priority: 0.5,
       },
-      {
-        url: `${baseUrl}/vehicleinspections`,
-        lastModified: new Date(),
-        changeFrequency: "weekly",
-        priority: 1,
-      },
+    {
+      url: `${baseUrl}/vehicleinspections`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 1,
+    },
+    {
+      url: `${baseUrl}/terms`,
+      lastModified: new Date(),
+      changeFrequency: "yearly",
+      priority: 0.4,
+    },
+    {
+      url: `${baseUrl}/privacy`,
+      lastModified: new Date(),
+      changeFrequency: "yearly",
+      priority: 0.4,
+    },
     ];
   }
 

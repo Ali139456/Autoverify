@@ -46,8 +46,8 @@ export function InspectionStarter({ reportId }: { reportId: string }) {
         <div>
           <h3 className="font-bold text-white">Guided mobile inspection</h3>
           <p className="mt-1 text-sm text-slate-400">
-            Start a 13-step photo walkaround on your phone. Photos upload
-            automatically and Ravin AI adds damage findings to this report.
+            Create a Ravin AI mobile inspection link for this vehicle. Photos and
+            damage findings are sent back to this report automatically.
           </p>
         </div>
       </div>

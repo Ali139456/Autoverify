@@ -22,15 +22,20 @@ export function Logo({
   const width = Math.round(height * LOGO_ASPECT);
 
   const image = (
-    <Image
-      src={LOGO_SRC}
-      alt="Auto Verifi"
-      width={width}
-      height={height}
-      priority={priority}
-      className={`h-auto w-auto object-contain ${className}`}
-      style={{ height, width: "auto", maxWidth }}
-    />
+    <span
+      className={`inline-flex shrink-0 items-center ${className}`}
+      style={{ height, maxWidth }}
+    >
+      <Image
+        src={LOGO_SRC}
+        alt="Auto Verifi"
+        width={width}
+        height={height}
+        priority={priority}
+        className="object-contain"
+        style={{ width: "auto", height: "auto", maxHeight: "100%", maxWidth: "100%" }}
+      />
+    </span>
   );
 
   if (!linked) return image;

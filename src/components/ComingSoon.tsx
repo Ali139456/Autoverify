@@ -1,4 +1,5 @@
 import { Logo } from "@/components/Logo";
+import Link from "next/link";
 
 export function ComingSoon() {
   return (
@@ -12,11 +13,19 @@ export function ComingSoon() {
           maxWidth="min(340px, 88vw)"
           linked={false}
           priority
-          className="sm:!h-[72px] lg:!h-20"
+          className="h-16 sm:h-[72px] lg:h-20"
         />
         <p className="mt-10 text-xs font-bold uppercase tracking-[0.25em] text-accent-400 sm:mt-12">
           Launching soon
         </p>
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-4 text-xs text-slate-500">
+          <Link href="/terms" className="hover:text-accent-400">
+            Terms of Use
+          </Link>
+          <Link href="/privacy" className="hover:text-accent-400">
+            Privacy Policy
+          </Link>
+        </div>
       </div>
     </div>
   );
