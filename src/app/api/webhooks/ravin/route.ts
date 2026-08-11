@@ -8,6 +8,13 @@ import { saveRavinWebhookEvent, updateReportWorkflowStatus } from "@/lib/store-s
 import { updateReport } from "@/lib/store";
 import { isSupabaseServerConfigured } from "@/lib/supabase/server";
 
+export async function GET() {
+  return NextResponse.json({
+    ok: true,
+    message: "Ravin webhook endpoint is active. Send inspection JSON reports via POST.",
+  });
+}
+
 export async function POST(req: NextRequest) {
   if (!isSupabaseServerConfigured()) {
     return NextResponse.json(
@@ -37,7 +44,7 @@ export async function POST(req: NextRequest) {
     : null;
 
   await saveRavinWebhookEvent({
-    reportId: inspection?.reportId ?? invitationId,
+    reportId: inspection?.reportId ?? null,
     inspectionId: inspection?.id ?? null,
     invitationId,
     payload,
