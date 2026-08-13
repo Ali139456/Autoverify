@@ -1,15 +1,18 @@
 import Stripe from "stripe";
+import {
+  formatTierPrice,
+  INSIGHTS_PRICE_CENTS,
+} from "./pricing";
 
-export const REPORT_PRICE_CENTS = Number(
-  process.env.REPORT_PRICE_CENTS ?? 3495
-);
+export { formatTierPrice, formatCents, INSIGHTS_PRICE_CENTS } from "./pricing";
+export type { ReportTier } from "./types";
+
+/** @deprecated Use INSIGHTS_PRICE_CENTS */
+export const REPORT_PRICE_CENTS = INSIGHTS_PRICE_CENTS;
 export const REPORT_CURRENCY = process.env.REPORT_CURRENCY ?? "aud";
 
 export function formatPrice(): string {
-  return new Intl.NumberFormat("en-AU", {
-    style: "currency",
-    currency: REPORT_CURRENCY.toUpperCase(),
-  }).format(REPORT_PRICE_CENTS / 100);
+  return formatTierPrice("insights");
 }
 
 export function isStripeConfigured(): boolean {

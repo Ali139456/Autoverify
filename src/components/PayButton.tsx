@@ -3,14 +3,17 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CreditCard, Loader2 } from "lucide-react";
+import type { ReportTier } from "@/lib/types";
 
 export function PayButton({
   rego,
   state,
+  tier,
   label,
 }: {
   rego: string;
   state: string;
+  tier: ReportTier;
   label: string;
 }) {
   const router = useRouter();
@@ -24,7 +27,7 @@ export function PayButton({
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rego, state }),
+        body: JSON.stringify({ rego, state, tier }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Checkout failed.");

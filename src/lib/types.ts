@@ -91,6 +91,8 @@ export interface DamageAnalysis {
 
 export type ReportStatus = "pending_payment" | "paid";
 
+export type ReportTier = "insights" | "insights_plus";
+
 export type InspectionStatus =
   | "pending"
   | "in_progress"
@@ -126,6 +128,7 @@ export interface VehicleReport {
   id: string;
   createdAt: string;
   status: ReportStatus;
+  tier?: ReportTier;
   stripeSessionId: string | null;
   vehicle: VehicleIdentity;
   registration: RegistrationInfo;

@@ -1,18 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import {
-  BadgeDollarSign,
-  Brain,
-  Camera,
-  CheckCircle2,
-  FileText,
-  History,
-  Lock,
-} from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { lookupVehicle } from "@/lib/autograb";
-import { formatPrice } from "@/lib/stripe";
 import { AustralianState } from "@/lib/types";
-import { PayButton } from "@/components/PayButton";
+import { PricingTierCards } from "@/components/PricingTierCards";
 import { RegoSearchForm } from "@/components/RegoSearchForm";
 
 export const metadata: Metadata = {
@@ -21,14 +12,6 @@ export const metadata: Metadata = {
 };
 
 const STATES: AustralianState[] = ["ACT", "NSW", "NT", "QLD", "SA", "TAS", "VIC", "WA"];
-
-const INCLUDED = [
-  { icon: History, text: "PPSR, finance, write-off & stolen checks" },
-  { icon: BadgeDollarSign, text: "Trade-in, private & retail valuations" },
-  { icon: Brain, text: "AI risk score & 5-year depreciation forecast" },
-  { icon: Camera, text: "AI photo damage analysis (upload after purchase)" },
-  { icon: FileText, text: "Downloadable professional PDF report" },
-];
 
 export default async function CheckPage({
   searchParams,
@@ -92,7 +75,6 @@ export default async function CheckPage({
           ({state})
         </p>
 
-        {/* Vehicle card */}
         <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-ink-800/70">
           <div className="border-b border-white/10 bg-gradient-to-r from-accent-700/30 to-transparent px-6 py-5">
             <div className="flex items-center gap-2 text-accent-400">
@@ -127,31 +109,8 @@ export default async function CheckPage({
           </dl>
         </div>
 
-        {/* Locked report + CTA */}
-        <div className="mt-8 grid gap-6 lg:grid-cols-5">
-          <div className="rounded-2xl border border-white/10 bg-ink-800/70 p-6 lg:col-span-3">
-            <div className="flex items-center gap-2 text-white">
-              <Lock className="h-5 w-5 text-accent-400" aria-hidden />
-              <h2 className="text-lg font-bold">Full report includes</h2>
-            </div>
-            <ul className="mt-4 space-y-3">
-              {INCLUDED.map(({ icon: Icon, text }) => (
-                <li key={text} className="flex items-start gap-3 text-sm text-slate-300">
-                  <Icon className="mt-0.5 h-4 w-4 shrink-0 text-accent-400" aria-hidden />
-                  {text}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="flex flex-col justify-center rounded-2xl border border-accent-500/30 bg-ink-800/70 p-6 lg:col-span-2">
-            <p className="text-center text-sm text-slate-400">One-off payment</p>
-            <p className="text-center text-4xl font-extrabold text-white">
-              {formatPrice()}
-            </p>
-            <div className="mt-5">
-              <PayButton rego={rego} state={state} label="Unlock full report" />
-            </div>
-          </div>
+        <div className="mt-10">
+          <PricingTierCards rego={rego} state={state} />
         </div>
 
         <p className="mt-8 text-center text-sm text-slate-500">

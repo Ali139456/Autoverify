@@ -15,9 +15,10 @@ import {
   Wallet,
 } from "lucide-react";
 import { ComparisonTable } from "@/components/ComparisonTable";
+import { PricingTierCards } from "@/components/PricingTierCards";
 import { RegoSearchForm } from "@/components/RegoSearchForm";
 import { Reveal } from "@/components/Reveal";
-import { formatPrice } from "@/lib/stripe";
+import { formatTierPrice } from "@/lib/pricing";
 
 const CHECKS = [
   { icon: History, title: "Full history checks", text: "PPSR encumbrance, finance owing, write-off and stolen vehicle records — everything that could void your purchase." },
@@ -84,11 +85,11 @@ export function HomePage() {
                 you&apos;re buying.
               </h1>
               <p className="text-gradient-blue animate-fade-up delay-200 mt-3 text-2xl font-extrabold tracking-tight sm:mt-4 sm:text-3xl lg:text-4xl">
-                Auto Verifi Intelligence
+                Auto Verifi Insights
               </p>
               <p className="animate-fade-up delay-300 mx-auto mt-3 max-w-md text-base text-slate-400 sm:mt-4 sm:text-lg lg:mx-0">
-                Past, Present and Future insights to buy with confidence — for{" "}
-                <span className="font-semibold text-white">{formatPrice()}</span>.
+                Past, Present and Future insights to buy with confidence — from{" "}
+                <span className="font-semibold text-white">{formatTierPrice("insights")}</span>.
               </p>
               <div className="animate-fade-up delay-400 mt-6 sm:mt-8">
                 <RegoSearchForm />
@@ -202,6 +203,9 @@ export function HomePage() {
             </p>
           </Reveal>
           <Reveal delay={150} className="mt-8 sm:mt-12">
+            <PricingTierCards />
+          </Reveal>
+          <Reveal delay={200} className="mt-8 sm:mt-12">
             <ComparisonTable />
           </Reveal>
         </div>
@@ -251,7 +255,7 @@ export function HomePage() {
               href="/#check"
               className="inline-flex items-center gap-2 rounded-full bg-accent-600 px-6 py-3 text-sm font-bold text-white transition hover:bg-accent-500 sm:px-8 sm:py-3.5 sm:text-base"
             >
-              Buy Report — {formatPrice()}
+              Buy Report — from {formatTierPrice("insights")}
               <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden />
             </Link>
           </Reveal>

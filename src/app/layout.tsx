@@ -68,8 +68,9 @@ export default function RootLayout({
     <html
       lang="en-AU"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="flex min-h-screen flex-col">
+      <body className="flex min-h-screen flex-col" suppressHydrationWarning>
         <ConditionalSiteChrome>{children}</ConditionalSiteChrome>
       </body>
     </html>

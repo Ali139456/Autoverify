@@ -16,6 +16,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { getReport } from "@/lib/store";
+import { hasDamageAnalysis, resolveReportTier, getReportTierConfig } from "@/lib/pricing";
 import { DamageUpload } from "@/components/DamageUpload";
 import { InspectionStarter } from "@/components/InspectionStarter";
 import { getInspectionByReportId } from "@/lib/inspections";
@@ -88,6 +89,9 @@ export default async function ReportPage({
   const inspection = await getInspectionByReportId(id);
 
   const { vehicle, registration, valuation, market, ai, damage } = report;
+  const tier = resolveReportTier(report.tier);
+  const tierConfig = getReportTierConfig(tier);
+  const includesDamage = hasDamageAnalysis(tier);
 
   if (report.status !== "paid") {
     return (
@@ -131,7 +135,7 @@ export default async function ReportPage({
             <div>
               <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-accent-400">
                 <ShieldCheck className="h-4 w-4" aria-hidden />
-                Auto Verifi Report · {report.id}
+                {tierConfig.name} · {report.id}
               </p>
               <h1 className="mt-2 text-2xl font-extrabold text-white sm:text-3xl lg:text-4xl">
                 {vehicle.year} {vehicle.make} {vehicle.model}
@@ -359,106 +363,115 @@ export default async function ReportPage({
           </div>
         </Section>
 
-        {/* Damage analysis */}
-        <Section icon={Camera} title="AI photo damage analysis">
-          <InspectionStarter reportId={report.id} />
+        {includesDamage ? (
+          <Section icon={Camera} title="AI photo damage analysis">
+            <InspectionStarter reportId={report.id} />
 
-          {inspection && (
-            <p className="mt-4 text-sm text-slate-400">
-              Inspection status:{" "}
-              <span className="font-semibold text-accent-300">
-                {inspection.status.replace("_", " ")}
-              </span>
-              {inspection.completedAt
-                ? ` · completed ${new Date(inspection.completedAt).toLocaleString("en-AU")}`
-                : ""}
-            </p>
-          )}
-
-          {damage ? (
-            <>
-              <div className="mb-4 flex flex-wrap items-center gap-4">
-                <span className="rounded-full border border-accent-500/40 bg-accent-500/10 px-4 py-1.5 text-sm font-semibold text-accent-300">
-                  Overall condition: {damage.overallCondition}
+            {inspection && (
+              <p className="mt-4 text-sm text-slate-400">
+                Inspection status:{" "}
+                <span className="font-semibold text-accent-300">
+                  {inspection.status.replace("_", " ")}
                 </span>
-                <span className="text-sm text-slate-500">
-                  {damage.analyzedPhotos} photo(s) analyzed
-                </span>
-              </div>
-              {damage.findings.length === 0 ? (
-                <p className="flex items-center gap-2 text-sm font-medium text-emerald-400">
-                  <CheckCircle2 className="h-5 w-5" aria-hidden />
-                  No visible damage detected in the supplied photos.
-                </p>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[520px] text-left text-sm">
-                    <thead>
-                      <tr className="border-b border-white/10 text-xs uppercase tracking-wide text-slate-500">
-                        <th className="pb-2 pr-4">Panel</th>
-                        <th className="pb-2 pr-4">Type</th>
-                        <th className="pb-2 pr-4">Severity</th>
-                        <th className="pb-2 pr-4">Confidence</th>
-                        <th className="pb-2">Est. repair</th>
-                      </tr>
-                    </thead>
-                    <tbody className="text-slate-300">
-                      {damage.findings.map((f, i) => (
-                        <tr key={i} className="border-b border-white/5">
-                          <td className="py-3 pr-4 font-medium text-white">
-                            <div>{f.panel}</div>
-                            {f.description ? (
-                              <p className="mt-1 text-xs font-normal text-slate-500">
-                                {f.description}
-                              </p>
-                            ) : null}
-                          </td>
-                          <td className="py-3 pr-4">{f.type}</td>
-                          <td className="py-3 pr-4">
-                            <span
-                              className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                                f.severity === "Minor"
-                                  ? "bg-emerald-500/15 text-emerald-300"
-                                  : f.severity === "Moderate"
-                                    ? "bg-amber-500/15 text-amber-300"
-                                    : "bg-red-500/15 text-red-300"
-                              }`}
-                            >
-                              {f.severity}
-                            </span>
-                          </td>
-                          <td className="py-3 pr-4">{Math.round(f.confidence * 100)}%</td>
-                          <td className="py-3 font-semibold text-accent-300">
-                            {money(f.repairEstimate)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <p className="mt-4 text-sm text-slate-300">
-                    Total estimated repair cost:{" "}
-                    <span className="font-bold text-white">
-                      {money(damage.totalRepairEstimate)}
-                    </span>
-                  </p>
-                </div>
-              )}
-              <div className="mt-6">
-                <DamageUpload reportId={report.id} />
-              </div>
-            </>
-          ) : (
-            <>
-              <p className="mb-4 text-sm text-slate-400">
-                Use the guided mobile inspection above to capture all required
-                vehicle photos. Ravin AI will scan every panel for dents,
-                scratches and damage — the results are added to this report and
-                your PDF.
+                {inspection.completedAt
+                  ? ` · completed ${new Date(inspection.completedAt).toLocaleString("en-AU")}`
+                  : ""}
               </p>
-              <DamageUpload reportId={report.id} />
-            </>
-          )}
-        </Section>
+            )}
+
+            {damage ? (
+              <>
+                <div className="mb-4 flex flex-wrap items-center gap-4">
+                  <span className="rounded-full border border-accent-500/40 bg-accent-500/10 px-4 py-1.5 text-sm font-semibold text-accent-300">
+                    Overall condition: {damage.overallCondition}
+                  </span>
+                  <span className="text-sm text-slate-500">
+                    {damage.analyzedPhotos} photo(s) analyzed
+                  </span>
+                </div>
+                {damage.findings.length === 0 ? (
+                  <p className="flex items-center gap-2 text-sm font-medium text-emerald-400">
+                    <CheckCircle2 className="h-5 w-5" aria-hidden />
+                    No visible damage detected in the supplied photos.
+                  </p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full min-w-[520px] text-left text-sm">
+                      <thead>
+                        <tr className="border-b border-white/10 text-xs uppercase tracking-wide text-slate-500">
+                          <th className="pb-2 pr-4">Panel</th>
+                          <th className="pb-2 pr-4">Type</th>
+                          <th className="pb-2 pr-4">Severity</th>
+                          <th className="pb-2 pr-4">Confidence</th>
+                          <th className="pb-2">Est. repair</th>
+                        </tr>
+                      </thead>
+                      <tbody className="text-slate-300">
+                        {damage.findings.map((f, i) => (
+                          <tr key={i} className="border-b border-white/5">
+                            <td className="py-3 pr-4 font-medium text-white">
+                              <div>{f.panel}</div>
+                              {f.description ? (
+                                <p className="mt-1 text-xs font-normal text-slate-500">
+                                  {f.description}
+                                </p>
+                              ) : null}
+                            </td>
+                            <td className="py-3 pr-4">{f.type}</td>
+                            <td className="py-3 pr-4">
+                              <span
+                                className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                                  f.severity === "Minor"
+                                    ? "bg-emerald-500/15 text-emerald-300"
+                                    : f.severity === "Moderate"
+                                      ? "bg-amber-500/15 text-amber-300"
+                                      : "bg-red-500/15 text-red-300"
+                                }`}
+                              >
+                                {f.severity}
+                              </span>
+                            </td>
+                            <td className="py-3 pr-4">{Math.round(f.confidence * 100)}%</td>
+                            <td className="py-3 font-semibold text-accent-300">
+                              {money(f.repairEstimate)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    <p className="mt-4 text-sm text-slate-300">
+                      Total estimated repair cost:{" "}
+                      <span className="font-bold text-white">
+                        {money(damage.totalRepairEstimate)}
+                      </span>
+                    </p>
+                  </div>
+                )}
+                <div className="mt-6">
+                  <DamageUpload reportId={report.id} />
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="mb-4 text-sm text-slate-400">
+                  Use the guided mobile inspection above to capture all required
+                  vehicle photos. Ravin AI will scan every panel for dents,
+                  scratches and damage — the results are added to this report and
+                  your PDF.
+                </p>
+                <DamageUpload reportId={report.id} />
+              </>
+            )}
+          </Section>
+        ) : (
+          <Section icon={Camera} title="AI photo damage analysis">
+            <p className="text-sm text-slate-400">
+              AI photo damage analysis is included with{" "}
+              <span className="font-semibold text-white">Auto Verifi Insights+</span>.
+              Your report includes history checks, valuation and AI forecasting.
+            </p>
+          </Section>
+        )}
 
         {/* Footer actions */}
         <div className="flex flex-col items-center gap-4 rounded-2xl border border-accent-500/30 bg-gradient-to-r from-accent-700/20 to-ink-800 p-8 text-center sm:flex-row sm:justify-between sm:text-left">
