@@ -1,8 +1,8 @@
 const PUBLIC_PATHS = ["/vehicleinspections", "/inspect", "/terms", "/privacy"];
 
-/** Full site is live by default. Set NEXT_PUBLIC_COMING_SOON=true to show the landing page only. */
+/** Main marketing site is hidden by default; tender page stays public. Set NEXT_PUBLIC_COMING_SOON=false to launch fully. */
 export function isComingSoonMode(): boolean {
-  return process.env.NEXT_PUBLIC_COMING_SOON === "true";
+  return process.env.NEXT_PUBLIC_COMING_SOON !== "false";
 }
 
 export function isPublicWhileComingSoon(pathname: string): boolean {
