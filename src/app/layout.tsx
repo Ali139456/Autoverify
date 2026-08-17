@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ConditionalSiteChrome } from "@/components/ConditionalSiteChrome";
+import { hasPreviewAccess, PREVIEW_COOKIE_NAME } from "@/lib/site-preview";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -59,11 +61,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const previewToken = cookieStore.get(PREVIEW_COOKIE_NAME)?.value;
+  const previewAccess = await hasPreviewAccess(previewToken);
+
   return (
     <html
       lang="en-AU"
@@ -71,7 +77,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="flex min-h-screen flex-col" suppressHydrationWarning>
-        <ConditionalSiteChrome>{children}</ConditionalSiteChrome>
+        <ConditionalSiteChrome previewAccess={previewAccess}>
+          {children}
+        </ConditionalSiteChrome>
       </body>
     </html>
   );

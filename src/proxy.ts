@@ -1,13 +1,19 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { isComingSoonMode, isPublicWhileComingSoon } from "@/lib/site-mode";
+import { hasPreviewAccess, PREVIEW_COOKIE_NAME } from "@/lib/site-preview";
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   if (!isComingSoonMode()) {
     return NextResponse.next();
   }
 
   const { pathname } = request.nextUrl;
+  const previewToken = request.cookies.get(PREVIEW_COOKIE_NAME)?.value;
+
+  if (await hasPreviewAccess(previewToken)) {
+    return NextResponse.next();
+  }
 
   if (isPublicWhileComingSoon(pathname)) {
     return NextResponse.next();

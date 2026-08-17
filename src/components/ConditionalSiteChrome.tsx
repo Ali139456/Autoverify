@@ -7,15 +7,19 @@ import { isComingSoonMode } from "@/lib/site-mode";
 
 export function ConditionalSiteChrome({
   children,
+  previewAccess = false,
 }: {
   children: React.ReactNode;
+  previewAccess?: boolean;
 }) {
   const pathname = usePathname();
   const hideMainFooter = pathname.startsWith("/vehicleinspections");
-  const isComingSoonHome = pathname === "/" && isComingSoonMode();
+  const isPreviewLogin = pathname === "/preview";
+  const isComingSoonHome =
+    pathname === "/" && isComingSoonMode() && !previewAccess;
   const isInspectionApp = pathname.startsWith("/inspect/");
 
-  if (isComingSoonHome || isInspectionApp) {
+  if (isComingSoonHome || isInspectionApp || isPreviewLogin) {
     return <main className="flex-1">{children}</main>;
   }
 
