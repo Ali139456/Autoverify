@@ -14,7 +14,7 @@ export function ComingSoon() {
           priority
           className="h-28 sm:h-32 lg:h-36"
         />
-        <p className="mt-12 text-base font-bold uppercase tracking-[0.3em] text-accent-400 sm:mt-14 sm:text-lg lg:mt-16 lg:text-xl">
+        <p className="mt-12 text-base font-bold uppercase tracking-[0.3em] text-white sm:mt-14 sm:text-lg lg:mt-16 lg:text-xl">
           Launching soon
         </p>
       </div>
