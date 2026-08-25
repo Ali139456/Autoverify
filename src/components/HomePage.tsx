@@ -10,7 +10,6 @@ import {
   FileText,
   History,
   Search,
-  ShieldCheck,
   TrendingDown,
   Wallet,
 } from "lucide-react";
@@ -75,23 +74,15 @@ export function HomePage() {
           <div className="grid items-center gap-8 sm:gap-10 lg:grid-cols-2 lg:gap-12">
             {/* Copy */}
             <div className="min-w-0 text-center lg:text-left">
-              <p className="animate-fade-up mb-4 inline-flex items-center gap-2 rounded-full border border-accent-500/30 bg-accent-500/10 px-3 py-1 text-xs font-medium text-accent-300 sm:mb-5 sm:px-4 sm:py-1.5 sm:text-sm">
-                <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
-                Australia&apos;s smarter car history check
-              </p>
               <h1 className="animate-fade-up delay-100 text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
                 Know what
                 <br />
                 you&apos;re buying.
               </h1>
               <p className="text-gradient-blue animate-fade-up delay-200 mt-3 text-2xl font-extrabold tracking-tight sm:mt-4 sm:text-3xl lg:text-4xl">
-                Auto Verifi Insights
+                Past, Present and Future insights to buy with confidence
               </p>
-              <p className="animate-fade-up delay-300 mx-auto mt-3 max-w-md text-base text-slate-400 sm:mt-4 sm:text-lg lg:mx-0">
-                Past, Present and Future insights to buy with confidence — from{" "}
-                <span className="font-semibold text-white">{formatTierPrice("insights")}</span>.
-              </p>
-              <div className="animate-fade-up delay-400 mt-6 sm:mt-8">
+              <div className="animate-fade-up delay-300 mt-6 sm:mt-8">
                 <RegoSearchForm />
                 <p className="mt-3 text-xs text-slate-500 sm:text-sm">
                   Free vehicle preview — pay only when you want the full report.
