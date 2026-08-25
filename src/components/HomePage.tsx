@@ -18,8 +18,8 @@ import { formatTierPrice } from "@/lib/pricing";
 
 const CHECKS = [
   { icon: History, title: "Full history checks", text: "PPSR encumbrance, finance owing, write-off and stolen vehicle records." },
-  { icon: BadgeDollarSign, title: "Live market valuation", text: "Trade-in, private sale and dealer retail price ranges powered by real-time Autograb market data." },
-  { icon: Brain, title: "AI future insights", text: "Predicted depreciation curve, 3-year residual value and an overall risk score — see the future, not just the past." },
+  { icon: BadgeDollarSign, title: "Market valuation", text: "Trade in and Retail valuation powered by real time market data." },
+  { icon: Brain, title: "Predicted Valuation Insights", text: "Predicted Residual Value — understand future value." },
   { icon: Camera, title: "AI photo damage scan", text: "Upload photos of the car and Ravin.ai detects dents, scratches and panel damage with repair cost estimates." },
   { icon: CarFront, title: "Market comparables", text: "See similar cars currently for sale, their prices, kilometres and how long they've been listed." },
   { icon: FileText, title: "Professional PDF report", text: "Everything compiled into a beautifully designed report you can download, save and share." },
