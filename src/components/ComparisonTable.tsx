@@ -47,7 +47,7 @@ const CATEGORIES: Category[] = [
     name: "Market Value",
     icon: BadgeDollarSign,
     rows: [
-      { feature: "Live market valuation", cols: [false, false, true, true] },
+      { feature: "Live market insights and Retail vs Trade in Valuation", cols: [false, false, true, true] },
       { feature: "Trade-in, private & retail ranges", cols: [false, false, true, true] },
       { feature: "Comparable cars for sale", cols: [false, false, true, true] },
     ],

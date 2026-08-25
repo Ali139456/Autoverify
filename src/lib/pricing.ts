@@ -27,10 +27,10 @@ export const REPORT_TIERS: Record<ReportTier, ReportTierConfig> = {
     name: "Auto Verifi Insights",
     priceCents: INSIGHTS_PRICE_CENTS,
     stripePriceId: process.env.STRIPE_INSIGHTS_PRICE_ID,
-    tagline: "Past, present and future vehicle intelligence.",
+    tagline: "Key Vehicle History Checks and Current Valuation Insights",
     highlights: [
       "PPSR, finance, write-off & stolen checks",
-      "Live market valuation & comparables",
+      "Live market insights and Retail vs Trade in Valuation",
       "AI risk score & depreciation forecast",
       "Professional PDF report",
     ],
