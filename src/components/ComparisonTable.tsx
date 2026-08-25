@@ -115,8 +115,14 @@ export function ComparisonTable() {
           </tr>
         </thead>
         <tbody>
-          {CATEGORIES.map(({ name, icon: Icon, rows }) =>
-            rows.map((row, ri) => (
+          {CATEGORIES.map(({ name, icon: Icon, rows }, categoryIndex) =>
+            rows.map((row, ri) => {
+              const categoryDivider =
+                categoryIndex > 0 && ri === 0
+                  ? "border-t-2 border-t-accent-500"
+                  : "";
+
+              return (
               <tr
                 key={name + row.feature}
                 className={`border-b border-slate-100 ${
@@ -126,7 +132,7 @@ export function ComparisonTable() {
                 {ri === 0 && (
                   <td
                     rowSpan={rows.length}
-                    className="border-r border-slate-100 bg-white px-4 py-4 align-top sm:px-5"
+                    className={`border-r border-slate-100 bg-white px-4 py-4 align-top sm:px-5 ${categoryDivider}`}
                   >
                     <div className="flex items-center gap-2.5">
                       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-accent-500/30 bg-blue-50 text-accent-600">
@@ -138,7 +144,7 @@ export function ComparisonTable() {
                     </div>
                   </td>
                 )}
-                <td className="px-4 py-3.5 font-medium text-slate-700 sm:px-5">
+                <td className={`px-4 py-3.5 font-medium text-slate-700 sm:px-5 ${categoryDivider}`}>
                   {row.feature}
                 </td>
                 {row.cols.map((ok, ci) => (
@@ -146,13 +152,14 @@ export function ComparisonTable() {
                     key={ci}
                     className={`px-3 py-3.5 text-center ${
                       ci >= 2 ? "bg-blue-100/40" : ""
-                    }`}
+                    } ${categoryDivider}`}
                   >
                     <Mark ok={ok} />
                   </td>
                 ))}
               </tr>
-            ))
+            );
+            })
           )}
         </tbody>
       </table>

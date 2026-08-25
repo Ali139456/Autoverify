@@ -46,10 +46,6 @@ const FAQS = [
     a: "Instantly. As soon as your payment is confirmed, your report is generated and available online with a downloadable PDF.",
   },
   {
-    q: "Which countries are supported?",
-    a: "Auto Verifi currently supports Australian registrations across all states and territories. New Zealand, the United Kingdom and the United States are on our roadmap.",
-  },
-  {
     q: "Is my payment secure?",
     a: "Yes. Payments are processed by Stripe, a PCI-DSS Level 1 certified payment provider. We never see or store your card details.",
   },
