@@ -31,7 +31,10 @@ export const REPORT_TIERS: Record<ReportTier, ReportTierConfig> = {
     highlights: [
       "PPSR, finance, write-off & stolen checks",
       "Live market insights and Retail vs Trade in Valuation",
-      "AI risk score & depreciation forecast",
+      "Safety Recall Data",
+      "Warranty remaining",
+      "P Plate legal status",
+      "Odometer check",
       "Professional PDF report",
     ],
   },
@@ -40,12 +43,12 @@ export const REPORT_TIERS: Record<ReportTier, ReportTierConfig> = {
     name: "Auto Verifi Insights+",
     priceCents: INSIGHTS_PLUS_PRICE_CENTS,
     stripePriceId: process.env.STRIPE_INSIGHTS_PLUS_PRICE_ID,
-    tagline: "Everything in Insights, plus AI photo damage analysis.",
+    tagline: "Everything in insights, plus AI damage detection.",
     highlights: [
       "Everything in Auto Verifi Insights",
-      "Ravin AI mobile photo inspection",
-      "Panel damage detection & repair estimates",
-      "Guided 13-angle walkaround",
+      "AI mobile photo inspection",
+      "Panel damage detection",
+      "Guided multi image walkaround",
     ],
   },
 };

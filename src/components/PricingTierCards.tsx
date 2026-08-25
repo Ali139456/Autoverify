@@ -71,9 +71,9 @@ function TierCard({
       }`}
     >
       {isPlus && (
-        <span className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full border border-accent-400/40 bg-accent-500/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-accent-300">
+        <span className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full border border-accent-400/40 bg-accent-500/15 px-2.5 py-1 text-[10px] font-bold tracking-wider text-accent-300">
           <Sparkles className="h-3 w-3" aria-hidden />
-          Recommended
+          Includes Current Condition
         </span>
       )}
 
