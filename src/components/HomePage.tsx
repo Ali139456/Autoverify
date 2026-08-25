@@ -17,7 +17,7 @@ import { Reveal } from "@/components/Reveal";
 import { formatTierPrice } from "@/lib/pricing";
 
 const CHECKS = [
-  { icon: History, title: "Full history checks", text: "PPSR encumbrance, finance owing, write-off and stolen vehicle records — everything that could void your purchase." },
+  { icon: History, title: "Full history checks", text: "PPSR encumbrance, finance owing, write-off and stolen vehicle records." },
   { icon: BadgeDollarSign, title: "Live market valuation", text: "Trade-in, private sale and dealer retail price ranges powered by real-time Autograb market data." },
   { icon: Brain, title: "AI future insights", text: "Predicted depreciation curve, 3-year residual value and an overall risk score — see the future, not just the past." },
   { icon: Camera, title: "AI photo damage scan", text: "Upload photos of the car and Ravin.ai detects dents, scratches and panel damage with repair cost estimates." },
@@ -116,7 +116,7 @@ export function HomePage() {
             What&apos;s in every <span className="text-accent-400">report</span>
           </h2>
           <p className="mt-3 text-sm text-slate-400 sm:text-base">
-            Other checks stop at the past. We cover past, present and future.
+            Past, Present &amp; Future Insights
           </p>
         </Reveal>
         <div className="mt-8 grid gap-4 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
