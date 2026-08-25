@@ -110,7 +110,7 @@ export default async function CheckPage({
         </div>
 
         <div className="mt-10">
-          <PricingTierCards rego={rego} state={state} />
+          <PricingTierCards rego={rego} state={state} showHeading={false} />
         </div>
 
         <p className="mt-8 text-center text-sm text-slate-500">

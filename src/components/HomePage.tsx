@@ -190,7 +190,7 @@ export function HomePage() {
               How it <span className="text-accent-400">works</span>
             </h2>
             <p className="mt-3 text-sm text-slate-400 sm:text-base">
-              From rego to full report in under two minutes.
+              From rego to full report in minutes.
             </p>
           </Reveal>
           <div className="mt-8 grid gap-4 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
