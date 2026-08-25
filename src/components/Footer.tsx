@@ -101,9 +101,8 @@ export function Footer() {
         <div className="md:col-span-5">
           <Logo height={36} />
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-400">
-            Australia&apos;s smarter vehicle report. We combine official history
-            records, live market data and AI predictions so you can buy your
-            next car with total confidence.
+            We combine official history records, live market data and AI
+            predictions so you can buy your next car with total confidence.
           </p>
           <div className="mt-5 flex items-center gap-2">
             {SOCIALS.map(({ icon: Icon, label, href }) => (
