@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, ChevronDown, Lock, ShieldCheck, Zap } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 
 const STATES = ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "ACT", "NT"];
 
@@ -104,24 +104,6 @@ export function RegoSearchForm({
             aria-hidden
           />
         </button>
-
-        {/* Trust row */}
-        {!compact && (
-          <div className="mt-2.5 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 border-t border-white/5 pt-2.5 text-[10px] text-slate-500">
-            <span className="inline-flex items-center gap-1">
-              <Zap className="h-2.5 w-2.5 text-accent-400" aria-hidden />
-              Instant report
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <Lock className="h-2.5 w-2.5 text-accent-400" aria-hidden />
-              Secure Stripe payment
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <ShieldCheck className="h-2.5 w-2.5 text-accent-400" aria-hidden />
-              PPSR &amp; write-off checks
-            </span>
-          </div>
-        )}
       </div>
       {error && (
         <p className="mt-2 text-sm font-medium text-red-400" role="alert">

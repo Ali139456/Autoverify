@@ -9,9 +9,6 @@ import {
   CarFront,
   FileText,
   History,
-  Search,
-  TrendingDown,
-  Wallet,
 } from "lucide-react";
 import { ComparisonTable } from "@/components/ComparisonTable";
 import { PricingTierCards } from "@/components/PricingTierCards";
@@ -109,24 +106,6 @@ export function HomePage() {
               />
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Trust strip */}
-      <section className="border-y border-white/10 bg-ink-900">
-        <div className="mx-auto grid max-w-6xl grid-cols-1 justify-items-center gap-6 px-4 py-8 sm:grid-cols-3 sm:px-6">
-          {[
-            { icon: Search, text: "Instant vehicle identification from the plate" },
-            { icon: Wallet, text: "Secure one-off payment with Stripe" },
-            { icon: TrendingDown, text: "AI depreciation & risk forecasting" },
-          ].map(({ icon: Icon, text }, i) => (
-            <Reveal key={text} delay={i * 120} className="flex w-full max-w-xs items-center gap-3 text-slate-300">
-              <span className="rounded-lg border border-accent-500/30 bg-accent-500/10 p-2">
-                <Icon className="h-5 w-5 text-accent-400" aria-hidden />
-              </span>
-              <span className="text-sm font-medium">{text}</span>
-            </Reveal>
-          ))}
         </div>
       </section>
 
