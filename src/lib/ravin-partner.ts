@@ -18,6 +18,38 @@ export function isRavinPartnerConfigured(): boolean {
   return Boolean(RAVIN_API_KEY && Number.isFinite(RAVIN_SITE_ID) && RAVIN_SITE_ID > 0);
 }
 
+/** Inspector Lite mobile walkaround URL (Ravin MTA US beta). */
+export function buildInspectorLiteUrl(code: string): string {
+  const url = new URL(`${RAVIN_BASE_URL}/inspector-lite/page/tmp`);
+  url.searchParams.set("code", code);
+  url.searchParams.set("image-upload", "true");
+  return url.toString();
+}
+
+export function parseInspectorLiteCodeFromUrl(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    if (!parsed.pathname.includes("inspector-lite")) return null;
+    const code = parsed.searchParams.get("code");
+    return code?.trim() || null;
+  } catch {
+    return null;
+  }
+}
+
+function normalizeInspectorLiteUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    if (!parsed.pathname.includes("inspector-lite")) return url;
+    if (!parsed.searchParams.has("image-upload")) {
+      parsed.searchParams.set("image-upload", "true");
+    }
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+}
+
 async function getPartnerToken(): Promise<string> {
   if (!RAVIN_API_KEY) {
     throw new Error("RAVIN_API_KEY is not configured.");
@@ -45,6 +77,33 @@ async function getPartnerToken(): Promise<string> {
   return token;
 }
 
+function extractSessionCode(payload: unknown): string | null {
+  if (!payload || typeof payload !== "object") return null;
+  const record = payload as Record<string, unknown>;
+
+  const directCandidates = [
+    record.code,
+    record.sessionCode,
+    record.inspectionCode,
+    record.inviteCode,
+  ];
+
+  for (const candidate of directCandidates) {
+    if (typeof candidate === "string" && candidate.trim()) {
+      return candidate.trim();
+    }
+  }
+
+  for (const value of Object.values(record)) {
+    if (value && typeof value === "object") {
+      const nested = extractSessionCode(value);
+      if (nested) return nested;
+    }
+  }
+
+  return null;
+}
+
 function extractInviteUrl(payload: unknown): string | null {
   if (!payload || typeof payload !== "object") return null;
   const record = payload as Record<string, unknown>;
@@ -62,7 +121,7 @@ function extractInviteUrl(payload: unknown): string | null {
 
   for (const candidate of directCandidates) {
     if (typeof candidate === "string" && candidate.startsWith("http")) {
-      return candidate;
+      return normalizeInspectorLiteUrl(candidate);
     }
   }
 
@@ -72,6 +131,9 @@ function extractInviteUrl(payload: unknown): string | null {
       if (nested) return nested;
     }
   }
+
+  const code = extractSessionCode(payload);
+  if (code) return buildInspectorLiteUrl(code);
 
   return null;
 }

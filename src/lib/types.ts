@@ -107,6 +107,8 @@ export interface InspectionPhoto {
   label: string;
   storagePath: string;
   uploadedAt: string;
+  /** Ravin Inspector Lite source URL when photos arrive via webhook. */
+  externalUrl?: string;
 }
 
 export interface InspectionSession {

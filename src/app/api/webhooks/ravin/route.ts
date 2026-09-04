@@ -3,7 +3,11 @@ import {
   getInspectionByInvitationId,
   updateInspection,
 } from "@/lib/inspections";
-import { parseRavinWebhookPayload, extractInvitationId } from "@/lib/ravin-webhook";
+import {
+  parseRavinWebhookPayload,
+  extractInvitationId,
+  extractRavinPhotos,
+} from "@/lib/ravin-webhook";
 import { saveRavinWebhookEvent, updateReportWorkflowStatus } from "@/lib/store-supabase";
 import { updateReport } from "@/lib/store";
 import { isSupabaseServerConfigured } from "@/lib/supabase/server";
@@ -54,10 +58,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, matched: false });
   }
 
-  const damage = parseRavinWebhookPayload(payload, inspection.photos.length);
+  const ravinPhotos = extractRavinPhotos(payload);
+  const mergedPhotos =
+    ravinPhotos.length > 0
+      ? ravinPhotos.map((photo) => ({
+          angle: photo.angle,
+          label: photo.label,
+          storagePath: photo.url,
+          externalUrl: photo.url,
+          uploadedAt: new Date().toISOString(),
+        }))
+      : inspection.photos;
+
+  const damage = parseRavinWebhookPayload(payload, mergedPhotos.length);
 
   await updateInspection(inspection.id, {
     status: "complete",
+    photos: mergedPhotos,
     ravinPayload: payload,
     completedAt: new Date().toISOString(),
   });
