@@ -45,6 +45,7 @@ function LinkedInIcon(props: React.SVGProps<SVGSVGElement>) {
 const QUICK_LINKS = [
   { href: "/#check", label: "Check a vehicle" },
   { href: "/pricing", label: "Pricing" },
+  { href: "/vehicleinspections", label: "Inspections" },
   { href: "/#how-it-works", label: "How it works" },
   { href: "/#whats-included", label: "What's included" },
   { href: "/#faq", label: "FAQ" },

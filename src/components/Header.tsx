@@ -10,6 +10,7 @@ const MAIN_LINKS = [
   { href: "/#how-it-works", label: "How it works" },
   { href: "/#whats-included", label: "What's included" },
   { href: "/pricing", label: "Pricing" },
+  { href: "/vehicleinspections", label: "Inspections" },
   { href: "/#faq", label: "FAQ" },
 ];
 
@@ -52,8 +53,9 @@ export function Header() {
           {links.map((l) => {
             const active =
               !isInspectionPage &&
-              l.href === "/pricing" &&
-              pathname === "/pricing";
+              ((l.href === "/pricing" && pathname === "/pricing") ||
+                (l.href === "/vehicleinspections" &&
+                  pathname.startsWith("/vehicleinspections")));
             return (
               <Link
                 key={l.href}
