@@ -365,7 +365,11 @@ export default async function ReportPage({
 
         {includesDamage ? (
           <Section icon={Camera} title="AI photo damage analysis">
-            <InspectionStarter reportId={report.id} />
+            <InspectionStarter
+              reportId={report.id}
+              initialInspectUrl={inspection?.ravinInviteUrl}
+              autoShowQr={!inspection?.completedAt && !damage}
+            />
 
             {inspection && (
               <p className="mt-4 text-sm text-slate-400">

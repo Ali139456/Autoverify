@@ -1,113 +1,124 @@
 "use client";
 
-import { useState } from "react";
-import { Copy, Link2, Loader2, Smartphone } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Link2, Loader2, QrCode, Smartphone } from "lucide-react";
+import { InspectionQrModal } from "@/components/InspectionQrModal";
 
-export function InspectionStarter({ reportId }: { reportId: string }) {
-  const [phone, setPhone] = useState("");
-  const [inspectUrl, setInspectUrl] = useState<string | null>(null);
+type InspectionStarterProps = {
+  reportId: string;
+  initialInspectUrl?: string | null;
+  autoShowQr?: boolean;
+};
+
+export function InspectionStarter({
+  reportId,
+  initialInspectUrl = null,
+  autoShowQr = false,
+}: InspectionStarterProps) {
+  const [inspectUrl, setInspectUrl] = useState<string | null>(initialInspectUrl);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const autoStarted = useRef(false);
 
-  async function startInspection() {
+  const startInspection = useCallback(async (openModal: boolean) => {
     setLoading(true);
     setError(null);
-    setCopied(false);
 
     try {
       const res = await fetch("/api/inspections/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reportId, phone }),
+        body: JSON.stringify({ reportId }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Could not create inspection link.");
       setInspectUrl(data.inspectUrl);
+      if (openModal) setModalOpen(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not create inspection link.");
     } finally {
       setLoading(false);
     }
-  }
+  }, [reportId]);
 
-  async function copyLink() {
-    if (!inspectUrl) return;
-    await navigator.clipboard.writeText(inspectUrl);
-    setCopied(true);
+  useEffect(() => {
+    if (!autoShowQr || autoStarted.current) return;
+    autoStarted.current = true;
+
+    if (initialInspectUrl) {
+      setModalOpen(true);
+      return;
+    }
+
+    void startInspection(true);
+  }, [autoShowQr, initialInspectUrl, startInspection]);
+
+  function openQrModal() {
+    if (inspectUrl) {
+      setModalOpen(true);
+      return;
+    }
+    void startInspection(true);
   }
 
   return (
-    <div className="rounded-2xl border border-accent-500/20 bg-ink-950/70 p-5">
-      <div className="flex items-start gap-3">
-        <span className="rounded-xl border border-accent-500/30 bg-accent-500/10 p-2">
-          <Smartphone className="h-5 w-5 text-accent-400" aria-hidden />
-        </span>
-        <div>
-          <h3 className="font-bold text-white">Guided mobile inspection</h3>
-          <p className="mt-1 text-sm text-slate-400">
-            Create a Ravin AI mobile inspection link for this vehicle. Photos and
-            damage findings are sent back to this report automatically.
-          </p>
+    <>
+      <div className="rounded-2xl border border-accent-500/20 bg-ink-950/70 p-5">
+        <div className="flex items-start gap-3">
+          <span className="rounded-xl border border-accent-500/30 bg-accent-500/10 p-2">
+            <Smartphone className="h-5 w-5 text-accent-400" aria-hidden />
+          </span>
+          <div>
+            <h3 className="font-bold text-white">AI condition check</h3>
+            <p className="mt-1 text-sm text-slate-400">
+              Scan the QR code on your phone to complete the guided photo walkaround.
+              You can also send the link to the car owner or another mobile number.
+            </p>
+          </div>
         </div>
+
+        <button
+          type="button"
+          onClick={openQrModal}
+          disabled={loading}
+          className="mt-5 inline-flex items-center gap-2 rounded-xl bg-accent-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-accent-500 disabled:opacity-60"
+        >
+          {loading ? (
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+          ) : inspectUrl ? (
+            <QrCode className="h-4 w-4" aria-hidden />
+          ) : (
+            <Link2 className="h-4 w-4" aria-hidden />
+          )}
+          {loading
+            ? "Preparing mobile link…"
+            : inspectUrl
+              ? "Show QR code"
+              : "Start condition check"}
+        </button>
+
+        {inspectUrl && !modalOpen && (
+          <p className="mt-3 text-xs text-slate-500">
+            Mobile inspection link is ready. Open the QR code to continue on another device.
+          </p>
+        )}
+
+        {error && (
+          <p className="mt-3 text-sm font-medium text-red-400" role="alert">
+            {error}
+          </p>
+        )}
       </div>
 
-      <label className="mt-5 block text-sm">
-        <span className="mb-1.5 block text-slate-300">Mobile number (optional)</span>
-        <input
-          value={phone}
-          onChange={(event) => setPhone(event.target.value)}
-          placeholder="+61 4xx xxx xxx"
-          className="w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white outline-none transition focus:border-accent-500/50"
-        />
-      </label>
-
-      <button
-        type="button"
-        onClick={() => void startInspection()}
-        disabled={loading}
-        className="mt-4 inline-flex items-center gap-2 rounded-xl bg-accent-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-accent-500 disabled:opacity-60"
-      >
-        {loading ? (
-          <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-        ) : (
-          <Link2 className="h-4 w-4" aria-hidden />
-        )}
-        {loading ? "Creating link…" : "Create inspection link"}
-      </button>
-
       {inspectUrl && (
-        <div className="mt-4 rounded-xl border border-white/10 bg-ink-900/80 p-4">
-          <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
-            Open on your phone
-          </p>
-          <a
-            href={inspectUrl}
-            className="mt-2 block break-all text-sm font-medium text-accent-300 hover:text-white"
-          >
-            {inspectUrl}
-          </a>
-          <button
-            type="button"
-            onClick={() => void copyLink()}
-            className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-slate-300 hover:text-white"
-          >
-            <Copy className="h-4 w-4" aria-hidden />
-            {copied ? "Copied" : "Copy link"}
-          </button>
-          {phone ? (
-            <p className="mt-2 text-xs text-slate-500">
-              SMS delivery can be wired once your messaging provider is connected.
-            </p>
-          ) : null}
-        </div>
+        <InspectionQrModal
+          open={modalOpen}
+          inspectUrl={inspectUrl}
+          reportId={reportId}
+          onClose={() => setModalOpen(false)}
+        />
       )}
-
-      {error && (
-        <p className="mt-3 text-sm font-medium text-red-400" role="alert">
-          {error}
-        </p>
-      )}
-    </div>
+    </>
   );
 }
