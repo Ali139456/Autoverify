@@ -18,7 +18,7 @@ export function isRavinPartnerConfigured(): boolean {
   return Boolean(RAVIN_API_KEY && Number.isFinite(RAVIN_SITE_ID) && RAVIN_SITE_ID > 0);
 }
 
-/** Inspector Lite mobile walkaround URL (Ravin MTA US beta). */
+/** Inspector mobile walkaround URL (Ravin MTA US beta). */
 export function buildInspectorLiteUrl(code: string): string {
   const url = new URL(`${RAVIN_BASE_URL}/inspector-lite/page/tmp`);
   url.searchParams.set("code", code);
@@ -28,8 +28,8 @@ export function buildInspectorLiteUrl(code: string): string {
 
 export function parseInspectorLiteCodeFromUrl(url: string): string | null {
   try {
-    const parsed = new URL(url);
-    if (!parsed.pathname.includes("inspector-lite")) return null;
+    const parsed = new URL(normalizeInspectorUrl(url));
+    if (!parsed.pathname.includes("inspector")) return null;
     const code = parsed.searchParams.get("code");
     return code?.trim() || null;
   } catch {
@@ -37,11 +37,15 @@ export function parseInspectorLiteCodeFromUrl(url: string): string | null {
   }
 }
 
-function normalizeInspectorLiteUrl(url: string): string {
+function normalizeInspectorUrl(url: string): string {
+  const withScheme = url.startsWith("http") ? url : `https://${url.replace(/^\/+/, "")}`;
+
   try {
-    const parsed = new URL(url);
-    if (!parsed.pathname.includes("inspector-lite")) return url;
-    if (!parsed.searchParams.has("image-upload")) {
+    const parsed = new URL(withScheme);
+    if (
+      parsed.pathname.includes("inspector-lite") &&
+      !parsed.searchParams.has("image-upload")
+    ) {
       parsed.searchParams.set("image-upload", "true");
     }
     return parsed.toString();
@@ -111,6 +115,7 @@ function extractInviteUrl(payload: unknown): string | null {
   const directCandidates = [
     record.link,
     record.url,
+    record.message,
     record.inviteLink,
     record.inviteUrl,
     record.inspectionLink,
@@ -120,8 +125,10 @@ function extractInviteUrl(payload: unknown): string | null {
   ];
 
   for (const candidate of directCandidates) {
-    if (typeof candidate === "string" && candidate.startsWith("http")) {
-      return normalizeInspectorLiteUrl(candidate);
+    if (typeof candidate !== "string" || !candidate.trim()) continue;
+    const trimmed = candidate.trim();
+    if (trimmed.startsWith("http") || trimmed.includes("inspector")) {
+      return normalizeInspectorUrl(trimmed);
     }
   }
 
@@ -145,7 +152,13 @@ function extractExpiresAt(payload: unknown): string | null {
     record.linkExpiredAt ??
     record.expiresAt ??
     record.expiration ??
-    record.expireAt;
+    record.expireAt ??
+    record.expirationTimestamp;
+
+  if (typeof raw === "number" && Number.isFinite(raw)) {
+    const parsed = new Date(raw > 1e12 ? raw : raw * 1000);
+    return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+  }
 
   if (typeof raw === "string" && raw.trim()) {
     const parsed = new Date(raw);
