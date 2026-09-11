@@ -1,166 +1,144 @@
 import {
-  BadgeDollarSign,
-  Brain,
-  CarFront,
+  BarChart3,
   Check,
   FileText,
-  Sparkles,
+  Lightbulb,
+  Minus,
+  Shield,
   X,
 } from "lucide-react";
 
-type Availability = [boolean, boolean, boolean, boolean];
+type CompetitorLevel = "yes" | "partial" | "limited";
 
-interface FeatureRow {
-  feature: string;
-  cols: Availability; // [PPSR basic, Competitors, Insights, Insights+]
-}
-
-interface Category {
+type ComparisonRow = {
   name: string;
   icon: React.ElementType;
-  rows: FeatureRow[];
-}
+  iconClass: string;
+  iconBg: string;
+  features: string;
+  competitor: CompetitorLevel;
+};
 
-const CATEGORIES: Category[] = [
+const ROWS: ComparisonRow[] = [
   {
-    name: "History Check",
+    name: "History & Identity",
     icon: FileText,
-    rows: [
-      { feature: "Stolen & written-off status", cols: [true, true, true, true] },
-      { feature: "Finance owing", cols: [true, true, true, true] },
-      { feature: "Odometer history & fraud check", cols: [false, true, true, true] },
-      { feature: "Exact model variant & series", cols: [false, true, true, true] },
-      { feature: "P Plate legal status", cols: [false, false, true, true] },
-      { feature: "Warranty status", cols: [false, false, true, true] },
-    ],
+    iconClass: "text-blue-600",
+    iconBg: "bg-blue-50 border-blue-200",
+    features:
+      "Finance/PPSR • Stolen • Written-off • Odometer history • Exact variant & build details",
+    competitor: "yes",
   },
   {
-    name: "Current Condition",
-    icon: CarFront,
-    rows: [
-      { feature: "AI damage detection", cols: [false, false, false, true] },
-      { feature: "Photo-based condition report", cols: [false, false, false, true] },
-      { feature: "Estimated repair costs", cols: [false, false, false, true] },
-    ],
+    name: "Safety & Suitability",
+    icon: Shield,
+    iconClass: "text-violet-600",
+    iconBg: "bg-violet-50 border-violet-200",
+    features:
+      "Safety/recall information • P-plate status • Warranty status • Factory specifications & options",
+    competitor: "partial",
   },
   {
-    name: "Market Value",
-    icon: BadgeDollarSign,
-    rows: [
-      { feature: "Live market insights and Retail vs Trade in Valuation", cols: [false, false, true, true] },
-      { feature: "Trade-in, private & retail ranges", cols: [false, false, true, true] },
-      { feature: "Comparable cars for sale", cols: [false, false, true, true] },
-    ],
+    name: "Market & Value",
+    icon: BarChart3,
+    iconClass: "text-emerald-600",
+    iconBg: "bg-emerald-50 border-emerald-200",
+    features:
+      "Retail & trade valuation • Market comparison • Cars for sale • Market supply & days-to-sell",
+    competitor: "partial",
   },
   {
-    name: "Future Outlook",
-    icon: Brain,
-    rows: [
-      { feature: "AI risk score & risk factors", cols: [false, false, true, true] },
-      { feature: "5-year depreciation forecast", cols: [false, false, true, true] },
-      { feature: "3-year residual value", cols: [false, false, true, true] },
-      { feature: "Buy recommendation", cols: [false, false, true, true] },
-    ],
+    name: "Buying Insights",
+    icon: Lightbulb,
+    iconClass: "text-red-600",
+    iconBg: "bg-red-50 border-red-200",
+    features:
+      "Odometer vs market • Vehicle-specific insights • Key risks • Smarter buying decision",
+    competitor: "limited",
   },
 ];
 
-const COLUMNS = [
-  "PPSR basic report",
-  "Competitor history reports",
-  "Auto Verifi Insights",
-  "Auto Verifi Insights+",
-];
+const COMPETITOR_BADGE: Record<
+  CompetitorLevel,
+  { label: string; className: string; Icon: React.ElementType }
+> = {
+  yes: {
+    label: "Yes",
+    className: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    Icon: Check,
+  },
+  partial: {
+    label: "Partial",
+    className: "border-amber-200 bg-amber-50 text-amber-700",
+    Icon: Minus,
+  },
+  limited: {
+    label: "Limited",
+    className: "border-red-200 bg-red-50 text-red-700",
+    Icon: X,
+  },
+};
 
-function Mark({ ok }: { ok: boolean }) {
+function CompetitorBadge({ level }: { level: CompetitorLevel }) {
+  const { label, className, Icon } = COMPETITOR_BADGE[level];
+
   return (
     <span
-      className={`mx-auto flex h-6 w-6 items-center justify-center rounded-full ${
-        ok ? "bg-accent-600" : "bg-slate-200"
-      }`}
+      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold ${className}`}
     >
-      {ok ? (
-        <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} aria-hidden />
-      ) : (
-        <X className="h-3.5 w-3.5 text-slate-400" strokeWidth={3} aria-hidden />
-      )}
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/80">
+        <Icon className="h-3.5 w-3.5" strokeWidth={3} aria-hidden />
+      </span>
+      {label}
     </span>
   );
 }
 
 export function ComparisonTable() {
   return (
-    <div className="overflow-x-auto rounded-2xl">
-      <table className="w-full min-w-[760px] border-collapse overflow-hidden rounded-2xl bg-white text-left text-sm">
+    <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-sm">
+      <table className="w-full min-w-[640px] border-collapse bg-white text-left text-sm">
         <thead>
           <tr className="bg-accent-600 text-white">
-            <th className="w-36 px-4 py-4 text-xs font-bold sm:w-44 sm:px-5">
-              Report category
+            <th className="w-44 px-5 py-4 text-sm font-bold sm:w-52">Check</th>
+            <th className="px-5 py-4 text-sm font-bold">Auto Verifi Insights</th>
+            <th className="w-44 px-5 py-4 text-center text-sm font-bold sm:w-52">
+              Competitor Reports
             </th>
-            <th className="px-4 py-4 text-xs font-bold sm:px-5">
-              Report feature
-            </th>
-            {COLUMNS.map((c, i) => (
-              <th
-                key={c}
-                className={`w-28 px-3 py-4 text-center text-xs font-bold sm:w-32 ${
-                  i >= 2 ? "bg-accent-700/60" : ""
-                }`}
-              >
-                <span className="inline-flex items-center justify-center gap-1">
-                  {i === 3 && <Sparkles className="h-3.5 w-3.5" aria-hidden />}
-                  {c}
-                </span>
-              </th>
-            ))}
           </tr>
         </thead>
         <tbody>
-          {CATEGORIES.map(({ name, icon: Icon, rows }, categoryIndex) =>
-            rows.map((row, ri) => {
-              const categoryDivider =
-                categoryIndex > 0 && ri === 0
-                  ? "border-t-2 border-t-accent-500"
-                  : "";
+          {ROWS.map((row, index) => {
+            const Icon = row.icon;
 
-              return (
+            return (
               <tr
-                key={name + row.feature}
-                className={`border-b border-slate-100 ${
-                  ri % 2 === 1 ? "bg-blue-50/60" : "bg-white"
+                key={row.name}
+                className={`border-t border-slate-100 ${
+                  index % 2 === 1 ? "bg-slate-50/70" : "bg-white"
                 }`}
               >
-                {ri === 0 && (
-                  <td
-                    rowSpan={rows.length}
-                    className={`border-r border-slate-100 bg-white px-4 py-4 align-top sm:px-5 ${categoryDivider}`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-accent-500/30 bg-blue-50 text-accent-600">
-                        <Icon className="h-5 w-5" aria-hidden />
-                      </span>
-                      <span className="text-sm font-bold text-slate-900">
-                        {name}
-                      </span>
-                    </div>
-                  </td>
-                )}
-                <td className={`px-4 py-3.5 font-medium text-slate-700 sm:px-5 ${categoryDivider}`}>
-                  {row.feature}
+                <td className="px-5 py-5 align-top">
+                  <div className="flex items-start gap-3">
+                    <span
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${row.iconBg}`}
+                    >
+                      <Icon className={`h-5 w-5 ${row.iconClass}`} aria-hidden />
+                    </span>
+                    <span className="pt-2 text-sm font-bold text-slate-900">
+                      {row.name}
+                    </span>
+                  </div>
                 </td>
-                {row.cols.map((ok, ci) => (
-                  <td
-                    key={ci}
-                    className={`px-3 py-3.5 text-center ${
-                      ci >= 2 ? "bg-blue-100/40" : ""
-                    } ${categoryDivider}`}
-                  >
-                    <Mark ok={ok} />
-                  </td>
-                ))}
+                <td className="px-5 py-5 align-middle text-sm leading-relaxed text-slate-700">
+                  {row.features}
+                </td>
+                <td className="px-5 py-5 text-center align-middle">
+                  <CompetitorBadge level={row.competitor} />
+                </td>
               </tr>
             );
-            })
-          )}
+          })}
         </tbody>
       </table>
     </div>
