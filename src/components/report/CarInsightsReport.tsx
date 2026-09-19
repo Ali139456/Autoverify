@@ -1,36 +1,42 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
-  Calendar,
-  Car,
+  CheckCircle2,
   ChevronRight,
-  CircleGauge,
   FileText,
-  MapPin,
-  Settings2,
-  Sparkles,
+  Info,
+  MinusCircle,
 } from "lucide-react";
 import {
   buildKeyInsights,
   buildStatusChecks,
   insightToneClass,
+  type InsightStatus,
 } from "@/lib/report-design";
 import type { VehicleReport } from "@/lib/types";
+import { InsightCategoryIcon, SpecIcon } from "./ReportInsightIcon";
 import { ReportShell } from "./ReportShell";
-
-const SPEC_ICONS = [Car, Settings2, Sparkles, Calendar, MapPin, CircleGauge] as const;
 
 function StatusIcon({ ok }: { ok: boolean }) {
   return (
-    <span
-      className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white ${
-        ok ? "bg-emerald-500" : "bg-slate-300"
-      }`}
+    <CheckCircle2
+      className={`mt-0.5 h-5 w-5 shrink-0 ${ok ? "text-emerald-500" : "text-slate-300"}`}
       aria-hidden
-    >
-      ✓
-    </span>
+    />
   );
+}
+
+function InsightStatusBadge({ tone }: { tone: InsightStatus }) {
+  if (tone === "info") {
+    return <Info className="h-4 w-4 shrink-0 text-sky-500" aria-hidden />;
+  }
+  if (tone === "neutral") {
+    return <MinusCircle className="h-4 w-4 shrink-0 text-amber-500" aria-hidden />;
+  }
+  if (tone === "warn") {
+    return <MinusCircle className="h-4 w-4 shrink-0 text-red-500" aria-hidden />;
+  }
+  return <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" aria-hidden />;
 }
 
 export function CarInsightsReport({
@@ -78,26 +84,23 @@ export function CarInsightsReport({
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 rounded-xl border border-slate-100 bg-slate-50/80 p-4 sm:grid-cols-3 lg:grid-cols-6">
-          {specs.map(({ label, value }, i) => {
-            const Icon = SPEC_ICONS[i] ?? Car;
-            return (
-              <div key={label} className="min-w-0">
-                <div className="flex items-center gap-1.5 text-slate-400">
-                  <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                  <span className="text-[10px] font-bold uppercase tracking-wide">
-                    {label}
-                  </span>
-                </div>
-                <p className="mt-1 truncate text-sm font-bold text-slate-900">{value}</p>
+        <div className="grid grid-cols-2 divide-x divide-slate-200 rounded-xl border border-slate-200 bg-slate-50 sm:grid-cols-3 lg:grid-cols-6">
+          {specs.map(({ label, value }, i) => (
+            <div key={label} className="min-w-0 px-4 py-3 first:pl-4">
+              <div className="flex items-center gap-1.5 text-slate-500">
+                <SpecIcon index={i} className="h-4 w-4 shrink-0" />
+                <span className="text-[10px] font-bold uppercase tracking-wide">
+                  {label}
+                </span>
               </div>
-            );
-          })}
+              <p className="mt-1.5 truncate text-sm font-bold text-slate-900">{value}</p>
+            </div>
+          ))}
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white">
-          <div className="grid lg:grid-cols-[1fr_280px]">
-            <div className="p-6 sm:p-8">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+          <div className="grid lg:grid-cols-[1fr_300px]">
+            <div className="border-b border-slate-200 p-6 sm:p-8 lg:border-b-0 lg:border-r">
               <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
                 Vehicle Status
               </h2>
@@ -110,13 +113,13 @@ export function CarInsightsReport({
                 ))}
               </ul>
             </div>
-            <div className="relative min-h-[200px] bg-slate-100 lg:min-h-full">
+            <div className="relative min-h-[220px] bg-slate-100">
               <Image
                 src="/hero-car.png"
-                alt=""
+                alt={`${vehicleTitle} illustration`}
                 fill
-                className="object-cover object-center opacity-90"
-                sizes="280px"
+                className="object-cover object-center"
+                sizes="300px"
               />
             </div>
           </div>
@@ -135,15 +138,26 @@ export function CarInsightsReport({
             {insights.map((insight) => (
               <div
                 key={insight.id}
-                className="flex min-h-[88px] flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+                className="flex min-h-[96px] flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
               >
-                <p className="text-xs font-semibold text-slate-500">{insight.title}</p>
-                <div className="mt-2 flex items-end justify-between gap-2">
-                  <p
-                    className={`text-sm font-bold leading-snug ${insightToneClass(insight.tone)}`}
-                  >
-                    {insight.status}
+                <div className="flex items-start justify-between gap-2">
+                  <InsightCategoryIcon
+                    insightId={insight.id}
+                    className="h-5 w-5 shrink-0 text-slate-700"
+                  />
+                  <p className="flex-1 text-right text-[11px] font-semibold leading-snug text-slate-500">
+                    {insight.title}
                   </p>
+                </div>
+                <div className="mt-3 flex items-end justify-between gap-2">
+                  <div className="flex min-w-0 items-center gap-1.5">
+                    <InsightStatusBadge tone={insight.tone} />
+                    <p
+                      className={`truncate text-sm font-bold ${insightToneClass(insight.tone)}`}
+                    >
+                      {insight.status}
+                    </p>
+                  </div>
                   <ChevronRight className="h-4 w-4 shrink-0 text-slate-300" aria-hidden />
                 </div>
               </div>
@@ -182,8 +196,8 @@ export function CarInsightsReport({
                   and more insights.
                 </p>
                 <p className="mt-1 text-sm text-slate-500">
-                  Guided photo walkaround, Ravin AI damage analysis and expert phone
-                  support.
+                  Get detailed condition analysis, image-based damage detection,
+                  variant verification and market valuation.
                 </p>
               </div>
             </div>

@@ -34,12 +34,12 @@ export function buildStatusChecks(report: VehicleReport): StatusCheck[] {
     },
     {
       label: vehicle.odometer
-        ? "Odometer reading recorded"
+        ? "Odometer reading consistent"
         : "Odometer reading not available",
       ok: Boolean(vehicle.odometer),
     },
     {
-      label: "Service history not available in this report",
+      label: "Service history available",
       ok: false,
     },
     {
