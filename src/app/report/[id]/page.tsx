@@ -64,7 +64,7 @@ export default async function ReportPage({
               Use Print / Save as PDF for the exact on-screen layout.
             </p>
           </div>
-          <ReportPrintActions pdfUrl={`/api/report/${report.id}/pdf`} />
+          <ReportPrintActions />
         </div>
 
         <CarInsightsReport
