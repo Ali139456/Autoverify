@@ -36,6 +36,29 @@ export function isComingSoonMode(host?: string | null): boolean {
   return process.env.NEXT_PUBLIC_COMING_SOON !== "false";
 }
 
+/** Preview password must not unlock the public live marketing domain. */
+export function grantsPreviewBypass(
+  host: string | null | undefined,
+  hasPreviewCookie: boolean,
+): boolean {
+  if (!hasPreviewCookie || isLiveProductionHost(host)) {
+    return false;
+  }
+
+  return true;
+}
+
+export function shouldShowComingSoonPage(
+  host: string | null | undefined,
+  hasPreviewCookie: boolean,
+): boolean {
+  if (!isComingSoonMode(host)) {
+    return false;
+  }
+
+  return !grantsPreviewBypass(host, hasPreviewCookie);
+}
+
 export function isPublicWhileComingSoon(pathname: string): boolean {
   if (
     PUBLIC_PATHS.some(

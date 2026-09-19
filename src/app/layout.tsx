@@ -3,7 +3,7 @@ import { cookies, headers } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ConditionalSiteChrome } from "@/components/ConditionalSiteChrome";
-import { isComingSoonMode } from "@/lib/site-mode";
+import { grantsPreviewBypass, shouldShowComingSoonPage } from "@/lib/site-mode";
 import { hasPreviewAccess, PREVIEW_COOKIE_NAME } from "@/lib/site-preview";
 
 const geistSans = Geist({
@@ -70,9 +70,10 @@ export default async function RootLayout({
   const cookieStore = await cookies();
   const headerStore = await headers();
   const previewToken = cookieStore.get(PREVIEW_COOKIE_NAME)?.value;
-  const previewAccess = await hasPreviewAccess(previewToken);
+  const previewCookie = await hasPreviewAccess(previewToken);
   const host = headerStore.get("host");
-  const comingSoonMode = isComingSoonMode(host);
+  const previewAccess = grantsPreviewBypass(host, previewCookie);
+  const comingSoonMode = shouldShowComingSoonPage(host, previewCookie);
 
   return (
     <html

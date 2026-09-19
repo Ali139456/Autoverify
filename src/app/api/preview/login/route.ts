@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isLiveProductionHost } from "@/lib/site-mode";
 import {
   createPreviewCookieToken,
   getPreviewCookieMaxAge,
@@ -9,6 +10,13 @@ import {
 } from "@/lib/site-preview";
 
 export async function POST(req: NextRequest) {
+  if (isLiveProductionHost(req.headers.get("host"))) {
+    return NextResponse.json(
+      { error: "Site preview is disabled on the live domain." },
+      { status: 403 },
+    );
+  }
+
   if (!isPreviewProtectionConfigured()) {
     return NextResponse.json(
       { error: "Site preview is not configured." },
