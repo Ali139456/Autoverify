@@ -36,16 +36,12 @@ export function isComingSoonMode(host?: string | null): boolean {
   return process.env.NEXT_PUBLIC_COMING_SOON !== "false";
 }
 
-/** Preview password must not unlock the public live marketing domain. */
+/** Valid preview cookie unlocks the full site (including on the live domain). */
 export function grantsPreviewBypass(
-  host: string | null | undefined,
+  _host: string | null | undefined,
   hasPreviewCookie: boolean,
 ): boolean {
-  if (!hasPreviewCookie || isLiveProductionHost(host)) {
-    return false;
-  }
-
-  return true;
+  return hasPreviewCookie;
 }
 
 export function shouldShowComingSoonPage(

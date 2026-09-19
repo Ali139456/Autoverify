@@ -1,16 +1,17 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import {
-  grantsPreviewBypass,
   isComingSoonMode,
   isLiveProductionHost,
   isPublicWhileComingSoon,
 } from "@/lib/site-mode";
 import { hasPreviewAccess, PREVIEW_COOKIE_NAME } from "@/lib/site-preview";
 
-function withLiveSiteHeaders(response: NextResponse, host: string | null) {
+function withNoCacheForLiveComingSoon(
+  response: NextResponse,
+  host: string | null,
+) {
   if (isLiveProductionHost(host)) {
-    response.cookies.delete(PREVIEW_COOKIE_NAME);
     response.headers.set(
       "Cache-Control",
       "no-store, no-cache, must-revalidate, proxy-revalidate",
@@ -24,29 +25,28 @@ export async function proxy(request: NextRequest) {
   const host = request.headers.get("host");
 
   if (!isComingSoonMode(host)) {
-    return withLiveSiteHeaders(NextResponse.next(), host);
+    return NextResponse.next();
   }
 
   const { pathname } = request.nextUrl;
   const previewToken = request.cookies.get(PREVIEW_COOKIE_NAME)?.value;
-  const previewAccess = await hasPreviewAccess(previewToken);
 
-  if (grantsPreviewBypass(host, previewAccess)) {
+  if (await hasPreviewAccess(previewToken)) {
     return NextResponse.next();
   }
 
   if (isPublicWhileComingSoon(pathname)) {
-    return withLiveSiteHeaders(NextResponse.next(), host);
+    return withNoCacheForLiveComingSoon(NextResponse.next(), host);
   }
 
   if (pathname !== "/") {
-    return withLiveSiteHeaders(
+    return withNoCacheForLiveComingSoon(
       NextResponse.redirect(new URL("/", request.url)),
       host,
     );
   }
 
-  return withLiveSiteHeaders(NextResponse.next(), host);
+  return withNoCacheForLiveComingSoon(NextResponse.next(), host);
 }
 
 export const config = {
