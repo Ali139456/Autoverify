@@ -6,6 +6,7 @@ import {
   Car,
   CarFront,
   CircleGauge,
+  ClipboardList,
   FileSearch,
   FileText,
   MapPin,
@@ -35,7 +36,8 @@ export type ReportIconName =
   | "car-front"
   | "chart"
   | "sliders"
-  | "search-doc";
+  | "search-doc"
+  | "clipboard";
 
 export const SPEC_ICON_NAMES: ReportIconName[] = [
   "car",
@@ -52,7 +54,7 @@ export const INSIGHT_ICON_NAMES: Record<string, ReportIconName> = {
   writeoff: "car-side",
   odometer: "gauge-insight",
   service: "wrench",
-  registration: "id-card",
+  registration: "clipboard",
   recall: "alert",
   ownership: "users",
   usage: "car-front",
@@ -74,6 +76,7 @@ export const WEB_ICONS: Record<ReportIconName, LucideIcon> = {
   "gauge-insight": CircleGauge,
   wrench: Wrench,
   "id-card": FileText,
+  clipboard: ClipboardList,
   alert: AlertCircle,
   users: Users,
   "car-front": CarFront,

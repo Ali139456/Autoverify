@@ -259,3 +259,113 @@ body {
     left: 130%;
   }
 }
+
+/* ---- Vehicle report: browser Print / Save as PDF ---- */
+@media print {
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .av-site-header,
+  .av-site-footer,
+  .report-no-print,
+  .report-no-print-link {
+    display: none !important;
+  }
+
+  main {
+    padding-top: 0 !important;
+  }
+
+  .report-view {
+    background: #ffffff !important;
+    padding: 0 !important;
+    min-height: auto !important;
+  }
+
+  #report-print-area {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  .report-shell {
+    break-inside: avoid;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+  }
+
+  .report-shell-header {
+    break-inside: avoid;
+    break-after: avoid;
+    background-color: #0073e3 !important;
+    color: #ffffff !important;
+    padding: 16px 20px !important;
+  }
+
+  .report-shell-footer {
+    break-inside: avoid;
+    break-before: avoid;
+    margin-top: 12px;
+    padding-top: 10px !important;
+    border-top: 1px solid #e2e8f0 !important;
+  }
+
+  .report-page-break {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  .report-supplementary {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  .report-spec-bar {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  }
+
+  .report-spec-value {
+    font-size: 11px !important;
+    word-break: break-all;
+  }
+
+  .report-hero-image {
+    min-height: 180px !important;
+  }
+
+  .report-insights-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .report-insight-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    min-height: 88px !important;
+    box-shadow: none !important;
+    padding: 10px !important;
+  }
+
+  .report-upgrade-banner {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-top: 8px;
+  }
+
+  img {
+    max-width: 100% !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

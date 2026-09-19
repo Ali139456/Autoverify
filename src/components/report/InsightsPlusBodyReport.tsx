@@ -88,7 +88,7 @@ export function InsightsPlusBodyReport({
         </div>
 
         {showActions && (
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <div className="report-no-print rounded-xl border border-slate-200 bg-slate-50 p-4">
             <InspectionStarter
               reportId={report.id}
               initialInspectUrl={inspectUrl}

@@ -84,7 +84,7 @@ export function CarInsightsReport({
           </p>
         </div>
 
-        <div className="grid grid-cols-2 divide-x divide-slate-200 rounded-xl border border-slate-200 bg-slate-50 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="report-spec-bar grid grid-cols-2 divide-x divide-slate-200 rounded-xl border border-slate-200 bg-slate-50 sm:grid-cols-3 lg:grid-cols-6">
           {specs.map(({ label, value }, i) => (
             <div key={label} className="min-w-0 px-4 py-3 first:pl-4">
               <div className="flex items-center gap-1.5 text-slate-500">
@@ -93,7 +93,9 @@ export function CarInsightsReport({
                   {label}
                 </span>
               </div>
-              <p className="mt-1.5 truncate text-sm font-bold text-slate-900">{value}</p>
+              <p className="report-spec-value mt-1.5 break-all text-sm font-bold text-slate-900">
+                {value}
+              </p>
             </div>
           ))}
         </div>
@@ -113,13 +115,14 @@ export function CarInsightsReport({
                 ))}
               </ul>
             </div>
-            <div className="relative min-h-[220px] bg-slate-100">
+            <div className="report-hero-image relative min-h-[220px] bg-slate-900">
               <Image
                 src="/hero-car.png"
                 alt={`${vehicleTitle} illustration`}
                 fill
                 className="object-cover object-center"
                 sizes="300px"
+                priority
               />
             </div>
           </div>
@@ -134,38 +137,38 @@ export function CarInsightsReport({
               All the essentials. In one place.
             </p>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="report-insights-grid grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {insights.map((insight) => (
               <div
                 key={insight.id}
-                className="flex min-h-[96px] flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+                className="report-insight-card flex min-h-[104px] flex-col justify-between rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm sm:p-4"
               >
                 <div className="flex items-start justify-between gap-2">
                   <InsightCategoryIcon
                     insightId={insight.id}
                     className="h-5 w-5 shrink-0 text-slate-700"
                   />
-                  <p className="flex-1 text-right text-[11px] font-semibold leading-snug text-slate-500">
+                  <p className="flex-1 text-right text-[10px] font-semibold uppercase leading-snug text-slate-500">
                     {insight.title}
                   </p>
                 </div>
-                <div className="mt-3 flex items-end justify-between gap-2">
-                  <div className="flex min-w-0 items-center gap-1.5">
+                <div className="mt-3 flex items-start justify-between gap-2">
+                  <div className="flex min-w-0 items-start gap-1.5">
                     <InsightStatusBadge tone={insight.tone} />
                     <p
-                      className={`truncate text-sm font-bold ${insightToneClass(insight.tone)}`}
+                      className={`text-xs font-bold leading-snug break-words ${insightToneClass(insight.tone)}`}
                     >
                       {insight.status}
                     </p>
                   </div>
-                  <ChevronRight className="h-4 w-4 shrink-0 text-slate-300" aria-hidden />
+                  <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-slate-300" aria-hidden />
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+        <div className="report-supplementary rounded-xl border border-slate-200 bg-slate-50 p-5">
           <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">
             Market valuation ({valuation.confidence} confidence)
           </h3>
@@ -187,9 +190,9 @@ export function CarInsightsReport({
         </div>
 
         {showUpgrade && (
-          <div className="flex flex-col items-start gap-4 rounded-xl border border-slate-200 bg-slate-50 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="report-upgrade-banner flex flex-col items-start gap-4 rounded-xl border border-slate-200 bg-slate-50 p-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-3">
-              <FileText className="mt-0.5 h-8 w-8 text-[#0073E3]" aria-hidden />
+              <FileText className="mt-0.5 h-8 w-8 shrink-0 text-[#0073E3]" aria-hidden />
               <div>
                 <p className="font-bold text-slate-900">
                   Upgrade to Auto Verifi Insights+ for AI powered damage detection
@@ -203,7 +206,7 @@ export function CarInsightsReport({
             </div>
             <Link
               href={`/check?rego=${vehicle.rego}&state=${vehicle.state}`}
-              className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[#0073E3] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#0062c2]"
+              className="report-no-print-link inline-flex shrink-0 items-center gap-2 rounded-full bg-[#0073E3] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#0062c2]"
             >
               View upgrade options
               <ChevronRight className="h-4 w-4" aria-hidden />

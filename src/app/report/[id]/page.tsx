@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Download, Lock } from "lucide-react";
+import { Lock } from "lucide-react";
 import { CarInsightsReport } from "@/components/report/CarInsightsReport";
 import { InsightsPlusBodyReport } from "@/components/report/InsightsPlusBodyReport";
+import { ReportPrintActions } from "@/components/report/ReportPrintActions";
 import { getReport } from "@/lib/store";
 import { hasDamageAnalysis, resolveReportTier, getReportTierConfig } from "@/lib/pricing";
 import { getInspectionByReportId } from "@/lib/inspections";
@@ -51,22 +52,19 @@ export default async function ReportPage({
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 py-8 sm:py-12">
-      <div className="mx-auto max-w-5xl space-y-6 px-4 sm:px-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="report-view min-h-screen bg-slate-100 py-8 sm:py-12">
+      <div id="report-print-area" className="mx-auto max-w-5xl space-y-6 px-4 sm:px-6">
+        <div className="report-no-print flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
               {tierConfig.name}
             </p>
             <h1 className="text-xl font-bold text-slate-900">Your vehicle report</h1>
+            <p className="mt-1 text-sm text-slate-500">
+              Use Print / Save as PDF for the exact on-screen layout.
+            </p>
           </div>
-          <a
-            href={`/api/report/${report.id}/pdf`}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-[#0073E3] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#0062c2]"
-          >
-            <Download className="h-5 w-5" aria-hidden />
-            Download PDF
-          </a>
+          <ReportPrintActions pdfUrl={`/api/report/${report.id}/pdf`} />
         </div>
 
         <CarInsightsReport
@@ -76,16 +74,18 @@ export default async function ReportPage({
         />
 
         {includesDamage && (
-          <InsightsPlusBodyReport
-            report={report}
-            photos={inspection?.photos ?? []}
-            inspectUrl={inspection?.ravinInviteUrl}
-            showActions
-            pageLabel={`2 / ${pageCount}`}
-          />
+          <div className="report-page-break">
+            <InsightsPlusBodyReport
+              report={report}
+              photos={inspection?.photos ?? []}
+              inspectUrl={inspection?.ravinInviteUrl}
+              showActions
+              pageLabel={`2 / ${pageCount}`}
+            />
+          </div>
         )}
 
-        <p className="text-center text-xs leading-relaxed text-slate-500">
+        <p className="report-no-print text-center text-xs leading-relaxed text-slate-500">
           Generated {new Date(report.createdAt).toLocaleString("en-AU")}. This
           report is compiled from third-party data sources and AI models and is
           provided for information only.

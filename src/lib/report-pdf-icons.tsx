@@ -195,6 +195,7 @@ const PDF_ICONS: Record<ReportIconName, React.FC<{ size?: number }>> = {
   "gauge-insight": GaugeIcon,
   wrench: WrenchIcon,
   "id-card": FileIcon,
+  clipboard: FileIcon,
   alert: AlertIcon,
   users: UsersIcon,
   "car-front": CarIcon,

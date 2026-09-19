@@ -63,7 +63,7 @@ const CONTACT_EMAIL = "info@autoverifi.com.au";
 
 export function Footer() {
   return (
-    <footer className="relative mt-auto overflow-hidden bg-ink-950">
+    <footer className="av-site-footer relative mt-auto overflow-hidden bg-ink-950">
       {/* ambient glow */}
       <div className="pointer-events-none absolute -top-32 left-1/2 h-[300px] w-[700px] -translate-x-1/2 rounded-full bg-accent-600/10 blur-[120px]" />
 
