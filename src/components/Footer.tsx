@@ -16,14 +16,6 @@ function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-function XIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden {...props}>
-      <path d="M17.7 3H20l-5.6 6.4L21 21h-5.4l-4.2-5.5L6.6 21H4.3l6-6.9L3.5 3H9l3.8 5 4.9-5Zm-.9 16h1.4L7.1 4.4H5.6L16.8 19Z" />
-    </svg>
-  );
-}
-
 function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden {...props}>
@@ -54,17 +46,19 @@ const QUICK_LINKS = [
 const CHECKS = [
   "PPSR / finance owing",
   "Write-off & stolen records",
+  "Vehicle specifications",
+  "ANCAP safety ratings",
   "Market valuation & comparables",
-  "AI depreciation forecast",
   "AI photo damage analysis",
 ];
 
 const SOCIALS = [
   { icon: FacebookIcon, label: "Facebook", href: "#" },
-  { icon: XIcon, label: "Twitter / X", href: "#" },
   { icon: InstagramIcon, label: "Instagram", href: "#" },
   { icon: LinkedInIcon, label: "LinkedIn", href: "#" },
 ];
+
+const CONTACT_EMAIL = "info@autoverifi.com.au";
 
 export function Footer() {
   return (
@@ -157,11 +151,11 @@ export function Footer() {
             ))}
           </ul>
           <a
-            href="mailto:support@autoverifi.com"
+            href={`mailto:${CONTACT_EMAIL}`}
             className="mt-5 inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-accent-400"
           >
             <Mail className="h-4 w-4" aria-hidden />
-            support@autoverifi.com
+            {CONTACT_EMAIL}
           </a>
         </div>
       </div>
@@ -177,6 +171,13 @@ export function Footer() {
             <Link href="/privacy" className="hover:text-accent-400">
               Privacy Policy
             </Link>
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="inline-flex items-center gap-1.5 hover:text-accent-400"
+            >
+              <Mail className="h-3.5 w-3.5 text-accent-500" aria-hidden />
+              Contact us
+            </a>
             <span className="inline-flex items-center gap-1.5">
               <Lock className="h-3.5 w-3.5 text-accent-500" aria-hidden />
               SSL encrypted
@@ -187,10 +188,6 @@ export function Footer() {
             </span>
           </div>
         </div>
-        <p className="mx-auto max-w-6xl px-4 pb-6 text-center text-[11px] leading-relaxed text-slate-600 sm:px-6 sm:text-left">
-          Reports are informational only and are not a substitute for an
-          official PPSR certificate or independent vehicle inspection.
-        </p>
       </div>
     </footer>
   );
