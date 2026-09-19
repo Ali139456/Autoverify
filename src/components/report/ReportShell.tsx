@@ -35,7 +35,7 @@ export function ReportShell({
         </div>
       </header>
 
-      <div className="px-6 py-8 sm:px-8">{children}</div>
+      <div className="report-shell-body px-6 py-8 sm:px-8">{children}</div>
 
       <footer className="report-shell-footer flex items-center justify-between border-t border-slate-200 px-6 py-4 sm:px-8">
         <Image

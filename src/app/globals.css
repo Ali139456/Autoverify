@@ -263,14 +263,15 @@ body {
 /* ---- Vehicle report: browser Print / Save as PDF ---- */
 @media print {
   @page {
-    size: A4;
-    margin: 10mm;
+    size: A4 portrait;
+    margin: 6mm;
   }
 
   html,
   body {
     background: #ffffff !important;
     color: #0f172a !important;
+    font-size: 9px !important;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
@@ -298,7 +299,6 @@ body {
   }
 
   .report-shell {
-    break-inside: avoid;
     box-shadow: none !important;
     border: none !important;
     border-radius: 0 !important;
@@ -310,15 +310,42 @@ body {
     break-after: avoid;
     background-color: #0073e3 !important;
     color: #ffffff !important;
-    padding: 16px 20px !important;
+    padding: 8px 12px !important;
+  }
+
+  .report-shell-header img {
+    height: 24px !important;
+    width: auto !important;
+  }
+
+  .report-shell-header p {
+    font-size: 6px !important;
+    margin-top: 2px !important;
+  }
+
+  .report-shell-header .border-l {
+    padding-left: 10px !important;
+    font-size: 6.5px !important;
+    line-height: 1.35 !important;
+  }
+
+  .report-shell-body {
+    padding: 10px 12px 8px !important;
   }
 
   .report-shell-footer {
     break-inside: avoid;
-    break-before: avoid;
-    margin-top: 12px;
-    padding-top: 10px !important;
+    padding: 6px 12px !important;
     border-top: 1px solid #e2e8f0 !important;
+  }
+
+  .report-shell-footer img {
+    height: 18px !important;
+    width: auto !important;
+  }
+
+  .report-shell-footer p {
+    font-size: 6.5px !important;
   }
 
   .report-page-break {
@@ -326,41 +353,172 @@ body {
     page-break-before: always;
   }
 
-  .report-supplementary {
-    break-before: page;
-    page-break-before: always;
+  .report-body {
+    gap: 8px !important;
+  }
+
+  .report-body > * + * {
+    margin-top: 8px !important;
+  }
+
+  .report-main-title {
+    font-size: 16px !important;
+    line-height: 1.15 !important;
+  }
+
+  .report-vehicle-title {
+    font-size: 11px !important;
+    margin-top: 4px !important;
+  }
+
+  .report-subtitle {
+    font-size: 6.5px !important;
+    margin-top: 3px !important;
+    letter-spacing: 0.08em !important;
   }
 
   .report-spec-bar {
     grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    padding: 0 !important;
+  }
+
+  .report-spec-bar > div {
+    padding: 5px 6px !important;
+  }
+
+  .report-spec-bar span {
+    font-size: 6px !important;
+  }
+
+  .report-spec-bar svg {
+    width: 9px !important;
+    height: 9px !important;
   }
 
   .report-spec-value {
-    font-size: 11px !important;
-    word-break: break-all;
+    font-size: 8px !important;
+    margin-top: 2px !important;
+    line-height: 1.2 !important;
+  }
+
+  .report-status-panel {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .report-status-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 120px !important;
+  }
+
+  .report-status-list {
+    padding: 8px 10px !important;
+    border-right: 1px solid #e2e8f0 !important;
+    border-bottom: none !important;
+  }
+
+  .report-status-list h2 {
+    font-size: 7px !important;
+    letter-spacing: 0.12em !important;
+  }
+
+  .report-status-items {
+    margin-top: 6px !important;
+    gap: 3px !important;
+  }
+
+  .report-status-items li {
+    gap: 4px !important;
+  }
+
+  .report-status-items svg {
+    width: 11px !important;
+    height: 11px !important;
+    margin-top: 1px !important;
+  }
+
+  .report-status-items span {
+    font-size: 8px !important;
+    line-height: 1.25 !important;
   }
 
   .report-hero-image {
-    min-height: 180px !important;
+    position: relative !important;
+    min-height: 96px !important;
+    height: 96px !important;
+    max-height: 96px !important;
+  }
+
+  .report-insights-header {
+    margin-bottom: 4px !important;
+    gap: 4px !important;
+  }
+
+  .report-insights-header p {
+    font-size: 6px !important;
+  }
+
+  .report-insight-chevron {
+    display: none !important;
   }
 
   .report-insights-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-    gap: 8px !important;
+    gap: 4px !important;
   }
 
   .report-insight-card {
-    break-inside: avoid;
-    page-break-inside: avoid;
-    min-height: 88px !important;
+    min-height: 0 !important;
     box-shadow: none !important;
-    padding: 10px !important;
+    padding: 5px 6px !important;
+    border-radius: 6px !important;
+  }
+
+  .report-insight-card svg {
+    width: 10px !important;
+    height: 10px !important;
+  }
+
+  .report-insight-card p {
+    font-size: 7px !important;
+    line-height: 1.2 !important;
+  }
+
+  .report-insight-card .mt-3 {
+    margin-top: 4px !important;
+  }
+
+  .report-body h2 {
+    font-size: 8px !important;
+    margin-bottom: 4px !important;
   }
 
   .report-upgrade-banner {
-    break-inside: avoid;
-    page-break-inside: avoid;
-    margin-top: 8px;
+    display: none !important;
+  }
+
+  .report-upgrade-banner svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .report-upgrade-banner p {
+    font-size: 8px !important;
+    line-height: 1.25 !important;
+  }
+
+  .report-supplementary {
+    break-before: page;
+    page-break-before: always;
+    padding: 8px 10px !important;
+  }
+
+  .report-supplementary h3 {
+    font-size: 7px !important;
+  }
+
+  .report-supplementary .text-base {
+    font-size: 9px !important;
   }
 
   img {

@@ -72,13 +72,13 @@ export function CarInsightsReport({
       generatedAt={report.createdAt}
       pageLabel={pageLabel}
     >
-      <div className="space-y-8">
-        <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+      <div className="report-body space-y-8">
+        <div className="report-title-block">
+          <h1 className="report-main-title text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
             Auto Verifi – Car Insights Report
           </h1>
-          <p className="mt-2 text-lg font-bold text-[#0073E3]">{vehicleTitle}</p>
-          <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+          <p className="report-vehicle-title mt-2 text-lg font-bold text-[#0073E3]">{vehicleTitle}</p>
+          <p className="report-subtitle mt-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
             A comprehensive summary of your vehicle&apos;s history, status and key
             insights.
           </p>
@@ -100,15 +100,15 @@ export function CarInsightsReport({
           ))}
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-          <div className="grid lg:grid-cols-[1fr_300px]">
-            <div className="border-b border-slate-200 p-6 sm:p-8 lg:border-b-0 lg:border-r">
+        <div className="report-status-panel overflow-hidden rounded-2xl border border-slate-200 bg-white">
+          <div className="report-status-grid grid lg:grid-cols-[1fr_300px]">
+            <div className="report-status-list border-b border-slate-200 p-6 sm:p-8 lg:border-b-0 lg:border-r">
               <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
                 Vehicle Status
               </h2>
-              <ul className="mt-5 space-y-3">
+              <ul className="report-status-items mt-5 space-y-3">
                 {statusChecks.map((item) => (
-                  <li key={item.label} className="flex items-start gap-3">
+                  <li key={item.label} className="flex items-start gap-2">
                     <StatusIcon ok={item.ok} />
                     <span className="text-sm font-medium text-slate-700">{item.label}</span>
                   </li>
@@ -128,8 +128,8 @@ export function CarInsightsReport({
           </div>
         </div>
 
-        <div>
-          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <div className="report-insights-section">
+          <div className="report-insights-header mb-4 flex flex-wrap items-end justify-between gap-3">
             <h2 className="text-sm font-extrabold uppercase tracking-[0.16em] text-slate-900">
               Key Insights
             </h2>
@@ -161,7 +161,10 @@ export function CarInsightsReport({
                       {insight.status}
                     </p>
                   </div>
-                  <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-slate-300" aria-hidden />
+                  <ChevronRight
+                    className="report-insight-chevron mt-0.5 h-4 w-4 shrink-0 text-slate-300"
+                    aria-hidden
+                  />
                 </div>
               </div>
             ))}
