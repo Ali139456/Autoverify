@@ -45,7 +45,7 @@ function LinkedInIcon(props: React.SVGProps<SVGSVGElement>) {
 const QUICK_LINKS = [
   { href: "/#check", label: "Check a vehicle" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/vehicleinspections", label: "Inspections" },
+  { href: "/vehicleinspections", label: "Vehicle inspections" },
   { href: "/#how-it-works", label: "How it works" },
   { href: "/#whats-included", label: "What's included" },
   { href: "/#faq", label: "FAQ" },
@@ -85,7 +85,7 @@ export function Footer() {
           </div>
           <Link
             href="/#check"
-            className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-gradient-to-r from-accent-600 to-accent-500 px-6 py-3 text-sm font-bold text-white transition hover:from-accent-500 hover:to-accent-400 sm:px-8 sm:py-4 sm:text-base"
+            className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-accent-500 px-6 py-3 text-sm font-bold text-white transition hover:bg-accent-600 sm:px-8 sm:py-4 sm:text-base"
           >
             Buy Report
             <ArrowRight

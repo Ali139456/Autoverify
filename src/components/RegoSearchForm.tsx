@@ -96,7 +96,7 @@ export function RegoSearchForm({
         <button
           type="submit"
           disabled={loading}
-          className="btn-shine group mx-auto mt-2.5 flex h-10 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-gradient-to-r from-accent-600 via-accent-500 to-accent-600 px-4 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60 sm:w-1/2"
+          className="btn-shine group mx-auto mt-2.5 flex h-10 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-accent-500 px-4 text-sm font-bold text-white transition hover:bg-accent-600 disabled:opacity-60 sm:w-1/2"
         >
           {loading ? "Searching…" : "Buy Report"}
           <ArrowRight

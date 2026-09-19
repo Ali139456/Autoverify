@@ -218,7 +218,7 @@ export function HomePage() {
           <Reveal delay={200} className="mt-8 text-center sm:mt-10">
             <Link
               href="/#check"
-              className="inline-flex items-center gap-2 rounded-full bg-accent-600 px-6 py-3 text-sm font-bold text-white transition hover:bg-accent-500 sm:px-8 sm:py-3.5 sm:text-base"
+              className="inline-flex items-center gap-2 rounded-full bg-accent-500 px-6 py-3 text-sm font-bold text-white transition hover:bg-accent-600 sm:px-8 sm:py-3.5 sm:text-base"
             >
               Buy Report — from {formatTierPrice("insights")}
               <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden />
