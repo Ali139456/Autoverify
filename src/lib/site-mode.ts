@@ -1,4 +1,12 @@
-const PUBLIC_PATHS = ["/vehicleinspections", "/inspect", "/terms", "/privacy"];
+const PUBLIC_PATHS = [
+  "/vehicleinspections",
+  "/inspect",
+  "/terms",
+  "/privacy",
+  "/check",
+  "/checkout",
+  "/report",
+];
 
 /** Main marketing site is hidden by default; tender page stays public. Set NEXT_PUBLIC_COMING_SOON=false to launch fully. */
 export function isComingSoonMode(): boolean {
@@ -14,7 +22,10 @@ export function isPublicWhileComingSoon(pathname: string): boolean {
     return true;
   }
 
-  if (pathname.startsWith("/api/webhooks/")) {
+  if (
+    pathname.startsWith("/api/webhooks/") ||
+    pathname === "/api/checkout"
+  ) {
     return true;
   }
 

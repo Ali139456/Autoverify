@@ -32,10 +32,20 @@ export function getStripe(): Stripe {
   return stripeClient;
 }
 
+const PRODUCTION_BASE_URL = "https://www.autoverifi.com.au";
+
 export function getBaseUrl(): string {
-  return (
-    process.env.NEXT_PUBLIC_BASE_URL ??
-    process.env.VERCEL_URL?.replace(/^/, "https://") ??
-    "http://localhost:3000"
-  );
+  const configured = process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "");
+  if (configured) return configured;
+
+  // Never send Stripe redirects to ephemeral *.vercel.app deployment URLs.
+  if (process.env.VERCEL_ENV === "production") {
+    return PRODUCTION_BASE_URL;
+  }
+
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+
+  return "http://localhost:3000";
 }

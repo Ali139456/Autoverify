@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
       line_items: [buildStripeLineItem(tier, vehicleLabel, rego, state)],
       metadata: { reportId, tier },
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&report_id=${reportId}`,
-      cancel_url: `${baseUrl}/check?rego=${encodeURIComponent(rego)}&state=${state}&cancelled=1`,
+      cancel_url: `${baseUrl}/`,
     });
 
     report.stripeSessionId = session.id;
