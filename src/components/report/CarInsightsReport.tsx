@@ -175,7 +175,7 @@ export function CarInsightsReport({
           <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">
             Market valuation ({valuation.confidence} confidence)
           </h3>
-          <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          <div className="report-valuation-grid mt-3 grid gap-3 sm:grid-cols-3">
             {[
               ["Trade-in", valuation.tradeLow, valuation.tradeHigh],
               ["Private sale", valuation.privateLow, valuation.privateHigh],
