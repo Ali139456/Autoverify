@@ -10,6 +10,7 @@ export type InspectionMenuItem =
     };
 
 export const INSPECTION_MENU_ITEMS: InspectionMenuItem[] = [
+  { label: "Vehicle inspection services", href: "/vehicleinspections" },
   { label: "Pre Purchase Inspections", status: "coming_soon" },
   { label: "Lender Asset Verification", status: "coming_soon" },
   { label: "Ride Share Inspections", status: "coming_soon" },

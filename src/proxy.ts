@@ -7,6 +7,12 @@ import {
 } from "@/lib/site-mode";
 import { hasPreviewAccess, PREVIEW_COOKIE_NAME } from "@/lib/site-preview";
 
+const INSPECTION_PATH_ALIASES: Record<string, string> = {
+  "/vehicleinspection": "/vehicleinspections",
+  "/vehicle-inspection": "/vehicleinspections",
+  "/vehicle-inspections": "/vehicleinspections",
+};
+
 function withNoCacheForLiveComingSoon(
   response: NextResponse,
   host: string | null,
@@ -23,12 +29,17 @@ function withNoCacheForLiveComingSoon(
 
 export async function proxy(request: NextRequest) {
   const host = request.headers.get("host");
+  const { pathname } = request.nextUrl;
+  const inspectionRedirect = INSPECTION_PATH_ALIASES[pathname.toLowerCase()];
+
+  if (inspectionRedirect) {
+    return NextResponse.redirect(new URL(inspectionRedirect, request.url), 308);
+  }
 
   if (!isComingSoonMode(host)) {
     return NextResponse.next();
   }
 
-  const { pathname } = request.nextUrl;
   const previewToken = request.cookies.get(PREVIEW_COOKIE_NAME)?.value;
 
   if (await hasPreviewAccess(previewToken)) {
