@@ -11,6 +11,7 @@ const MAIN_LINKS = [
   { href: "/#how-it-works", label: "How it works" },
   { href: "/#whats-included", label: "What's included" },
   { href: "/pricing", label: "Pricing" },
+  { href: "/#about", label: "About us" },
   { href: "/#faq", label: "FAQ" },
 ] as const;
 

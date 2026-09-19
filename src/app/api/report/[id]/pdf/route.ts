@@ -1,6 +1,7 @@
 import { createElement, ReactElement } from "react";
 import { NextRequest, NextResponse } from "next/server";
 import { DocumentProps, renderToBuffer } from "@react-pdf/renderer";
+import { getInspectionByReportId } from "@/lib/inspections";
 import { ReportPdf } from "@/lib/pdf";
 import { getReport } from "@/lib/store";
 
@@ -21,8 +22,13 @@ export async function GET(
     );
   }
 
+  const inspection = await getInspectionByReportId(id);
+
   const buffer = await renderToBuffer(
-    createElement(ReportPdf, { report }) as ReactElement<DocumentProps>
+    createElement(ReportPdf, {
+      report,
+      photos: inspection?.photos ?? [],
+    }) as ReactElement<DocumentProps>
   );
 
   return new NextResponse(new Uint8Array(buffer), {

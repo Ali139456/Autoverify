@@ -282,7 +282,7 @@ function buildDemoResult(
 }
 
 /* ------------------------------------------------------------------ */
-/* AI insights: risk scoring + depreciation forecast                   */
+/* AI insights: risk scoring                                           */
 /* ------------------------------------------------------------------ */
 
 export function computeAiInsights(
@@ -326,23 +326,6 @@ export function computeAiInsights(
   const riskLabel: AiInsights["riskLabel"] =
     risk < 30 ? "Low Risk" : risk < 60 ? "Moderate Risk" : "High Risk";
 
-  // EVs and hybrids hold value slightly differently; simple annual curve
-  const annualRate =
-    vehicle.fuelType === "Electric"
-      ? 0.16
-      : vehicle.fuelType === "Hybrid"
-        ? 0.11
-        : 0.13;
-
-  const depreciationForecast = Array.from({ length: 5 }, (_, i) => ({
-    year: new Date().getFullYear() + i + 1,
-    predictedValue: Math.round(
-      (currentValue * Math.pow(1 - annualRate, i + 1)) / 50
-    ) * 50,
-  }));
-
-  const residualValue3yr = depreciationForecast[2].predictedValue;
-
   const buyRecommendation =
     riskLabel === "Low Risk"
       ? "This vehicle presents well against the market with no significant adverse records. Negotiating near the lower end of the private-sale range is a reasonable strategy."
@@ -354,9 +337,7 @@ export function computeAiInsights(
     riskScore: risk,
     riskLabel,
     riskFactors,
-    depreciationForecast,
-    residualValue3yr,
     buyRecommendation,
-    summary: `${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.variant} — estimated private-sale value $${currentValue.toLocaleString()} with a projected 3-year residual of $${residualValue3yr.toLocaleString()}. Overall assessment: ${riskLabel.toLowerCase()}.`,
+    summary: `${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.variant} — estimated private-sale value $${currentValue.toLocaleString()}. Overall assessment: ${riskLabel.toLowerCase()}.`,
   };
 }

@@ -6,12 +6,12 @@
   --color-ink-900: #06080f;
   --color-ink-800: #0b0f1c;
   --color-ink-700: #131a2e;
-  /* carsales.com.au blue (#007CC2) */
-  --color-accent-300: #66b8e0;
-  --color-accent-400: #339fd4;
-  --color-accent-500: #007cc2;
-  --color-accent-600: #006ba8;
-  --color-accent-700: #005a8f;
+  /* carsales.com.au blue (#0073E3) */
+  --color-accent-300: #66b1ef;
+  --color-accent-400: #3392e9;
+  --color-accent-500: #0073e3;
+  --color-accent-600: #0062c2;
+  --color-accent-700: #0051a1;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -32,7 +32,7 @@ body {
 }
 
 .text-gradient-blue {
-  color: #007cc2;
+  color: #0073e3;
 }
 
 /* Scroll-reveal (driven by the Reveal component) */
@@ -122,8 +122,8 @@ body {
   }
 }
 .vi-hero-section {
-  min-height: 100svh;
-  min-height: 100dvh;
+  /* Mobile: height follows content — avoids a large empty gap below CTAs */
+  min-height: auto;
 }
 
 .vi-hero-inner {
@@ -131,13 +131,12 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  min-height: 100svh;
-  min-height: 100dvh;
-  padding: calc(76px + 2rem) 1rem 2.5rem;
+  min-height: auto;
+  padding: calc(76px + 3.25rem) 1rem 2rem;
 }
 
 .vi-hero-content {
-  margin-top: 2.5rem;
+  margin-top: 0.5rem;
 }
 
 .vi-hero-image {
@@ -147,8 +146,15 @@ body {
 }
 
 @media (min-width: 640px) {
+  .vi-hero-section {
+    min-height: 100svh;
+    min-height: 100dvh;
+  }
+
   .vi-hero-inner {
     justify-content: center;
+    min-height: 100svh;
+    min-height: 100dvh;
     padding: 5rem 1.5rem;
   }
 
@@ -194,10 +200,10 @@ body {
 }
 .vi-card-hover:hover {
   transform: translateY(-4px);
-  border-color: rgba(77, 163, 255, 0.35);
+  border-color: rgba(102, 177, 239, 0.35);
   box-shadow:
     0 20px 50px rgba(0, 0, 0, 0.45),
-    0 0 0 1px rgba(77, 163, 255, 0.12);
+    0 0 0 1px rgba(102, 177, 239, 0.12);
 }
 .vi-portrait-ring {
   transition:
@@ -207,8 +213,8 @@ body {
 }
 .vi-portrait-ring:hover {
   transform: scale(1.03);
-  border-color: rgba(77, 163, 255, 0.45);
-  box-shadow: 0 0 40px rgba(37, 99, 235, 0.25);
+  border-color: rgba(102, 177, 239, 0.45);
+  box-shadow: 0 0 40px rgba(0, 115, 227, 0.25);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -8,195 +8,393 @@ import {
   Text,
   View,
 } from "@react-pdf/renderer";
+import {
+  buildKeyInsights,
+  buildStatusChecks,
+  formatReportDate,
+  getInspectionPhotoUrl,
+} from "./report-design";
+import { hasDamageAnalysis } from "./pricing";
 import { VehicleReport } from "./types";
+import type { InspectionPhoto } from "./types";
 
-const NAVY = "#0a0f1e";
-const ACCENT = "#3b82f6";
+const BLUE = "#0073E3";
 const GREY = "#64748b";
-const LIGHT = "#f1f5f9";
-const LOGO_PATH = path.join(process.cwd(), "public/logo/logo-inverse.png");
+const LIGHT = "#f8fafc";
+const LOGO_WHITE = path.join(process.cwd(), "public/logo/logo-inverse.png");
+const LOGO_BLUE = path.join(process.cwd(), "public/logo/logo-blue-on-white.png");
 
 const styles = StyleSheet.create({
-  page: { padding: 36, fontSize: 9, fontFamily: "Helvetica", color: "#1e293b" },
+  page: {
+    padding: 0,
+    fontSize: 8.5,
+    fontFamily: "Helvetica",
+    color: "#1e293b",
+    backgroundColor: "#ffffff",
+  },
   header: {
-    backgroundColor: NAVY,
-    margin: -36,
-    marginBottom: 18,
-    padding: 36,
-    paddingBottom: 20,
-    paddingTop: 28,
+    backgroundColor: BLUE,
+    paddingHorizontal: 32,
+    paddingVertical: 22,
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
-  brand: { color: "#ffffff", fontSize: 20, fontFamily: "Helvetica-Bold" },
-  brandAccent: { color: ACCENT },
-  logo: { width: 180, height: 39, marginBottom: 6 },
-  headerSub: { color: "#94a3b8", fontSize: 9, marginTop: 4 },
-  vehicleTitle: {
+  logoWhite: { width: 150, height: 32 },
+  headerMeta: {
+    borderLeftWidth: 1,
+    borderLeftColor: "rgba(255,255,255,0.35)",
+    paddingLeft: 14,
+    textAlign: "right",
     color: "#ffffff",
-    fontSize: 14,
+    fontSize: 7.5,
+    lineHeight: 1.55,
+    textTransform: "uppercase",
     fontFamily: "Helvetica-Bold",
-    marginTop: 14,
   },
-  section: { marginBottom: 14 },
-  sectionTitle: {
-    fontSize: 11,
+  body: { paddingHorizontal: 32, paddingTop: 22, paddingBottom: 48 },
+  title: { fontSize: 18, fontFamily: "Helvetica-Bold", color: "#0f172a" },
+  vehicleName: {
+    marginTop: 6,
+    fontSize: 12,
     fontFamily: "Helvetica-Bold",
-    color: NAVY,
-    borderBottomWidth: 2,
-    borderBottomColor: ACCENT,
+    color: BLUE,
+  },
+  subtitle: {
+    marginTop: 6,
+    fontSize: 7,
+    color: GREY,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    fontFamily: "Helvetica-Bold",
+  },
+  specBar: {
+    marginTop: 14,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    backgroundColor: LIGHT,
+    borderRadius: 6,
+    padding: 10,
+  },
+  specItem: { width: "16.66%", paddingRight: 4, marginBottom: 4 },
+  specLabel: {
+    fontSize: 6.5,
+    color: GREY,
+    textTransform: "uppercase",
+    fontFamily: "Helvetica-Bold",
+  },
+  specValue: {
+    marginTop: 2,
+    fontSize: 8.5,
+    fontFamily: "Helvetica-Bold",
+    color: "#0f172a",
+  },
+  statusBox: {
+    marginTop: 14,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    borderRadius: 8,
+    padding: 14,
+    backgroundColor: LIGHT,
+  },
+  statusTitle: {
+    fontSize: 7,
+    color: GREY,
+    textTransform: "uppercase",
+    fontFamily: "Helvetica-Bold",
+    marginBottom: 8,
+  },
+  statusRow: { flexDirection: "row", marginBottom: 5, alignItems: "flex-start" },
+  statusBullet: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#22c55e",
+    marginRight: 6,
+    marginTop: 1,
+  },
+  statusBulletMuted: { backgroundColor: "#cbd5e1" },
+  statusText: { flex: 1, fontSize: 8.5, color: "#334155" },
+  insightsHeader: {
+    marginTop: 14,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-end",
+  },
+  sectionLabel: {
+    fontSize: 8,
+    fontFamily: "Helvetica-Bold",
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    color: "#0f172a",
+  },
+  sectionLabelAccent: {
+    fontSize: 7,
+    fontFamily: "Helvetica-Bold",
+    textTransform: "uppercase",
+    color: BLUE,
+  },
+  insightGrid: {
+    marginTop: 8,
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  insightCard: {
+    width: "24%",
+    marginRight: "1%",
+    marginBottom: 6,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    borderRadius: 6,
+    padding: 8,
+    minHeight: 52,
+  },
+  insightTitle: { fontSize: 7, color: GREY },
+  insightStatus: { marginTop: 4, fontSize: 8, fontFamily: "Helvetica-Bold" },
+  clear: { color: "#15803d" },
+  warn: { color: "#dc2626" },
+  info: { color: "#0284c7" },
+  neutral: { color: "#d97706" },
+  valRow: { flexDirection: "row", marginTop: 8 },
+  valBox: {
+    width: "32%",
+    marginRight: "2%",
+    backgroundColor: "#ffffff",
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    borderRadius: 6,
+    padding: 8,
+  },
+  valLabel: { fontSize: 7, color: GREY },
+  valAmount: { marginTop: 3, fontSize: 10, fontFamily: "Helvetica-Bold", color: BLUE },
+  section: { marginTop: 14 },
+  sectionTitle: {
+    fontSize: 9,
+    fontFamily: "Helvetica-Bold",
+    color: "#0f172a",
+    borderBottomWidth: 1.5,
+    borderBottomColor: BLUE,
     paddingBottom: 3,
     marginBottom: 8,
   },
-  row: { flexDirection: "row", marginBottom: 3 },
-  label: { width: "38%", color: GREY },
-  value: { width: "62%", fontFamily: "Helvetica-Bold" },
-  grid: { flexDirection: "row", flexWrap: "wrap" },
-  gridItem: { width: "50%", flexDirection: "row", marginBottom: 3 },
-  badgeOk: { color: "#15803d", fontFamily: "Helvetica-Bold" },
-  badgeWarn: { color: "#b91c1c", fontFamily: "Helvetica-Bold" },
-  valBox: {
-    width: "31%",
-    backgroundColor: LIGHT,
-    borderRadius: 4,
-    padding: 8,
-    marginRight: "2.3%",
-  },
-  valLabel: { color: GREY, fontSize: 8 },
-  valAmount: { fontSize: 12, fontFamily: "Helvetica-Bold", color: NAVY, marginTop: 2 },
   tableHead: {
     flexDirection: "row",
-    backgroundColor: NAVY,
+    backgroundColor: "#0f172a",
     color: "#ffffff",
     padding: 5,
     fontFamily: "Helvetica-Bold",
+    fontSize: 7.5,
   },
   tableRow: {
     flexDirection: "row",
     padding: 5,
     borderBottomWidth: 1,
     borderBottomColor: "#e2e8f0",
+    fontSize: 7.5,
   },
-  para: { lineHeight: 1.5, color: "#334155" },
-  footer: {
-    position: "absolute",
-    bottom: 20,
-    left: 36,
-    right: 36,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    color: GREY,
+  para: { lineHeight: 1.45, color: "#334155", fontSize: 8.5 },
+  plusHeading: {
+    marginTop: 4,
+    borderLeftWidth: 3,
+    borderLeftColor: BLUE,
+    paddingLeft: 10,
+  },
+  plusTitle: {
+    fontSize: 8,
+    fontFamily: "Helvetica-Bold",
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+  },
+  plusSub: { marginTop: 2, fontSize: 11, fontFamily: "Helvetica-Bold", color: BLUE },
+  photoGrid: { flexDirection: "row", flexWrap: "wrap", marginTop: 8 },
+  photoTile: {
+    width: "31%",
+    marginRight: "2%",
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    borderRadius: 6,
+    overflow: "hidden",
+  },
+  photoImage: { width: "100%", height: 90, objectFit: "cover" },
+  photoCaption: {
+    padding: 5,
     fontSize: 7,
+    fontFamily: "Helvetica-Bold",
     borderTopWidth: 1,
     borderTopColor: "#e2e8f0",
-    paddingTop: 6,
   },
+  damageCard: {
+    width: "48%",
+    marginRight: "2%",
+    marginBottom: 6,
+    borderWidth: 1,
+    borderColor: "#fecaca",
+    backgroundColor: "#fef2f2",
+    borderRadius: 6,
+    padding: 8,
+  },
+  footer: {
+    position: "absolute",
+    bottom: 16,
+    left: 32,
+    right: 32,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderTopWidth: 1,
+    borderTopColor: "#e2e8f0",
+    paddingTop: 8,
+  },
+  footerLogo: { width: 90, height: 18 },
+  footerText: { fontSize: 7, color: GREY, textTransform: "uppercase" },
 });
 
 const money = (n: number) => `$${n.toLocaleString("en-AU")}`;
 
-function Row({ label, value }: { label: string; value: string }) {
+function toneStyle(tone: string) {
+  if (tone === "clear") return styles.clear;
+  if (tone === "warn") return styles.warn;
+  if (tone === "info") return styles.info;
+  return styles.neutral;
+}
+
+function ReportHeader({ report }: { report: VehicleReport }) {
   return (
-    <View style={styles.row}>
-      <Text style={styles.label}>{label}</Text>
-      <Text style={styles.value}>{value}</Text>
+    <View style={styles.header}>
+      <View>
+        <Image src={LOGO_WHITE} style={styles.logoWhite} />
+        <Text style={{ color: "rgba(255,255,255,0.75)", fontSize: 6.5, marginTop: 3 }}>
+          Past | Present | Future
+        </Text>
+      </View>
+      <View style={styles.headerMeta}>
+        <Text>Report ID: {report.id}</Text>
+        <Text>Generated: {formatReportDate(report.createdAt)}</Text>
+        <Text>Autoverifi.com.au</Text>
+      </View>
     </View>
   );
 }
 
-function CheckRow({ label, ok, okText, warnText }: { label: string; ok: boolean; okText: string; warnText: string }) {
+function ReportFooter({ pageLabel }: { pageLabel: string }) {
   return (
-    <View style={styles.row}>
-      <Text style={styles.label}>{label}</Text>
-      <Text style={ok ? styles.badgeOk : styles.badgeWarn}>
-        {ok ? okText : warnText}
-      </Text>
-    </View>
-  );
-}
-
-export function ReportPdf({ report }: { report: VehicleReport }) {
-  const { vehicle, registration, valuation, market, ai, damage } = report;
-  const footer = (
     <View style={styles.footer} fixed>
-      <Text>Auto Verifi — Vehicle History & AI Valuation Report</Text>
-      <Text>
-        Report {report.id} · Generated{" "}
-        {new Date(report.createdAt).toLocaleDateString("en-AU")}
-      </Text>
+      <Image src={LOGO_BLUE} style={styles.footerLogo} />
+      <Text style={styles.footerText}>— Autoverifi.com.au | {pageLabel}</Text>
     </View>
   );
+}
+
+function CarInsightsPage({
+  report,
+  pageLabel,
+}: {
+  report: VehicleReport;
+  pageLabel: string;
+}) {
+  const { vehicle, valuation } = report;
+  const specs = [
+    { label: "Make", value: vehicle.make },
+    { label: "Model", value: vehicle.model },
+    { label: "Badge", value: vehicle.variant || "—" },
+    { label: "Year", value: String(vehicle.year) },
+    { label: "VIN", value: vehicle.vin || "—" },
+    {
+      label: "Odometer",
+      value: vehicle.odometer ? `${vehicle.odometer.toLocaleString()} km` : "—",
+    },
+  ];
+  const statusChecks = buildStatusChecks(report);
+  const insights = buildKeyInsights(report);
+  const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
 
   return (
-    <Document title={`Auto Verifi Report ${report.id}`}>
-      <Page size="A4" style={styles.page}>
-        <View style={styles.header}>
-          <Image src={LOGO_PATH} style={styles.logo} />
-          <Text style={styles.headerSub}>
-            Vehicle History · Market Valuation · AI Future Insights
-          </Text>
-          <Text style={styles.vehicleTitle}>
-            {vehicle.year} {vehicle.make} {vehicle.model} {vehicle.variant}
-          </Text>
-          <Text style={styles.headerSub}>
-            {vehicle.rego} ({vehicle.state}) · VIN {vehicle.vin}
-          </Text>
+    <Page size="A4" style={styles.page}>
+      <ReportHeader report={report} />
+      <View style={styles.body}>
+        <Text style={styles.title}>Auto Verifi – Car Insights Report</Text>
+        <Text style={styles.vehicleName}>{vehicleTitle}</Text>
+        <Text style={styles.subtitle}>
+          A comprehensive summary of your vehicle&apos;s history, status and key insights.
+        </Text>
+
+        <View style={styles.specBar}>
+          {specs.map((s) => (
+            <View key={s.label} style={styles.specItem}>
+              <Text style={styles.specLabel}>{s.label}</Text>
+              <Text style={styles.specValue}>{s.value}</Text>
+            </View>
+          ))}
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Vehicle Details</Text>
-          <View style={styles.grid}>
-            <View style={styles.gridItem}><Text style={styles.label}>Make</Text><Text style={styles.value}>{vehicle.make}</Text></View>
-            <View style={styles.gridItem}><Text style={styles.label}>Model</Text><Text style={styles.value}>{vehicle.model}</Text></View>
-            <View style={styles.gridItem}><Text style={styles.label}>Variant</Text><Text style={styles.value}>{vehicle.variant || "—"}</Text></View>
-            <View style={styles.gridItem}><Text style={styles.label}>Year</Text><Text style={styles.value}>{String(vehicle.year)}</Text></View>
-            <View style={styles.gridItem}><Text style={styles.label}>Body</Text><Text style={styles.value}>{vehicle.bodyType || "—"}</Text></View>
-            <View style={styles.gridItem}><Text style={styles.label}>Engine</Text><Text style={styles.value}>{vehicle.engine || "—"}</Text></View>
-            <View style={styles.gridItem}><Text style={styles.label}>Fuel</Text><Text style={styles.value}>{vehicle.fuelType || "—"}</Text></View>
-            <View style={styles.gridItem}><Text style={styles.label}>Transmission</Text><Text style={styles.value}>{vehicle.transmission || "—"}</Text></View>
-            <View style={styles.gridItem}><Text style={styles.label}>Colour</Text><Text style={styles.value}>{vehicle.colour || "—"}</Text></View>
-            <View style={styles.gridItem}><Text style={styles.label}>Odometer</Text><Text style={styles.value}>{vehicle.odometer ? `${vehicle.odometer.toLocaleString()} km` : "—"}</Text></View>
-          </View>
+        <View style={styles.statusBox}>
+          <Text style={styles.statusTitle}>Vehicle Status</Text>
+          {statusChecks.map((item) => (
+            <View key={item.label} style={styles.statusRow}>
+              <View
+                style={[
+                  styles.statusBullet,
+                  item.ok ? {} : styles.statusBulletMuted,
+                ]}
+              />
+              <Text style={styles.statusText}>{item.label}</Text>
+            </View>
+          ))}
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Registration & PPSR Checks</Text>
-          <Row label="Registration status" value={registration.status} />
-          <Row label="Registration expiry" value={registration.expiryDate ?? "—"} />
-          <CheckRow label="Stolen check" ok={!registration.stolen} okText="No stolen record found" warnText="STOLEN RECORD FOUND" />
-          <CheckRow label="Write-off check" ok={!registration.writtenOff} okText="No write-off record found" warnText={registration.writeOffDetails ?? "WRITE-OFF RECORDED"} />
-          <CheckRow label="Finance / PPSR" ok={!registration.financeOwing} okText="No security interests found" warnText={registration.financeDetails ?? "FINANCE OWING"} />
+        <View style={styles.insightsHeader}>
+          <Text style={styles.sectionLabel}>Key Insights</Text>
+          <Text style={styles.sectionLabelAccent}>All the essentials. In one place.</Text>
+        </View>
+        <View style={styles.insightGrid}>
+          {insights.map((insight) => (
+            <View key={insight.id} style={styles.insightCard}>
+              <Text style={styles.insightTitle}>{insight.title}</Text>
+              <Text style={[styles.insightStatus, toneStyle(insight.tone)]}>
+                {insight.status}
+              </Text>
+            </View>
+          ))}
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            Current Market Valuation ({valuation.confidence} confidence)
+            Market Valuation ({valuation.confidence} confidence)
           </Text>
-          <View style={{ flexDirection: "row" }}>
-            <View style={styles.valBox}>
-              <Text style={styles.valLabel}>Trade-in range</Text>
-              <Text style={styles.valAmount}>{money(valuation.tradeLow)} – {money(valuation.tradeHigh)}</Text>
-            </View>
-            <View style={styles.valBox}>
-              <Text style={styles.valLabel}>Private sale range</Text>
-              <Text style={styles.valAmount}>{money(valuation.privateLow)} – {money(valuation.privateHigh)}</Text>
-            </View>
-            <View style={styles.valBox}>
-              <Text style={styles.valLabel}>Dealer retail range</Text>
-              <Text style={styles.valAmount}>{money(valuation.retailLow)} – {money(valuation.retailHigh)}</Text>
-            </View>
+          <View style={styles.valRow}>
+            {[
+              ["Trade-in", valuation.tradeLow, valuation.tradeHigh],
+              ["Private sale", valuation.privateLow, valuation.privateHigh],
+              ["Dealer retail", valuation.retailLow, valuation.retailHigh],
+            ].map(([label, low, high]) => (
+              <View key={label as string} style={styles.valBox}>
+                <Text style={styles.valLabel}>{label}</Text>
+                <Text style={styles.valAmount}>
+                  {money(low as number)} – {money(high as number)}
+                </Text>
+              </View>
+            ))}
           </View>
         </View>
+      </View>
+      <ReportFooter pageLabel={pageLabel} />
+    </Page>
+  );
+}
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Market Snapshot</Text>
-          <Row label="Average listed price" value={money(market.averagePrice)} />
-          <Row label="Median listed price" value={money(market.medianPrice)} />
-          <Row label="Active comparable listings" value={String(market.activeListings)} />
-          <Row label="Average days on market" value={`${market.averageDaysOnMarket} days`} />
-        </View>
-        {footer}
-      </Page>
+function DetailsPage({
+  report,
+  pageLabel,
+}: {
+  report: VehicleReport;
+  pageLabel: string;
+}) {
+  const { market, ai } = report;
 
-      <Page size="A4" style={styles.page}>
+  return (
+    <Page size="A4" style={styles.page}>
+      <ReportHeader report={report} />
+      <View style={styles.body}>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Comparable Vehicles For Sale</Text>
           <View style={styles.tableHead}>
@@ -219,65 +417,15 @@ export function ReportPdf({ report }: { report: VehicleReport }) {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            AI Future Insights — {ai.riskLabel} (score {ai.riskScore}/100)
+            AI Risk Assessment — {ai.riskLabel} ({ai.riskScore}/100)
           </Text>
           <Text style={[styles.para, { marginBottom: 6 }]}>{ai.summary}</Text>
           {ai.riskFactors.map((f, i) => (
-            <Text key={i} style={styles.para}>• {f}</Text>
-          ))}
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>5-Year Depreciation Forecast</Text>
-          <View style={styles.tableHead}>
-            <Text style={{ width: "50%" }}>Year</Text>
-            <Text style={{ width: "50%" }}>Predicted value</Text>
-          </View>
-          {ai.depreciationForecast.map((d) => (
-            <View key={d.year} style={styles.tableRow}>
-              <Text style={{ width: "50%" }}>{d.year}</Text>
-              <Text style={{ width: "50%" }}>{money(d.predictedValue)}</Text>
-            </View>
-          ))}
-          <Text style={[styles.para, { marginTop: 6 }]}>
-            Projected 3-year residual value: {money(ai.residualValue3yr)}
-          </Text>
-        </View>
-
-        {damage && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>
-              AI Photo Damage Analysis — Overall condition: {damage.overallCondition}
+            <Text key={i} style={styles.para}>
+              • {f}
             </Text>
-            {damage.findings.length === 0 ? (
-              <Text style={styles.badgeOk}>
-                No visible damage detected across {damage.analyzedPhotos} photo(s).
-              </Text>
-            ) : (
-              <>
-                <View style={styles.tableHead}>
-                  <Text style={{ width: "30%" }}>Panel</Text>
-                  <Text style={{ width: "22%" }}>Type</Text>
-                  <Text style={{ width: "18%" }}>Severity</Text>
-                  <Text style={{ width: "15%" }}>Confidence</Text>
-                  <Text style={{ width: "15%" }}>Est. repair</Text>
-                </View>
-                {damage.findings.map((f, i) => (
-                  <View key={i} style={styles.tableRow}>
-                    <Text style={{ width: "30%" }}>{f.panel}</Text>
-                    <Text style={{ width: "22%" }}>{f.type}</Text>
-                    <Text style={{ width: "18%" }}>{f.severity}</Text>
-                    <Text style={{ width: "15%" }}>{Math.round(f.confidence * 100)}%</Text>
-                    <Text style={{ width: "15%" }}>{money(f.repairEstimate)}</Text>
-                  </View>
-                ))}
-                <Text style={[styles.para, { marginTop: 6 }]}>
-                  Total estimated repair cost: {money(damage.totalRepairEstimate)}
-                </Text>
-              </>
-            )}
-          </View>
-        )}
+          ))}
+        </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Recommendation</Text>
@@ -286,15 +434,132 @@ export function ReportPdf({ report }: { report: VehicleReport }) {
 
         <View style={styles.section}>
           <Text style={[styles.para, { fontSize: 7, color: GREY }]}>
-            Disclaimer: This report is compiled from third-party data sources and
-            AI models at the time of generation. Auto Verifi does not guarantee
-            the accuracy or completeness of the information and it should not be
-            the sole basis of a purchase decision. Always conduct an independent
-            inspection and official PPSR search before purchasing a vehicle.
+            Disclaimer: This report is compiled from third-party data sources and AI
+            models at the time of generation. Auto Verifi does not guarantee the
+            accuracy or completeness of the information. Always conduct an
+            independent inspection and official PPSR search before purchasing.
           </Text>
         </View>
-        {footer}
-      </Page>
+      </View>
+      <ReportFooter pageLabel={pageLabel} />
+    </Page>
+  );
+}
+
+function InsightsPlusPage({
+  report,
+  photos,
+  pageLabel,
+}: {
+  report: VehicleReport;
+  photos: InspectionPhoto[];
+  pageLabel: string;
+}) {
+  const { vehicle, damage } = report;
+  const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
+
+  return (
+    <Page size="A4" style={styles.page}>
+      <ReportHeader report={report} />
+      <View style={styles.body}>
+        <Text style={styles.title}>Auto Verifi Insights+ Report</Text>
+        <Text style={styles.vehicleName}>{vehicleTitle}</Text>
+        <View style={styles.plusHeading}>
+          <Text style={styles.plusTitle}>Current Body Condition</Text>
+          <Text style={styles.plusSub}>AI-Powered Image Analysis</Text>
+        </View>
+
+        {damage ? (
+          <View style={[styles.section, { marginTop: 12 }]}>
+            <Text style={styles.para}>
+              Overall condition: {damage.overallCondition} · {damage.analyzedPhotos}{" "}
+              photo(s) analyzed
+              {damage.findings.length > 0
+                ? ` · Total estimated repair ${money(damage.totalRepairEstimate)}`
+                : " · No visible damage detected"}
+            </Text>
+          </View>
+        ) : (
+          <Text style={[styles.para, { marginTop: 12 }]}>
+            Guided walkaround photos and AI damage analysis will appear here once the
+            mobile inspection is completed.
+          </Text>
+        )}
+
+        {photos.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Walkaround Photos</Text>
+            <View style={styles.photoGrid}>
+              {photos.slice(0, 9).map((photo) => {
+                const url = getInspectionPhotoUrl(photo);
+                return (
+                  <View key={`${photo.angle}-${photo.uploadedAt}`} style={styles.photoTile}>
+                    {url ? (
+                      <Image src={url} style={styles.photoImage} />
+                    ) : (
+                      <View style={[styles.photoImage, { backgroundColor: LIGHT }]} />
+                    )}
+                    <Text style={styles.photoCaption}>{photo.label}</Text>
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        )}
+
+        {damage && damage.findings.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Detected Damage</Text>
+            <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+              {damage.findings.map((f, i) => (
+                <View key={i} style={styles.damageCard}>
+                  <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 8.5 }}>
+                    {f.panel}
+                  </Text>
+                  <Text style={{ marginTop: 2, fontSize: 8, color: "#dc2626" }}>
+                    {f.type} · {f.severity}
+                  </Text>
+                  {f.description ? (
+                    <Text style={{ marginTop: 2, fontSize: 7.5, color: GREY }}>
+                      {f.description}
+                    </Text>
+                  ) : null}
+                  <Text style={{ marginTop: 3, fontSize: 8 }}>
+                    Est. repair {money(f.repairEstimate)} ·{" "}
+                    {Math.round(f.confidence * 100)}% confidence
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+      </View>
+      <ReportFooter pageLabel={pageLabel} />
+    </Page>
+  );
+}
+
+export function ReportPdf({
+  report,
+  photos = [],
+}: {
+  report: VehicleReport;
+  photos?: InspectionPhoto[];
+}) {
+  const isPlus = hasDamageAnalysis(report.tier);
+  const totalPages = isPlus ? 3 : 2;
+
+  return (
+    <Document title={`Auto Verifi Report ${report.id}`}>
+      <CarInsightsPage report={report} pageLabel={`1 / ${totalPages}`} />
+      <DetailsPage report={report} pageLabel={`2 / ${totalPages}`} />
+      {isPlus && (
+        <InsightsPlusPage
+          report={report}
+          photos={photos}
+          pageLabel={`3 / ${totalPages}`}
+        />
+      )}
     </Document>
   );
 }

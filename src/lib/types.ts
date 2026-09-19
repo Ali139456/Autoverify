@@ -66,9 +66,6 @@ export interface AiInsights {
   riskScore: number; // 0-100, lower = safer
   riskLabel: "Low Risk" | "Moderate Risk" | "High Risk";
   riskFactors: string[];
-  /** Predicted value for years 1..5 from now */
-  depreciationForecast: { year: number; predictedValue: number }[];
-  residualValue3yr: number;
   buyRecommendation: string;
   summary: string;
 }
