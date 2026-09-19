@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { ComingSoon } from "@/components/ComingSoon";
 import { HomePage } from "@/components/HomePage";
 import { isComingSoonMode } from "@/lib/site-mode";
@@ -7,10 +7,12 @@ import { hasPreviewAccess, PREVIEW_COOKIE_NAME } from "@/lib/site-preview";
 
 export async function generateMetadata(): Promise<Metadata> {
   const cookieStore = await cookies();
+  const headerStore = await headers();
   const previewToken = cookieStore.get(PREVIEW_COOKIE_NAME)?.value;
   const preview = await hasPreviewAccess(previewToken);
+  const host = headerStore.get("host");
 
-  if (isComingSoonMode() && !preview) {
+  if (isComingSoonMode(host) && !preview) {
     return {
       title: "Auto Verifi — Launching Soon",
       description: "Auto Verifi is launching soon.",
@@ -27,10 +29,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Page() {
   const cookieStore = await cookies();
+  const headerStore = await headers();
   const previewToken = cookieStore.get(PREVIEW_COOKIE_NAME)?.value;
   const preview = await hasPreviewAccess(previewToken);
+  const host = headerStore.get("host");
 
-  if (isComingSoonMode() && !preview) {
+  if (isComingSoonMode(host) && !preview) {
     return <ComingSoon />;
   }
 

@@ -4,7 +4,9 @@ import { isComingSoonMode, isPublicWhileComingSoon } from "@/lib/site-mode";
 import { hasPreviewAccess, PREVIEW_COOKIE_NAME } from "@/lib/site-preview";
 
 export async function proxy(request: NextRequest) {
-  if (!isComingSoonMode()) {
+  const host = request.headers.get("host");
+
+  if (!isComingSoonMode(host)) {
     return NextResponse.next();
   }
 

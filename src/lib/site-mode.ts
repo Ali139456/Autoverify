@@ -8,8 +8,31 @@ const PUBLIC_PATHS = [
   "/report",
 ];
 
-/** Main marketing site is hidden by default; tender page stays public. Set NEXT_PUBLIC_COMING_SOON=false to launch fully. */
-export function isComingSoonMode(): boolean {
+const LIVE_HOSTS = new Set(["autoverifi.com.au", "www.autoverifi.com.au"]);
+
+export function normalizeHost(host: string | null | undefined): string | null {
+  if (!host) return null;
+  return host.toLowerCase().split(":")[0];
+}
+
+export function isLiveProductionHost(host: string | null | undefined): boolean {
+  const normalized = normalizeHost(host);
+  return normalized !== null && LIVE_HOSTS.has(normalized);
+}
+
+/**
+ * Live domain stays on Coming Soon until NEXT_PUBLIC_SITE_LAUNCHED=true.
+ * Preview access (/preview password) still unlocks the full site for review.
+ */
+export function isComingSoonMode(host?: string | null): boolean {
+  if (process.env.NEXT_PUBLIC_SITE_LAUNCHED === "true") {
+    return false;
+  }
+
+  if (isLiveProductionHost(host)) {
+    return true;
+  }
+
   return process.env.NEXT_PUBLIC_COMING_SOON !== "false";
 }
 

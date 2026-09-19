@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ConditionalSiteChrome } from "@/components/ConditionalSiteChrome";
+import { isComingSoonMode } from "@/lib/site-mode";
 import { hasPreviewAccess, PREVIEW_COOKIE_NAME } from "@/lib/site-preview";
 
 const geistSans = Geist({
@@ -67,8 +68,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const cookieStore = await cookies();
+  const headerStore = await headers();
   const previewToken = cookieStore.get(PREVIEW_COOKIE_NAME)?.value;
   const previewAccess = await hasPreviewAccess(previewToken);
+  const host = headerStore.get("host");
+  const comingSoonMode = isComingSoonMode(host);
 
   return (
     <html
@@ -77,7 +81,10 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="flex min-h-screen flex-col" suppressHydrationWarning>
-        <ConditionalSiteChrome previewAccess={previewAccess}>
+        <ConditionalSiteChrome
+          previewAccess={previewAccess}
+          comingSoonMode={comingSoonMode}
+        >
           {children}
         </ConditionalSiteChrome>
       </body>
