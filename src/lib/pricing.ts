@@ -29,9 +29,10 @@ export const REPORT_TIERS: Record<ReportTier, ReportTierConfig> = {
     stripePriceId: process.env.STRIPE_INSIGHTS_PRICE_ID,
     tagline: "Key Vehicle History Checks and Current Valuation Insights",
     highlights: [
-      "PPSR, finance, write-off & stolen checks",
+      "PPSR, finance, write-off and stolen vehicle check",
       "Live market insights and Retail vs Trade in Valuation",
       "Safety Recall Data",
+      "ANCAP Safety rating",
       "Warranty remaining",
       "P Plate legal status",
       "Odometer check",
@@ -46,9 +47,8 @@ export const REPORT_TIERS: Record<ReportTier, ReportTierConfig> = {
     tagline: "Everything in insights, plus AI damage detection.",
     highlights: [
       "Everything in Auto Verifi Insights",
-      "AI mobile photo inspection",
-      "Panel damage detection",
-      "Guided multi image walkaround",
+      "Guided photo image walkaround",
+      "5 minute Phone call from mechanical expert",
     ],
   },
 };

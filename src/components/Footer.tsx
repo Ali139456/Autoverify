@@ -103,7 +103,8 @@ export function Footer() {
           <Logo height={36} />
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-400">
             We combine official history records, live market data and AI
-            predictions so you can buy your next car with total confidence.
+            powered damage analysis so you can buy your next car with
+            confidence.
           </p>
           <div className="mt-5 flex items-center gap-2">
             {SOCIALS.map(({ icon: Icon, label, href }) => (

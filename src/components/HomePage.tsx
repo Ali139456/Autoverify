@@ -10,7 +10,6 @@ import {
   FileText,
   History,
 } from "lucide-react";
-import { ComparisonTable } from "@/components/ComparisonTable";
 import { PricingTierCards } from "@/components/PricingTierCards";
 import { RegoSearchForm } from "@/components/RegoSearchForm";
 import { Reveal } from "@/components/Reveal";
@@ -166,9 +165,6 @@ export function HomePage() {
           </Reveal>
           <Reveal delay={150} className="mt-8 sm:mt-12">
             <PricingTierCards showHeading={false} variant="light" />
-          </Reveal>
-          <Reveal delay={200} className="mt-8 sm:mt-12">
-            <ComparisonTable />
           </Reveal>
         </div>
       </section>

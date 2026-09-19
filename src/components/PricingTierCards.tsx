@@ -94,7 +94,7 @@ function TierCard({
           }`}
         >
           <Sparkles className="h-3 w-3" aria-hidden />
-          Includes Current Condition
+          Includes AI powered damage detection
         </span>
       )}
 
