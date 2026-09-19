@@ -77,9 +77,6 @@ export function HomePage() {
               </p>
               <div className="animate-fade-up delay-300 mt-6 sm:mt-8">
                 <RegoSearchForm />
-                <p className="mt-3 text-xs text-slate-500 sm:text-sm">
-                  Free vehicle preview — pay only when you want the full report.
-                </p>
               </div>
             </div>
 
@@ -109,7 +106,7 @@ export function HomePage() {
       <section id="whats-included" className="relative mx-auto max-w-6xl scroll-mt-24 px-4 py-12 sm:px-6 sm:py-16 lg:py-20">
         <Reveal className="mx-auto max-w-2xl text-center">
           <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-            What&apos;s in every <span className="text-accent-400">report</span>
+            Report <span className="text-accent-500">Features</span>
           </h2>
           <p className="mt-3 text-sm text-slate-400 sm:text-base">
             Past, Present &amp; Future Insights
@@ -156,15 +153,15 @@ export function HomePage() {
       >
         <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal className="mx-auto max-w-2xl text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.25em] text-accent-600">
-              Comparison
-            </p>
-            <h2 className="mt-3 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl lg:text-4xl">
-              The Auto Verifi <span className="text-accent-600">Advantage</span>
+            <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl lg:text-4xl">
+              The Auto Verifi <span className="text-accent-500">Advantage</span>
             </h2>
             <p className="mt-3 text-sm text-slate-600 sm:text-base">
-              See how Auto Verifi compares to PPSR and competitor reports
-              across every category.
+              Market leading insights where{" "}
+              <span className="font-semibold text-accent-500">
+                Data, AI and Human intelligence
+              </span>{" "}
+              meet
             </p>
           </Reveal>
           <Reveal delay={150} className="mt-8 sm:mt-12">
