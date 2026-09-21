@@ -23,12 +23,14 @@ export default async function InspectPage({
 
   if (isInspectionExpired(inspection)) {
     return (
+      <div className="min-h-[calc(100vh-6rem)] bg-white dark:bg-ink-950">
       <div className="mx-auto flex min-h-[70vh] max-w-lg flex-col items-center justify-center px-4 py-10 text-center">
-        <h1 className="text-2xl font-bold text-white">Link expired</h1>
-        <p className="mt-3 text-sm text-slate-400">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Link expired</h1>
+        <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
           This inspection link is no longer active. Open your Auto Verifi report
           to generate a new one.
         </p>
+      </div>
       </div>
     );
   }

@@ -10,8 +10,8 @@ export type InspectionMenuItem =
     };
 
 export const INSPECTION_MENU_ITEMS: InspectionMenuItem[] = [
-  { label: "Vehicle inspection services", href: "/vehicleinspections" },
   { label: "Pre Purchase Inspections", status: "coming_soon" },
+  { label: "EV Battery Health Checks", status: "coming_soon" },
   { label: "Lender Asset Verification", status: "coming_soon" },
   { label: "Ride Share Inspections", status: "coming_soon" },
   { label: "End of Lease Inspections", status: "coming_soon" },
@@ -21,7 +21,7 @@ export const INSPECTION_MENU_ITEMS: InspectionMenuItem[] = [
     external: true,
   },
   {
-    label: "PreDelivery Inspection",
+    label: "Pre Delivery Inspections",
     href: "https://www.predelivery.ai",
     external: true,
   },

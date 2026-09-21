@@ -14,10 +14,18 @@ import {
 } from "@/lib/stripe";
 import { normalizeAuMobile } from "@/lib/phone";
 import { AustralianState, ReportTier, VehicleReport } from "@/lib/types";
+import {
+  formatVehicleIdentifierLabel,
+  parseVehicleIdentifier,
+} from "@/lib/vehicle-identifier";
 
 const STATES: AustralianState[] = ["ACT", "NSW", "NT", "QLD", "SA", "TAS", "VIC", "WA"];
 
-function buildStripeLineItem(tier: ReportTier, vehicleLabel: string, rego: string, state: string) {
+function buildStripeLineItem(
+  tier: ReportTier,
+  vehicleLabel: string,
+  identifierLabel: string,
+) {
   const config = getReportTierConfig(tier);
 
   if (config.stripePriceId) {
@@ -30,7 +38,7 @@ function buildStripeLineItem(tier: ReportTier, vehicleLabel: string, rego: strin
       unit_amount: config.priceCents,
       product_data: {
         name: `${config.name} — ${vehicleLabel}`,
-        description: `Vehicle report for ${rego} (${state})`,
+        description: `Vehicle report for ${identifierLabel}`,
       },
     },
     quantity: 1,
@@ -40,20 +48,23 @@ function buildStripeLineItem(tier: ReportTier, vehicleLabel: string, rego: strin
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const rego = String(body.rego ?? "").trim().toUpperCase();
+    const rawIdentifier = String(body.vin ?? body.rego ?? "")
+      .trim()
+      .toUpperCase();
     const state = String(body.state ?? "").toUpperCase() as AustralianState;
     const tier = parseReportTier(body.tier);
     const requiresPhones = hasDamageAnalysis(tier);
     const customerPhone = normalizeAuMobile(String(body.customerPhone ?? ""));
     const ownerPhone = normalizeAuMobile(String(body.ownerPhone ?? ""));
 
-    if (!/^[A-Z0-9]{1,9}$/.test(rego)) {
+    const parsed = parseVehicleIdentifier(rawIdentifier);
+    if (!parsed) {
       return NextResponse.json(
-        { error: "Please enter a valid registration plate." },
+        { error: "Please enter a valid registration plate or 17-character VIN." },
         { status: 400 },
       );
     }
-    if (!STATES.includes(state)) {
+    if (parsed.kind === "rego" && !STATES.includes(state)) {
       return NextResponse.json(
         { error: "Please select a valid state." },
         { status: 400 },
@@ -75,9 +86,16 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const lookup = await lookupVehicle(rego, state);
+    const lookup = await lookupVehicle(
+      parsed.value,
+      parsed.kind === "rego" ? state : STATES.includes(state) ? state : undefined,
+    );
     const reportId = generateReportId();
     const vehicleLabel = `${lookup.vehicle.year} ${lookup.vehicle.make} ${lookup.vehicle.model}`;
+    const identifierLabel = formatVehicleIdentifierLabel(
+      parsed,
+      parsed.kind === "rego" ? state : STATES.includes(state) ? state : undefined,
+    );
 
     const report: VehicleReport = {
       id: reportId,
@@ -107,7 +125,7 @@ export async function POST(req: NextRequest) {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
-      line_items: [buildStripeLineItem(tier, vehicleLabel, rego, state)],
+      line_items: [buildStripeLineItem(tier, vehicleLabel, identifierLabel)],
       metadata: { reportId, tier },
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&report_id=${reportId}`,
       cancel_url: `${baseUrl}/`,

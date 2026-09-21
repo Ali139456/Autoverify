@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { ThemeProvider } from "@/components/ThemeProvider";
 export function ConditionalSiteChrome({
   children,
   previewAccess = false,
@@ -24,10 +25,12 @@ export function ConditionalSiteChrome({
   }
 
   return (
-    <>
+    <ThemeProvider>
       <Header />
-      <main className="flex-1 pt-[76px] sm:pt-[80px]">{children}</main>
+      <main className="flex-1 bg-white pt-[5.75rem] dark:bg-ink-950 sm:pt-[6rem]">
+        {children}
+      </main>
       {!hideMainFooter && <Footer />}
-    </>
+    </ThemeProvider>
   );
 }

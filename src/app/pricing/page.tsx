@@ -11,20 +11,20 @@ export const metadata: Metadata = {
 
 export default function PricingPage() {
   return (
-    <div className="relative overflow-hidden">
+    <div className="relative min-h-[calc(100vh-6rem)] overflow-hidden bg-white dark:bg-ink-950">
       <div className="pointer-events-none absolute -top-32 left-1/2 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-accent-600/15 blur-[130px]" />
       <div className="relative mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-16 lg:py-24">
         <div className="text-center">
-          <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
             Simple, honest <span className="text-gradient-blue">pricing</span>
           </h1>
-          <p className="mt-3 text-base text-slate-400 sm:text-lg">
+          <p className="mt-3 text-base text-slate-600 dark:text-slate-400 sm:text-lg">
             No subscriptions. No hidden fees. Pay once per report.
           </p>
         </div>
 
         <div className="mt-10 sm:mt-12">
-          <PricingTierCards showHeading={false} />
+          <PricingTierCards showHeading={false} variant="light" />
         </div>
 
         <div className="mt-10 text-center">
@@ -35,7 +35,7 @@ export default function PricingPage() {
             Check a rego
             <ArrowRight className="h-5 w-5" aria-hidden />
           </Link>
-          <p className="mt-3 text-xs text-slate-500">
+          <p className="mt-3 text-xs text-slate-500 dark:text-slate-500">
             Secure payment via Stripe · Instant delivery
           </p>
         </div>

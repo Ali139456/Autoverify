@@ -8,6 +8,7 @@ import { ReportPrintActions } from "@/components/report/ReportPrintActions";
 import { getReport } from "@/lib/store";
 import { hasDamageAnalysis, resolveReportTier, getReportTierConfig } from "@/lib/pricing";
 import { getInspectionByReportId } from "@/lib/inspections";
+import { buildCheckSearchUrl } from "@/lib/vehicle-identifier";
 
 export const metadata: Metadata = {
   title: "Vehicle Report",
@@ -32,21 +33,24 @@ export default async function ReportPage({
 
   if (report.status !== "paid") {
     return (
+      <div className="min-h-[calc(100vh-6rem)] bg-white dark:bg-ink-950">
       <div className="mx-auto max-w-xl px-4 py-20 text-center sm:px-6">
         <Lock className="mx-auto h-10 w-10 text-slate-500" aria-hidden />
-        <h1 className="mt-4 text-2xl font-bold text-white">
+        <h1 className="mt-4 text-2xl font-bold text-slate-900 dark:text-white">
           This report hasn&apos;t been unlocked yet
         </h1>
-        <p className="mt-2 text-slate-400">
-          Complete payment to view the full report for {vehicle.rego} (
-          {vehicle.state}).
+        <p className="mt-2 text-slate-600 dark:text-slate-400">
+          Complete payment to view the full report for{" "}
+          {vehicle.rego || vehicle.vin || "this vehicle"}
+          {vehicle.rego ? ` (${vehicle.state})` : ""}.
         </p>
         <Link
-          href={`/check?rego=${vehicle.rego}&state=${vehicle.state}`}
+          href={buildCheckSearchUrl(vehicle)}
           className="mt-8 inline-block rounded-xl bg-accent-600 px-6 py-3 font-bold text-white hover:bg-accent-500"
         >
           Complete purchase
         </Link>
+      </div>
       </div>
     );
   }

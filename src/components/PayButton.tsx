@@ -7,19 +7,25 @@ import { isValidAuMobile } from "@/lib/phone";
 import type { ReportTier } from "@/lib/types";
 
 const phoneInputClass =
-  "w-full rounded-xl border border-white/10 bg-ink-950/80 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-accent-500";
+  "w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-accent-500 dark:border-white/10 dark:bg-ink-950/80 dark:text-white dark:placeholder:text-slate-500";
 
 export function PayButton({
+  identifier,
   rego,
   state,
+  isVin = false,
   tier,
   label,
 }: {
-  rego: string;
-  state: string;
+  identifier?: string;
+  /** @deprecated Use `identifier` instead. */
+  rego?: string;
+  state?: string;
+  isVin?: boolean;
   tier: ReportTier;
   label: string;
 }) {
+  const vehicleId = identifier ?? rego ?? "";
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,7 +55,8 @@ export function PayButton({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          rego,
+          rego: isVin ? undefined : vehicleId,
+          vin: isVin ? vehicleId : undefined,
           state,
           tier,
           customerPhone: requiresPhones ? customerPhone : undefined,

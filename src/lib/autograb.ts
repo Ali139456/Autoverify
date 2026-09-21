@@ -8,6 +8,10 @@ import {
   ValuationInfo,
   VehicleIdentity,
 } from "./types";
+import {
+  cleanVehicleIdentifier,
+  parseVehicleIdentifier,
+} from "./vehicle-identifier";
 
 const AUTOGRAB_API_KEY = process.env.AUTOGRAB_API_KEY;
 const AUTOGRAB_BASE_URL =
@@ -27,19 +31,38 @@ export interface VehicleLookupResult {
 type JsonRecord = Record<string, unknown>;
 
 /**
- * Looks a vehicle up by registration plate.
+ * Looks a vehicle up by registration plate or 17-character VIN.
  *
- * Uses AutoGrab v2 registration, valuation, and market overlay APIs.
+ * Uses AutoGrab v2 registration, VIN, valuation, and market overlay APIs.
  * Falls back to deterministic demo data when AUTOGRAB_API_KEY is unset.
  */
 export async function lookupVehicle(
-  rego: string,
-  state: AustralianState,
+  identifier: string,
+  state?: AustralianState,
 ): Promise<VehicleLookupResult> {
-  if (AUTOGRAB_API_KEY) {
-    return lookupViaAutograb(rego, state);
+  const parsed = parseVehicleIdentifier(identifier);
+  if (!parsed) {
+    throw new Error(
+      "Enter a valid registration plate or 17-character VIN.",
+    );
   }
-  return buildDemoResult(rego, state);
+
+  if (parsed.kind === "vin") {
+    const contextState = state ?? "NSW";
+    if (AUTOGRAB_API_KEY) {
+      return lookupViaVin(parsed.value, contextState);
+    }
+    return buildDemoResult(parsed.value, contextState, { vin: parsed.value });
+  }
+
+  if (!state) {
+    throw new Error("Please select a state for registration plate lookup.");
+  }
+
+  if (AUTOGRAB_API_KEY) {
+    return lookupViaAutograb(parsed.value, state);
+  }
+  return buildDemoResult(parsed.value, state);
 }
 
 function autograbHeaders(): Record<string, string> {
@@ -140,6 +163,138 @@ async function lookupViaAutograb(
     result.registration,
   );
   return result;
+}
+
+async function lookupViaVin(
+  vin: string,
+  state: AustralianState,
+): Promise<VehicleLookupResult> {
+  const res = await autograbGet(
+    `/vehicles/vins/${encodeURIComponent(vin)}?region=au&features=${REGISTRATION_FEATURES},registration_status,writeoff_info`,
+  );
+
+  if (res.status === 404) {
+    throw new Error(
+      `No vehicle found for VIN ${vin}. Check the VIN and try again.`,
+    );
+  }
+
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => null);
+    const message =
+      typeof errorBody?.message === "string"
+        ? errorBody.message
+        : `Autograb VIN lookup failed (${res.status}).`;
+    throw new Error(message);
+  }
+
+  const vinData = (await res.json()) as JsonRecord;
+  const vehicleRecord = vinData.vehicle as JsonRecord | undefined;
+  const vehicleId = vehicleRecord?.id as string | undefined;
+
+  if (!vehicleId || !vehicleRecord) {
+    const upstream = vinData.upstream_vehicle as string | undefined;
+    throw new Error(
+      upstream
+        ? `We found "${upstream}" but couldn't match it to our catalogue.`
+        : `No vehicle found for VIN ${vin}. Check the VIN and try again.`,
+    );
+  }
+
+  const vehicle = mapVehicleIdentityFromVin(vin, state, vehicleRecord, vinData);
+
+  const market = await fetchMarketOverlay(vehicleId, vehicle);
+  if (market?.averageOdometer) {
+    vehicle.odometer = market.averageOdometer;
+  }
+
+  const valuation = await fetchValuation(vehicleId, vehicle);
+  const demo = buildDemoResult(vin, state, { vin });
+  const resolvedValuation = valuation ?? demo.valuation;
+  const futureValue =
+    (await fetchResidualValuation(vehicleId, vehicle)) ??
+    buildEstimatedFutureValue(vehicle, resolvedValuation);
+
+  const registration =
+    parseRegistrationFromVinPayload(vinData) ?? demo.registration;
+
+  const result: VehicleLookupResult = {
+    vehicle,
+    registration,
+    valuation: resolvedValuation,
+    futureValue,
+    market: market ?? demo.market,
+    ai: demo.ai,
+  };
+
+  result.ai = computeAiInsights(
+    result.vehicle,
+    result.valuation,
+    result.registration,
+  );
+  return result;
+}
+
+function parseRegistrationFromVinPayload(
+  vinData: JsonRecord,
+): RegistrationInfo | null {
+  const statusRaw = vinData.registration_status;
+  const writeoffRaw = vinData.writeoff_info;
+  if (!statusRaw && !writeoffRaw) return null;
+
+  const statusRecord =
+    typeof statusRaw === "object" && statusRaw !== null
+      ? (statusRaw as JsonRecord)
+      : null;
+  const writeoffRecord =
+    typeof writeoffRaw === "object" && writeoffRaw !== null
+      ? (writeoffRaw as JsonRecord)
+      : null;
+
+  const writtenOff = Boolean(
+    writeoffRecord?.written_off ??
+      writeoffRecord?.is_written_off ??
+      writeoffRecord?.has_writeoff,
+  );
+
+  return {
+    status: mapRegistrationStatus(
+      String(statusRecord?.registration_status ?? statusRecord?.status ?? ""),
+    ),
+    expiryDate: (statusRecord?.registration_expiry as string) ?? null,
+    stolen: false,
+    writtenOff,
+    writeOffDetails: writtenOff
+      ? "Write-off record detected on VIN lookup"
+      : null,
+    ppsrEncumbrance: false,
+    financeOwing: false,
+    financeDetails: null,
+  };
+}
+
+function mapVehicleIdentityFromVin(
+  vin: string,
+  state: AustralianState,
+  vehicle: JsonRecord,
+  vinData: JsonRecord,
+): VehicleIdentity {
+  return {
+    rego: "",
+    state,
+    vin,
+    make: String(vehicle.make ?? "Unknown"),
+    model: String(vehicle.model ?? "Unknown"),
+    variant: String(vehicle.badge ?? vehicle.variant ?? ""),
+    series: String(vehicle.series ?? vehicle.model_year ?? ""),
+    year: Number(vehicle.year) || Number(vehicle.release_year) || 0,
+    bodyType: String(vehicle.body_type ?? ""),
+    fuelType: String(vehicle.fuel ?? vehicle.fuel_type ?? ""),
+    transmission: String(vehicle.transmission ?? ""),
+    engine: String(vehicle.engine ?? ""),
+    colour: String(vinData.colour ?? vehicle.colour ?? ""),
+    odometer: null,
+  };
 }
 
 function mapVehicleIdentity(
@@ -419,21 +574,26 @@ const DEMO_VEHICLES = [
 const COLOURS = ["White", "Silver", "Black", "Blue", "Grey", "Red"];
 
 function buildDemoResult(
-  rego: string,
+  identifier: string,
   state: AustralianState,
+  options?: { vin?: string },
 ): VehicleLookupResult {
-  const rand = seededRandom(rego.toUpperCase() + state);
+  const seedKey = options?.vin ?? cleanVehicleIdentifier(identifier);
+  const rand = seededRandom(seedKey + state);
   const spec = DEMO_VEHICLES[Math.floor(rand() * DEMO_VEHICLES.length)];
   const year = 2016 + Math.floor(rand() * 9);
   const age = new Date().getFullYear() - year;
   const odometer = Math.round((8000 + rand() * 14000) * Math.max(age, 0.5));
 
+  const plate = options?.vin ? "" : cleanVehicleIdentifier(identifier);
   const vehicle: VehicleIdentity = {
-    rego: rego.toUpperCase(),
+    rego: plate,
     state,
-    vin: `6T1${rego.toUpperCase().padEnd(3, "X").slice(0, 3)}${String(
-      Math.floor(rand() * 1e11),
-    ).padStart(11, "0")}`,
+    vin:
+      options?.vin ??
+      `6T1${plate.padEnd(3, "X").slice(0, 3)}${String(
+        Math.floor(rand() * 1e11),
+      ).padStart(11, "0")}`,
     make: spec.make,
     model: spec.model,
     variant: spec.variant,

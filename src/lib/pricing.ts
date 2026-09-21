@@ -1,12 +1,20 @@
 import type { ReportTier } from "./types";
 
+export type TierHighlight =
+  | string
+  | {
+      text: string;
+      accent?: boolean;
+    };
+
 export type ReportTierConfig = {
   id: ReportTier;
   name: string;
   priceCents: number;
   stripePriceId?: string;
   tagline: string;
-  highlights: string[];
+  taglineAccent?: string;
+  highlights: TierHighlight[];
 };
 
 export const INSIGHTS_PRICE_CENTS = Number(
@@ -44,11 +52,12 @@ export const REPORT_TIERS: Record<ReportTier, ReportTierConfig> = {
     name: "Auto Verifi Insights+",
     priceCents: INSIGHTS_PLUS_PRICE_CENTS,
     stripePriceId: process.env.STRIPE_INSIGHTS_PLUS_PRICE_ID,
-    tagline: "Everything in insights, plus AI damage detection.",
+    tagline: "Everything in insights, plus AI damage detection+",
+    taglineAccent: "phone call from mechanic",
     highlights: [
       "Everything in Auto Verifi Insights",
       "Guided photo image walkaround",
-      "5 minute Phone call from mechanical expert",
+      { text: "5 minute Phone call from mechanical expert", accent: true },
     ],
   },
 };

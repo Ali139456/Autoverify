@@ -9,32 +9,34 @@ import type { ReportTier } from "@/lib/types";
 import { PayButton } from "@/components/PayButton";
 
 type PricingTierCardsProps = {
+  /** Registration plate or VIN used for checkout. */
+  identifier?: string;
+  /** @deprecated Use `identifier` instead. */
   rego?: string;
   state?: string;
+  isVin?: boolean;
   showHeading?: boolean;
   variant?: "dark" | "light";
 };
 
 export function PricingTierCards({
+  identifier,
   rego,
   state,
+  isVin = false,
   showHeading = true,
-  variant = "dark",
+  variant = "light",
 }: PricingTierCardsProps) {
-  const checkoutReady = Boolean(rego && state);
-  const isLight = variant === "light";
+  const checkoutId = identifier ?? rego;
+  const checkoutReady = Boolean(checkoutId && (isVin || state));
 
   return (
     <div>
       {showHeading && (
         <div className="mx-auto max-w-3xl text-center">
-          <h2
-            className={`text-2xl font-extrabold tracking-tight sm:text-3xl lg:text-4xl ${
-              isLight ? "text-slate-900" : "text-white"
-            }`}
-          >
+          <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-3xl lg:text-4xl">
             <span className="text-accent-600">Auto Verifi Insights</span>
-            <span className={isLight ? "text-slate-900" : "text-white"}> — </span>
+            <span className="text-slate-900 dark:text-white"> — </span>
             Past, Present and Future insights to buy with confidence
           </h2>
         </div>
@@ -45,8 +47,9 @@ export function PricingTierCards({
           <TierCard
             key={tier}
             tier={tier}
-            rego={rego}
+            identifier={checkoutId}
             state={state}
+            isVin={isVin}
             checkoutReady={checkoutReady}
             variant={variant}
           />
@@ -58,76 +61,85 @@ export function PricingTierCards({
 
 function TierCard({
   tier,
-  rego,
+  identifier,
   state,
+  isVin,
   checkoutReady,
   variant,
 }: {
   tier: ReportTier;
-  rego?: string;
+  identifier?: string;
   state?: string;
+  isVin?: boolean;
   checkoutReady: boolean;
   variant: "dark" | "light";
 }) {
   const config = getReportTierConfig(tier);
   const isPlus = tier === "insights_plus";
-  const isLight = variant === "light";
-
   return (
     <div
       className={`relative flex h-full flex-col overflow-hidden rounded-2xl border p-6 sm:p-8 ${
-        isLight
-          ? isPlus
-            ? "border-accent-500/30 bg-gradient-to-b from-blue-50 to-white shadow-sm"
-            : "border-slate-200 bg-white shadow-sm"
-          : isPlus
-            ? "border-accent-500/40 bg-gradient-to-b from-accent-700/30 to-ink-900/90"
-            : "border-white/10 bg-ink-900/90"
+        isPlus
+          ? "border-accent-500/30 bg-gradient-to-b from-blue-50 to-white shadow-sm dark:border-accent-500/50 dark:from-accent-700/40 dark:to-ink-950 dark:shadow-none"
+          : "border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-ink-800 dark:shadow-none"
       }`}
     >
       {isPlus && (
         <span
-          className={`absolute right-4 top-4 inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold tracking-wider ${
-            isLight
-              ? "border-accent-500/30 bg-accent-50 text-accent-700"
-              : "border-accent-400/40 bg-accent-500/15 text-accent-300"
-          }`}
+          className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full border border-accent-500/30 bg-accent-50 px-2.5 py-1 text-[10px] font-bold tracking-wider text-accent-700 dark:border-accent-400/40 dark:bg-accent-500/15 dark:text-accent-300"
         >
           <Sparkles className="h-3 w-3" aria-hidden />
           Includes AI powered damage detection
         </span>
       )}
 
-      <p
-        className={`text-sm font-semibold sm:text-base ${
-          isLight ? "text-slate-900" : "text-white"
-        }`}
-      >
+      <p className="text-sm font-semibold text-slate-900 dark:text-white sm:text-base">
         {config.name}
       </p>
       <p className="mt-3 text-4xl font-extrabold text-accent-600 sm:text-5xl">
         {formatTierPrice(tier)}
       </p>
-      <p className={`mt-2 text-sm ${isLight ? "text-slate-600" : "text-slate-400"}`}>
+      <p className="mt-2 text-sm text-slate-900 dark:text-slate-300">
         {config.tagline}
+        {config.taglineAccent ? (
+          <>
+            {" "}
+            <span className="font-medium text-accent-600 dark:text-accent-400">
+              {config.taglineAccent}
+            </span>
+          </>
+        ) : null}
       </p>
 
-      <ul className={`mt-5 flex-1 space-y-2 text-sm ${isLight ? "text-slate-700" : "text-slate-300"}`}>
-        {config.highlights.map((item) => (
-          <li key={item} className="flex gap-2">
-            <span className="text-accent-600" aria-hidden>
-              •
-            </span>
-            {item}
-          </li>
-        ))}
+      <ul className="mt-5 flex-1 space-y-2 text-sm text-slate-700 dark:text-slate-300">
+        {config.highlights.map((item) => {
+          const text = typeof item === "string" ? item : item.text;
+          const accent = typeof item === "object" && item.accent;
+          return (
+            <li key={text} className="flex gap-2">
+              <span className="text-accent-600" aria-hidden>
+                •
+              </span>
+              <span
+                className={
+                  accent
+                    ? "font-medium text-accent-600 dark:text-accent-400"
+                    : undefined
+                }
+              >
+                {text}
+              </span>
+            </li>
+          );
+        })}
       </ul>
 
       <div className="mt-6 pt-2">
         {checkoutReady ? (
           <PayButton
-            rego={rego!}
-            state={state!}
+            identifier={identifier!}
+            state={state}
+            isVin={isVin}
             tier={tier}
             label={`Get ${isPlus ? "Insights+" : "Insights"}`}
           />

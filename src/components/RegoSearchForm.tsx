@@ -3,82 +3,95 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, ChevronDown } from "lucide-react";
+import {
+  isVin,
+  parseVehicleIdentifier,
+} from "@/lib/vehicle-identifier";
 
 const STATES = ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "ACT", "NT"];
 
 export function RegoSearchForm({
   defaultRego = "",
+  defaultVin = "",
   defaultState = "NSW",
   compact = false,
 }: {
   defaultRego?: string;
+  defaultVin?: string;
   defaultState?: string;
   compact?: boolean;
 }) {
   const router = useRouter();
-  const [rego, setRego] = useState(defaultRego);
+  const [query, setQuery] = useState(defaultVin || defaultRego);
   const [state, setState] = useState(defaultState);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const vinMode = isVin(query);
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const cleaned = rego.trim().toUpperCase().replace(/\s+/g, "");
-    if (!/^[A-Z0-9]{1,9}$/.test(cleaned)) {
-      setError("Enter a valid registration plate (letters and numbers only).");
+    const parsed = parseVehicleIdentifier(query);
+    if (!parsed) {
+      setError("Enter a valid registration plate or 17-character VIN.");
       return;
     }
+    if (parsed.kind === "rego" && !STATES.includes(state)) {
+      setError("Please select a valid state.");
+      return;
+    }
+
     setError(null);
     setLoading(true);
-    router.push(`/check?rego=${encodeURIComponent(cleaned)}&state=${state}`);
+
+    if (parsed.kind === "vin") {
+      const params = new URLSearchParams({ vin: parsed.value });
+      if (state) params.set("state", state);
+      router.push(`/check?${params.toString()}`);
+      return;
+    }
+
+    router.push(
+      `/check?rego=${encodeURIComponent(parsed.value)}&state=${state}`,
+    );
   }
+
+  const shellClass = compact
+    ? ""
+    : "mx-auto max-w-md rounded-2xl border border-slate-200 bg-white p-2.5 shadow-lg dark:border-white/10 dark:bg-ink-800 dark:shadow-none sm:p-3 lg:mx-0";
+
+  const fieldClass =
+    "h-10 w-full min-w-0 rounded-lg border border-slate-200 bg-white text-sm font-semibold text-slate-900 outline-none transition placeholder:font-normal placeholder:normal-case placeholder:text-slate-400 focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 dark:border-white/15 dark:bg-ink-950 dark:font-black dark:text-white dark:placeholder:text-slate-500 sm:text-base";
 
   return (
     <form onSubmit={onSubmit} className="w-full">
-      <div
-        className={`w-full ${
-          compact
-            ? ""
-            : "mx-auto max-w-md rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.07] to-ink-800/60 p-2.5 backdrop-blur-xl sm:p-3 lg:mx-0"
-        }`}
-      >
-        {/* Field labels */}
+      <div className={`w-full ${shellClass}`}>
         <div className="mb-1 grid grid-cols-2 gap-2 px-1 text-left">
-          <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-500">
-            Registration plate
+          <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
+            Registration Plate or VIN
           </span>
-          <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-500">
-            State
+          <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
+            State{vinMode ? " (optional)" : ""}
           </span>
         </div>
 
-        {/* Row 1: plate + state, equal widths */}
         <div className="grid grid-cols-2 gap-2">
-          {/* Number-plate style input */}
           <div className="relative min-w-0">
-            <span className="absolute inset-y-0 left-0 z-10 flex w-7 flex-col items-center justify-center gap-0.5 rounded-l-lg bg-gradient-to-b from-accent-500 to-accent-700">
-              <span className="h-1 w-1 rounded-full border border-white/70" />
-              <span className="text-[7px] font-black tracking-widest text-white">
-                AUS
-              </span>
-            </span>
             <input
-              value={rego}
-              onChange={(e) => setRego(e.target.value)}
-              placeholder="ABC 123"
-              aria-label="Registration plate"
-              maxLength={9}
-              className="plate-input h-10 w-full min-w-0 rounded-lg border border-white/15 bg-ink-950 pl-8 pr-2 text-center text-sm font-black text-white outline-none transition placeholder:text-slate-600 focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 sm:text-base"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Enter Rego or VIN Here"
+              aria-label="Registration plate or VIN"
+              maxLength={17}
+              className={`${fieldClass} px-3 text-left ${!vinMode && query.trim() ? "plate-input uppercase" : ""}`}
             />
           </div>
 
-          {/* State select with custom chevron */}
           <div className="relative min-w-0">
             <select
               value={state}
               onChange={(e) => setState(e.target.value)}
               aria-label="State of registration"
-              className="h-10 w-full min-w-0 cursor-pointer appearance-none rounded-lg border border-white/15 bg-ink-950 pl-3 pr-8 text-center text-sm font-bold text-white outline-none transition focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 sm:text-base"
+              className={`${fieldClass} cursor-pointer appearance-none pl-3 pr-8 text-center font-bold`}
             >
               {STATES.map((s) => (
                 <option key={s} value={s}>
@@ -86,13 +99,12 @@ export function RegoSearchForm({
                 </option>
               ))}
             </select>
-            <span className="pointer-events-none absolute right-2 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-white/5">
-              <ChevronDown className="h-3 w-3 text-accent-400" aria-hidden />
+            <span className="pointer-events-none absolute right-2 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5">
+              <ChevronDown className="h-3 w-3 text-accent-500 dark:text-accent-400" aria-hidden />
             </span>
           </div>
         </div>
 
-        {/* Row 2: centered submit button */}
         <button
           type="submit"
           disabled={loading}
@@ -106,7 +118,10 @@ export function RegoSearchForm({
         </button>
       </div>
       {error && (
-        <p className="mt-2 text-sm font-medium text-red-400" role="alert">
+        <p
+          className="mt-2 text-sm font-medium text-red-600 dark:text-red-400"
+          role="alert"
+        >
           {error}
         </p>
       )}

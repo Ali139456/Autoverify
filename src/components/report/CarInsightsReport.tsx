@@ -17,6 +17,7 @@ import {
   type InsightStatus,
 } from "@/lib/report-design";
 import type { VehicleReport } from "@/lib/types";
+import { buildCheckSearchUrl } from "@/lib/vehicle-identifier";
 import { InsightCategoryIcon, SpecIcon } from "./ReportInsightIcon";
 import { ReportShell } from "./ReportShell";
 
@@ -257,7 +258,7 @@ export function CarInsightsReport({
               </div>
             </div>
             <Link
-              href={`/check?rego=${vehicle.rego}&state=${vehicle.state}`}
+              href={buildCheckSearchUrl(vehicle)}
               className="report-no-print-link inline-flex shrink-0 items-center gap-2 rounded-full bg-[#0073E3] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#0062c2]"
             >
               View upgrade options

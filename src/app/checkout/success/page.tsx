@@ -32,11 +32,12 @@ export default async function CheckoutSuccessPage({
   }
 
   return (
+    <div className="min-h-[calc(100vh-6rem)] bg-white dark:bg-ink-950">
     <div className="mx-auto max-w-2xl px-4 py-20 text-center sm:px-6">
-      <h1 className="text-2xl font-bold text-white">
+      <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
         We couldn&apos;t locate your report
       </h1>
-      <p className="mt-3 text-slate-400">
+      <p className="mt-3 text-slate-600 dark:text-slate-400">
         Your payment may still have gone through. Please contact support with
         your payment receipt, or try your search again.
       </p>
@@ -46,6 +47,7 @@ export default async function CheckoutSuccessPage({
       >
         Back to home
       </Link>
+    </div>
     </div>
   );
 }
