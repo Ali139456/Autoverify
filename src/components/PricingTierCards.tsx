@@ -17,6 +17,9 @@ type PricingTierCardsProps = {
   isVin?: boolean;
   showHeading?: boolean;
   variant?: "dark" | "light";
+  /** When set, tier cards select a plan instead of paying inline. */
+  onSelectTier?: (tier: ReportTier) => void;
+  selectedTier?: ReportTier | null;
 };
 
 export function PricingTierCards({
@@ -26,6 +29,8 @@ export function PricingTierCards({
   isVin = false,
   showHeading = true,
   variant = "light",
+  onSelectTier,
+  selectedTier = null,
 }: PricingTierCardsProps) {
   const checkoutId = identifier ?? rego;
   const checkoutReady = Boolean(checkoutId && (isVin || state));
@@ -52,6 +57,8 @@ export function PricingTierCards({
             isVin={isVin}
             checkoutReady={checkoutReady}
             variant={variant}
+            onSelectTier={onSelectTier}
+            selectedTier={selectedTier}
           />
         ))}
       </div>
@@ -66,6 +73,8 @@ function TierCard({
   isVin,
   checkoutReady,
   variant,
+  onSelectTier,
+  selectedTier,
 }: {
   tier: ReportTier;
   identifier?: string;
@@ -73,15 +82,18 @@ function TierCard({
   isVin?: boolean;
   checkoutReady: boolean;
   variant: "dark" | "light";
+  onSelectTier?: (tier: ReportTier) => void;
+  selectedTier?: ReportTier | null;
 }) {
   const config = getReportTierConfig(tier);
   const isPlus = tier === "insights_plus";
+  const isSelected = selectedTier === tier;
   return (
     <div
       className={`relative flex h-full flex-col overflow-hidden rounded-2xl border p-6 sm:p-8 ${
         isPlus
-          ? "border-accent-500/30 bg-gradient-to-b from-blue-50 to-white shadow-sm dark:border-accent-500/50 dark:from-accent-700/40 dark:to-ink-950 dark:shadow-none"
-          : "border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-ink-800 dark:shadow-none"
+          ? `border-accent-500/30 bg-gradient-to-b from-blue-50 to-white shadow-sm dark:border-accent-500/50 dark:from-accent-700/40 dark:to-ink-950 dark:shadow-none ${isSelected ? "ring-2 ring-accent-500" : ""}`
+          : `border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-ink-800 dark:shadow-none ${isSelected ? "ring-2 ring-accent-500" : ""}`
       }`}
     >
       {isPlus && (
@@ -135,13 +147,23 @@ function TierCard({
       </ul>
 
       <div className="mt-6 pt-2">
-        {checkoutReady ? (
+        {checkoutReady && onSelectTier ? (
+          <button
+            type="button"
+            onClick={() => onSelectTier(tier)}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent-600 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-accent-500 sm:text-base"
+          >
+            {isSelected ? "Selected" : `Get ${isPlus ? "Insights+" : "Insights"}`}
+            <ArrowRight className="h-4 w-4" aria-hidden />
+          </button>
+        ) : checkoutReady ? (
           <PayButton
             identifier={identifier!}
             state={state}
             isVin={isVin}
             tier={tier}
             label={`Get ${isPlus ? "Insights+" : "Insights"}`}
+            requireEmail={false}
           />
         ) : (
           <Link

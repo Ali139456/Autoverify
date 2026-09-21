@@ -23,6 +23,13 @@ export interface VehicleIdentity {
   engine: string;
   colour: string;
   odometer: number | null;
+  /** Where the odometer reading came from, when known. */
+  odometerSource?: string | null;
+  ancapRating?: string | null;
+  warrantyRemaining?: string | null;
+  pPlateLegal?: string | null;
+  /** Primary listing photo from AutoGrab market/history data. */
+  heroImageUrl?: string | null;
 }
 
 export interface RegistrationInfo {
@@ -72,6 +79,7 @@ export interface MarketInfo {
   averagePrice: number;
   medianPrice: number;
   averageOdometer?: number;
+  coverImageUrl?: string;
   activeListings: number;
   averageDaysOnMarket: number;
   comparableListings: MarketListing[];
@@ -143,6 +151,7 @@ export interface VehicleReport {
   createdAt: string;
   status: ReportStatus;
   tier?: ReportTier;
+  customerEmail?: string | null;
   customerPhone?: string | null;
   ownerPhone?: string | null;
   stripeSessionId: string | null;

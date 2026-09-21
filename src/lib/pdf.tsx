@@ -320,7 +320,6 @@ function ReportHeader({ report }: { report: VehicleReport }) {
         </Text>
       </View>
       <View style={styles.headerMeta}>
-        <Text>Report ID: {report.id}</Text>
         <Text>Generated: {formatReportDate(report.createdAt)}</Text>
         <Text>Autoverifi.com.au</Text>
       </View>
@@ -413,9 +412,24 @@ function CarInsightsPage({
               <View style={styles.insightBottom}>
                 <View style={styles.insightStatusRow}>
                   <PdfStatusBadge tone={insight.tone} />
-                  <Text style={[styles.insightStatus, toneStyle(insight.tone)]}>
-                    {insight.status}
-                  </Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.insightStatus, toneStyle(insight.tone)]}>
+                      {insight.status}
+                    </Text>
+                    {insight.statusSubtext ? (
+                      <Text
+                        style={[
+                          styles.insightStatus,
+                          insight.id === "registration"
+                            ? toneStyle(insight.tone)
+                            : { color: GREY, fontFamily: "Helvetica" },
+                          { marginTop: 2, fontSize: 8 },
+                        ]}
+                      >
+                        {insight.statusSubtext}
+                      </Text>
+                    ) : null}
+                  </View>
                 </View>
                 <Text style={{ fontSize: 9, color: "#cbd5e1" }}>{">"}</Text>
               </View>

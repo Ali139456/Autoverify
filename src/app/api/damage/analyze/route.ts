@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { analyzeDamage } from "@/lib/ravin";
 import { getReport, updateReport } from "@/lib/store";
 
-const MAX_PHOTOS = 8;
+const MAX_PHOTOS = 12;
 const MAX_SIZE = 10 * 1024 * 1024; // 10 MB per photo
 
 export async function POST(req: NextRequest) {

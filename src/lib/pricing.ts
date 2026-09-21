@@ -24,7 +24,7 @@ export const INSIGHTS_PRICE_CENTS = Number(
 );
 
 export const INSIGHTS_PLUS_PRICE_CENTS = Number(
-  process.env.INSIGHTS_PLUS_PRICE_CENTS ?? 8900,
+  process.env.INSIGHTS_PLUS_PRICE_CENTS ?? 6900,
 );
 
 const CURRENCY = (process.env.REPORT_CURRENCY ?? "aud").toUpperCase();
@@ -53,11 +53,12 @@ export const REPORT_TIERS: Record<ReportTier, ReportTierConfig> = {
     priceCents: INSIGHTS_PLUS_PRICE_CENTS,
     stripePriceId: process.env.STRIPE_INSIGHTS_PLUS_PRICE_ID,
     tagline: "Everything in insights, plus AI damage detection+",
-    taglineAccent: "phone call from mechanic",
+    taglineAccent: "predicted future valuation",
     highlights: [
       "Everything in Auto Verifi Insights",
       "Guided photo image walkaround",
-      { text: "5 minute Phone call from mechanical expert", accent: true },
+      "Predicted future valuation",
+      "AI Damage detection - body and tyres",
     ],
   },
 };

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { sendPurchaseConfirmationEmail } from "@/lib/email";
 import { getStripe, isStripeConfigured } from "@/lib/stripe";
 import { getReport, updateReport } from "@/lib/store";
 
@@ -21,7 +22,18 @@ export default async function CheckoutSuccessPage({
         session.payment_status === "paid" &&
         session.metadata?.reportId === reportId
       ) {
-        await updateReport(reportId, { status: "paid" });
+        const email =
+          session.customer_details?.email ??
+          session.customer_email ??
+          report.customerEmail ??
+          null;
+        const updated = await updateReport(reportId, {
+          status: "paid",
+          customerEmail: email,
+        });
+        if (updated && email) {
+          await sendPurchaseConfirmationEmail(updated, email).catch(() => null);
+        }
       }
     }
     if (report) {

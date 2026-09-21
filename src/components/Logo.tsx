@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
-const LOGO_ASPECT = 2363 / 515;
+/** Cropped accent SVG lockup (viewBox 560×90). */
+const LOGO_ASPECT = 560 / 90;
 
 type LogoProps = {
   className?: string;
@@ -9,7 +10,7 @@ type LogoProps = {
   maxWidth?: string;
   priority?: boolean;
   linked?: boolean;
-  /** auto = swap by theme class on html */
+  /** auto, light, and dark all use the site accent blue lockup. */
   variant?: "auto" | "light" | "dark";
 };
 
@@ -19,7 +20,6 @@ export function Logo({
   maxWidth = "min(280px, 58vw)",
   priority = false,
   linked = true,
-  variant = "auto",
 }: LogoProps) {
   const width = Math.round(height * LOGO_ASPECT);
 
@@ -28,44 +28,14 @@ export function Logo({
       className={`inline-flex shrink-0 items-center ${className}`}
       style={{ height, maxWidth }}
     >
-      {variant === "dark" ? (
-        <Image
-          src="/logo/logo-inverse.png"
-          alt="Auto Verifi"
-          width={width}
-          height={height}
-          priority={priority}
-          className="h-full w-auto max-w-full object-contain object-left"
-        />
-      ) : variant === "light" ? (
-        <Image
-          src="/logo/logo-blue.png"
-          alt="Auto Verifi"
-          width={width}
-          height={height}
-          priority={priority}
-          className="h-full w-auto max-w-full object-contain object-left"
-        />
-      ) : (
-        <>
-          <Image
-            src="/logo/logo-blue.png"
-            alt="Auto Verifi"
-            width={width}
-            height={height}
-            priority={priority}
-            className="h-full w-auto max-w-full object-contain object-left dark:hidden"
-          />
-          <Image
-            src="/logo/logo-inverse.png"
-            alt="Auto Verifi"
-            width={width}
-            height={height}
-            priority={priority}
-            className="hidden h-full w-auto max-w-full object-contain object-left dark:block"
-          />
-        </>
-      )}
+      <Image
+        src="/logo/auto-verifi-accent.svg"
+        alt="Auto Verifi"
+        width={width}
+        height={height}
+        priority={priority}
+        className="h-full w-auto max-w-full object-contain object-left"
+      />
     </span>
   );
 

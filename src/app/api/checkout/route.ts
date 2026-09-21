@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
     const state = String(body.state ?? "").toUpperCase() as AustralianState;
     const tier = parseReportTier(body.tier);
     const requiresPhones = hasDamageAnalysis(tier);
+    const customerEmail = String(body.customerEmail ?? "").trim().toLowerCase();
     const customerPhone = normalizeAuMobile(String(body.customerPhone ?? ""));
     const ownerPhone = normalizeAuMobile(String(body.ownerPhone ?? ""));
 
@@ -102,6 +103,7 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString(),
       status: "pending_payment",
       tier,
+      customerEmail: customerEmail || null,
       customerPhone: customerPhone ?? null,
       ownerPhone: ownerPhone ?? null,
       stripeSessionId: null,
@@ -127,6 +129,8 @@ export async function POST(req: NextRequest) {
       payment_method_types: ["card"],
       line_items: [buildStripeLineItem(tier, vehicleLabel, identifierLabel)],
       metadata: { reportId, tier },
+      customer_email: customerEmail || undefined,
+      invoice_creation: { enabled: true },
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&report_id=${reportId}`,
       cancel_url: `${baseUrl}/`,
     });

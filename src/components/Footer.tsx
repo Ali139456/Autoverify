@@ -43,7 +43,7 @@ export function Footer() {
               Ready to know what you&apos;re buying?
             </h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 sm:text-base">
-              Past, present and future insights — in your hands in under two minutes.
+              Past, present and future insights — in your hands in minutes.
             </p>
           </div>
           <Link
@@ -61,11 +61,11 @@ export function Footer() {
 
       <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-12">
         <div className="md:col-span-5">
-          <Logo height={36} />
+          <Logo height={52} />
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-            We combine official history records, live market data and AI
-            powered damage analysis so you can buy your next car with
-            confidence.
+            We combine official history records, live market data, future
+            predicted value and AI powered body condition so you can buy your
+            next car with confidence.
           </p>
         </div>
 

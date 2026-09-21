@@ -42,14 +42,15 @@ export function DamageUpload({ reportId }: { reportId: string }) {
     <div className="rounded-xl border-2 border-dashed border-white/15 bg-ink-950/60 p-6 text-center">
       <Camera className="mx-auto h-8 w-8 text-accent-400" aria-hidden />
       <p className="mt-2 text-sm font-medium text-slate-300">
-        Upload up to 8 photos of the car (exterior panels work best)
+        Upload up to 8 exterior panel photos plus 4 tyre photos for AI damage
+        analysis. The report updates automatically after analysis completes.
       </p>
       <input
         ref={inputRef}
         type="file"
         accept="image/*"
         multiple
-        onChange={(e) => setFiles(Array.from(e.target.files ?? []).slice(0, 8))}
+        onChange={(e) => setFiles(Array.from(e.target.files ?? []).slice(0, 12))}
         className="mx-auto mt-4 block text-sm text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-ink-700 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-accent-700"
       />
       {files.length > 0 && (

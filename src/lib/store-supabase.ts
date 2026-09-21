@@ -38,6 +38,7 @@ function rowToReport(row: ReportRow): VehicleReport {
     createdAt: base.createdAt ?? row.created_at,
     status: paidStatuses.has(row.status) ? "paid" : "pending_payment",
     stripeSessionId: row.stripe_session_id ?? base.stripeSessionId,
+    customerEmail: row.customer_email ?? base.customerEmail ?? null,
     customerPhone: row.customer_phone ?? base.customerPhone ?? null,
     ownerPhone: row.owner_phone ?? base.ownerPhone ?? null,
     damage: row.damage_data ?? base.damage ?? null,
@@ -54,6 +55,7 @@ function reportToRow(report: VehicleReport) {
     history_data: report,
     damage_data: report.damage,
     stripe_session_id: report.stripeSessionId,
+    customer_email: report.customerEmail ?? null,
     customer_phone: report.customerPhone ?? null,
     owner_phone: report.ownerPhone ?? null,
   };
@@ -84,6 +86,7 @@ export async function updateReportSupabase(
   patch: Partial<VehicleReport> & {
     workflowStatus?: string;
     ravin_payload?: unknown;
+    customer_email?: string | null;
     customer_phone?: string | null;
     owner_phone?: string | null;
   },
@@ -101,8 +104,10 @@ export async function updateReportSupabase(
 
   if (patch.workflowStatus) row.status = patch.workflowStatus;
   if (patch.ravin_payload !== undefined) row.ravin_payload = patch.ravin_payload;
+  if (patch.customer_email !== undefined) row.customer_email = patch.customer_email;
   if (patch.customer_phone !== undefined) row.customer_phone = patch.customer_phone;
   if (patch.owner_phone !== undefined) row.owner_phone = patch.owner_phone;
+  if (patch.customerEmail !== undefined) row.customer_email = patch.customerEmail;
   if (patch.customerPhone !== undefined) row.customer_phone = patch.customerPhone;
   if (patch.ownerPhone !== undefined) row.owner_phone = patch.ownerPhone;
 

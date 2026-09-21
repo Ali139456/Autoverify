@@ -4,21 +4,18 @@ import {
   CheckCircle2,
   ChevronRight,
   FileText,
-  Info,
-  MinusCircle,
 } from "lucide-react";
 import {
   buildKeyInsights,
   buildStatusChecks,
   futureValueConfidenceLabel,
   getFutureValueAtYears,
-  insightToneClass,
   resolveFutureValue,
-  type InsightStatus,
 } from "@/lib/report-design";
 import type { VehicleReport } from "@/lib/types";
 import { buildCheckSearchUrl } from "@/lib/vehicle-identifier";
-import { InsightCategoryIcon, SpecIcon } from "./ReportInsightIcon";
+import { SpecIcon } from "./ReportInsightIcon";
+import { ReportInsightCard } from "./ReportInsightCard";
 import { ReportShell } from "./ReportShell";
 
 function StatusIcon({ ok }: { ok: boolean }) {
@@ -28,19 +25,6 @@ function StatusIcon({ ok }: { ok: boolean }) {
       aria-hidden
     />
   );
-}
-
-function InsightStatusBadge({ tone }: { tone: InsightStatus }) {
-  if (tone === "info") {
-    return <Info className="h-4 w-4 shrink-0 text-sky-500" aria-hidden />;
-  }
-  if (tone === "neutral") {
-    return <MinusCircle className="h-4 w-4 shrink-0 text-amber-500" aria-hidden />;
-  }
-  if (tone === "warn") {
-    return <MinusCircle className="h-4 w-4 shrink-0 text-red-500" aria-hidden />;
-  }
-  return <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" aria-hidden />;
 }
 
 export function CarInsightsReport({
@@ -95,23 +79,30 @@ export function CarInsightsReport({
           </p>
         </div>
 
-        <div className="report-spec-bar grid grid-cols-2 divide-x divide-slate-200 rounded-xl border border-slate-200 bg-slate-50 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="report-spec-bar grid grid-cols-2 divide-x divide-y divide-slate-200 rounded-xl border border-slate-200 bg-slate-50 sm:grid-cols-3 lg:grid-cols-6">
           {specs.map(({ label, value }, i) => (
-            <div key={label} className="min-w-0 px-4 py-3 first:pl-4">
+            <div
+              key={label}
+              className={`min-w-0 px-4 py-3 first:pl-4 ${label === "VIN" ? "col-span-2 lg:col-span-2" : ""}`}
+            >
               <div className="flex items-center gap-1.5 text-slate-500">
                 <SpecIcon index={i} className="h-4 w-4 shrink-0" />
                 <span className="text-[10px] font-bold uppercase tracking-wide">
                   {label}
                 </span>
               </div>
-              <p className="report-spec-value mt-1.5 break-all text-sm font-bold text-slate-900">
+              <p
+                className={`report-spec-value mt-1.5 text-sm font-bold text-slate-900 ${
+                  label === "VIN" ? "whitespace-nowrap font-mono text-xs sm:text-sm" : "break-words"
+                }`}
+              >
                 {value}
               </p>
             </div>
           ))}
         </div>
 
-        <div className="report-status-panel overflow-hidden rounded-2xl border border-slate-200 bg-white">
+        <div className="report-status-panel overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
           <div className="report-status-grid grid lg:grid-cols-[1fr_300px]">
             <div className="report-status-list border-b border-slate-200 p-6 sm:p-8 lg:border-b-0 lg:border-r">
               <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
@@ -127,14 +118,23 @@ export function CarInsightsReport({
               </ul>
             </div>
             <div className="report-hero-image relative min-h-[220px] bg-slate-900">
-              <Image
-                src="/hero-car.png"
-                alt={`${vehicleTitle} illustration`}
-                fill
-                className="object-cover object-center"
-                sizes="300px"
-                priority
-              />
+              {vehicle.heroImageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={vehicle.heroImageUrl}
+                  alt={`${vehicleTitle} listing photo`}
+                  className="absolute inset-0 h-full w-full object-cover object-center"
+                />
+              ) : (
+                <Image
+                  src="/hero-car-white.png"
+                  alt={`${vehicleTitle} illustration`}
+                  fill
+                  className="object-cover object-center mix-blend-screen"
+                  sizes="300px"
+                  priority
+                />
+              )}
             </div>
           </div>
         </div>
@@ -150,34 +150,7 @@ export function CarInsightsReport({
           </div>
           <div className="report-insights-grid grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {insights.map((insight) => (
-              <div
-                key={insight.id}
-                className="report-insight-card flex min-h-[104px] flex-col justify-between rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm sm:p-4"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <InsightCategoryIcon
-                    insightId={insight.id}
-                    className="h-5 w-5 shrink-0 text-slate-700"
-                  />
-                  <p className="flex-1 text-right text-[10px] font-semibold uppercase leading-snug text-slate-500">
-                    {insight.title}
-                  </p>
-                </div>
-                <div className="mt-3 flex items-start justify-between gap-2">
-                  <div className="flex min-w-0 items-start gap-1.5">
-                    <InsightStatusBadge tone={insight.tone} />
-                    <p
-                      className={`text-xs font-bold leading-snug break-words ${insightToneClass(insight.tone)}`}
-                    >
-                      {insight.status}
-                    </p>
-                  </div>
-                  <ChevronRight
-                    className="report-insight-chevron mt-0.5 h-4 w-4 shrink-0 text-slate-300"
-                    aria-hidden
-                  />
-                </div>
-              </div>
+              <ReportInsightCard key={insight.id} insight={insight} />
             ))}
           </div>
         </div>

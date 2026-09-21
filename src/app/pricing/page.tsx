@@ -6,7 +6,7 @@ import { PricingTierCards } from "@/components/PricingTierCards";
 export const metadata: Metadata = {
   title: "Pricing — Auto Verifi Insights",
   description:
-    "Auto Verifi Insights from $39 or Insights+ from $89. PPSR checks, live valuation, AI forecasting and optional Ravin photo damage analysis.",
+    "Auto Verifi Insights from $39 or Insights+ from $69. PPSR checks, live valuation, AI forecasting and optional Ravin photo damage analysis.",
 };
 
 export default function PricingPage() {

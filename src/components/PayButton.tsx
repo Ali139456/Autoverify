@@ -6,8 +6,9 @@ import { CreditCard, Loader2 } from "lucide-react";
 import { isValidAuMobile } from "@/lib/phone";
 import type { ReportTier } from "@/lib/types";
 
-const phoneInputClass =
-  "w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-accent-500 dark:border-white/10 dark:bg-ink-950/80 dark:text-white dark:placeholder:text-slate-500";
+function isValidEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+}
 
 export function PayButton({
   identifier,
@@ -16,6 +17,10 @@ export function PayButton({
   isVin = false,
   tier,
   label,
+  customerEmail: customerEmailProp,
+  customerPhone: customerPhoneProp,
+  ownerPhone: ownerPhoneProp,
+  requireEmail = true,
 }: {
   identifier?: string;
   /** @deprecated Use `identifier` instead. */
@@ -24,18 +29,30 @@ export function PayButton({
   isVin?: boolean;
   tier: ReportTier;
   label: string;
+  customerEmail?: string;
+  customerPhone?: string;
+  ownerPhone?: string;
+  requireEmail?: boolean;
 }) {
   const vehicleId = identifier ?? rego ?? "";
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [customerPhone, setCustomerPhone] = useState("");
-  const [ownerPhone, setOwnerPhone] = useState("");
   const requiresPhones = tier === "insights_plus";
 
   async function pay() {
     setLoading(true);
     setError(null);
+
+    const customerEmail = customerEmailProp?.trim() ?? "";
+    const customerPhone = customerPhoneProp?.trim() ?? "";
+    const ownerPhone = ownerPhoneProp?.trim() ?? "";
+
+    if (requireEmail && !isValidEmail(customerEmail)) {
+      setError("Please enter a valid email address.");
+      setLoading(false);
+      return;
+    }
 
     if (requiresPhones) {
       if (!isValidAuMobile(customerPhone)) {
@@ -59,6 +76,7 @@ export function PayButton({
           vin: isVin ? vehicleId : undefined,
           state,
           tier,
+          customerEmail: customerEmail || undefined,
           customerPhone: requiresPhones ? customerPhone : undefined,
           ownerPhone: requiresPhones ? ownerPhone : undefined,
         }),
@@ -78,43 +96,6 @@ export function PayButton({
 
   return (
     <div className="w-full">
-      {requiresPhones && (
-        <div className="mb-4 space-y-3 text-left">
-          <label className="block text-sm">
-            <span className="mb-1.5 block font-medium text-slate-300">
-              Your mobile number
-            </span>
-            <input
-              type="tel"
-              inputMode="tel"
-              autoComplete="tel"
-              value={customerPhone}
-              onChange={(event) => setCustomerPhone(event.target.value)}
-              placeholder="04xx xxx xxx"
-              className={phoneInputClass}
-            />
-          </label>
-          <label className="block text-sm">
-            <span className="mb-1.5 block font-medium text-slate-300">
-              Vehicle owner&apos;s mobile number
-            </span>
-            <input
-              type="tel"
-              inputMode="tel"
-              autoComplete="tel"
-              value={ownerPhone}
-              onChange={(event) => setOwnerPhone(event.target.value)}
-              placeholder="04xx xxx xxx"
-              className={phoneInputClass}
-            />
-          </label>
-          <p className="text-xs leading-relaxed text-slate-500">
-            The vehicle owner will receive an SMS link to complete the Ravin AI
-            photo walkaround and damage detection.
-          </p>
-        </div>
-      )}
-
       <button
         onClick={pay}
         disabled={loading}

@@ -15,11 +15,14 @@ export function RegoSearchForm({
   defaultVin = "",
   defaultState = "NSW",
   compact = false,
+  onDark = false,
 }: {
   defaultRego?: string;
   defaultVin?: string;
   defaultState?: string;
   compact?: boolean;
+  /** Force dark styling when the form sits on a navy hero background. */
+  onDark?: boolean;
 }) {
   const router = useRouter();
   const [query, setQuery] = useState(defaultVin || defaultRego);
@@ -57,19 +60,26 @@ export function RegoSearchForm({
 
   const shellClass = compact
     ? ""
-    : "mx-auto max-w-md rounded-2xl border border-slate-200 bg-white p-2.5 shadow-lg dark:border-white/10 dark:bg-ink-800 dark:shadow-none sm:p-3 lg:mx-0";
+    : onDark
+      ? "mx-auto max-w-md rounded-2xl border border-white/10 bg-ink-800 p-2.5 sm:p-3 lg:mx-0"
+      : "mx-auto max-w-md rounded-2xl border border-slate-200 bg-white p-2.5 shadow-lg dark:border-white/10 dark:bg-ink-800 dark:shadow-none sm:p-3 lg:mx-0";
 
-  const fieldClass =
-    "h-10 w-full min-w-0 rounded-lg border border-slate-200 bg-white text-sm font-semibold text-slate-900 outline-none transition placeholder:font-normal placeholder:normal-case placeholder:text-slate-400 focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 dark:border-white/15 dark:bg-ink-950 dark:font-black dark:text-white dark:placeholder:text-slate-500 sm:text-base";
+  const fieldClass = onDark
+    ? "h-10 w-full min-w-0 rounded-lg border border-white/15 bg-ink-950 text-sm font-black text-white outline-none transition placeholder:font-normal placeholder:normal-case placeholder:text-slate-500 focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 sm:text-base"
+    : "h-10 w-full min-w-0 rounded-lg border border-slate-200 bg-white text-sm font-semibold text-slate-900 outline-none transition placeholder:font-normal placeholder:normal-case placeholder:text-slate-400 focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 dark:border-white/15 dark:bg-ink-950 dark:font-black dark:text-white dark:placeholder:text-slate-500 sm:text-base";
+
+  const labelClass = onDark
+    ? "text-[9px] font-bold uppercase tracking-[0.14em] text-slate-400"
+    : "text-[9px] font-bold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400";
 
   return (
     <form onSubmit={onSubmit} className="w-full">
       <div className={`w-full ${shellClass}`}>
         <div className="mb-1 grid grid-cols-2 gap-2 px-1 text-left">
-          <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
+          <span className={labelClass}>
             Registration Plate or VIN
           </span>
-          <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
+          <span className={labelClass}>
             State{vinMode ? " (optional)" : ""}
           </span>
         </div>

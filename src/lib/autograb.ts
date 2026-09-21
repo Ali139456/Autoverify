@@ -132,9 +132,21 @@ async function lookupViaAutograb(
     registrationData,
   );
 
+  await enrichVehicleFromAutograb(
+    vehicle,
+    vehicleId,
+    vehicleRecord,
+    registrationData,
+  );
+
   const market = await fetchMarketOverlay(vehicleId, vehicle);
   if (market?.averageOdometer) {
     vehicle.odometer = market.averageOdometer;
+    vehicle.odometerSource =
+      "Average odometer from comparable vehicles currently listed on the market (AutoGrab).";
+  }
+  if (market?.coverImageUrl) {
+    vehicle.heroImageUrl = market.coverImageUrl;
   }
 
   const [registration, valuation] = await Promise.all([
@@ -203,9 +215,16 @@ async function lookupViaVin(
 
   const vehicle = mapVehicleIdentityFromVin(vin, state, vehicleRecord, vinData);
 
+  await enrichVehicleFromAutograb(vehicle, vehicleId, vehicleRecord, vinData);
+
   const market = await fetchMarketOverlay(vehicleId, vehicle);
   if (market?.averageOdometer) {
     vehicle.odometer = market.averageOdometer;
+    vehicle.odometerSource =
+      "Average odometer from comparable vehicles currently listed on the market (AutoGrab).";
+  }
+  if (market?.coverImageUrl) {
+    vehicle.heroImageUrl = market.coverImageUrl;
   }
 
   const valuation = await fetchValuation(vehicleId, vehicle);
@@ -295,6 +314,105 @@ function mapVehicleIdentityFromVin(
     colour: String(vinData.colour ?? vehicle.colour ?? ""),
     odometer: null,
   };
+}
+
+function stringFromRecord(value: unknown): string | null {
+  if (value === null || value === undefined || value === "") return null;
+  return String(value);
+}
+
+function applyAutograbFeatureData(
+  vehicle: VehicleIdentity,
+  registrationData: JsonRecord,
+  vehicleRecord: JsonRecord,
+) {
+  const performance =
+    (registrationData.performance_info as JsonRecord | undefined) ??
+    (vehicleRecord.performance_info as JsonRecord | undefined);
+  const buildData =
+    (registrationData.build_data as JsonRecord | undefined) ??
+    (vehicleRecord.build_data as JsonRecord | undefined);
+
+  if (performance) {
+    vehicle.ancapRating =
+      vehicle.ancapRating ??
+      stringFromRecord(
+        performance.ancap_rating ??
+          performance.ancap ??
+          performance.safety_rating,
+      );
+    vehicle.warrantyRemaining =
+      vehicle.warrantyRemaining ??
+      stringFromRecord(
+        performance.warranty_remaining ??
+          performance.factory_warranty ??
+          performance.warranty,
+      );
+    vehicle.pPlateLegal =
+      vehicle.pPlateLegal ??
+      stringFromRecord(
+        performance.p_plate_legal ??
+          performance.pplate_legal ??
+          performance.probationary_legal,
+      );
+  }
+
+  if (buildData) {
+    vehicle.warrantyRemaining =
+      vehicle.warrantyRemaining ??
+      stringFromRecord(buildData.warranty_remaining ?? buildData.warranty);
+  }
+}
+
+function applyDetailedSpecs(
+  vehicle: VehicleIdentity,
+  specs: JsonRecord[] | null,
+) {
+  if (!specs) return;
+
+  for (const spec of specs) {
+    const description = String(spec.description ?? "").toLowerCase();
+    const value = String(spec.value ?? "").trim();
+    if (!value) continue;
+
+    if (description.includes("ancap") && !vehicle.ancapRating) {
+      vehicle.ancapRating = value;
+    }
+    if (description.includes("warranty") && !vehicle.warrantyRemaining) {
+      vehicle.warrantyRemaining = value;
+    }
+    if (
+      (description.includes("p plate") ||
+        description.includes("p-plate") ||
+        description.includes("probationary")) &&
+      !vehicle.pPlateLegal
+    ) {
+      vehicle.pPlateLegal = value;
+    }
+  }
+}
+
+async function fetchDetailedSpecs(
+  vehicleId: string,
+): Promise<JsonRecord[] | null> {
+  const res = await autograbGet(
+    `/vehicles/${encodeURIComponent(vehicleId)}/detailed-specs?region=au`,
+  );
+  if (!res.ok) return null;
+
+  const data = (await res.json()) as JsonRecord;
+  return Array.isArray(data.specs) ? (data.specs as JsonRecord[]) : null;
+}
+
+async function enrichVehicleFromAutograb(
+  vehicle: VehicleIdentity,
+  vehicleId: string,
+  vehicleRecord: JsonRecord,
+  registrationData: JsonRecord,
+): Promise<void> {
+  applyAutograbFeatureData(vehicle, registrationData, vehicleRecord);
+  const specs = await fetchDetailedSpecs(vehicleId);
+  applyDetailedSpecs(vehicle, specs);
 }
 
 function mapVehicleIdentity(
@@ -491,7 +609,7 @@ async function fetchMarketOverlay(
   vehicle: VehicleIdentity,
 ): Promise<MarketInfo | null> {
   const res = await autograbGet(
-    `/sourcing/market_overlay/${vehicleId}?region=au&features=avg_price,avg_kms,days_supply,vehicle_rrp`,
+    `/sourcing/market_overlay/${vehicleId}?region=au&features=avg_price,avg_kms,days_supply,vehicle_rrp,cover_image`,
   );
   if (!res.ok) return null;
 
@@ -529,10 +647,15 @@ async function fetchMarketOverlay(
         )
       : 0);
 
+  const coverImageUrl = stringFromRecord(
+    data.cover_image_url ?? data.cover_image,
+  );
+
   return {
     averagePrice: avgPrice,
     medianPrice,
     averageOdometer: averageOdometer || undefined,
+    coverImageUrl: coverImageUrl ?? undefined,
     activeListings: Number(data.sample_size) || listings.length,
     averageDaysOnMarket:
       Number(data.avg_days_to_sell) || Number(data.days_supply) || 0,
@@ -605,6 +728,12 @@ function buildDemoResult(
     engine: spec.engine,
     colour: COLOURS[Math.floor(rand() * COLOURS.length)],
     odometer,
+    odometerSource:
+      "Estimated from vehicle age and market listing data (demo mode).",
+    ancapRating: rand() > 0.2 ? `${4 + Math.floor(rand() * 2)} stars` : null,
+    warrantyRemaining:
+      age <= 3 && rand() > 0.3 ? `${Math.max(1, 3 - age)} years remaining` : null,
+    pPlateLegal: rand() > 0.25 ? "Yes — eligible in most states" : "Check state restrictions",
   };
 
   const writtenOff = rand() < 0.08;

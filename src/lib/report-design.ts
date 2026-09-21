@@ -12,7 +12,10 @@ export type ReportInsight = {
   id: string;
   title: string;
   status: string;
+  /** Secondary line shown beneath the primary status. */
+  statusSubtext?: string;
   tone: InsightStatus;
+  detail?: string;
 };
 
 export type StatusCheck = {
@@ -21,6 +24,15 @@ export type StatusCheck = {
 };
 
 const money = (n: number) => `$${n.toLocaleString("en-AU")}`;
+
+export function formatExpiryDate(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso;
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}-${month}-${year}`;
+}
 
 export function resolveFutureValue(report: VehicleReport): FutureValueInfo {
   if (report.futureValue?.predictions?.length) {
@@ -110,6 +122,54 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
         ? `${vehicle.odometer.toLocaleString()} km`
         : "Not available",
       tone: vehicle.odometer ? "clear" : "neutral",
+      detail: vehicle.odometer
+        ? vehicle.odometerSource ??
+          "Estimated from vehicle age and market listing data when a live odometer reading is unavailable."
+        : "No odometer reading was available from the register or market comparables for this vehicle.",
+    },
+    {
+      id: "ancap",
+      title: "ANCAP Safety",
+      status: vehicle.ancapRating ?? "Not available",
+      tone: vehicle.ancapRating ? "clear" : "neutral",
+      detail: vehicle.ancapRating
+        ? "ANCAP safety rating sourced from AutoGrab detailed vehicle specifications."
+        : "ANCAP rating was not available for this exact vehicle variant in AutoGrab.",
+    },
+    {
+      id: "warranty",
+      title: "Warranty Remaining",
+      status: vehicle.warrantyRemaining ?? "Not available",
+      tone: vehicle.warrantyRemaining ? "clear" : "neutral",
+      detail: vehicle.warrantyRemaining
+        ? "Factory warranty estimate sourced from AutoGrab build and specification data."
+        : "Remaining factory warranty could not be determined for this vehicle.",
+    },
+    {
+      id: "pplate",
+      title: "P Plate Legal",
+      status: vehicle.pPlateLegal ?? "Not available",
+      tone: vehicle.pPlateLegal?.toLowerCase().includes("yes") ? "clear" : "neutral",
+      detail: vehicle.pPlateLegal
+        ? "Probationary (P plate) eligibility based on vehicle specifications and state restrictions."
+        : "P plate eligibility could not be confirmed for this vehicle variant.",
+    },
+    {
+      id: "registration",
+      title: "Registration",
+      status:
+        registration.status === "Registered" ? "Active" : registration.status,
+      statusSubtext: registration.expiryDate
+        ? `Expiry ${formatExpiryDate(registration.expiryDate)}`
+        : undefined,
+      tone: registration.status === "Registered" ? "clear" : "warn",
+    },
+    {
+      id: "recall",
+      title: "Recall Check",
+      status: "Clear",
+      statusSubtext: "Check with Govt Database",
+      tone: "clear",
     },
     {
       id: "service",
@@ -118,32 +178,14 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
       tone: "neutral",
     },
     {
-      id: "registration",
-      title: "Registration",
-      status:
-        registration.status === "Registered"
-          ? `Active${registration.expiryDate ? ` · exp ${registration.expiryDate}` : ""}`
-          : registration.status,
-      tone: registration.status === "Registered" ? "clear" : "warn",
-    },
-    {
-      id: "recall",
-      title: "Recall Check",
-      status: "Check with Govt Database · Clear",
-      tone: "clear",
-    },
-    {
-      id: "ownership",
-      title: "Ownership History",
-      status: "Not available",
-      tone: "info",
-    },
-    {
       id: "future",
       title: "Future Value",
       status: inThreeYears
         ? `${money(inThreeYears.value)} in 3 yrs`
         : "Forecast unavailable",
+      statusSubtext: inThreeYears
+        ? `Assumed ${inThreeYears.odometer.toLocaleString()} km`
+        : undefined,
       tone: "info",
     },
     {
@@ -170,6 +212,7 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
           : ai.riskLabel === "Moderate Risk"
             ? "neutral"
             : "warn",
+      detail: `Composite risk score out of 100 (lower is better). Factors considered: ${ai.riskFactors.join("; ")}.`,
     },
   ];
 }

@@ -36,10 +36,24 @@ const STEPS = [
   { n: "4", title: "Get your report", text: "View the full report online instantly and download the PDF to keep." },
 ];
 
-const FAQS = [
+type FaqItem = {
+  q: string;
+  intro?: string;
+  bullets?: string[];
+  a?: string;
+};
+
+const FAQS: FaqItem[] = [
   {
     q: "What is a PPSR check?",
-    a: "The Personal Property Securities Register (PPSR) records whether money is still owed on a car. If you buy a car with finance owing, the lender can repossess it. Every Auto Verifi report includes a PPSR-style encumbrance check.",
+    intro:
+      "PPSR stands for Personal Property Securities Register. For vehicles in Australia, a PPSR search is used when buying a used vehicle to check whether:",
+    bullets: [
+      "Money is owing on the vehicle — e.g. a lender has a registered security interest.",
+      "The vehicle has been reported stolen.",
+      "The vehicle has been recorded as a written-off vehicle.",
+      "Key vehicle identity information, such as the VIN, matches the search.",
+    ],
   },
   {
     q: "How is Auto Verifi different from other car history checks?",
@@ -66,14 +80,14 @@ export function HomePage() {
     <>
       <section
         id="check"
-        className="relative scroll-mt-24 overflow-hidden bg-white dark:bg-ink-950"
+        className="relative scroll-mt-24 overflow-hidden bg-ink-950"
       >
-        <div className="pointer-events-none absolute -top-40 left-1/2 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-accent-500/10 blur-[140px]" />
+        <div className="pointer-events-none absolute -top-40 left-1/2 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-accent-500/15 blur-[140px]" />
 
         <div className="relative mx-auto max-w-6xl px-4 pb-8 pt-8 sm:px-6 sm:pb-10 sm:pt-14 lg:pb-12 lg:pt-20">
           <div className="grid items-center gap-8 sm:gap-10 lg:grid-cols-2 lg:gap-12">
             <div className="min-w-0 text-center lg:text-left">
-              <h1 className="animate-fade-up delay-100 text-4xl font-extrabold leading-[1.05] tracking-tight text-slate-900 dark:text-white sm:text-5xl lg:text-6xl">
+              <h1 className="animate-fade-up delay-100 text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
                 Know what
                 <br />
                 you&apos;re buying.
@@ -82,25 +96,27 @@ export function HomePage() {
                 Past, Present and Future insights to buy with confidence
               </p>
               <div className="animate-fade-up delay-300 mt-6 sm:mt-8">
-                <RegoSearchForm />
+                <RegoSearchForm onDark />
               </div>
             </div>
 
             <div className="animate-scale-in delay-200 relative mx-auto w-full min-w-0 max-w-[320px] sm:max-w-[420px] lg:max-w-[500px]">
-              <div className="pointer-events-none absolute inset-8 rounded-full bg-accent-500/20 blur-[90px]" />
+              <div className="pointer-events-none absolute inset-8 rounded-full bg-accent-500/25 blur-[90px]" />
               <span className="absolute left-0 top-0 z-10 h-7 w-7 rounded-tl-xl border-l-4 border-t-4 border-accent-500 sm:h-10 sm:w-10" />
               <span className="absolute right-0 top-0 z-10 h-7 w-7 rounded-tr-xl border-r-4 border-t-4 border-accent-500 sm:h-10 sm:w-10" />
               <span className="absolute bottom-0 left-0 z-10 h-7 w-7 rounded-bl-xl border-b-4 border-l-4 border-accent-500 sm:h-10 sm:w-10" />
               <span className="absolute bottom-0 right-0 z-10 h-7 w-7 rounded-br-xl border-b-4 border-r-4 border-accent-500 sm:h-10 sm:w-10" />
-              <Image
-                src="/hero-car.png"
-                alt="Black SUV inside a glowing blue ring — Auto Verifi vehicle intelligence"
-                width={820}
-                height={820}
-                priority
-                sizes="(max-width: 640px) 320px, (max-width: 1024px) 420px, 500px"
-                className="animate-float relative h-auto w-full rounded-2xl"
-              />
+              <div className="relative overflow-hidden rounded-2xl bg-ink-950">
+                <Image
+                  src="/hero-car-white.png"
+                  alt="White SUV inside a glowing blue ring — Auto Verifi vehicle intelligence"
+                  width={820}
+                  height={820}
+                  priority
+                  sizes="(max-width: 640px) 320px, (max-width: 1024px) 420px, 500px"
+                  className="animate-float relative h-auto w-full mix-blend-screen"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -120,7 +136,7 @@ export function HomePage() {
             {CHECKS.map(({ icon: Icon, title, text }, i) => (
               <Reveal key={title} delay={(i % 3) * 120} className={featureCardClass}>
                 <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-accent-500/0 blur-3xl transition-all duration-500 group-hover:bg-accent-500/15" />
-                <span className="pointer-events-none absolute right-6 top-5 text-5xl font-black tracking-tight text-slate-100 transition-colors duration-300 group-hover:text-accent-500/20 dark:text-white/[0.05] dark:group-hover:text-accent-500/15">
+                <span className="pointer-events-none absolute right-6 top-5 text-5xl font-black tracking-tight text-accent-500/35 transition-colors duration-300 group-hover:text-accent-500/50 dark:text-accent-500/30 dark:group-hover:text-accent-500/45">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span className="relative inline-flex rounded-2xl bg-gradient-to-br from-accent-500 to-accent-700 p-3.5 transition-transform duration-300 group-hover:scale-110">
@@ -230,7 +246,17 @@ export function HomePage() {
                       <ChevronDown className="h-4 w-4 text-accent-500 dark:text-accent-400" aria-hidden />
                     </span>
                   </summary>
-                  <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400">{f.a}</p>
+                  <div className="mt-3 space-y-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                    {f.intro ? <p>{f.intro}</p> : null}
+                    {f.bullets ? (
+                      <ul className="list-disc space-y-2 pl-5">
+                        {f.bullets.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    ) : null}
+                    {f.a ? <p>{f.a}</p> : null}
+                  </div>
                 </details>
               </Reveal>
             ))}

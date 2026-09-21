@@ -7,7 +7,7 @@ import {
   formatVehicleIdentifierLabel,
   parseVehicleIdentifier,
 } from "@/lib/vehicle-identifier";
-import { PricingTierCards } from "@/components/PricingTierCards";
+import { CheckPageCheckout } from "@/components/CheckPageCheckout";
 import { RegoSearchForm } from "@/components/RegoSearchForm";
 
 export const metadata: Metadata = {
@@ -141,12 +141,10 @@ export default async function CheckPage({
         </div>
 
         <div className="mt-10">
-          <PricingTierCards
+          <CheckPageCheckout
             identifier={checkoutIdentifier}
             state={checkoutState}
             isVin={parsed.kind === "vin"}
-            showHeading={false}
-            variant="light"
           />
         </div>
 
