@@ -146,7 +146,7 @@ export function Header() {
   }, [pathname]);
 
   return (
-    <header className="av-site-header fixed inset-x-0 top-0 z-50 border-b-2 border-accent-500 bg-ink-950 px-3 py-3 sm:px-6">
+    <header className="av-site-header fixed inset-x-0 top-0 z-50 bg-ink-950 px-3 py-3 sm:px-6">
       <div
         className={`mx-auto flex h-[4.25rem] max-w-6xl items-center justify-between gap-3 rounded-2xl border border-white/10 bg-ink-900 px-3 transition-shadow duration-300 sm:px-4 ${
           scrolled
