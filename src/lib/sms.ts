@@ -1,19 +1,4 @@
-function normalizeAuPhone(input: string): string | null {
-  const digits = input.replace(/\D/g, "");
-  if (!digits) return null;
-
-  if (digits.startsWith("61") && digits.length === 11) {
-    return `+${digits}`;
-  }
-  if (digits.startsWith("0") && digits.length === 10) {
-    return `+61${digits.slice(1)}`;
-  }
-  if (digits.length === 9 && /^[4-5]/.test(digits)) {
-    return `+61${digits}`;
-  }
-
-  return input.trim().startsWith("+") ? input.trim() : null;
-}
+import { normalizeAuMobile } from "./phone";
 
 export function isSmsConfigured(): boolean {
   return Boolean(
@@ -34,7 +19,7 @@ export async function sendInspectionLinkSms(input: {
     );
   }
 
-  const to = normalizeAuPhone(input.to);
+  const to = normalizeAuMobile(input.to);
   if (!to) {
     throw new Error("Please enter a valid Australian mobile number.");
   }

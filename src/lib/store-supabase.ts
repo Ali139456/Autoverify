@@ -8,6 +8,7 @@ type ReportRow = {
   state: string | null;
   vin: string | null;
   customer_phone: string | null;
+  owner_phone: string | null;
   customer_email: string | null;
   history_data: VehicleReport | null;
   damage_data: VehicleReport["damage"];
@@ -37,6 +38,8 @@ function rowToReport(row: ReportRow): VehicleReport {
     createdAt: base.createdAt ?? row.created_at,
     status: paidStatuses.has(row.status) ? "paid" : "pending_payment",
     stripeSessionId: row.stripe_session_id ?? base.stripeSessionId,
+    customerPhone: row.customer_phone ?? base.customerPhone ?? null,
+    ownerPhone: row.owner_phone ?? base.ownerPhone ?? null,
     damage: row.damage_data ?? base.damage ?? null,
   };
 }
@@ -51,6 +54,8 @@ function reportToRow(report: VehicleReport) {
     history_data: report,
     damage_data: report.damage,
     stripe_session_id: report.stripeSessionId,
+    customer_phone: report.customerPhone ?? null,
+    owner_phone: report.ownerPhone ?? null,
   };
 }
 
@@ -80,6 +85,7 @@ export async function updateReportSupabase(
     workflowStatus?: string;
     ravin_payload?: unknown;
     customer_phone?: string | null;
+    owner_phone?: string | null;
   },
 ): Promise<VehicleReport | null> {
   const report = await getReportSupabase(id);
@@ -96,6 +102,9 @@ export async function updateReportSupabase(
   if (patch.workflowStatus) row.status = patch.workflowStatus;
   if (patch.ravin_payload !== undefined) row.ravin_payload = patch.ravin_payload;
   if (patch.customer_phone !== undefined) row.customer_phone = patch.customer_phone;
+  if (patch.owner_phone !== undefined) row.owner_phone = patch.owner_phone;
+  if (patch.customerPhone !== undefined) row.customer_phone = patch.customerPhone;
+  if (patch.ownerPhone !== undefined) row.owner_phone = patch.ownerPhone;
 
   const { error } = await supabase.from("reports").update(row).eq("id", id);
   if (error) throw new Error(error.message);

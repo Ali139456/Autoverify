@@ -8,6 +8,7 @@ type InspectionQrModalProps = {
   open: boolean;
   inspectUrl: string;
   reportId: string;
+  defaultRecipientPhone?: string;
   onClose: () => void;
 };
 
@@ -54,9 +55,10 @@ export function InspectionQrModal({
   open,
   inspectUrl,
   reportId,
+  defaultRecipientPhone = "",
   onClose,
 }: InspectionQrModalProps) {
-  const [recipientPhone, setRecipientPhone] = useState("");
+  const [recipientPhone, setRecipientPhone] = useState(defaultRecipientPhone);
   const [showSmsForm, setShowSmsForm] = useState(false);
   const [smsLoading, setSmsLoading] = useState(false);
   const [smsSent, setSmsSent] = useState(false);
@@ -65,11 +67,12 @@ export function InspectionQrModal({
 
   useEffect(() => {
     if (!open) return;
+    setRecipientPhone(defaultRecipientPhone);
     setShowSmsForm(false);
     setSmsSent(false);
     setSmsError(null);
     setCopied(false);
-  }, [open, inspectUrl]);
+  }, [open, inspectUrl, defaultRecipientPhone]);
 
   useEffect(() => {
     if (!open) return;
@@ -181,7 +184,7 @@ export function InspectionQrModal({
               className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-accent-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-accent-500"
             >
               <Send className="h-4 w-4" aria-hidden />
-              Send to another phone
+              Resend to owner
             </button>
           </div>
         </div>
@@ -190,7 +193,7 @@ export function InspectionQrModal({
           <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
             <label className="block text-sm">
               <span className="mb-1.5 block font-medium text-slate-700">
-                Send link to another mobile number
+                Vehicle owner mobile number
               </span>
               <input
                 value={recipientPhone}

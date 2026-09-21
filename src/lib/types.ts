@@ -129,6 +129,8 @@ export interface VehicleReport {
   createdAt: string;
   status: ReportStatus;
   tier?: ReportTier;
+  customerPhone?: string | null;
+  ownerPhone?: string | null;
   stripeSessionId: string | null;
   vehicle: VehicleIdentity;
   registration: RegistrationInfo;

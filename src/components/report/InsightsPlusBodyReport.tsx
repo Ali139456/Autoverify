@@ -92,6 +92,8 @@ export function InsightsPlusBodyReport({
             <InspectionStarter
               reportId={report.id}
               initialInspectUrl={inspectUrl}
+              customerPhone={report.customerPhone}
+              ownerPhone={report.ownerPhone}
               autoShowQr={!damage && !inspectUrl}
             />
             {!damage && (

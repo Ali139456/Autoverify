@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { lookupVehicle } from "@/lib/autograb";
 import {
   getReportTierConfig,
+  hasDamageAnalysis,
   parseReportTier,
 } from "@/lib/pricing";
 import { generateReportId, saveReport } from "@/lib/store";
@@ -11,6 +12,7 @@ import {
   isStripeConfigured,
   REPORT_CURRENCY,
 } from "@/lib/stripe";
+import { normalizeAuMobile } from "@/lib/phone";
 import { AustralianState, ReportTier, VehicleReport } from "@/lib/types";
 
 const STATES: AustralianState[] = ["ACT", "NSW", "NT", "QLD", "SA", "TAS", "VIC", "WA"];
@@ -41,6 +43,9 @@ export async function POST(req: NextRequest) {
     const rego = String(body.rego ?? "").trim().toUpperCase();
     const state = String(body.state ?? "").toUpperCase() as AustralianState;
     const tier = parseReportTier(body.tier);
+    const requiresPhones = hasDamageAnalysis(tier);
+    const customerPhone = normalizeAuMobile(String(body.customerPhone ?? ""));
+    const ownerPhone = normalizeAuMobile(String(body.ownerPhone ?? ""));
 
     if (!/^[A-Z0-9]{1,9}$/.test(rego)) {
       return NextResponse.json(
@@ -55,6 +60,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (requiresPhones) {
+      if (!customerPhone) {
+        return NextResponse.json(
+          { error: "Please enter a valid customer mobile number." },
+          { status: 400 },
+        );
+      }
+      if (!ownerPhone) {
+        return NextResponse.json(
+          { error: "Please enter a valid vehicle owner mobile number." },
+          { status: 400 },
+        );
+      }
+    }
+
     const lookup = await lookupVehicle(rego, state);
     const reportId = generateReportId();
     const vehicleLabel = `${lookup.vehicle.year} ${lookup.vehicle.make} ${lookup.vehicle.model}`;
@@ -64,6 +84,8 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString(),
       status: "pending_payment",
       tier,
+      customerPhone: customerPhone ?? null,
+      ownerPhone: ownerPhone ?? null,
       stripeSessionId: null,
       vehicle: lookup.vehicle,
       registration: lookup.registration,

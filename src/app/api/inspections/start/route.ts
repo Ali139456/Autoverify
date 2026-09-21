@@ -8,6 +8,8 @@ import {
   isRavinPartnerConfigured,
 } from "@/lib/ravin-partner";
 import { hasDamageAnalysis } from "@/lib/pricing";
+import { normalizeAuMobile } from "@/lib/phone";
+import { isSmsConfigured, sendInspectionLinkSms } from "@/lib/sms";
 
 export async function POST(req: NextRequest) {
   if (!isSupabaseServerConfigured()) {
@@ -20,7 +22,6 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const reportId = String(body.reportId ?? "").trim();
-    const phone = String(body.phone ?? "").trim();
 
     if (!reportId) {
       return NextResponse.json({ error: "Report ID is required." }, { status: 400 });
@@ -38,7 +39,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const inspection = await createInspection({ reportId, phone: phone || undefined });
+    const customerPhone =
+      normalizeAuMobile(String(body.customerPhone ?? "")) ??
+      report.customerPhone ??
+      null;
+    const ownerPhone =
+      normalizeAuMobile(String(body.ownerPhone ?? "")) ??
+      report.ownerPhone ??
+      null;
+
+    if (!ownerPhone) {
+      return NextResponse.json(
+        { error: "Vehicle owner mobile number is required for the inspection link." },
+        { status: 400 },
+      );
+    }
+
+    const inspection = await createInspection({ reportId, phone: ownerPhone });
     const internalInspectUrl = `${getBaseUrl()}/inspect/${inspection.accessToken}`;
 
     let inspectUrl = internalInspectUrl;
@@ -60,8 +77,27 @@ export async function POST(req: NextRequest) {
 
     await updateReport(reportId, {
       workflowStatus: "awaiting_inspection",
-      customer_phone: phone || null,
+      customerPhone,
+      ownerPhone,
     });
+
+    let smsSent = false;
+    let smsError: string | null = null;
+
+    if (isSmsConfigured()) {
+      try {
+        const vehicleLabel = `${report.vehicle.year} ${report.vehicle.make} ${report.vehicle.model}`;
+        await sendInspectionLinkSms({
+          to: ownerPhone,
+          inspectUrl,
+          vehicleLabel,
+        });
+        smsSent = true;
+      } catch (err) {
+        smsError =
+          err instanceof Error ? err.message : "Could not send inspection SMS.";
+      }
+    }
 
     return NextResponse.json({
       inspectionId: inspection.id,
@@ -70,7 +106,10 @@ export async function POST(req: NextRequest) {
       ravinInviteUrl,
       provider,
       expiresAt: inspection.expiresAt,
-      smsReady: Boolean(phone),
+      ownerPhone,
+      customerPhone,
+      smsSent,
+      smsError,
     });
   } catch (err) {
     const message =

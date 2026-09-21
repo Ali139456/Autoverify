@@ -33,6 +33,7 @@ export async function updateReport(
     workflowStatus?: string;
     ravin_payload?: unknown;
     customer_phone?: string | null;
+    owner_phone?: string | null;
   },
 ): Promise<VehicleReport | null> {
   if (isSupabaseServerConfigured()) {
