@@ -12,7 +12,10 @@ import {
   buildKeyInsights,
   buildStatusChecks,
   formatReportDate,
+  futureValueConfidenceLabel,
+  getFutureValueAtYears,
   getInspectionPhotoUrl,
+  resolveFutureValue,
 } from "./report-design";
 import {
   PdfCheckIcon,
@@ -450,6 +453,13 @@ function DetailsPage({
   pageLabel: string;
 }) {
   const { market, ai, valuation } = report;
+  const futureValue = resolveFutureValue(report);
+  const futureHorizons = [
+    { label: "Today", years: 0 },
+    { label: "+1 year", years: 1 },
+    { label: "+3 years", years: 3 },
+    { label: "+5 years", years: 5 },
+  ];
 
   return (
     <Page size="A4" style={styles.page}>
@@ -457,7 +467,7 @@ function DetailsPage({
       <View style={styles.body}>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            Market Valuation ({valuation.confidence} confidence)
+            Present Value — Market Valuation ({valuation.confidence} confidence)
           </Text>
           <View style={styles.valRow}>
             {[
@@ -472,6 +482,31 @@ function DetailsPage({
                 </Text>
               </View>
             ))}
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>
+            Future Value Forecast ({futureValueConfidenceLabel(futureValue)}{" "}
+            confidence · {futureValue.yearlyKms.toLocaleString()} km/yr)
+          </Text>
+          <View style={styles.valRow}>
+            {futureHorizons.map(({ label, years }) => {
+              const point = getFutureValueAtYears(futureValue, years);
+              return (
+                <View key={label} style={styles.valBox}>
+                  <Text style={styles.valLabel}>{label}</Text>
+                  <Text style={styles.valAmount}>
+                    {point ? money(point.value) : "—"}
+                  </Text>
+                  {point ? (
+                    <Text style={{ fontSize: 7, color: GREY, marginTop: 2 }}>
+                      {point.odometer.toLocaleString()} km
+                    </Text>
+                  ) : null}
+                </View>
+              );
+            })}
           </View>
         </View>
 

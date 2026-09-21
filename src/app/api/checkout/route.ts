@@ -90,6 +90,7 @@ export async function POST(req: NextRequest) {
       vehicle: lookup.vehicle,
       registration: lookup.registration,
       valuation: lookup.valuation,
+      futureValue: lookup.futureValue,
       market: lookup.market,
       ai: lookup.ai,
       damage: null,

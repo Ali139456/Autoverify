@@ -1,6 +1,7 @@
 import {
   AiInsights,
   AustralianState,
+  FutureValueInfo,
   MarketInfo,
   MarketListing,
   RegistrationInfo,
@@ -18,6 +19,7 @@ export interface VehicleLookupResult {
   vehicle: VehicleIdentity;
   registration: RegistrationInfo;
   valuation: ValuationInfo;
+  futureValue: FutureValueInfo;
   market: MarketInfo;
   ai: AiInsights;
 }
@@ -118,10 +120,16 @@ async function lookupViaAutograb(
   ]);
 
   const demo = buildDemoResult(rego, state);
+  const resolvedValuation = valuation ?? demo.valuation;
+  const futureValue =
+    (await fetchResidualValuation(vehicleId, vehicle)) ??
+    buildEstimatedFutureValue(vehicle, resolvedValuation);
+
   const result: VehicleLookupResult = {
     vehicle,
     registration: registration ?? demo.registration,
-    valuation: valuation ?? demo.valuation,
+    valuation: resolvedValuation,
+    futureValue,
     market: market ?? demo.market,
     ai: demo.ai,
   };
@@ -246,6 +254,81 @@ async function fetchValuation(
 function estimateKmsFromYear(year: number): number {
   const age = Math.max(new Date().getFullYear() - year, 1);
   return Math.round(age * 12000);
+}
+
+function estimateYearlyKms(vehicle: VehicleIdentity): number {
+  const initialKms = vehicle.odometer ?? estimateKmsFromYear(vehicle.year);
+  const age = Math.max(new Date().getFullYear() - vehicle.year, 1);
+  const yearly = Math.round(initialKms / age);
+  return Math.min(Math.max(yearly || 15000, 5000), 40000);
+}
+
+async function fetchResidualValuation(
+  vehicleId: string,
+  vehicle: VehicleIdentity,
+): Promise<FutureValueInfo | null> {
+  const initialKms = vehicle.odometer ?? estimateKmsFromYear(vehicle.year);
+  const yearlyKms = estimateYearlyKms(vehicle);
+
+  const body: JsonRecord = {
+    region: "au",
+    vehicle_id: vehicleId,
+    initial_kms: initialKms,
+    yearly_kms: yearlyKms,
+  };
+  if (vehicle.colour) {
+    body.color = vehicle.colour;
+  }
+
+  const res = await autograbPost("/valuations/residual", body);
+  if (!res.ok) return null;
+
+  const data = (await res.json()) as JsonRecord;
+  const rawPredictions = Array.isArray(data.predictions) ? data.predictions : [];
+  if (!rawPredictions.length) return null;
+
+  const predictions = rawPredictions
+    .map((item) => {
+      const point = item as JsonRecord;
+      return {
+        yearsAhead: Number(point.year),
+        odometer: Number(point.kms),
+        value: Number(point.valuation),
+        confidence: Number(point.score) || 0,
+      };
+    })
+    .filter((point) => Number.isFinite(point.value) && point.value > 0);
+
+  if (!predictions.length) return null;
+
+  return {
+    source: "autograb",
+    yearlyKms,
+    predictions,
+  };
+}
+
+export function buildEstimatedFutureValue(
+  vehicle: VehicleIdentity,
+  valuation: ValuationInfo,
+): FutureValueInfo {
+  const currentValue = Math.round(
+    (valuation.privateLow + valuation.privateHigh) / 2,
+  );
+  const initialKms = vehicle.odometer ?? estimateKmsFromYear(vehicle.year);
+  const yearlyKms = estimateYearlyKms(vehicle);
+  const horizonYears = [0, 1, 2, 3, 5];
+
+  return {
+    source: "estimated",
+    yearlyKms,
+    predictions: horizonYears.map((yearsAhead) => ({
+      yearsAhead,
+      odometer: initialKms + yearsAhead * yearlyKms,
+      value: Math.round(currentValue * Math.pow(0.88, yearsAhead)),
+      confidence: 0.75,
+    })),
+  };
 }
 
 async function fetchMarketOverlay(
@@ -414,8 +497,9 @@ function buildDemoResult(
     comparableListings: listings,
   };
 
+  const futureValue = buildEstimatedFutureValue(vehicle, valuation);
   const ai = computeAiInsights(vehicle, valuation, registration);
-  return { vehicle, registration, valuation, market, ai };
+  return { vehicle, registration, valuation, futureValue, market, ai };
 }
 
 export function computeAiInsights(

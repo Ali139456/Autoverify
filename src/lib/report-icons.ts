@@ -60,6 +60,7 @@ export const INSIGHT_ICON_NAMES: Record<string, ReportIconName> = {
   usage: "car-front",
   market: "chart",
   specs: "sliders",
+  future: "sparkles",
   risk: "search-doc",
 };
 

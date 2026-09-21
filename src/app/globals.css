@@ -549,6 +549,25 @@ body {
     font-size: 8px !important;
   }
 
+  .report-future-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    margin-top: 8px !important;
+  }
+
+  .report-future-grid > div {
+    padding: 10px !important;
+  }
+
+  .report-future-section h3 + p {
+    font-size: 7px !important;
+  }
+
+  .report-future-kms,
+  .report-future-note {
+    font-size: 7px !important;
+  }
+
   .report-supplementary .text-base {
     font-size: 12px !important;
   }

@@ -46,6 +46,20 @@ export interface ValuationInfo {
   confidence: "High" | "Medium" | "Low";
 }
 
+export interface FutureValuePoint {
+  /** Years from today (0 = present). */
+  yearsAhead: number;
+  odometer: number;
+  value: number;
+  confidence: number;
+}
+
+export interface FutureValueInfo {
+  source: "autograb" | "estimated";
+  yearlyKms: number;
+  predictions: FutureValuePoint[];
+}
+
 export interface MarketListing {
   title: string;
   price: number;
@@ -135,6 +149,7 @@ export interface VehicleReport {
   vehicle: VehicleIdentity;
   registration: RegistrationInfo;
   valuation: ValuationInfo;
+  futureValue?: FutureValueInfo | null;
   market: MarketInfo;
   ai: AiInsights;
   damage: DamageAnalysis | null;

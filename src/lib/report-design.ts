@@ -1,4 +1,10 @@
-import type { InspectionPhoto, VehicleReport } from "./types";
+import { buildEstimatedFutureValue } from "./autograb";
+import type {
+  FutureValueInfo,
+  FutureValuePoint,
+  InspectionPhoto,
+  VehicleReport,
+} from "./types";
 
 export type InsightStatus = "clear" | "warn" | "info" | "neutral";
 
@@ -15,6 +21,28 @@ export type StatusCheck = {
 };
 
 const money = (n: number) => `$${n.toLocaleString("en-AU")}`;
+
+export function resolveFutureValue(report: VehicleReport): FutureValueInfo {
+  if (report.futureValue?.predictions?.length) {
+    return report.futureValue;
+  }
+  return buildEstimatedFutureValue(report.vehicle, report.valuation);
+}
+
+export function getFutureValueAtYears(
+  future: FutureValueInfo,
+  yearsAhead: number,
+): FutureValuePoint | undefined {
+  return future.predictions.find((point) => point.yearsAhead === yearsAhead);
+}
+
+export function futureValueConfidenceLabel(future: FutureValueInfo): string {
+  const present = getFutureValueAtYears(future, 0);
+  const score = present?.confidence ?? 0;
+  if (future.source === "autograb" && score >= 0.85) return "High";
+  if (future.source === "autograb") return "Medium";
+  return "Estimated";
+}
 
 export function buildStatusChecks(report: VehicleReport): StatusCheck[] {
   const { registration, vehicle } = report;
@@ -53,7 +81,8 @@ export function buildStatusChecks(report: VehicleReport): StatusCheck[] {
 
 export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
   const { registration, valuation, vehicle, market, ai } = report;
-  const privateMid = Math.round((valuation.privateLow + valuation.privateHigh) / 2);
+  const future = resolveFutureValue(report);
+  const inThreeYears = getFutureValueAtYears(future, 3);
 
   return [
     {
@@ -110,10 +139,12 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
       tone: "info",
     },
     {
-      id: "usage",
-      title: "Usage Type",
-      status: "Private",
-      tone: "neutral",
+      id: "future",
+      title: "Future Value",
+      status: inThreeYears
+        ? `${money(inThreeYears.value)} in 3 yrs`
+        : "Forecast unavailable",
+      tone: "info",
     },
     {
       id: "market",
