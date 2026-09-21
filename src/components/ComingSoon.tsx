@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Logo } from "@/components/Logo";
 
 export function ComingSoon() {
@@ -18,12 +17,6 @@ export function ComingSoon() {
         <p className="mt-12 text-base font-bold uppercase tracking-[0.3em] text-white sm:mt-14 sm:text-lg lg:mt-16 lg:text-xl">
           Launching soon
         </p>
-        <Link
-          href="/vehicleinspections"
-          className="mt-8 text-sm font-semibold text-accent-400 underline-offset-4 transition hover:text-accent-300 hover:underline"
-        >
-          Vehicle inspection services
-        </Link>
       </div>
     </div>
   );
