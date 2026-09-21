@@ -57,6 +57,7 @@ export interface MarketListing {
 export interface MarketInfo {
   averagePrice: number;
   medianPrice: number;
+  averageOdometer?: number;
   activeListings: number;
   averageDaysOnMarket: number;
   comparableListings: MarketListing[];

@@ -12,6 +12,8 @@ const AUTOGRAB_API_KEY = process.env.AUTOGRAB_API_KEY;
 const AUTOGRAB_BASE_URL =
   process.env.AUTOGRAB_BASE_URL ?? "https://api.autograb.com.au/v2";
 
+const REGISTRATION_FEATURES = "build_data,performance_info";
+
 export interface VehicleLookupResult {
   vehicle: VehicleIdentity;
   registration: RegistrationInfo;
@@ -20,16 +22,17 @@ export interface VehicleLookupResult {
   ai: AiInsights;
 }
 
+type JsonRecord = Record<string, unknown>;
+
 /**
  * Looks a vehicle up by registration plate.
  *
- * When AUTOGRAB_API_KEY is configured, calls the real Autograb API.
- * Otherwise falls back to deterministic demo data so the whole flow
- * (lookup -> payment -> report -> PDF) can be exercised end-to-end.
+ * Uses AutoGrab v2 registration, valuation, and market overlay APIs.
+ * Falls back to deterministic demo data when AUTOGRAB_API_KEY is unset.
  */
 export async function lookupVehicle(
   rego: string,
-  state: AustralianState
+  state: AustralianState,
 ): Promise<VehicleLookupResult> {
   if (AUTOGRAB_API_KEY) {
     return lookupViaAutograb(rego, state);
@@ -37,130 +40,265 @@ export async function lookupVehicle(
   return buildDemoResult(rego, state);
 }
 
-async function lookupViaAutograb(
-  rego: string,
-  state: AustralianState
-): Promise<VehicleLookupResult> {
-  const headers = {
+function autograbHeaders(): Record<string, string> {
+  return {
     ApiKey: AUTOGRAB_API_KEY as string,
     "Content-Type": "application/json",
   };
+}
 
-  // 1. Identify the vehicle from the plate
-  const lookupRes = await fetch(
-    `${AUTOGRAB_BASE_URL}/vehicles/lookup?registration_plate=${encodeURIComponent(
-      rego
-    )}&state=${state}&region=au`,
-    { headers, cache: "no-store" }
+async function autograbGet(path: string): Promise<Response> {
+  return fetch(`${AUTOGRAB_BASE_URL}${path}`, {
+    headers: autograbHeaders(),
+    cache: "no-store",
+  });
+}
+
+async function autograbPost(path: string, body: JsonRecord): Promise<Response> {
+  return fetch(`${AUTOGRAB_BASE_URL}${path}`, {
+    method: "POST",
+    headers: autograbHeaders(),
+    body: JSON.stringify(body),
+    cache: "no-store",
+  });
+}
+
+async function lookupViaAutograb(
+  rego: string,
+  state: AustralianState,
+): Promise<VehicleLookupResult> {
+  const plate = rego.toUpperCase();
+  const registrationRes = await autograbGet(
+    `/vehicles/registrations/${encodeURIComponent(plate)}?region=au&state=${state}&features=${REGISTRATION_FEATURES}`,
   );
-  if (!lookupRes.ok) {
+
+  if (registrationRes.status === 404) {
     throw new Error(
-      `Autograb vehicle lookup failed (${lookupRes.status}). Check the plate and try again.`
+      `No vehicle found for registration ${plate} (${state}). Check the plate and try again.`,
     );
   }
-  const lookup = await lookupRes.json();
-  const v = lookup.vehicle ?? lookup.data?.vehicle ?? lookup;
-  const vehicleId: string | undefined = v.id;
 
-  const vehicle: VehicleIdentity = {
-    rego: rego.toUpperCase(),
+  if (!registrationRes.ok) {
+    const errorBody = await registrationRes.json().catch(() => null);
+    const message =
+      typeof errorBody?.message === "string"
+        ? errorBody.message
+        : `Autograb registration lookup failed (${registrationRes.status}).`;
+    throw new Error(message);
+  }
+
+  const registrationData = (await registrationRes.json()) as JsonRecord;
+  const vehicleRecord = registrationData.vehicle as JsonRecord | undefined;
+  const vehicleId = vehicleRecord?.id as string | undefined;
+
+  if (!vehicleId || !vehicleRecord) {
+    const upstream = registrationData.upstream_vehicle as string | undefined;
+    throw new Error(
+      upstream
+        ? `We found "${upstream}" on the register but couldn't match it to our catalogue.`
+        : `No vehicle found for registration ${plate} (${state}). Check the plate and try again.`,
+    );
+  }
+
+  const vehicle = mapVehicleIdentity(
+    plate,
     state,
-    vin: v.vin ?? "",
-    make: v.make ?? "Unknown",
-    model: v.model ?? "Unknown",
-    variant: v.badge ?? v.variant ?? "",
-    series: v.series ?? "",
-    year: Number(v.year) || 0,
-    bodyType: v.body_type ?? "",
-    fuelType: v.fuel ?? v.fuel_type ?? "",
-    transmission: v.transmission ?? "",
-    engine: v.engine ?? "",
-    colour: v.colour ?? v.color ?? "",
-    odometer: v.odometer ?? null,
-  };
+    vehicleRecord,
+    registrationData,
+  );
 
-  // 2. Fetch valuation / market data in parallel (best-effort)
-  const [valuation, market] = await Promise.all([
-    fetchAutograbValuation(vehicleId, headers).catch(() => null),
-    fetchAutograbMarket(vehicleId, headers).catch(() => null),
+  const market = await fetchMarketOverlay(vehicleId, vehicle);
+  if (market?.averageOdometer) {
+    vehicle.odometer = market.averageOdometer;
+  }
+
+  const [registration, valuation] = await Promise.all([
+    fetchRegistrationStatus(plate, state),
+    fetchValuation(vehicleId, vehicle),
   ]);
 
-  const demo = buildDemoResult(rego, state); // used to fill any gaps
+  const demo = buildDemoResult(rego, state);
   const result: VehicleLookupResult = {
     vehicle,
-    registration: mapRegistration(v) ?? demo.registration,
+    registration: registration ?? demo.registration,
     valuation: valuation ?? demo.valuation,
     market: market ?? demo.market,
     ai: demo.ai,
   };
-  result.ai = computeAiInsights(result.vehicle, result.valuation, result.registration);
+
+  result.ai = computeAiInsights(
+    result.vehicle,
+    result.valuation,
+    result.registration,
+  );
   return result;
 }
 
-function mapRegistration(v: Record<string, unknown>): RegistrationInfo | null {
-  const reg = v.registration as Record<string, unknown> | undefined;
-  if (!reg) return null;
+function mapVehicleIdentity(
+  plate: string,
+  state: AustralianState,
+  vehicle: JsonRecord,
+  registrationData: JsonRecord,
+): VehicleIdentity {
   return {
-    status: (reg.status as RegistrationInfo["status"]) ?? "Registered",
-    expiryDate: (reg.expiry as string) ?? null,
-    stolen: Boolean(reg.stolen),
-    writtenOff: Boolean(reg.written_off),
-    writeOffDetails: (reg.write_off_details as string) ?? null,
-    ppsrEncumbrance: Boolean(reg.encumbered),
-    financeOwing: Boolean(reg.finance_owing),
-    financeDetails: (reg.finance_details as string) ?? null,
+    rego: plate,
+    state,
+    vin: String(registrationData.vin ?? ""),
+    make: String(vehicle.make ?? "Unknown"),
+    model: String(vehicle.model ?? "Unknown"),
+    variant: String(vehicle.badge ?? vehicle.variant ?? ""),
+    series: String(vehicle.series ?? vehicle.model_year ?? ""),
+    year: Number(vehicle.year) || Number(vehicle.release_year) || 0,
+    bodyType: String(vehicle.body_type ?? ""),
+    fuelType: String(vehicle.fuel ?? vehicle.fuel_type ?? ""),
+    transmission: String(vehicle.transmission ?? ""),
+    engine: String(vehicle.engine ?? ""),
+    colour: String(registrationData.colour ?? vehicle.colour ?? ""),
+    odometer: null,
   };
 }
 
-async function fetchAutograbValuation(
-  vehicleId: string | undefined,
-  headers: Record<string, string>
+async function fetchRegistrationStatus(
+  plate: string,
+  state: AustralianState,
+): Promise<RegistrationInfo | null> {
+  const res = await autograbGet(
+    `/vehicles/registrations/${encodeURIComponent(plate)}/status?region=au&state=${state}`,
+  );
+  if (!res.ok) return null;
+
+  const data = (await res.json()) as JsonRecord;
+  const incidents = Array.isArray(data.incidents) ? data.incidents : [];
+  const incidentText = incidents
+    .map((item) => JSON.stringify(item).toLowerCase())
+    .join(" ");
+
+  const writtenOff =
+    incidentText.includes("write") ||
+    incidentText.includes("wov") ||
+    incidentText.includes("total loss");
+  const stolen = incidentText.includes("stolen");
+  const financeOwing =
+    incidentText.includes("encumbr") ||
+    incidentText.includes("finance") ||
+    incidentText.includes("security interest");
+
+  return {
+    status: mapRegistrationStatus(String(data.registration_status ?? "")),
+    expiryDate: (data.registration_expiry as string) ?? null,
+    stolen,
+    writtenOff,
+    writeOffDetails: writtenOff
+      ? "Write-off or incident recorded on registration status check"
+      : null,
+    ppsrEncumbrance: financeOwing,
+    financeOwing,
+    financeDetails: financeOwing
+      ? "Security interest or finance record detected"
+      : null,
+  };
+}
+
+function mapRegistrationStatus(
+  status: string,
+): RegistrationInfo["status"] {
+  const normalized = status.toUpperCase();
+  if (normalized.includes("REGISTER")) return "Registered";
+  if (normalized.includes("SUSPEND")) return "Suspended";
+  if (normalized.includes("EXPIRE")) return "Expired";
+  if (normalized.includes("UNREGISTER")) return "Unregistered";
+  return "Registered";
+}
+
+async function fetchValuation(
+  vehicleId: string,
+  vehicle: VehicleIdentity,
 ): Promise<ValuationInfo | null> {
-  if (!vehicleId) return null;
-  const res = await fetch(
-    `${AUTOGRAB_BASE_URL}/vehicles/${vehicleId}/valuation`,
-    { headers, cache: "no-store" }
-  );
+  const kms = vehicle.odometer ?? estimateKmsFromYear(vehicle.year);
+  const res = await autograbPost("/valuations/predict", {
+    region: "au",
+    catalogue: "autograb",
+    vehicle_id: vehicleId,
+    kms,
+    condition_score: 3,
+  });
   if (!res.ok) return null;
-  const data = await res.json();
-  const val = data.valuation ?? data;
+
+  const data = (await res.json()) as JsonRecord;
+  const prediction = (data.prediction ?? data) as JsonRecord;
+  const retail = Number(prediction.retail_price ?? prediction.price) || 0;
+  const trade = Number(prediction.trade_price) || Math.round(retail * 0.82);
+
+  if (!retail) return null;
+
+  const privateMid = Math.round((retail + trade) / 2);
   return {
-    retailLow: val.retail_low ?? val.retail?.low ?? 0,
-    retailHigh: val.retail_high ?? val.retail?.high ?? 0,
-    tradeLow: val.trade_low ?? val.trade?.low ?? 0,
-    tradeHigh: val.trade_high ?? val.trade?.high ?? 0,
-    privateLow: val.private_low ?? val.private?.low ?? 0,
-    privateHigh: val.private_high ?? val.private?.high ?? 0,
-    confidence: val.confidence ?? "Medium",
+    retailLow: Math.round(retail * 0.95),
+    retailHigh: Math.round(retail * 1.05),
+    tradeLow: Math.round(trade * 0.92),
+    tradeHigh: Math.round(trade * 1.08),
+    privateLow: Math.round(privateMid * 0.95),
+    privateHigh: Math.round(privateMid * 1.05),
+    confidence: Number(prediction.score ?? 0) >= 0.85 ? "High" : "Medium",
   };
 }
 
-async function fetchAutograbMarket(
-  vehicleId: string | undefined,
-  headers: Record<string, string>
+function estimateKmsFromYear(year: number): number {
+  const age = Math.max(new Date().getFullYear() - year, 1);
+  return Math.round(age * 12000);
+}
+
+async function fetchMarketOverlay(
+  vehicleId: string,
+  vehicle: VehicleIdentity,
 ): Promise<MarketInfo | null> {
-  if (!vehicleId) return null;
-  const res = await fetch(
-    `${AUTOGRAB_BASE_URL}/vehicles/${vehicleId}/market`,
-    { headers, cache: "no-store" }
+  const res = await autograbGet(
+    `/sourcing/market_overlay/${vehicleId}?region=au&features=avg_price,avg_kms,days_supply,vehicle_rrp`,
   );
   if (!res.ok) return null;
-  const data = await res.json();
-  const listings: MarketListing[] = (data.listings ?? []).map(
-    (l: Record<string, unknown>) => ({
-      title: (l.title as string) ?? "",
-      price: Number(l.price) || 0,
-      odometer: Number(l.odometer) || 0,
-      location: (l.location as string) ?? "",
-      daysListed: Number(l.days_listed) || 0,
-    })
-  );
+
+  const data = (await res.json()) as JsonRecord;
+  const leads = Array.isArray(data.leads) ? data.leads : [];
+  const listings: MarketListing[] = leads.slice(0, 5).map((lead) => {
+    const item = lead as JsonRecord;
+    const year = Number(item.year) || vehicle.year;
+    const title = `${year} ${vehicle.make} ${vehicle.model} ${vehicle.variant}`.trim();
+
+    return {
+      title,
+      price: Number(item.price) || 0,
+      odometer: Number(item.kms ?? item.odometer) || 0,
+      location: String(item.state ?? "AU"),
+      daysListed: Number(item.days_listed) || 0,
+    };
+  });
+
+  const avgPrice = Number(data.avg_price) || 0;
+  if (!avgPrice && listings.length === 0) return null;
+
+  const prices = listings.map((listing) => listing.price).filter(Boolean);
+  const medianPrice =
+    prices.length > 0
+      ? [...prices].sort((a, b) => a - b)[Math.floor(prices.length / 2)]
+      : avgPrice;
+
+  const averageOdometer =
+    Number(data.avg_kms ?? data.avg_odometer) ||
+    (listings.length
+      ? Math.round(
+          listings.reduce((sum, listing) => sum + listing.odometer, 0) /
+            listings.length,
+        )
+      : 0);
+
   return {
-    averagePrice: data.average_price ?? 0,
-    medianPrice: data.median_price ?? 0,
-    activeListings: data.active_listings ?? listings.length,
-    averageDaysOnMarket: data.average_days_on_market ?? 0,
-    comparableListings: listings.slice(0, 5),
+    averagePrice: avgPrice,
+    medianPrice,
+    averageOdometer: averageOdometer || undefined,
+    activeListings: Number(data.sample_size) || listings.length,
+    averageDaysOnMarket:
+      Number(data.avg_days_to_sell) || Number(data.days_supply) || 0,
+    comparableListings: listings,
   };
 }
 
@@ -199,7 +337,7 @@ const COLOURS = ["White", "Silver", "Black", "Blue", "Grey", "Red"];
 
 function buildDemoResult(
   rego: string,
-  state: AustralianState
+  state: AustralianState,
 ): VehicleLookupResult {
   const rand = seededRandom(rego.toUpperCase() + state);
   const spec = DEMO_VEHICLES[Math.floor(rand() * DEMO_VEHICLES.length)];
@@ -211,7 +349,7 @@ function buildDemoResult(
     rego: rego.toUpperCase(),
     state,
     vin: `6T1${rego.toUpperCase().padEnd(3, "X").slice(0, 3)}${String(
-      Math.floor(rand() * 1e11)
+      Math.floor(rand() * 1e11),
     ).padStart(11, "0")}`,
     make: spec.make,
     model: spec.model,
@@ -245,7 +383,6 @@ function buildDemoResult(
       : null,
   };
 
-  // Depreciate ~13%/yr from new price, adjusted for kms
   const depreciated =
     spec.base * Math.pow(0.87, age) * (1 - Math.min(odometer / 400000, 0.25));
   const mid = Math.round(depreciated / 100) * 100;
@@ -269,7 +406,7 @@ function buildDemoResult(
 
   const market: MarketInfo = {
     averagePrice: Math.round(
-      listings.reduce((s, l) => s + l.price, 0) / listings.length
+      listings.reduce((s, l) => s + l.price, 0) / listings.length,
     ),
     medianPrice: [...listings].sort((a, b) => a.price - b.price)[2].price,
     activeListings: Math.floor(rand() * 180) + 40,
@@ -281,17 +418,13 @@ function buildDemoResult(
   return { vehicle, registration, valuation, market, ai };
 }
 
-/* ------------------------------------------------------------------ */
-/* AI insights: risk scoring                                           */
-/* ------------------------------------------------------------------ */
-
 export function computeAiInsights(
   vehicle: VehicleIdentity,
   valuation: ValuationInfo,
-  registration: RegistrationInfo
+  registration: RegistrationInfo,
 ): AiInsights {
   const currentValue = Math.round(
-    (valuation.privateLow + valuation.privateHigh) / 2
+    (valuation.privateLow + valuation.privateHigh) / 2,
   );
   const age = Math.max(new Date().getFullYear() - vehicle.year, 0);
 
