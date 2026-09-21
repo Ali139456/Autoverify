@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight, ChevronDown, Menu, X } from "lucide-react";
 import { Logo } from "@/components/Logo";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { INSPECTION_MENU_ITEMS } from "@/lib/inspection-menu";
 
 const MAIN_LINKS = [
@@ -23,7 +22,7 @@ const INSPECTION_PAGE_LINKS = [
 ];
 
 const buyReportClass =
-  "group hidden items-center gap-2 whitespace-nowrap rounded-full bg-accent-500 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-accent-600 sm:inline-flex";
+  "group hidden items-center gap-2 whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-sm font-bold text-accent-500 transition hover:bg-slate-100 sm:inline-flex";
 
 function InspectionMenuItems({
   onNavigate,
@@ -101,8 +100,8 @@ function InspectionsDropdown({ onNavigate }: { onNavigate?: () => void }) {
         aria-haspopup="true"
         className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition ${
           open
-            ? "bg-accent-500 text-white"
-            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            ? "bg-white text-accent-500"
+            : "text-white/90 hover:bg-white/10 hover:text-white"
         }`}
       >
         Inspections
@@ -147,17 +146,17 @@ export function Header() {
   }, [pathname]);
 
   return (
-    <header className="av-site-header fixed inset-x-0 top-0 z-50 border-b-2 border-accent-500 bg-white px-3 py-3 sm:px-6">
+    <header className="av-site-header fixed inset-x-0 top-0 z-50 bg-accent-500 px-3 py-3 sm:px-6">
       <div
-        className={`mx-auto flex h-[4.25rem] max-w-6xl items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-3 transition-shadow duration-300 sm:px-4 ${
+        className={`mx-auto flex h-[4.25rem] max-w-6xl items-center justify-between gap-3 rounded-2xl border border-accent-400/40 bg-accent-500 px-3 transition-shadow duration-300 sm:px-4 ${
           scrolled
-            ? "shadow-[0_8px_30px_rgba(15,23,42,0.08)]"
-            : "shadow-[0_2px_16px_rgba(15,23,42,0.05)]"
+            ? "shadow-[0_8px_30px_rgba(0,0,0,0.18)]"
+            : "shadow-[0_2px_16px_rgba(0,0,0,0.12)]"
         }`}
       >
-        <Logo height={48} priority />
+        <Logo height={48} priority variant="light" />
 
-        <nav className="hidden items-center gap-1 rounded-full border border-slate-200 bg-slate-50 p-1 md:flex">
+        <nav className="hidden items-center gap-1 rounded-full border border-white/20 bg-white/10 p-1 md:flex">
           {links.map((l) => {
             const active = l.href === "/pricing" && pathname === "/pricing";
             return (
@@ -166,8 +165,8 @@ export function Header() {
                 href={l.href}
                 className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition ${
                   active
-                    ? "bg-accent-500 text-white"
-                    : "text-slate-600 hover:bg-white hover:text-slate-900"
+                    ? "bg-white text-accent-500"
+                    : "text-white/90 hover:bg-white/10 hover:text-white"
                 }`}
               >
                 {l.label}
@@ -178,8 +177,6 @@ export function Header() {
         </nav>
 
         <div className="flex shrink-0 items-center gap-2">
-          {!isInspectionPage && <ThemeToggle />}
-
           {isInspectionPage ? (
             <Link href="#contact" className={buyReportClass}>
               Request an inspection
@@ -202,7 +199,7 @@ export function Header() {
             onClick={() => setOpen((v) => !v)}
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-700 transition hover:bg-slate-100 md:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/25 bg-white/10 text-white transition hover:bg-white/20 md:hidden"
           >
             {open ? (
               <X className="h-5 w-5" aria-hidden />
@@ -260,7 +257,7 @@ export function Header() {
             <Link
               href="#contact"
               onClick={() => setOpen(false)}
-              className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-accent-500 px-5 py-3.5 font-bold text-white hover:bg-accent-600"
+              className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3.5 font-bold text-accent-500 hover:bg-slate-100"
             >
               Request an inspection
               <ArrowRight className="h-4 w-4" aria-hidden />
@@ -269,7 +266,7 @@ export function Header() {
             <Link
               href="/#check"
               onClick={() => setOpen(false)}
-              className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-accent-500 px-5 py-3.5 font-bold text-white hover:bg-accent-600"
+              className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3.5 font-bold text-accent-500 hover:bg-slate-100"
             >
               Buy Report
               <ArrowRight className="h-4 w-4" aria-hidden />

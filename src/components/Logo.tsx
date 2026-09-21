@@ -20,8 +20,10 @@ export function Logo({
   maxWidth = "min(280px, 58vw)",
   priority = false,
   linked = true,
+  variant = "auto",
 }: LogoProps) {
   const width = Math.round(height * LOGO_ASPECT);
+  const onLightBackground = variant === "dark" || variant === "auto";
 
   const image = (
     <span
@@ -34,7 +36,9 @@ export function Logo({
         width={width}
         height={height}
         priority={priority}
-        className="h-full w-auto max-w-full object-contain object-left"
+        className={`h-full w-auto max-w-full object-contain object-left ${
+          onLightBackground ? "" : "brightness-0 invert"
+        }`}
       />
     </span>
   );
