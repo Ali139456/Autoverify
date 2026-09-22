@@ -32,8 +32,8 @@ export function CheckoutBookingForm({
         Booking &amp; payment
       </h2>
       <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-        Enter your details below. We&apos;ll email your receipt and report link
-        after payment.
+        Enter your details below. After payment, your full vehicle report opens
+        immediately and we email your receipt and report link.
       </p>
 
       <div className="mt-6 space-y-4">
@@ -97,7 +97,9 @@ export function CheckoutBookingForm({
           state={state}
           isVin={isVin}
           tier={tier}
-          label={requiresPhones ? "Pay securely — Insights+" : "Pay securely — Insights"}
+          label={
+            requiresPhones ? "Pay securely — Insights+" : "Pay securely — Insights"
+          }
           customerEmail={customerEmail}
           customerPhone={requiresPhones ? customerPhone : undefined}
           ownerPhone={requiresPhones ? ownerPhone : undefined}

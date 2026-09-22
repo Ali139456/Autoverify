@@ -36,7 +36,8 @@ export function Logo({
         width={width}
         height={height}
         priority={priority}
-        className={`h-full w-auto max-w-full object-contain object-left ${
+        style={{ width: "auto", height: "100%" }}
+        className={`max-w-full object-contain object-left ${
           onLightBackground ? "" : "brightness-0 invert"
         }`}
       />

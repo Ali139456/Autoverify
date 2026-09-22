@@ -14,7 +14,7 @@ export function CheckPageCheckout({
   state: string;
   isVin: boolean;
 }) {
-  const [selectedTier, setSelectedTier] = useState<ReportTier | null>(null);
+  const [selectedTier, setSelectedTier] = useState<ReportTier>("insights");
 
   function handleSelectTier(tier: ReportTier) {
     setSelectedTier(tier);
@@ -37,16 +37,14 @@ export function CheckPageCheckout({
         selectedTier={selectedTier}
       />
 
-      {selectedTier && (
-        <div className="mt-8">
+      <div className="mt-8">
           <CheckoutBookingForm
             identifier={identifier}
             state={state}
             isVin={isVin}
             tier={selectedTier}
           />
-        </div>
-      )}
+      </div>
     </>
   );
 }
