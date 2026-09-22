@@ -17,7 +17,17 @@ const AUTOGRAB_API_KEY = process.env.AUTOGRAB_API_KEY;
 const AUTOGRAB_BASE_URL =
   process.env.AUTOGRAB_BASE_URL ?? "https://api.autograb.com.au/v2";
 
-const REGISTRATION_FEATURES = "build_data,performance_info";
+/** AutoGrab registration/VIN feature bundle (registration_status requires separate contract). */
+const REGISTRATION_FEATURES = "build_data,performance_info,writeoff_info";
+
+type PpsrCertificateSummary = {
+  regoExpiry: string | null;
+  hasSecuredParties: boolean;
+  hasStolenRecords: boolean;
+  hasWrittenOffRecords: boolean;
+  organisationName: string | null;
+  certificateUrl: string | null;
+};
 
 export interface VehicleLookupResult {
   vehicle: VehicleIdentity;
@@ -149,9 +159,11 @@ async function lookupViaAutograb(
     vehicle.heroImageUrl = market.coverImageUrl;
   }
 
-  const [registration, valuation] = await Promise.all([
+  const writeoffFromFeatures = parseWriteoffFromRegistrationData(registrationData);
+  const [registrationStatus, valuation, ppsr] = await Promise.all([
     fetchRegistrationStatus(plate, state),
     fetchValuation(vehicleId, vehicle),
+    fetchPpsrLookup({ vin: vehicle.vin, rego: plate, state }),
   ]);
 
   const demo = buildDemoResult(rego, state);
@@ -160,9 +172,16 @@ async function lookupViaAutograb(
     (await fetchResidualValuation(vehicleId, vehicle)) ??
     buildEstimatedFutureValue(vehicle, resolvedValuation);
 
+  const registration = mergeRegistrationInfo({
+    status: registrationStatus,
+    writeoff: writeoffFromFeatures,
+    ppsr,
+    vehicleFound: true,
+  });
+
   const result: VehicleLookupResult = {
     vehicle,
-    registration: registration ?? demo.registration,
+    registration,
     valuation: resolvedValuation,
     futureValue,
     market: market ?? demo.market,
@@ -182,7 +201,7 @@ async function lookupViaVin(
   state: AustralianState,
 ): Promise<VehicleLookupResult> {
   const res = await autograbGet(
-    `/vehicles/vins/${encodeURIComponent(vin)}?region=au&features=${REGISTRATION_FEATURES},registration_status,writeoff_info`,
+    `/vehicles/vins/${encodeURIComponent(vin)}?region=au&features=${REGISTRATION_FEATURES}`,
   );
 
   if (res.status === 404) {
@@ -227,15 +246,24 @@ async function lookupViaVin(
     vehicle.heroImageUrl = market.coverImageUrl;
   }
 
-  const valuation = await fetchValuation(vehicleId, vehicle);
+  const writeoffFromFeatures = parseWriteoffFromRegistrationData(vinData);
+  const [valuation, ppsr] = await Promise.all([
+    fetchValuation(vehicleId, vehicle),
+    fetchPpsrLookup({ vin, rego: vehicle.rego || undefined, state }),
+  ]);
+
   const demo = buildDemoResult(vin, state, { vin });
   const resolvedValuation = valuation ?? demo.valuation;
   const futureValue =
     (await fetchResidualValuation(vehicleId, vehicle)) ??
     buildEstimatedFutureValue(vehicle, resolvedValuation);
 
-  const registration =
-    parseRegistrationFromVinPayload(vinData) ?? demo.registration;
+  const registration = mergeRegistrationInfo({
+    status: null,
+    writeoff: writeoffFromFeatures,
+    ppsr,
+    vehicleFound: true,
+  });
 
   const result: VehicleLookupResult = {
     vehicle,
@@ -254,41 +282,132 @@ async function lookupViaVin(
   return result;
 }
 
-function parseRegistrationFromVinPayload(
-  vinData: JsonRecord,
-): RegistrationInfo | null {
-  const statusRaw = vinData.registration_status;
-  const writeoffRaw = vinData.writeoff_info;
-  if (!statusRaw && !writeoffRaw) return null;
+function parseAutograbDate(value: unknown): string | null {
+  if (value === null || value === undefined || value === "") return null;
+  const trimmed = String(value).trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(trimmed)) return trimmed.slice(0, 10);
+  const parsed = Date.parse(trimmed);
+  if (!Number.isNaN(parsed)) {
+    return new Date(parsed).toISOString().slice(0, 10);
+  }
+  return trimmed;
+}
 
-  const statusRecord =
-    typeof statusRaw === "object" && statusRaw !== null
-      ? (statusRaw as JsonRecord)
-      : null;
-  const writeoffRecord =
-    typeof writeoffRaw === "object" && writeoffRaw !== null
-      ? (writeoffRaw as JsonRecord)
-      : null;
+function parseWriteoffFromRegistrationData(
+  data: JsonRecord,
+): Partial<RegistrationInfo> | null {
+  const writeoffRaw = data.writeoff_info;
+  if (!writeoffRaw || typeof writeoffRaw !== "object") return null;
 
-  const writtenOff = Boolean(
-    writeoffRecord?.written_off ??
-      writeoffRecord?.is_written_off ??
-      writeoffRecord?.has_writeoff,
-  );
+  const writeoffRecord = writeoffRaw as JsonRecord;
+  const incidents = Array.isArray(writeoffRecord.incident_list)
+    ? writeoffRecord.incident_list
+    : [];
+  const incidentText = incidents
+    .map((item) => JSON.stringify(item).toLowerCase())
+    .join(" ");
+
+  const writtenOff =
+    incidents.length > 0 ||
+    incidentText.includes("write") ||
+    incidentText.includes("wov") ||
+    Boolean(
+      writeoffRecord.written_off ??
+        writeoffRecord.is_written_off ??
+        writeoffRecord.has_writeoff,
+    );
+
+  if (!writtenOff) {
+    return { writtenOff: false, writeOffDetails: null };
+  }
 
   return {
-    status: mapRegistrationStatus(
-      String(statusRecord?.registration_status ?? statusRecord?.status ?? ""),
-    ),
-    expiryDate: (statusRecord?.registration_expiry as string) ?? null,
-    stolen: false,
+    writtenOff: true,
+    writeOffDetails:
+      incidents.length > 0
+        ? "Write-off or incident recorded on vehicle history check"
+        : "Write-off record detected on vehicle lookup",
+  };
+}
+
+function mergeRegistrationInfo({
+  status,
+  writeoff,
+  ppsr,
+  vehicleFound,
+}: {
+  status: RegistrationInfo | null;
+  writeoff: Partial<RegistrationInfo> | null;
+  ppsr: PpsrCertificateSummary | null;
+  vehicleFound: boolean;
+}): RegistrationInfo {
+  const financeOwing =
+    ppsr?.hasSecuredParties ??
+    status?.financeOwing ??
+    status?.ppsrEncumbrance ??
+    false;
+  const writtenOff =
+    ppsr?.hasWrittenOffRecords ?? status?.writtenOff ?? writeoff?.writtenOff ?? false;
+  const stolen = ppsr?.hasStolenRecords ?? status?.stolen ?? false;
+
+  let financeDetails = status?.financeDetails ?? null;
+  if (financeOwing && ppsr?.organisationName) {
+    financeDetails = `Security interest registered by ${ppsr.organisationName}`;
+  } else if (financeOwing && !financeDetails) {
+    financeDetails = "Security interest registered on PPSR";
+  }
+
+  let writeOffDetails = status?.writeOffDetails ?? writeoff?.writeOffDetails ?? null;
+  if (writtenOff && ppsr?.hasWrittenOffRecords && !writeOffDetails) {
+    writeOffDetails = "Written-off record detected on PPSR certificate";
+  }
+
+  return {
+    status:
+      status?.status ?? (vehicleFound ? "Registered" : "Unregistered"),
+    expiryDate:
+      status?.expiryDate ?? ppsr?.regoExpiry ?? null,
+    stolen,
     writtenOff,
-    writeOffDetails: writtenOff
-      ? "Write-off record detected on VIN lookup"
-      : null,
-    ppsrEncumbrance: false,
-    financeOwing: false,
-    financeDetails: null,
+    writeOffDetails,
+    ppsrEncumbrance: financeOwing,
+    financeOwing,
+    financeDetails,
+  };
+}
+
+/**
+ * AutoGrab product `ppsr.lookup` — POST /v2/certificates/generate with type "ppsr".
+ */
+async function fetchPpsrLookup(input: {
+  vin?: string;
+  rego?: string;
+  state?: AustralianState;
+}): Promise<PpsrCertificateSummary | null> {
+  const body: JsonRecord = { type: "ppsr" };
+  if (input.vin) {
+    body.vin = input.vin;
+  } else if (input.rego && input.state) {
+    body.rego = input.rego;
+    body.state = input.state;
+  } else {
+    return null;
+  }
+
+  const res = await autograbPost("/certificates/generate?region=au", body);
+  if (!res.ok) return null;
+
+  const data = (await res.json()) as JsonRecord;
+  const certificate = data.certificate as JsonRecord | undefined;
+  if (!certificate) return null;
+
+  return {
+    regoExpiry: parseAutograbDate(certificate.rego_expiry),
+    hasSecuredParties: Boolean(certificate.has_secured_parties),
+    hasStolenRecords: Boolean(certificate.has_stolen_records),
+    hasWrittenOffRecords: Boolean(certificate.has_written_off_records),
+    organisationName: stringFromRecord(certificate.organisation_name),
+    certificateUrl: stringFromRecord(certificate.url),
   };
 }
 
@@ -466,7 +585,7 @@ async function fetchRegistrationStatus(
 
   return {
     status: mapRegistrationStatus(String(data.registration_status ?? "")),
-    expiryDate: (data.registration_expiry as string) ?? null,
+    expiryDate: parseAutograbDate(data.registration_expiry),
     stolen,
     writtenOff,
     writeOffDetails: writtenOff
