@@ -25,9 +25,13 @@ type PpsrCertificateSummary = {
   hasSecuredParties: boolean;
   hasStolenRecords: boolean;
   hasWrittenOffRecords: boolean;
+  hasSafetyRecalls: boolean;
   organisationName: string | null;
   certificateUrl: string | null;
 };
+
+const MARKET_OVERLAY_FEATURES =
+  "avg_price,avg_kms,days_supply,vehicle_rrp";
 
 export interface VehicleLookupResult {
   vehicle: VehicleIdentity;
@@ -373,6 +377,7 @@ function mergeRegistrationInfo({
     ppsrEncumbrance: financeOwing,
     financeOwing,
     financeDetails,
+    hasSafetyRecalls: ppsr?.hasSafetyRecalls ?? null,
   };
 }
 
@@ -406,9 +411,25 @@ async function fetchPpsrLookup(input: {
     hasSecuredParties: Boolean(certificate.has_secured_parties),
     hasStolenRecords: Boolean(certificate.has_stolen_records),
     hasWrittenOffRecords: Boolean(certificate.has_written_off_records),
+    hasSafetyRecalls: Boolean(certificate.has_safety_recalls),
     organisationName: stringFromRecord(certificate.organisation_name),
     certificateUrl: stringFromRecord(certificate.url),
   };
+}
+
+function extractLeadImageUrl(lead: JsonRecord): string | null {
+  for (const key of [
+    "cover_image",
+    "cover_image_url",
+    "image_url",
+    "photo_url",
+    "thumbnail_url",
+    "primary_image_url",
+  ]) {
+    const url = stringFromRecord(lead[key]);
+    if (url?.startsWith("http")) return url;
+  }
+  return null;
 }
 
 function mapVehicleIdentityFromVin(
@@ -728,7 +749,7 @@ async function fetchMarketOverlay(
   vehicle: VehicleIdentity,
 ): Promise<MarketInfo | null> {
   const res = await autograbGet(
-    `/sourcing/market_overlay/${vehicleId}?region=au&features=avg_price,avg_kms,days_supply,vehicle_rrp,cover_image`,
+    `/sourcing/market_overlay/${vehicleId}?region=au&features=${MARKET_OVERLAY_FEATURES}`,
   );
   if (!res.ok) return null;
 
@@ -766,9 +787,18 @@ async function fetchMarketOverlay(
         )
       : 0);
 
-  const coverImageUrl = stringFromRecord(
+  let coverImageUrl = stringFromRecord(
     data.cover_image_url ?? data.cover_image,
   );
+  if (!coverImageUrl) {
+    for (const lead of leads) {
+      const imageUrl = extractLeadImageUrl(lead as JsonRecord);
+      if (imageUrl) {
+        coverImageUrl = imageUrl;
+        break;
+      }
+    }
+  }
 
   return {
     averagePrice: avgPrice,

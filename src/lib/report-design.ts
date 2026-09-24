@@ -167,9 +167,19 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
     {
       id: "recall",
       title: "Recall Check",
-      status: "Clear",
-      statusSubtext: "Check with Govt Database",
-      tone: "clear",
+      status:
+        registration.hasSafetyRecalls === true
+          ? "Recalls found"
+          : registration.hasSafetyRecalls === false
+            ? "Clear"
+            : "Check with Govt Database",
+      statusSubtext:
+        registration.hasSafetyRecalls === true
+          ? "Safety recall flagged on PPSR / NEVDIS"
+          : registration.hasSafetyRecalls === false
+            ? "No recalls on PPSR / NEVDIS certificate"
+            : "Recall data unavailable for this vehicle",
+      tone: registration.hasSafetyRecalls ? "warn" : "clear",
     },
     {
       id: "service",

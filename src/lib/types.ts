@@ -41,6 +41,8 @@ export interface RegistrationInfo {
   ppsrEncumbrance: boolean;
   financeOwing: boolean;
   financeDetails: string | null;
+  /** Safety recalls flagged on the PPSR / NEVDIS certificate when available. */
+  hasSafetyRecalls?: boolean | null;
 }
 
 export interface ValuationInfo {

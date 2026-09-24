@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import {
   CheckCircle2,
@@ -126,14 +125,15 @@ export function CarInsightsReport({
                   className="absolute inset-0 h-full w-full object-cover object-center"
                 />
               ) : (
-                <Image
-                  src="/hero-car-white.png"
-                  alt={`${vehicleTitle} illustration`}
-                  fill
-                  className="object-cover object-center mix-blend-screen"
-                  sizes="300px"
-                  priority
-                />
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-slate-800 to-slate-950 px-4 text-center">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                    {vehicle.make} {vehicle.model}
+                  </p>
+                  <p className="mt-1 text-lg font-bold text-white">{vehicle.year}</p>
+                  <p className="mt-2 text-[11px] text-slate-400">
+                    No listing photo available for this vehicle
+                  </p>
+                </div>
               )}
             </div>
           </div>
