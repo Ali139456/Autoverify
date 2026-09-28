@@ -11,6 +11,7 @@ import {
   History,
 } from "lucide-react";
 import { AboutUsSection } from "@/components/AboutUsSection";
+import { HomeCheckLink } from "@/components/HomeCheckLink";
 import { PricingTierCards } from "@/components/PricingTierCards";
 import { RegoSearchForm } from "@/components/RegoSearchForm";
 import { Reveal } from "@/components/Reveal";
@@ -24,7 +25,11 @@ const CHECKS = [
     title: "Vehicle Insights",
     text: "Safety data, recall data, warranty remaining, P plate legal status, vehicle specs and odometer checks.",
   },
-  { icon: Camera, title: "AI photo damage scan", text: "Upload photos of the car to detect dents, scratches and current condition." },
+  {
+    icon: Camera,
+    title: "AI powered condition scan",
+    text: "Take guided photos of the car to detect dents, scratches and current condition of exterior body, tyres and interior.",
+  },
   { icon: CarFront, title: "Market comparables", text: "See similar cars currently for sale, their prices, kilometres and how long they've been listed." },
   { icon: FileText, title: "Professional PDF report", text: "Everything compiled into a beautifully designed report you can download, save and share." },
 ];
@@ -173,7 +178,7 @@ export function HomePage() {
             </p>
           </Reveal>
           <Reveal delay={150} className="mt-8 sm:mt-12">
-            <PricingTierCards showHeading={false} variant="light" />
+            <PricingTierCards showHeading={false} variant="light" homePage />
           </Reveal>
         </div>
       </section>
@@ -216,13 +221,12 @@ export function HomePage() {
             ))}
           </div>
           <Reveal delay={200} className="mt-8 text-center sm:mt-10">
-            <Link
-              href="/#check"
+            <HomeCheckLink
               className="inline-flex items-center gap-2 rounded-full bg-accent-500 px-6 py-3 text-sm font-bold text-white transition hover:bg-accent-600 sm:px-8 sm:py-3.5 sm:text-base"
             >
               Buy Report — from {formatTierPrice("insights")}
               <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden />
-            </Link>
+            </HomeCheckLink>
           </Reveal>
         </div>
       </section>

@@ -3,6 +3,7 @@ import {
   CheckCircle2,
   ChevronRight,
   FileText,
+  XCircle,
 } from "lucide-react";
 import {
   buildKeyInsights,
@@ -16,8 +17,27 @@ import { buildCheckSearchUrl } from "@/lib/vehicle-identifier";
 import { SpecIcon } from "./ReportInsightIcon";
 import { ReportInsightCard } from "./ReportInsightCard";
 import { ReportShell } from "./ReportShell";
+import { VehicleHeroImage } from "./VehicleHeroImage";
 
-function StatusIcon({ ok }: { ok: boolean }) {
+function StatusIcon({
+  ok,
+  issue,
+  muted,
+}: {
+  ok: boolean;
+  issue?: boolean;
+  muted?: boolean;
+}) {
+  if (issue) {
+    return (
+      <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" aria-hidden />
+    );
+  }
+  if (muted) {
+    return (
+      <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-slate-300" aria-hidden />
+    );
+  }
   return (
     <CheckCircle2
       className={`mt-0.5 h-5 w-5 shrink-0 ${ok ? "text-emerald-500" : "text-slate-300"}`}
@@ -58,7 +78,8 @@ export function CarInsightsReport({
     },
   ];
 
-  const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
+  const vehicleTitle =
+    `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
 
   return (
     <ReportShell
@@ -69,7 +90,7 @@ export function CarInsightsReport({
       <div className="report-body space-y-8">
         <div className="report-title-block">
           <h1 className="report-main-title text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
-            Auto Verifi – Car Insights Report
+            Auto Verifi – Vehicle Insights Report
           </h1>
           <p className="report-vehicle-title mt-2 text-lg font-bold text-[#0073E3]">{vehicleTitle}</p>
           <p className="report-subtitle mt-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
@@ -110,32 +131,27 @@ export function CarInsightsReport({
               <ul className="report-status-items mt-5 space-y-3">
                 {statusChecks.map((item) => (
                   <li key={item.label} className="flex items-start gap-2">
-                    <StatusIcon ok={item.ok} />
-                    <span className="text-sm font-medium text-slate-700">{item.label}</span>
+                    <StatusIcon ok={item.ok} issue={item.issue} muted={item.muted} />
+                    <span
+                      className={`text-sm font-medium ${
+                        item.issue
+                          ? "text-red-600"
+                          : item.muted
+                            ? "text-slate-400"
+                            : "text-slate-700"
+                      }`}
+                    >
+                      {item.label}
+                    </span>
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="report-hero-image relative min-h-[220px] bg-slate-900">
-              {vehicle.heroImageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={vehicle.heroImageUrl}
-                  alt={`${vehicleTitle} listing photo`}
-                  className="absolute inset-0 h-full w-full object-cover object-center"
-                />
-              ) : (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-slate-800 to-slate-950 px-4 text-center">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
-                    {vehicle.make} {vehicle.model}
-                  </p>
-                  <p className="mt-1 text-lg font-bold text-white">{vehicle.year}</p>
-                  <p className="mt-2 text-[11px] text-slate-400">
-                    No listing photo available for this vehicle
-                  </p>
-                </div>
-              )}
-            </div>
+            <VehicleHeroImage
+              vehicle={vehicle}
+              vehicleTitle={vehicleTitle}
+              className="report-hero-image relative min-h-[220px] bg-slate-900"
+            />
           </div>
         </div>
 
@@ -221,17 +237,17 @@ export function CarInsightsReport({
               <FileText className="mt-0.5 h-8 w-8 shrink-0 text-[#0073E3]" aria-hidden />
               <div>
                 <p className="font-bold text-slate-900">
-                  Upgrade to Auto Verifi Insights+ for AI powered damage detection
-                  and more insights.
+                  Upgrade to Auto Verifi Insights+ for AI powered condition scan and
+                  more insights.
                 </p>
                 <p className="mt-1 text-sm text-slate-500">
-                  Get detailed condition analysis, image-based damage detection,
-                  variant verification and market valuation.
+                  Get AI powered current condition insights of exterior body, tyres
+                  and interior + predicted future valuation.
                 </p>
               </div>
             </div>
             <Link
-              href={buildCheckSearchUrl(vehicle)}
+              href={`${buildCheckSearchUrl(vehicle, { tier: "insights_plus" })}#booking-payment`}
               className="report-no-print-link inline-flex shrink-0 items-center gap-2 rounded-full bg-[#0073E3] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#0062c2]"
             >
               View upgrade options

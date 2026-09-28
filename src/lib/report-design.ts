@@ -21,6 +21,9 @@ export type ReportInsight = {
 export type StatusCheck = {
   label: string;
   ok: boolean;
+  /** When true, show red X (issue detected). When false with ok false, show neutral grey. */
+  issue?: boolean;
+  muted?: boolean;
 };
 
 const money = (n: number) => `$${n.toLocaleString("en-AU")}`;
@@ -65,6 +68,7 @@ export function buildStatusChecks(report: VehicleReport): StatusCheck[] {
         ? "Financial encumbrance detected"
         : "No financial encumbrances detected",
       ok: !registration.financeOwing,
+      issue: registration.financeOwing,
     },
     {
       label: registration.writtenOff
@@ -79,8 +83,9 @@ export function buildStatusChecks(report: VehicleReport): StatusCheck[] {
       ok: Boolean(vehicle.odometer),
     },
     {
-      label: "Service history available",
+      label: "Service history available at dealer",
       ok: false,
+      muted: true,
     },
     {
       label: registration.stolen
@@ -91,12 +96,24 @@ export function buildStatusChecks(report: VehicleReport): StatusCheck[] {
   ];
 }
 
+function formatMarketListingsDetail(report: VehicleReport): string | undefined {
+  const { market } = report;
+  const samples = market.comparableListings?.slice(0, 4) ?? [];
+  if (!samples.length) return undefined;
+  const lines = samples.map(
+    (listing) =>
+      `${listing.title} — ${money(listing.price)}, ${listing.odometer.toLocaleString()} km, ${listing.location}`,
+  );
+  return `Sample comparable listings (${market.activeListings} active): ${lines.join("; ")}.`;
+}
+
 export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
-  const { registration, valuation, vehicle, market, ai } = report;
+  const { registration, valuation, vehicle, market } = report;
   const future = resolveFutureValue(report);
   const inThreeYears = getFutureValueAtYears(future, 3);
+  const marketDetail = formatMarketListingsDetail(report);
 
-  return [
+  const insights: ReportInsight[] = [
     {
       id: "ppsr",
       title: "PPSR / Finance",
@@ -184,8 +201,9 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
     {
       id: "service",
       title: "Service History",
-      status: "Not available",
+      status: "Available at dealer",
       tone: "neutral",
+      detail: "Contact the selling dealer for full service history records.",
     },
     {
       id: "future",
@@ -203,6 +221,7 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
       title: "Market Insights",
       status: `Retail ${money(valuation.retailLow)}–${money(valuation.retailHigh)} · ${market.activeListings} listings`,
       tone: "neutral",
+      detail: marketDetail,
     },
     {
       id: "specs",
@@ -212,19 +231,9 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
         .join(" · ") || "Available",
       tone: "clear",
     },
-    {
-      id: "risk",
-      title: "Additional Checks",
-      status: `${ai.riskLabel} · ${ai.riskScore}/100`,
-      tone:
-        ai.riskLabel === "Low Risk"
-          ? "clear"
-          : ai.riskLabel === "Moderate Risk"
-            ? "neutral"
-            : "warn",
-      detail: `Composite risk score out of 100 (lower is better). Factors considered: ${ai.riskFactors.join("; ")}.`,
-    },
   ];
+
+  return insights.filter((insight) => insight.id !== "risk");
 }
 
 export function formatReportDate(iso: string): string {

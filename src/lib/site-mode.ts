@@ -6,6 +6,7 @@ const PUBLIC_PATHS = [
   "/check",
   "/checkout",
   "/report",
+  "/sample-report",
 ];
 
 const LIVE_HOSTS = new Set(["autoverifi.com.au", "www.autoverifi.com.au"]);

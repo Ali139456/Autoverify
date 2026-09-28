@@ -40,7 +40,9 @@ export async function POST(req: NextRequest) {
       });
       const report = await getReport(reportId);
       if (report && email) {
-        await sendPurchaseConfirmationEmail(report, email).catch(() => null);
+        await sendPurchaseConfirmationEmail(report, email, {
+          stripeSessionId: session.id,
+        }).catch(() => null);
       }
     }
   }

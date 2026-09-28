@@ -1,4 +1,5 @@
-import type { AustralianState } from "./types";
+import { buildCheckUrl } from "./routes";
+import type { AustralianState, ReportTier } from "./types";
 
 /** Standard 17-character VIN (excludes I, O, Q). */
 const VIN_PATTERN = /^[A-HJ-NPR-Z0-9]{17}$/;
@@ -38,18 +39,27 @@ export function formatVehicleIdentifierLabel(
   return state ? `${identifier.value} (${state})` : identifier.value;
 }
 
-export function buildCheckSearchUrl(vehicle: {
-  rego: string;
-  vin: string;
-  state: string;
-}): string {
+export function buildCheckSearchUrl(
+  vehicle: {
+    rego: string;
+    vin: string;
+    state: string;
+  },
+  options?: { tier?: ReportTier },
+): string {
   if (vehicle.rego) {
-    return `/check?rego=${encodeURIComponent(vehicle.rego)}&state=${vehicle.state}`;
+    return buildCheckUrl({
+      rego: vehicle.rego,
+      state: vehicle.state,
+      tier: options?.tier,
+    });
   }
   if (vehicle.vin) {
-    const params = new URLSearchParams({ vin: vehicle.vin });
-    if (vehicle.state) params.set("state", vehicle.state);
-    return `/check?${params.toString()}`;
+    return buildCheckUrl({
+      vin: vehicle.vin,
+      state: vehicle.state,
+      tier: options?.tier,
+    });
   }
   return "/#check";
 }

@@ -3,25 +3,23 @@ import { LegalDocument } from "@/components/LegalDocument";
 import {
   TERMS_FOOTER,
   TERMS_INTRO,
+  TERMS_PAGE_TITLE,
   TERMS_SECTIONS,
 } from "@/content/terms-of-use";
 
 export const metadata: Metadata = {
-  title: "Terms of Use",
+  title: "Website & Report Terms of Use",
   description:
-    "Auto Verifi Insights Terms of Use — terms applying when you access, purchase or use an Auto Verifi Insights report or related service.",
+    "Auto Verifi website and report terms — terms applying when you access, purchase or use an Auto Verifi report or related service.",
   robots: { index: true, follow: true },
 };
 
 export default function TermsPage() {
   return (
     <LegalDocument
-      title="Auto Verifi Insights — Terms of Use"
+      title={TERMS_PAGE_TITLE}
       subtitle="Legal"
-      intro={[
-        { type: "paragraph", text: "About Auto Verifi Insights" },
-        ...TERMS_INTRO,
-      ]}
+      intro={TERMS_INTRO}
       sections={TERMS_SECTIONS}
       footerNote={TERMS_FOOTER}
     />

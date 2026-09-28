@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { ArrowRight, ChevronDown } from "lucide-react";
+import { SampleReportLink } from "@/components/SampleReportLink";
 import {
   isVin,
   parseVehicleIdentifier,
@@ -65,16 +67,45 @@ export function RegoSearchForm({
       : "mx-auto max-w-md rounded-2xl border border-slate-200 bg-white p-2.5 shadow-lg dark:border-white/10 dark:bg-ink-800 dark:shadow-none sm:p-3 lg:mx-0";
 
   const fieldClass = onDark
-    ? "h-10 w-full min-w-0 rounded-lg border border-white/15 bg-ink-950 text-sm font-black text-white outline-none transition placeholder:font-normal placeholder:normal-case placeholder:text-slate-500 focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 sm:text-base"
+    ? "h-10 w-full min-w-0 rounded-lg border border-white/15 bg-ink-950 text-sm font-bold outline-none transition placeholder:font-bold placeholder:normal-case placeholder:text-[#0073E3] focus:border-[#0073E3] focus:ring-2 focus:ring-[#0073E3]/25 sm:text-base"
     : "h-10 w-full min-w-0 rounded-lg border border-slate-200 bg-white text-sm font-semibold text-slate-900 outline-none transition placeholder:font-normal placeholder:normal-case placeholder:text-slate-400 focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 dark:border-white/15 dark:bg-ink-950 dark:font-black dark:text-white dark:placeholder:text-slate-500 sm:text-base";
 
   const labelClass = onDark
     ? "text-[9px] font-bold uppercase tracking-[0.14em] text-slate-400"
     : "text-[9px] font-bold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400";
 
+  const regoTextClass =
+    onDark && !query.trim()
+      ? "text-[#0073E3]"
+      : onDark
+        ? "text-white"
+        : "";
+
   return (
     <form onSubmit={onSubmit} className="w-full">
-      <div className={`w-full ${shellClass}`}>
+      <div className={`relative w-full ${shellClass}`}>
+        {onDark && !compact ? (
+          <svg
+            className="pointer-events-none absolute -left-2 top-[4.5rem] z-10 hidden h-14 w-24 text-[#0073E3] sm:block lg:-left-10 lg:top-[4.25rem] lg:h-16 lg:w-32"
+            viewBox="0 0 128 64"
+            fill="none"
+            aria-hidden
+          >
+            <path
+              d="M4 52 C 36 52, 44 28, 72 18 C 88 13, 100 10, 118 8"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
+            <path
+              d="M108 4 L118 8 L112 18"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        ) : null}
         <div className="mb-1 grid grid-cols-2 gap-2 px-1 text-left">
           <span className={labelClass}>
             Registration Plate or VIN
@@ -89,10 +120,10 @@ export function RegoSearchForm({
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Enter Rego or VIN Here"
+              placeholder="Enter Rego or VIN here"
               aria-label="Registration plate or VIN"
               maxLength={17}
-              className={`${fieldClass} px-3 text-left ${!vinMode && query.trim() ? "plate-input uppercase" : ""}`}
+              className={`${fieldClass} px-3 text-left ${regoTextClass} ${!vinMode && query.trim() ? "plate-input uppercase" : ""}`}
             />
           </div>
 
@@ -115,17 +146,31 @@ export function RegoSearchForm({
           </div>
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="btn-shine group mx-auto mt-2.5 flex h-10 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-accent-500 px-4 text-sm font-bold text-white transition hover:bg-accent-600 disabled:opacity-60 sm:w-1/2"
-        >
-          {loading ? "Searching…" : "Buy Report"}
-          <ArrowRight
-            className="h-4 w-4 transition-transform group-hover:translate-x-1"
-            aria-hidden
-          />
-        </button>
+        <div className="mx-auto mt-2.5 flex w-full flex-col gap-2 sm:max-w-md sm:flex-row lg:mx-0">
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-shine group flex h-10 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-[#0073E3] px-4 text-sm font-bold text-white transition hover:bg-[#0062c2] disabled:opacity-60"
+          >
+            {loading ? "Searching…" : "Buy Report"}
+            <ArrowRight
+              className="h-4 w-4 transition-transform group-hover:translate-x-1"
+              aria-hidden
+            />
+          </button>
+          {!loading ? (
+            <SampleReportLink tier="insights" variant="hero" />
+          ) : (
+            <Link
+              href="/sample-report"
+              className="pointer-events-none flex h-10 flex-1 items-center justify-center rounded-lg border-2 border-[#0073E3]/40 px-4 text-sm font-bold text-[#0073E3]/40"
+              tabIndex={-1}
+              aria-hidden
+            >
+              Sample Report
+            </Link>
+          )}
+        </div>
       </div>
       {error && (
         <p

@@ -28,8 +28,11 @@ export interface VehicleIdentity {
   ancapRating?: string | null;
   warrantyRemaining?: string | null;
   pPlateLegal?: string | null;
-  /** Primary listing photo from AutoGrab market/history data. */
+  /** Hero / sample vehicle image for reports. */
   heroImageUrl?: string | null;
+  /** Shown under hero images sourced from stock or generated catalog photos. */
+  heroImageDisclaimer?: string | null;
+  heroImageKind?: "listing" | "stock" | "generated" | null;
 }
 
 export interface RegistrationInfo {
@@ -43,6 +46,19 @@ export interface RegistrationInfo {
   financeDetails: string | null;
   /** Safety recalls flagged on the PPSR / NEVDIS certificate when available. */
   hasSafetyRecalls?: boolean | null;
+  /** Official PPSR certificate PDF URL when generated via AutoGrab. */
+  ppsrCertificateUrl?: string | null;
+}
+
+export interface VehicleFactoryFeature {
+  code?: string | null;
+  label: string;
+}
+
+export interface VehicleSpecSheet {
+  capturedAt: string;
+  dataRows: { label: string; value: string }[];
+  factoryFeatures: VehicleFactoryFeature[];
 }
 
 export interface ValuationInfo {
@@ -82,6 +98,8 @@ export interface MarketInfo {
   medianPrice: number;
   averageOdometer?: number;
   coverImageUrl?: string;
+  /** Listing photo from a comparable lead matching the vehicle colour, when available. */
+  colourMatchedCoverImageUrl?: string;
   activeListings: number;
   averageDaysOnMarket: number;
   comparableListings: MarketListing[];
@@ -154,6 +172,12 @@ export interface VehicleReport {
   status: ReportStatus;
   tier?: ReportTier;
   customerEmail?: string | null;
+  customerFirstName?: string | null;
+  customerLastName?: string | null;
+  customerPostcode?: string | null;
+  customerBirthDate?: string | null;
+  /** Advertised / purchase price entered at checkout (AUD). */
+  advertisedPrice?: number | null;
   customerPhone?: string | null;
   ownerPhone?: string | null;
   stripeSessionId: string | null;
@@ -164,4 +188,5 @@ export interface VehicleReport {
   market: MarketInfo;
   ai: AiInsights;
   damage: DamageAnalysis | null;
+  vehicleSpec?: VehicleSpecSheet | null;
 }

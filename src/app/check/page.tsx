@@ -8,6 +8,7 @@ import {
   parseVehicleIdentifier,
 } from "@/lib/vehicle-identifier";
 import { CheckPageCheckout } from "@/components/CheckPageCheckout";
+import { parseReportTier } from "@/lib/pricing";
 import { RegoSearchForm } from "@/components/RegoSearchForm";
 
 export const metadata: Metadata = {
@@ -27,9 +28,11 @@ export default async function CheckPage({
     vin?: string;
     state?: string;
     cancelled?: string;
+    tier?: string;
   }>;
 }) {
   const params = await searchParams;
+  const initialTier = parseReportTier(params.tier);
   const rawIdentifier = (params.vin ?? params.rego ?? "").trim();
   const state = (params.state ?? "NSW").toUpperCase() as AustralianState;
   const cancelled = params.cancelled === "1";
@@ -60,6 +63,7 @@ export default async function CheckPage({
     lookup = await lookupVehicle(
       parsed.value,
       parsed.kind === "rego" ? state : validState ? state : undefined,
+      { preview: true },
     );
   } catch (err) {
     lookupError =
@@ -145,6 +149,7 @@ export default async function CheckPage({
             identifier={checkoutIdentifier}
             state={checkoutState}
             isVin={parsed.kind === "vin"}
+            initialTier={initialTier}
           />
         </div>
 

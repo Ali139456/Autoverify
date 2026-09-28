@@ -12,6 +12,14 @@ import {
   cleanVehicleIdentifier,
   parseVehicleIdentifier,
 } from "./vehicle-identifier";
+import { buildVehicleSpecSheet } from "./vehicle-spec-sheet";
+import {
+  buildStockHeroDisclaimer,
+  coloursRoughlyMatch,
+  normalizeColourForStockPhoto,
+  VEHICLE_HERO_IMAGE_DISCLAIMER,
+} from "./vehicle-hero-image";
+import type { VehicleSpecSheet } from "./types";
 
 const AUTOGRAB_API_KEY = process.env.AUTOGRAB_API_KEY;
 const AUTOGRAB_BASE_URL =
@@ -40,6 +48,7 @@ export interface VehicleLookupResult {
   futureValue: FutureValueInfo;
   market: MarketInfo;
   ai: AiInsights;
+  vehicleSpec: VehicleSpecSheet;
 }
 
 type JsonRecord = Record<string, unknown>;
@@ -50,9 +59,17 @@ type JsonRecord = Record<string, unknown>;
  * Uses AutoGrab v2 registration, VIN, valuation, and market overlay APIs.
  * Falls back to deterministic demo data when AUTOGRAB_API_KEY is unset.
  */
+export type VehicleLookupOptions = {
+  /** Skips PPSR certificate generate and stock-photo fetch for faster check-page preview. */
+  preview?: boolean;
+  /** Customer-supplied odometer (km) used for valuation at checkout. */
+  customerOdometer?: number | null;
+};
+
 export async function lookupVehicle(
   identifier: string,
   state?: AustralianState,
+  options: VehicleLookupOptions = {},
 ): Promise<VehicleLookupResult> {
   const parsed = parseVehicleIdentifier(identifier);
   if (!parsed) {
@@ -64,7 +81,7 @@ export async function lookupVehicle(
   if (parsed.kind === "vin") {
     const contextState = state ?? "NSW";
     if (AUTOGRAB_API_KEY) {
-      return lookupViaVin(parsed.value, contextState);
+      return lookupViaVin(parsed.value, contextState, options);
     }
     return buildDemoResult(parsed.value, contextState, { vin: parsed.value });
   }
@@ -74,7 +91,7 @@ export async function lookupVehicle(
   }
 
   if (AUTOGRAB_API_KEY) {
-    return lookupViaAutograb(parsed.value, state);
+    return lookupViaAutograb(parsed.value, state, options);
   }
   return buildDemoResult(parsed.value, state);
 }
@@ -105,6 +122,7 @@ async function autograbPost(path: string, body: JsonRecord): Promise<Response> {
 async function lookupViaAutograb(
   rego: string,
   state: AustralianState,
+  options: VehicleLookupOptions = {},
 ): Promise<VehicleLookupResult> {
   const plate = rego.toUpperCase();
   const registrationRes = await autograbGet(
@@ -146,35 +164,45 @@ async function lookupViaAutograb(
     registrationData,
   );
 
-  await enrichVehicleFromAutograb(
-    vehicle,
-    vehicleId,
-    vehicleRecord,
-    registrationData,
-  );
+  applyCustomerOdometer(vehicle, options.customerOdometer);
 
-  const market = await fetchMarketOverlay(vehicleId, vehicle);
-  if (market?.averageOdometer) {
+  const [detailedSpecs, market] = await Promise.all([
+    options.preview
+      ? Promise.resolve(null)
+      : enrichVehicleFromAutograb(
+          vehicle,
+          vehicleId,
+          vehicleRecord,
+          registrationData,
+        ),
+    fetchMarketOverlay(vehicleId, vehicle),
+  ]);
+
+  if (!options.customerOdometer && market?.averageOdometer) {
     vehicle.odometer = market.averageOdometer;
     vehicle.odometerSource =
       "Average odometer from comparable vehicles currently listed on the market (AutoGrab).";
   }
-  if (market?.coverImageUrl) {
-    vehicle.heroImageUrl = market.coverImageUrl;
-  }
+  await applyHeroImage(vehicle, vehicleId, market, {
+    skipStockPhotos: options.preview,
+  });
 
   const writeoffFromFeatures = parseWriteoffFromRegistrationData(registrationData);
-  const [registrationStatus, valuation, ppsr] = await Promise.all([
+  const [registrationStatus, valuation, ppsr, futureValue] = await Promise.all([
     fetchRegistrationStatus(plate, state),
     fetchValuation(vehicleId, vehicle),
-    fetchPpsrLookup({ vin: vehicle.vin, rego: plate, state }),
+    options.preview
+      ? Promise.resolve(null)
+      : fetchPpsrLookup({ vin: vehicle.vin, rego: plate, state }),
+    fetchResidualValuation(vehicleId, vehicle).then(
+      (value) => value ?? null,
+    ),
   ]);
 
   const demo = buildDemoResult(rego, state);
   const resolvedValuation = valuation ?? demo.valuation;
-  const futureValue =
-    (await fetchResidualValuation(vehicleId, vehicle)) ??
-    buildEstimatedFutureValue(vehicle, resolvedValuation);
+  const resolvedFutureValue =
+    futureValue ?? buildEstimatedFutureValue(vehicle, resolvedValuation);
 
   const registration = mergeRegistrationInfo({
     status: registrationStatus,
@@ -183,13 +211,22 @@ async function lookupViaAutograb(
     vehicleFound: true,
   });
 
+  const vehicleSpec = buildVehicleSpecSheet({
+    vehicle,
+    registration,
+    vehicleRecord,
+    registrationData,
+    detailedSpecs,
+  });
+
   const result: VehicleLookupResult = {
     vehicle,
     registration,
     valuation: resolvedValuation,
-    futureValue,
+    futureValue: resolvedFutureValue,
     market: market ?? demo.market,
     ai: demo.ai,
+    vehicleSpec,
   };
 
   result.ai = computeAiInsights(
@@ -200,9 +237,25 @@ async function lookupViaAutograb(
   return result;
 }
 
+function applyCustomerOdometer(
+  vehicle: VehicleIdentity,
+  customerOdometer?: number | null,
+): void {
+  if (
+    customerOdometer == null ||
+    !Number.isFinite(customerOdometer) ||
+    customerOdometer <= 0
+  ) {
+    return;
+  }
+  vehicle.odometer = Math.round(customerOdometer);
+  vehicle.odometerSource = "Odometer reading supplied at checkout.";
+}
+
 async function lookupViaVin(
   vin: string,
   state: AustralianState,
+  options: VehicleLookupOptions = {},
 ): Promise<VehicleLookupResult> {
   const res = await autograbGet(
     `/vehicles/vins/${encodeURIComponent(vin)}?region=au&features=${REGISTRATION_FEATURES}`,
@@ -238,29 +291,37 @@ async function lookupViaVin(
 
   const vehicle = mapVehicleIdentityFromVin(vin, state, vehicleRecord, vinData);
 
-  await enrichVehicleFromAutograb(vehicle, vehicleId, vehicleRecord, vinData);
+  applyCustomerOdometer(vehicle, options.customerOdometer);
 
-  const market = await fetchMarketOverlay(vehicleId, vehicle);
-  if (market?.averageOdometer) {
+  const [detailedSpecs, market] = await Promise.all([
+    options.preview
+      ? Promise.resolve(null)
+      : enrichVehicleFromAutograb(vehicle, vehicleId, vehicleRecord, vinData),
+    fetchMarketOverlay(vehicleId, vehicle),
+  ]);
+
+  if (!options.customerOdometer && market?.averageOdometer) {
     vehicle.odometer = market.averageOdometer;
     vehicle.odometerSource =
       "Average odometer from comparable vehicles currently listed on the market (AutoGrab).";
   }
-  if (market?.coverImageUrl) {
-    vehicle.heroImageUrl = market.coverImageUrl;
-  }
+  await applyHeroImage(vehicle, vehicleId, market, {
+    skipStockPhotos: options.preview,
+  });
 
   const writeoffFromFeatures = parseWriteoffFromRegistrationData(vinData);
-  const [valuation, ppsr] = await Promise.all([
+  const [valuation, ppsr, futureValue] = await Promise.all([
     fetchValuation(vehicleId, vehicle),
-    fetchPpsrLookup({ vin, rego: vehicle.rego || undefined, state }),
+    options.preview
+      ? Promise.resolve(null)
+      : fetchPpsrLookup({ vin, rego: vehicle.rego || undefined, state }),
+    fetchResidualValuation(vehicleId, vehicle).then((value) => value ?? null),
   ]);
 
   const demo = buildDemoResult(vin, state, { vin });
   const resolvedValuation = valuation ?? demo.valuation;
-  const futureValue =
-    (await fetchResidualValuation(vehicleId, vehicle)) ??
-    buildEstimatedFutureValue(vehicle, resolvedValuation);
+  const resolvedFutureValue =
+    futureValue ?? buildEstimatedFutureValue(vehicle, resolvedValuation);
 
   const registration = mergeRegistrationInfo({
     status: null,
@@ -269,13 +330,22 @@ async function lookupViaVin(
     vehicleFound: true,
   });
 
+  const vehicleSpec = buildVehicleSpecSheet({
+    vehicle,
+    registration,
+    vehicleRecord,
+    registrationData: vinData,
+    detailedSpecs,
+  });
+
   const result: VehicleLookupResult = {
     vehicle,
     registration,
     valuation: resolvedValuation,
-    futureValue,
+    futureValue: resolvedFutureValue,
     market: market ?? demo.market,
     ai: demo.ai,
+    vehicleSpec,
   };
 
   result.ai = computeAiInsights(
@@ -378,6 +448,7 @@ function mergeRegistrationInfo({
     financeOwing,
     financeDetails,
     hasSafetyRecalls: ppsr?.hasSafetyRecalls ?? null,
+    ppsrCertificateUrl: ppsr?.certificateUrl ?? null,
   };
 }
 
@@ -549,10 +620,11 @@ async function enrichVehicleFromAutograb(
   vehicleId: string,
   vehicleRecord: JsonRecord,
   registrationData: JsonRecord,
-): Promise<void> {
+): Promise<JsonRecord[] | null> {
   applyAutograbFeatureData(vehicle, registrationData, vehicleRecord);
   const specs = await fetchDetailedSpecs(vehicleId);
   applyDetailedSpecs(vehicle, specs);
+  return specs;
 }
 
 function mapVehicleIdentity(
@@ -744,6 +816,96 @@ export function buildEstimatedFutureValue(
   };
 }
 
+type StockPhotoRecord = {
+  type?: string;
+  color?: string | null;
+  url?: string;
+  match_confidence?: string;
+};
+
+const STOCK_PHOTO_CONFIDENCE_RANK: Record<string, number> = {
+  high: 0,
+  medium: 1,
+  low: 2,
+};
+
+async function fetchVehicleStockPhoto(
+  vehicleId: string,
+  colour?: string | null,
+): Promise<{
+  url: string;
+  kind: "stock" | "generated";
+  shownColour?: string;
+} | null> {
+  const params = new URLSearchParams({ region: "au" });
+  const colorParam = normalizeColourForStockPhoto(colour);
+  if (colorParam) {
+    params.set("color", colorParam);
+  }
+
+  const res = await autograbGet(
+    `/vehicles/${encodeURIComponent(vehicleId)}/photos?${params.toString()}`,
+  );
+  if (!res.ok) return null;
+
+  const data = (await res.json()) as JsonRecord;
+  const images = (Array.isArray(data.images) ? data.images : []) as StockPhotoRecord[];
+  const ranked = [...images]
+    .filter((image) => typeof image.url === "string" && image.url.startsWith("http"))
+    .sort((a, b) => {
+      const rankA =
+        STOCK_PHOTO_CONFIDENCE_RANK[a.match_confidence ?? "low"] ?? 3;
+      const rankB =
+        STOCK_PHOTO_CONFIDENCE_RANK[b.match_confidence ?? "low"] ?? 3;
+      if (rankA !== rankB) return rankA - rankB;
+      return a.type === "stock" && b.type !== "stock" ? -1 : 0;
+    });
+
+  const best = ranked[0];
+  if (!best?.url) return null;
+
+  return {
+    url: best.url,
+    kind: best.type === "stock" ? "stock" : "generated",
+    shownColour: best.color ?? colorParam ?? undefined,
+  };
+}
+
+async function applyHeroImage(
+  vehicle: VehicleIdentity,
+  vehicleId: string,
+  market: MarketInfo | null,
+  options: { skipStockPhotos?: boolean } = {},
+): Promise<void> {
+  if (!options.skipStockPhotos) {
+    const stock = await fetchVehicleStockPhoto(vehicleId, vehicle.colour);
+    if (stock) {
+      vehicle.heroImageUrl = stock.url;
+      vehicle.heroImageKind = stock.kind;
+      vehicle.heroImageDisclaimer = buildStockHeroDisclaimer(stock.shownColour);
+      return;
+    }
+  }
+
+  const listingUrl = pickListingHeroImage(vehicle, market);
+  if (listingUrl) {
+    vehicle.heroImageUrl = listingUrl;
+    vehicle.heroImageKind = "listing";
+    vehicle.heroImageDisclaimer = VEHICLE_HERO_IMAGE_DISCLAIMER;
+  }
+}
+
+function pickListingHeroImage(
+  vehicle: VehicleIdentity,
+  market: MarketInfo | null,
+): string | undefined {
+  if (!market) return undefined;
+  if (market.colourMatchedCoverImageUrl) {
+    return market.colourMatchedCoverImageUrl;
+  }
+  return market.coverImageUrl;
+}
+
 async function fetchMarketOverlay(
   vehicleId: string,
   vehicle: VehicleIdentity,
@@ -790,13 +952,18 @@ async function fetchMarketOverlay(
   let coverImageUrl = stringFromRecord(
     data.cover_image_url ?? data.cover_image,
   );
-  if (!coverImageUrl) {
-    for (const lead of leads) {
-      const imageUrl = extractLeadImageUrl(lead as JsonRecord);
-      if (imageUrl) {
-        coverImageUrl = imageUrl;
-        break;
-      }
+  let colourMatchedCoverImageUrl: string | undefined;
+  for (const lead of leads) {
+    const item = lead as JsonRecord;
+    const imageUrl = extractLeadImageUrl(item);
+    if (!imageUrl) continue;
+    if (!coverImageUrl) coverImageUrl = imageUrl;
+    const leadColour = String(item.color ?? item.colour ?? "");
+    if (
+      !colourMatchedCoverImageUrl &&
+      coloursRoughlyMatch(leadColour, vehicle.colour)
+    ) {
+      colourMatchedCoverImageUrl = imageUrl;
     }
   }
 
@@ -805,6 +972,7 @@ async function fetchMarketOverlay(
     medianPrice,
     averageOdometer: averageOdometer || undefined,
     coverImageUrl: coverImageUrl ?? undefined,
+    colourMatchedCoverImageUrl,
     activeListings: Number(data.sample_size) || listings.length,
     averageDaysOnMarket:
       Number(data.avg_days_to_sell) || Number(data.days_supply) || 0,
@@ -937,7 +1105,37 @@ function buildDemoResult(
 
   const futureValue = buildEstimatedFutureValue(vehicle, valuation);
   const ai = computeAiInsights(vehicle, valuation, registration);
-  return { vehicle, registration, valuation, futureValue, market, ai };
+  const vehicleSpec = buildVehicleSpecSheet({
+    vehicle,
+    registration,
+    vehicleRecord: {},
+    registrationData: {},
+    detailedSpecs: [
+      { description: "ANCAP safety", value: vehicle.ancapRating ?? "Not available" },
+      {
+        description: "Factory warranty",
+        value: vehicle.warrantyRemaining ?? "Not available",
+      },
+      {
+        description: "P plate legal",
+        value: vehicle.pPlateLegal ?? "Not available",
+      },
+    ],
+  });
+  vehicleSpec.factoryFeatures = [
+    { code: "demo", label: "Apple CarPlay / Android Auto" },
+    { code: "demo", label: "Reverse camera" },
+    { code: "demo", label: "Lane departure warning" },
+  ];
+  return {
+    vehicle,
+    registration,
+    valuation,
+    futureValue,
+    market,
+    ai,
+    vehicleSpec,
+  };
 }
 
 export function computeAiInsights(

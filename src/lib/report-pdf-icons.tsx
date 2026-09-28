@@ -257,10 +257,32 @@ export function PdfStatusBadge({ tone }: { tone: InsightStatus }) {
   );
 }
 
-export function PdfCheckIcon({ ok }: { ok: boolean }) {
+export function PdfCheckIcon({
+  ok,
+  issue,
+  muted,
+}: {
+  ok: boolean;
+  issue?: boolean;
+  muted?: boolean;
+}) {
+  if (issue) {
+    return (
+      <Svg width={11} height={11} viewBox="0 0 11 11">
+        <Circle cx="5.5" cy="5.5" r="5.5" fill="#ef4444" />
+        <Path
+          d="M3.8 3.8l3.4 3.4M7.2 3.8l-3.4 3.4"
+          stroke="#ffffff"
+          strokeWidth={1.1}
+          fill="none"
+        />
+      </Svg>
+    );
+  }
+  const fill = muted ? "#cbd5e1" : ok ? "#22c55e" : "#cbd5e1";
   return (
     <Svg width={11} height={11} viewBox="0 0 11 11">
-      <Circle cx="5.5" cy="5.5" r="5.5" fill={ok ? "#22c55e" : "#cbd5e1"} />
+      <Circle cx="5.5" cy="5.5" r="5.5" fill={fill} />
       <Path d="M3.2 5.6l1.5 1.5 3.1-3.2" stroke="#ffffff" strokeWidth={1.1} fill="none" />
     </Svg>
   );

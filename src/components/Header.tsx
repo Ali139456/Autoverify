@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight, ChevronDown, Menu, X } from "lucide-react";
+import { HomeCheckLink } from "@/components/HomeCheckLink";
 import { Logo } from "@/components/Logo";
 import { INSPECTION_MENU_ITEMS } from "@/lib/inspection-menu";
 
@@ -186,13 +187,13 @@ export function Header() {
               />
             </Link>
           ) : (
-            <Link href="/#check" className={buyReportClass}>
+            <HomeCheckLink className={buyReportClass}>
               Buy Report
               <ArrowRight
                 className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
                 aria-hidden
               />
-            </Link>
+            </HomeCheckLink>
           )}
 
           <button
@@ -263,14 +264,13 @@ export function Header() {
               <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
           ) : (
-            <Link
-              href="/#check"
+            <HomeCheckLink
               onClick={() => setOpen(false)}
               className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-accent-500 px-5 py-3.5 font-bold text-white hover:bg-accent-600"
             >
               Buy Report
               <ArrowRight className="h-4 w-4" aria-hidden />
-            </Link>
+            </HomeCheckLink>
           )}
         </div>
       )}

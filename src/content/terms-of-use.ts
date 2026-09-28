@@ -1,286 +1,273 @@
 import type { LegalBlock, LegalSection } from "@/components/LegalDocument";
 
+export const TERMS_PAGE_TITLE = "Auto Verifi – Website & Report Terms of Use";
+
 export const TERMS_INTRO: LegalBlock[] = [
   {
     type: "paragraph",
-    text: "Auto Verifi Insights is designed to help people make better-informed decisions about vehicles.",
+    text: "Auto Verifi provides vehicle information, verification and inspection-related services designed to help customers better understand a vehicle's identity, history, condition and other relevant information.",
   },
   {
     type: "paragraph",
-    text: "Our reports bring together available vehicle information, data-driven insights and, depending on the product selected, technology-assisted analysis to provide a more complete view of a vehicle.",
+    text: "Depending on the product selected, an Auto Verifi report may include information obtained from government registers, commercial data providers, vehicle information databases, inspection partners and other third-party sources.",
   },
   {
     type: "paragraph",
-    text: "These Terms apply when you access, purchase or use an Auto Verifi Insights report or related Auto Verifi service. By using our services, you agree to these Terms.",
+    text: "These Terms apply when you access our website, purchase a report or use an Auto Verifi service.",
   },
 ];
 
 export const TERMS_SECTIONS: LegalSection[] = [
   {
-    title: "1. What an Auto Verifi Insights Report Provides",
+    title: "1. About Auto Verifi",
     blocks: [
       {
         type: "paragraph",
-        text: "An Auto Verifi Insights report may contain information relating to a vehicle's:",
+        text: "Auto Verifi provides vehicle information, verification and inspection-related services designed to help customers better understand a vehicle's identity, history, condition and other relevant information.",
+      },
+      {
+        type: "paragraph",
+        text: "Depending on the product selected, an Auto Verifi report may include information obtained from government registers, commercial data providers, vehicle information databases, inspection partners and other third-party sources.",
+      },
+      {
+        type: "paragraph",
+        text: "These Terms apply when you access our website, purchase a report or use an Auto Verifi service.",
+      },
+    ],
+  },
+  {
+    title: "2. Acceptance of these Terms",
+    blocks: [
+      {
+        type: "paragraph",
+        text: "By accessing the Auto Verifi website, ordering a report or using our services, you agree to these Terms and our Privacy Policy.",
+      },
+      {
+        type: "paragraph",
+        text: "We may update these Terms from time to time. The version applying to your purchase will be the version published when the relevant service is ordered, unless otherwise required by law.",
+      },
+    ],
+  },
+  {
+    title: "3. Auto Verifi Reports",
+    blocks: [
+      {
+        type: "paragraph",
+        text: "The information contained in an Auto Verifi report will depend upon the product purchased and the information available for the relevant vehicle.",
+      },
+      {
+        type: "paragraph",
+        text: "A report may include, where available:",
       },
       {
         type: "list",
         items: [
-          "Past — available history and recorded events associated with the vehicle.",
-          "Present — available information about the vehicle today, which may include identification, specification, condition and technology-assisted assessment.",
-          "Future — market-based insights that may assist in understanding factors such as value, demand and potential depreciation.",
+          "vehicle identification and specifications;",
+          "PPSR and security-interest information;",
+          "written-off and stolen-vehicle information;",
+          "registration-related information;",
+          "odometer information;",
+          "historical sales or listing information;",
+          "market and valuation information;",
+          "vehicle images;",
+          "inspection findings;",
+          "vehicle condition or damage information;",
+          "EV battery information; and",
+          "other vehicle intelligence supplied by Auto Verifi or its data and technology partners.",
         ],
       },
       {
         type: "paragraph",
-        text: "The information included will vary according to the Auto Verifi product selected, the vehicle and the information available at the time the report is generated.",
+        text: "Not every category of information will be available for every vehicle.",
       },
     ],
   },
   {
-    title: "2. Where Our Information Comes From",
+    title: "4. Third-Party Information",
     blocks: [
       {
         type: "paragraph",
-        text: "Auto Verifi combines information from a range of sources. Depending on the report, these may include government records, vehicle databases, automotive information providers, market-data providers, vehicle owners or sellers, inspection information, photographs, video and technology partners.",
+        text: "Auto Verifi obtains some information from independent third-party sources.",
       },
       {
         type: "paragraph",
-        text: "Some information displayed by Auto Verifi is therefore information that originated with another organisation. We apply technology and processes to bring this information together, but we cannot guarantee that information originating from another source is always current, complete or error-free.",
+        text: "While we take reasonable steps to use reputable sources and accurately present the information supplied to us, Auto Verifi does not control when third parties collect, update or provide their information.",
       },
       {
         type: "paragraph",
-        text: "A missing record should not be interpreted as confirmation that an event or issue has never occurred.",
+        text: "As a result, information may occasionally be incomplete, delayed, unavailable or inconsistent with information from another source.",
       },
     ],
   },
   {
-    title: "3. Vehicle Verification",
+    title: "5. PPSR Information",
     blocks: [
       {
         type: "paragraph",
-        text: "Auto Verifi may use vehicle identifiers and other available information to help verify that information relates to the vehicle being assessed. Verification services can reduce uncertainty, but they cannot eliminate it.",
+        text: "Where a report contains information obtained from the Personal Property Securities Register (PPSR), that information is subject to the conditions and limitations applying to PPSR information.",
       },
       {
         type: "paragraph",
-        text: "You should check important vehicle identifiers and documentation yourself before completing a transaction.",
+        text: "Customers should consider obtaining or retaining the relevant PPSR search certificate where appropriate.",
       },
     ],
   },
   {
-    title: "4. Vehicle History",
+    title: "6. Vehicle Valuations and Market Intelligence",
     blocks: [
       {
         type: "paragraph",
-        text: "Historical information reflects records available to Auto Verifi when the report is generated. Records may be added, amended or become available after a report has been produced.",
+        text: "Any valuation, estimated market value, future-value forecast, depreciation estimate or similar information supplied by Auto Verifi is provided as an indicative guide only.",
       },
       {
         type: "paragraph",
-        text: "Auto Verifi cannot guarantee that every incident, repair, ownership event, odometer event, registration event or other historical matter relating to a vehicle will appear in a report.",
+        text: "Actual vehicle value can be affected by factors including condition, kilometres travelled, specification, location, service history, damage, market demand and changes in the vehicle market.",
       },
       {
         type: "paragraph",
-        text: "Where an official government or statutory record is provided, the underlying official record should be relied upon for its specific purpose.",
+        text: "An Auto Verifi valuation is not a guaranteed sale, purchase, trade-in or future value.",
       },
     ],
   },
   {
-    title: "5. Market Value & Vehicle Intelligence",
+    title: "7. Vehicle Condition and Inspections",
     blocks: [
       {
         type: "paragraph",
-        text: "Auto Verifi may provide estimated values, market ranges, pricing intelligence, demand indicators, depreciation insights or other market information. These are analytical tools rather than guaranteed transaction prices.",
+        text: "A vehicle history or data report should not be treated as a substitute for a physical vehicle inspection where an inspection is appropriate.",
       },
       {
         type: "paragraph",
-        text: "The actual value of a vehicle can be influenced by its physical condition, kilometres travelled, location, specification, options, service history, previous damage, modifications, market demand and many other factors. The price a buyer is willing to pay — or a seller is willing to accept — may therefore be different from an Auto Verifi estimate.",
+        text: "Where Auto Verifi provides or facilitates a physical or technology-assisted inspection, the scope and limitations of that inspection will be described in the relevant product or report.",
+      },
+      {
+        type: "paragraph",
+        text: "Unless expressly stated otherwise, an inspection does not constitute a mechanical warranty, roadworthiness certificate or guarantee that a vehicle is free from faults.",
       },
     ],
   },
   {
-    title: "6. AI & Technology-Assisted Condition Insights",
+    title: "8. AI and Technology-Assisted Information",
     blocks: [
       {
         type: "paragraph",
-        text: "Some Auto Verifi services may use artificial intelligence, computer vision and other technologies to analyse vehicle images, video or data. Technology-assisted analysis may identify visible characteristics such as apparent scratches, dents, panel damage, vehicle configuration, odometer information or other observable features.",
+        text: "Some Auto Verifi products may use artificial intelligence, image analysis, automated data processing or other technology to assist with identifying vehicle characteristics, damage, condition or risk indicators.",
       },
       {
         type: "paragraph",
-        text: "These tools provide additional intelligence about a vehicle but have limitations. Results can be affected by image quality, lighting, camera angles, obstruction, cleanliness and the information supplied for analysis.",
-      },
-      {
-        type: "paragraph",
-        text: "Technology-assisted condition intelligence should therefore not be interpreted as confirmation that a vehicle has no other damage or defects.",
+        text: "These outputs should be considered together with the other information contained in the report and should not be interpreted as a guarantee that every defect, inconsistency or condition has been identified.",
       },
     ],
   },
   {
-    title: "7. What an Insights Report Is Not",
+    title: "9. Customer Responsibilities",
     blocks: [
       {
         type: "paragraph",
-        text: "Unless the report expressly says otherwise, Auto Verifi Insights is not:",
-      },
-      {
-        type: "list",
-        items: [
-          "a comprehensive mechanical inspection;",
-          "a roadworthiness certificate;",
-          "an engineering assessment;",
-          "a structural inspection;",
-          "a guarantee of vehicle condition;",
-          "a guarantee of vehicle ownership or title;",
-          "financial or investment advice;",
-          "insurance advice; or",
-          "a guarantee of future vehicle value.",
-        ],
+        text: "Auto Verifi provides information to assist customers with vehicle-related decisions. Customers remain responsible for deciding whether a vehicle is appropriate for their requirements and for undertaking any additional enquiries or inspections they consider necessary.",
       },
       {
         type: "paragraph",
-        text: "Auto Verifi Insights is intended to provide additional information to support your own decision-making.",
+        text: "Customers must ensure that any VIN, registration number or other vehicle information submitted to Auto Verifi is accurate.",
       },
     ],
   },
   {
-    title: "8. Making a Vehicle Decision",
+    title: "10. Purchasing Reports",
     blocks: [
       {
         type: "paragraph",
-        text: "Buying a vehicle can involve risks that cannot be identified from data alone. For significant vehicle transactions, you should consider the information in an Auto Verifi Insights report together with your own enquiries.",
+        text: "The price and inclusions of each Auto Verifi product will be displayed before purchase.",
       },
       {
         type: "paragraph",
-        text: "Depending on the vehicle and transaction, this may include inspecting the vehicle, checking its documentation, confirming the identity and authority of the seller and obtaining an independent mechanical or specialist inspection.",
+        text: "Payment must be successfully processed before the relevant report or service is supplied unless Auto Verifi has approved alternative account arrangements.",
       },
       {
         type: "paragraph",
-        text: "You remain responsible for deciding whether a vehicle is appropriate for you and whether to proceed with a transaction.",
+        text: "Where report packs or credits are offered, any expiry dates, usage conditions and transfer restrictions will be disclosed at the time of purchase.",
       },
     ],
   },
   {
-    title: "9. Information You Provide",
+    title: "11. Permitted Use",
     blocks: [
       {
         type: "paragraph",
-        text: "The quality of an Auto Verifi result can depend on the information supplied to us. You should ensure that information such as the VIN, registration number, odometer reading, photographs and other vehicle details you provide are accurate.",
+        text: "Auto Verifi reports are supplied for the purpose associated with the product purchased.",
       },
       {
         type: "paragraph",
-        text: "Auto Verifi is not responsible for an incorrect result to the extent that it results from incorrect or incomplete information supplied to us.",
+        text: "Reports and the Auto Verifi platform must not be unlawfully copied, altered, resold, republished, scraped or commercially exploited without our permission.",
+      },
+      {
+        type: "paragraph",
+        text: "Business customers may use reports in accordance with their applicable commercial agreement with Auto Verifi.",
       },
     ],
   },
   {
-    title: "10. Changes After a Report Is Generated",
+    title: "12. Intellectual Property",
     blocks: [
       {
         type: "paragraph",
-        text: "A vehicle is not static. Its condition, kilometres, registration status, financial interests, market value and other characteristics can change.",
+        text: "The Auto Verifi website, branding, software, report design, proprietary analysis, scoring methodologies and original content remain the intellectual property of Auto Verifi or its licensors.",
       },
       {
         type: "paragraph",
-        text: "An Auto Verifi Insights report represents information available at a particular point in time. A report generated previously should not automatically be assumed to represent the vehicle's current status.",
+        text: "Third-party information remains subject to the intellectual-property rights and conditions of the relevant data provider.",
       },
     ],
   },
   {
-    title: "11. Using Auto Verifi Content",
+    title: "13. Availability of Services",
     blocks: [
       {
         type: "paragraph",
-        text: "When you purchase an Auto Verifi Insights report, we give you permission to use that report for your personal or authorised business purpose.",
+        text: "We aim to provide Auto Verifi services reliably, but availability may depend upon external databases, technology platforms, telecommunications services and third-party providers.",
       },
       {
         type: "paragraph",
-        text: "That permission does not give you ownership of Auto Verifi's platform, technology, methodologies, report designs, scoring systems, analysis or underlying intellectual property.",
-      },
-      {
-        type: "paragraph",
-        text: "Without our written permission, you must not systematically extract Auto Verifi data, build a competing database from our services, resell our data or reports, use automated systems to scrape our platform, reverse engineer our technology or commercially reproduce our proprietary content.",
+        text: "We cannot guarantee uninterrupted access to every data source or service at all times.",
       },
     ],
   },
   {
-    title: "12. Third-Party Services",
+    title: "14. Liability and Australian Consumer Law",
     blocks: [
       {
         type: "paragraph",
-        text: "Some Auto Verifi functionality depends on services, technology or information supplied by third parties. Those services may occasionally be unavailable, delayed or changed.",
+        text: "Nothing in these Terms excludes, restricts or modifies any consumer guarantee, right or remedy that cannot lawfully be excluded under the Australian Consumer Law or other applicable legislation.",
       },
       {
         type: "paragraph",
-        text: "Auto Verifi may also change its data providers, technology providers and report features as our services develop.",
+        text: "To the extent permitted by law, Auto Verifi's liability in relation to the provision of a service may be limited to supplying the service again or paying the reasonable cost of having the service supplied again.",
+      },
+      {
+        type: "paragraph",
+        text: "Any additional limitations applying to a particular inspection, data product or service may be specified in the relevant report or product terms.",
       },
     ],
   },
   {
-    title: "13. Availability of Auto Verifi",
+    title: "15. Privacy",
     blocks: [
       {
         type: "paragraph",
-        text: "We aim to make Auto Verifi services reliably available, but uninterrupted access cannot be guaranteed. Maintenance, technical issues, third-party systems or circumstances outside our control may occasionally affect availability.",
+        text: "Personal information collected through Auto Verifi will be handled in accordance with our Privacy Policy and applicable Australian privacy legislation.",
+      },
+      {
+        type: "paragraph",
+        text: "Where a service requires information to be supplied to a third-party provider to fulfil the requested service, the relevant information may be provided for that purpose.",
       },
     ],
   },
   {
-    title: "14. Responsibility for Auto Verifi Information",
+    title: "16. Governing Law",
     blocks: [
       {
         type: "paragraph",
-        text: "We take reasonable steps to provide useful and reliable vehicle intelligence. However, vehicle information is drawn from multiple sources and some matters cannot be identified through databases, images or automated analysis.",
-      },
-      {
-        type: "paragraph",
-        text: "To the extent permitted by law, Auto Verifi is not responsible for losses resulting from information that was inaccurate, incomplete or unavailable from an external source, or from a user treating an Auto Verifi Insights report as a guarantee about a vehicle.",
-      },
-      {
-        type: "paragraph",
-        text: "Nothing in these Terms is intended to exclude or limit rights or remedies that cannot lawfully be excluded, including applicable rights under the Australian Consumer Law.",
-      },
-    ],
-  },
-  {
-    title: "15. Intellectual Property",
-    blocks: [
-      {
-        type: "paragraph",
-        text: "Auto Verifi's branding, platform, report presentation, software, methodologies, analysis and proprietary technology are owned by or licensed to Auto Verifi.",
-      },
-      {
-        type: "paragraph",
-        text: "Information supplied by third parties may remain subject to the intellectual property rights and licensing conditions of those providers.",
-      },
-    ],
-  },
-  {
-    title: "16. Privacy",
-    blocks: [
-      {
-        type: "paragraph",
-        text: "Personal information collected through Auto Verifi is handled in accordance with the Auto Verifi Privacy Policy. We may use service providers and technology partners to process information where this is required to provide our services.",
-      },
-    ],
-  },
-  {
-    title: "17. Updates to Auto Verifi",
-    blocks: [
-      {
-        type: "paragraph",
-        text: "Vehicle intelligence technology and the information available to us will continue to evolve. We may introduce, remove or modify report features, data sources, analytical tools and other functionality.",
-      },
-      {
-        type: "paragraph",
-        text: "We may also update these Terms. The version published when you use the relevant service will apply to that use.",
-      },
-    ],
-  },
-  {
-    title: "18. Australian Law",
-    blocks: [
-      {
-        type: "paragraph",
-        text: "These Terms are governed by the laws of New South Wales, Australia. Nothing in these Terms affects any statutory rights you have under Australian law.",
+        text: "These Terms are governed by the laws of New South Wales, Australia, and the parties submit to the jurisdiction of the courts and tribunals having jurisdiction in New South Wales.",
       },
     ],
   },
@@ -289,18 +276,9 @@ export const TERMS_SECTIONS: LegalSection[] = [
 export const TERMS_FOOTER: LegalBlock[] = [
   {
     type: "paragraph",
-    text: "IMPORTANT INFORMATION ABOUT YOUR AUTO VERIFI INSIGHTS REPORT",
-  },
-  {
-    type: "paragraph",
-    text: "Auto Verifi helps you see more before you make a vehicle decision. Our reports combine available vehicle information and technology-driven insights to help build a picture of a vehicle's past, present and future.",
-  },
-  {
-    type: "paragraph",
-    text: "No database, inspection or technology can identify every issue affecting a vehicle. Information can change, third-party records may contain gaps, and AI-assisted analysis may not identify defects that are hidden or not visible in the information provided.",
-  },
-  {
-    type: "paragraph",
-    text: "Use your Auto Verifi Insights report as part of your vehicle due diligence — not as a substitute for your own enquiries or an appropriate independent inspection.",
+    text: "Auto Verifi reports combine available vehicle information from multiple sources. No report can identify every issue affecting a vehicle. Use your report as part of your due diligence together with your own enquiries and any appropriate independent inspection.",
   },
 ];
+
+export const MARKETING_CONSENT_TEXT =
+  "I agree that Auto Verifi Pty Ltd and its subsidiaries, related parties (Auto Verifi Group) and partners can use and disclose my personal information to contact me about other goods and services offered by Auto Verifi Group and its partners and use that information for direct marketing purposes.";

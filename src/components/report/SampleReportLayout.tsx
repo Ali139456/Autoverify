@@ -1,0 +1,69 @@
+import { CarInsightsReport } from "@/components/report/CarInsightsReport";
+import { InsightsPlusBodyReport } from "@/components/report/InsightsPlusBodyReport";
+import { ReportPrintActions } from "@/components/report/ReportPrintActions";
+import { VehicleSpecReportPage } from "@/components/report/VehicleSpecReportPage";
+import { buildSampleReport } from "@/lib/build-sample-report";
+import { hasDamageAnalysis, getReportTierConfig } from "@/lib/pricing";
+import { hasVehicleSpecContent } from "@/lib/vehicle-spec-sheet";
+import type { ReportTier } from "@/lib/types";
+
+export function SampleReportLayout({ tier }: { tier: ReportTier }) {
+  const report = buildSampleReport(tier);
+  const tierConfig = getReportTierConfig(tier);
+  const includesDamage = hasDamageAnalysis(tier);
+  const hasSpecAppendix = hasVehicleSpecContent(report.vehicleSpec);
+  const pageCount = 1 + (hasSpecAppendix ? 1 : 0) + (includesDamage ? 1 : 0);
+  let reportPage = 1;
+
+  return (
+    <div className="report-view min-h-screen bg-slate-100 py-8 sm:py-12">
+      <div id="report-print-area" className="mx-auto max-w-5xl space-y-6 px-4 sm:py-0 sm:px-6">
+        <div className="report-no-print rounded-xl border border-[#0073E3]/30 bg-[#0073E3]/5 px-4 py-3 text-center text-sm text-slate-700">
+          <span className="font-bold text-[#0073E3]">Sample report</span> — illustrative
+          data only. Purchase a report for your vehicle&apos;s live checks and valuation.
+        </div>
+
+        <div className="report-no-print flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+              {tierConfig.name}
+            </p>
+            <h1 className="text-xl font-bold text-slate-900">Vehicle intelligence report</h1>
+          </div>
+          <ReportPrintActions />
+        </div>
+
+        <CarInsightsReport
+          report={report}
+          showUpgrade={!includesDamage}
+          pageLabel={`${reportPage++} / ${pageCount}`}
+        />
+
+        {hasSpecAppendix ? (
+          <div className="report-page-break">
+            <VehicleSpecReportPage
+              report={report}
+              pageLabel={`${reportPage++} / ${pageCount}`}
+            />
+          </div>
+        ) : null}
+
+        {includesDamage ? (
+          <div className="report-page-break">
+            <InsightsPlusBodyReport
+              report={report}
+              photos={[]}
+              showActions={false}
+              pageLabel={`${reportPage++} / ${pageCount}`}
+            />
+          </div>
+        ) : null}
+
+        <p className="report-no-print text-center text-xs leading-relaxed text-slate-500">
+          Sample generated for demonstration. Real reports use live PPSR, market and
+          valuation data for your vehicle.
+        </p>
+      </div>
+    </div>
+  );
+}

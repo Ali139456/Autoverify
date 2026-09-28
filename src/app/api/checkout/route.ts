@@ -4,6 +4,7 @@ import {
   getReportTierConfig,
   hasDamageAnalysis,
   parseReportTier,
+  tierStripeDescription,
 } from "@/lib/pricing";
 import { generateReportId, saveReport } from "@/lib/store";
 import {
@@ -38,7 +39,7 @@ function buildStripeLineItem(
       unit_amount: config.priceCents,
       product_data: {
         name: `${config.name} — ${vehicleLabel}`,
-        description: `Vehicle report for ${identifierLabel}`,
+        description: tierStripeDescription(tier),
       },
     },
     quantity: 1,
@@ -54,7 +55,21 @@ export async function POST(req: NextRequest) {
     const state = String(body.state ?? "").toUpperCase() as AustralianState;
     const tier = parseReportTier(body.tier);
     const requiresPhones = hasDamageAnalysis(tier);
+    const agreedTerms = body.agreedTerms === true;
+    if (!agreedTerms) {
+      return NextResponse.json(
+        { error: "You must agree to the terms and conditions before purchasing." },
+        { status: 400 },
+      );
+    }
+    const marketingOptIn = body.marketingOptIn === true;
     const customerEmail = String(body.customerEmail ?? "").trim().toLowerCase();
+    const customerFirstName = String(body.customerFirstName ?? "").trim();
+    const customerLastName = String(body.customerLastName ?? "").trim();
+    const customerPostcode = String(body.customerPostcode ?? "").trim();
+    const customerBirthDate = String(body.customerBirthDate ?? "").trim();
+    const customerOdometer = Number(body.customerOdometer);
+    const advertisedPrice = Number(body.advertisedPrice);
     const customerPhone = normalizeAuMobile(String(body.customerPhone ?? ""));
     const ownerPhone = normalizeAuMobile(String(body.ownerPhone ?? ""));
 
@@ -90,6 +105,12 @@ export async function POST(req: NextRequest) {
     const lookup = await lookupVehicle(
       parsed.value,
       parsed.kind === "rego" ? state : STATES.includes(state) ? state : undefined,
+      {
+        customerOdometer:
+          Number.isFinite(customerOdometer) && customerOdometer > 0
+            ? customerOdometer
+            : null,
+      },
     );
     const reportId = generateReportId();
     const vehicleLabel = `${lookup.vehicle.year} ${lookup.vehicle.make} ${lookup.vehicle.model}`;
@@ -104,6 +125,14 @@ export async function POST(req: NextRequest) {
       status: "pending_payment",
       tier,
       customerEmail: customerEmail || null,
+      customerFirstName: customerFirstName || null,
+      customerLastName: customerLastName || null,
+      customerPostcode: customerPostcode || null,
+      customerBirthDate: customerBirthDate || null,
+      advertisedPrice:
+        Number.isFinite(advertisedPrice) && advertisedPrice > 0
+          ? advertisedPrice
+          : null,
       customerPhone: customerPhone ?? null,
       ownerPhone: ownerPhone ?? null,
       stripeSessionId: null,
@@ -113,6 +142,7 @@ export async function POST(req: NextRequest) {
       futureValue: lookup.futureValue,
       market: lookup.market,
       ai: lookup.ai,
+      vehicleSpec: lookup.vehicleSpec,
       damage: null,
     };
 
@@ -128,7 +158,11 @@ export async function POST(req: NextRequest) {
       mode: "payment",
       payment_method_types: ["card"],
       line_items: [buildStripeLineItem(tier, vehicleLabel, identifierLabel)],
-      metadata: { reportId, tier },
+      metadata: {
+        reportId,
+        tier,
+        marketingOptIn: marketingOptIn ? "yes" : "no",
+      },
       customer_email: customerEmail || undefined,
       invoice_creation: { enabled: true },
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&report_id=${reportId}`,

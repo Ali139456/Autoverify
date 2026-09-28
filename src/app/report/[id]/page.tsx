@@ -4,6 +4,10 @@ import { notFound } from "next/navigation";
 import { Lock } from "lucide-react";
 import { CarInsightsReport } from "@/components/report/CarInsightsReport";
 import { InsightsPlusBodyReport } from "@/components/report/InsightsPlusBodyReport";
+import { PpsrCertificateReportPage } from "@/components/report/PpsrCertificateReportPage";
+import { VehicleSpecReportPage } from "@/components/report/VehicleSpecReportPage";
+import { hasPpsrCertificate } from "@/lib/ppsr-certificate";
+import { hasVehicleSpecContent } from "@/lib/vehicle-spec-sheet";
 import { ReportPrintActions } from "@/components/report/ReportPrintActions";
 import { getReport } from "@/lib/store";
 import { hasDamageAnalysis, resolveReportTier, getReportTierConfig } from "@/lib/pricing";
@@ -29,7 +33,14 @@ export default async function ReportPage({
   const tier = resolveReportTier(report.tier);
   const tierConfig = getReportTierConfig(tier);
   const includesDamage = hasDamageAnalysis(tier);
-  const pageCount = includesDamage ? 2 : 1;
+  const hasSpecAppendix = hasVehicleSpecContent(report.vehicleSpec);
+  const hasPpsrAppendix = hasPpsrCertificate(report);
+  const pageCount =
+    1 +
+    (hasSpecAppendix ? 1 : 0) +
+    (includesDamage ? 1 : 0) +
+    (hasPpsrAppendix ? 1 : 0);
+  let reportPage = 1;
 
   if (report.status !== "paid") {
     return (
@@ -63,10 +74,7 @@ export default async function ReportPage({
             <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
               {tierConfig.name}
             </p>
-            <h1 className="text-xl font-bold text-slate-900">Your vehicle report</h1>
-            <p className="mt-1 text-sm text-slate-500">
-              Use Print / Save as PDF for the exact on-screen layout.
-            </p>
+            <h1 className="text-xl font-bold text-slate-900">Vehicle intelligence report</h1>
           </div>
           <ReportPrintActions />
         </div>
@@ -74,8 +82,17 @@ export default async function ReportPage({
         <CarInsightsReport
           report={report}
           showUpgrade={!includesDamage}
-          pageLabel={`1 / ${pageCount}`}
+          pageLabel={`${reportPage++} / ${pageCount}`}
         />
+
+        {hasSpecAppendix ? (
+          <div className="report-page-break">
+            <VehicleSpecReportPage
+              report={report}
+              pageLabel={`${reportPage++} / ${pageCount}`}
+            />
+          </div>
+        ) : null}
 
         {includesDamage && (
           <div className="report-page-break">
@@ -84,10 +101,19 @@ export default async function ReportPage({
               photos={inspection?.photos ?? []}
               inspectUrl={inspection?.ravinInviteUrl}
               showActions
-              pageLabel={`2 / ${pageCount}`}
+              pageLabel={`${reportPage++} / ${pageCount}`}
             />
           </div>
         )}
+
+        {hasPpsrAppendix ? (
+          <div className="report-page-break">
+            <PpsrCertificateReportPage
+              report={report}
+              pageLabel={`${reportPage++} / ${pageCount}`}
+            />
+          </div>
+        ) : null}
 
         <p className="report-no-print text-center text-xs leading-relaxed text-slate-500">
           Generated {new Date(report.createdAt).toLocaleString("en-AU")}. This

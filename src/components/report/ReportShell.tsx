@@ -18,8 +18,8 @@ export function ReportShell({
         <div className="flex items-start justify-between gap-6">
           <div>
             <Logo height={44} linked={false} />
-            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#0073E3]">
-              Past | Present | Future
+            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0073E3]">
+              Past | Present | Future vehicle intelligence insights
             </p>
           </div>
           <div className="text-right text-[10px] font-semibold uppercase leading-relaxed tracking-wide text-slate-500">

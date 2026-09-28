@@ -32,7 +32,9 @@ export default async function CheckoutSuccessPage({
           customerEmail: email,
         });
         if (updated && email) {
-          await sendPurchaseConfirmationEmail(updated, email).catch(() => null);
+          await sendPurchaseConfirmationEmail(updated, email, {
+            stripeSessionId: sessionId,
+          }).catch(() => null);
         }
       }
     }

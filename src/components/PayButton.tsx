@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CreditCard, Loader2 } from "lucide-react";
+import { Loader2, Lock } from "lucide-react";
 import { isValidAuMobile } from "@/lib/phone";
 import type { ReportTier } from "@/lib/types";
 
@@ -21,6 +21,16 @@ export function PayButton({
   customerPhone: customerPhoneProp,
   ownerPhone: ownerPhoneProp,
   requireEmail = true,
+  agreedTerms = true,
+  marketingOptIn = false,
+  onTermsBlocked,
+  validateCustomerDetails = false,
+  customerFirstName,
+  customerLastName,
+  customerPostcode,
+  customerBirthDate,
+  customerOdometer,
+  advertisedPrice,
 }: {
   identifier?: string;
   /** @deprecated Use `identifier` instead. */
@@ -33,6 +43,16 @@ export function PayButton({
   customerPhone?: string;
   ownerPhone?: string;
   requireEmail?: boolean;
+  agreedTerms?: boolean;
+  marketingOptIn?: boolean;
+  onTermsBlocked?: () => void;
+  validateCustomerDetails?: boolean;
+  customerFirstName?: string;
+  customerLastName?: string;
+  customerPostcode?: string;
+  customerBirthDate?: string;
+  customerOdometer?: number;
+  advertisedPrice?: number;
 }) {
   const vehicleId = identifier ?? rego ?? "";
   const router = useRouter();
@@ -52,6 +72,36 @@ export function PayButton({
       setError("Please enter a valid email address.");
       setLoading(false);
       return;
+    }
+
+    if (!agreedTerms) {
+      setError("Please read and agree to the terms and conditions to continue.");
+      onTermsBlocked?.();
+      setLoading(false);
+      return;
+    }
+
+    if (validateCustomerDetails) {
+      if (!customerFirstName?.trim() || !customerLastName?.trim()) {
+        setError("Please enter your first and last name.");
+        setLoading(false);
+        return;
+      }
+      if (!customerBirthDate) {
+        setError("Please enter your date of birth.");
+        setLoading(false);
+        return;
+      }
+      if (!customerOdometer || customerOdometer <= 0) {
+        setError("Please enter the vehicle odometer reading.");
+        setLoading(false);
+        return;
+      }
+      if (!advertisedPrice || advertisedPrice <= 0) {
+        setError("Please enter the sale price.");
+        setLoading(false);
+        return;
+      }
     }
 
     if (requiresPhones) {
@@ -77,8 +127,16 @@ export function PayButton({
           state,
           tier,
           customerEmail: customerEmail || undefined,
-          customerPhone: requiresPhones ? customerPhone : undefined,
+          customerFirstName: customerFirstName?.trim(),
+          customerLastName: customerLastName?.trim(),
+          customerPostcode: customerPostcode?.trim(),
+          customerBirthDate,
+          customerOdometer,
+          advertisedPrice,
+          customerPhone: customerPhone || undefined,
           ownerPhone: requiresPhones ? ownerPhone : undefined,
+          agreedTerms: true,
+          marketingOptIn,
         }),
       });
       const data = await res.json();
@@ -99,23 +157,20 @@ export function PayButton({
       <button
         onClick={pay}
         disabled={loading}
-        className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent-600 px-8 py-4 text-lg font-bold text-white transition hover:bg-accent-500 disabled:opacity-60"
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#E87722] px-8 py-4 text-lg font-bold text-white shadow-md transition hover:bg-[#d66a1c] disabled:opacity-60"
       >
         {loading ? (
           <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
         ) : (
-          <CreditCard className="h-5 w-5" aria-hidden />
+          <Lock className="h-5 w-5" aria-hidden />
         )}
         {loading ? "Preparing secure checkout…" : label}
       </button>
       {error && (
-        <p className="mt-2 text-center text-sm font-medium text-red-400" role="alert">
+        <p className="mt-2 text-center text-sm font-medium text-red-600 dark:text-red-400" role="alert">
           {error}
         </p>
       )}
-      <p className="mt-3 text-center text-xs text-slate-500">
-        Secure payment powered by Stripe. No account required.
-      </p>
     </div>
   );
 }

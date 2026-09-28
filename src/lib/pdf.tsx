@@ -3,11 +3,14 @@ import path from "path";
 import {
   Document,
   Image,
+  Link,
   Page,
   StyleSheet,
   Text,
   View,
 } from "@react-pdf/renderer";
+import { hasPpsrCertificate } from "./ppsr-certificate";
+import { hasVehicleSpecContent } from "./vehicle-spec-sheet";
 import {
   buildKeyInsights,
   buildStatusChecks,
@@ -24,15 +27,14 @@ import {
   PdfStatusBadge,
 } from "./report-pdf-icons";
 import { hasDamageAnalysis } from "./pricing";
+import { VEHICLE_HERO_IMAGE_DISCLAIMER } from "./vehicle-hero-image";
 import { VehicleReport } from "./types";
 import type { InspectionPhoto } from "./types";
 
 const BLUE = "#0073E3";
 const GREY = "#64748b";
 const LIGHT = "#f8fafc";
-const LOGO_WHITE = path.join(process.cwd(), "public/logo/logo-inverse.png");
 const LOGO_BLUE = path.join(process.cwd(), "public/logo/logo-blue-on-white.png");
-const HERO_CAR = path.join(process.cwd(), "public/hero-car.png");
 
 const styles = StyleSheet.create({
   page: {
@@ -43,19 +45,26 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
   },
   header: {
-    backgroundColor: BLUE,
+    backgroundColor: "#ffffff",
     paddingHorizontal: 32,
-    paddingVertical: 22,
+    paddingVertical: 18,
     flexDirection: "row",
     justifyContent: "space-between",
+    borderBottomWidth: 2,
+    borderBottomColor: BLUE,
   },
-  logoWhite: { width: 150, height: 32 },
+  logoHeader: { width: 150, height: 32 },
+  headerTagline: {
+    color: BLUE,
+    fontSize: 6.5,
+    marginTop: 3,
+    textTransform: "uppercase",
+    fontFamily: "Helvetica-Bold",
+    letterSpacing: 0.8,
+  },
   headerMeta: {
-    borderLeftWidth: 1,
-    borderLeftColor: "rgba(255,255,255,0.35)",
-    paddingLeft: 14,
     textAlign: "right",
-    color: "#ffffff",
+    color: GREY,
     fontSize: 7.5,
     lineHeight: 1.55,
     textTransform: "uppercase",
@@ -121,8 +130,20 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
     borderRightColor: "#e2e8f0",
   },
-  statusImageWrap: { width: "42%", position: "relative" },
+  statusImageWrap: { width: "42%", position: "relative", minHeight: 150 },
   statusImage: { width: "100%", height: "100%", objectFit: "cover" },
+  statusImageCaption: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "rgba(15,23,42,0.72)",
+    color: "#ffffff",
+    fontSize: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 4,
+    lineHeight: 1.35,
+  },
   statusTitle: {
     fontSize: 7,
     color: GREY,
@@ -244,6 +265,21 @@ const styles = StyleSheet.create({
     fontSize: 7.5,
   },
   para: { lineHeight: 1.45, color: "#334155", fontSize: 8.5 },
+  specSheetRow: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderBottomColor: "#e2e8f0",
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+  },
+  specSheetLabel: { width: "42%", fontSize: 7.5, color: GREY },
+  specSheetValue: {
+    width: "58%",
+    fontSize: 7.5,
+    fontFamily: "Helvetica-Bold",
+    color: "#0f172a",
+  },
+  featureItem: { fontSize: 7.5, color: "#334155", marginBottom: 3 },
   plusHeading: {
     marginTop: 4,
     borderLeftWidth: 3,
@@ -314,9 +350,9 @@ function ReportHeader({ report }: { report: VehicleReport }) {
   return (
     <View style={styles.header}>
       <View>
-        <Image src={LOGO_WHITE} style={styles.logoWhite} />
-        <Text style={{ color: "rgba(255,255,255,0.75)", fontSize: 6.5, marginTop: 3 }}>
-          Past | Present | Future
+        <Image src={LOGO_BLUE} style={styles.logoHeader} />
+        <Text style={styles.headerTagline}>
+          Past | Present | Future vehicle intelligence insights
         </Text>
       </View>
       <View style={styles.headerMeta}>
@@ -365,7 +401,7 @@ function CarInsightsPage({
     <Page size="A4" style={styles.page}>
       <ReportHeader report={report} />
       <View style={styles.body}>
-        <Text style={styles.title}>Auto Verifi – Car Insights Report</Text>
+        <Text style={styles.title}>Auto Verifi – Vehicle Insights Report</Text>
         <Text style={styles.vehicleName}>{vehicleTitle}</Text>
         <Text style={styles.subtitle}>
           A comprehensive summary of your vehicle&apos;s history, status and key insights.
@@ -388,13 +424,43 @@ function CarInsightsPage({
             <Text style={styles.statusTitle}>Vehicle Status</Text>
             {statusChecks.map((item) => (
               <View key={item.label} style={styles.statusRow}>
-                <PdfCheckIcon ok={item.ok} />
-                <Text style={styles.statusText}>{item.label}</Text>
+                <PdfCheckIcon ok={item.ok} issue={item.issue} muted={item.muted} />
+                <Text
+                  style={{
+                    ...styles.statusText,
+                    color: item.issue ? "#dc2626" : item.muted ? "#94a3b8" : styles.statusText.color,
+                  }}
+                >
+                  {item.label}
+                </Text>
               </View>
             ))}
           </View>
           <View style={styles.statusImageWrap}>
-            <Image src={HERO_CAR} style={styles.statusImage} />
+            {vehicle.heroImageUrl ? (
+              <>
+                <Image src={vehicle.heroImageUrl} style={styles.statusImage} />
+                <Text style={styles.statusImageCaption}>
+                  *
+                  {vehicle.heroImageDisclaimer ?? VEHICLE_HERO_IMAGE_DISCLAIMER}
+                </Text>
+              </>
+            ) : (
+              <View
+                style={{
+                  flex: 1,
+                  backgroundColor: "#0f172a",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  padding: 12,
+                }}
+              >
+                <Text style={{ color: "#94a3b8", fontSize: 8, textAlign: "center" }}>
+                  {vehicle.make} {vehicle.model} {vehicle.year}
+                  {vehicle.colour ? `\n${vehicle.colour}` : ""}
+                </Text>
+              </View>
+            )}
           </View>
         </View>
 
@@ -429,9 +495,21 @@ function CarInsightsPage({
                         {insight.statusSubtext}
                       </Text>
                     ) : null}
+                    {insight.detail ? (
+                      <Text
+                        style={{
+                          marginTop: 3,
+                          fontSize: 7.5,
+                          color: GREY,
+                          fontFamily: "Helvetica",
+                          lineHeight: 1.35,
+                        }}
+                      >
+                        {insight.detail}
+                      </Text>
+                    ) : null}
                   </View>
                 </View>
-                <Text style={{ fontSize: 9, color: "#cbd5e1" }}>{">"}</Text>
               </View>
             </View>
           ))}
@@ -442,12 +520,12 @@ function CarInsightsPage({
             <PdfInsightIcon insightId="ppsr" size={16} />
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 9, fontFamily: "Helvetica-Bold", color: "#0f172a" }}>
-                Upgrade to Auto Verifi Insights+ for AI powered damage detection and
+                Upgrade to Auto Verifi Insights+ for AI powered condition scan and
                 more insights.
               </Text>
               <Text style={{ marginTop: 3, fontSize: 7.5, color: GREY }}>
-                Get detailed condition analysis, image-based damage detection, variant
-                verification and market valuation.
+                Get AI powered current condition insights of exterior body, tyres and
+                interior + predicted future valuation.
               </Text>
             </View>
             <Text style={styles.upgradeButton}>View Upgrade Options  →</Text>
@@ -575,6 +653,111 @@ function DetailsPage({
   );
 }
 
+function VehicleSpecPage({
+  report,
+  pageLabel,
+}: {
+  report: VehicleReport;
+  pageLabel: string;
+}) {
+  const sheet = report.vehicleSpec;
+  if (!sheet || !hasVehicleSpecContent(sheet)) return null;
+
+  const { vehicle } = report;
+  const vehicleTitle =
+    `${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.variant}`.trim();
+
+  return (
+    <Page size="A4" style={styles.page}>
+      <ReportHeader report={report} />
+      <View style={styles.body}>
+        <Text style={styles.title}>Vehicle Data &amp; Factory Equipment</Text>
+        <Text style={styles.vehicleName}>{vehicleTitle}</Text>
+        <Text style={styles.subtitle}>
+          Full specification and build options (as returned from data providers).
+        </Text>
+
+        <View style={[styles.section, { flexDirection: "row" }]}>
+          <View style={{ width: "58%", marginRight: 12 }}>
+            <Text style={styles.sectionTitle}>Vehicle data</Text>
+            {sheet.dataRows.map((row) => (
+              <View key={row.label} style={styles.specSheetRow}>
+                <Text style={styles.specSheetLabel}>{row.label}</Text>
+                <Text style={styles.specSheetValue}>{row.value}</Text>
+              </View>
+            ))}
+          </View>
+          <View style={{ width: "40%" }}>
+            <Text style={styles.sectionTitle}>Factory features &amp; options</Text>
+            {sheet.factoryFeatures.length > 0 ? (
+              sheet.factoryFeatures.map((feature) => (
+                <Text
+                  key={`${feature.code ?? "f"}-${feature.label}`}
+                  style={styles.featureItem}
+                >
+                  • {feature.label}
+                  {feature.code ? ` (${feature.code})` : ""}
+                </Text>
+              ))
+            ) : (
+              <Text style={styles.para}>
+                No factory option list was returned for this vehicle.
+              </Text>
+            )}
+          </View>
+        </View>
+
+      </View>
+      <ReportFooter pageLabel={pageLabel} />
+    </Page>
+  );
+}
+
+function PpsrCertificateIntroPage({
+  report,
+  pageLabel,
+}: {
+  report: VehicleReport;
+  pageLabel: string;
+}) {
+  if (!hasPpsrCertificate(report)) return null;
+
+  return (
+    <Page size="A4" style={styles.page}>
+      <ReportHeader report={report} />
+      <View style={styles.body}>
+        <Text
+          style={{
+            fontSize: 10,
+            fontFamily: "Helvetica-Bold",
+            color: "#047857",
+            textTransform: "uppercase",
+            letterSpacing: 0.8,
+          }}
+        >
+          PPSR certificate
+        </Text>
+        <Text style={[styles.title, { marginTop: 8, fontSize: 16 }]}>
+          Personal Property Securities Register
+        </Text>
+        <Text style={[styles.para, { marginTop: 12 }]}>
+          The following pages contain the official search certificate issued by the
+          Australian Financial Security Authority (AFSA) for this vehicle. It should
+          be read together with your Auto Verifi report.
+        </Text>
+        <Text style={[styles.para, { marginTop: 8 }]}>
+          For help understanding PPSR terminology and search results, visit ppsr.gov.au.
+        </Text>
+        <Text style={[styles.para, { marginTop: 14, fontFamily: "Helvetica-Bold" }]}>
+          The official PPSR certificate PDF is appended immediately after this page in
+          your downloaded report file.
+        </Text>
+      </View>
+      <ReportFooter pageLabel={pageLabel} />
+    </Page>
+  );
+}
+
 function InsightsPlusPage({
   report,
   photos,
@@ -676,23 +859,39 @@ export function ReportPdf({
   photos?: InspectionPhoto[];
 }) {
   const isPlus = hasDamageAnalysis(report.tier);
-  const totalPages = isPlus ? 3 : 2;
+  const includeSpec = hasVehicleSpecContent(report.vehicleSpec);
+  const includePpsrIntro = hasPpsrCertificate(report);
+  const totalPages =
+    2 + (includeSpec ? 1 : 0) + (isPlus ? 1 : 0) + (includePpsrIntro ? 1 : 0);
+  let pageNumber = 1;
 
   return (
     <Document title={`Auto Verifi Report ${report.id}`}>
       <CarInsightsPage
         report={report}
-        pageLabel={`1 / ${totalPages}`}
+        pageLabel={`${pageNumber++} / ${totalPages}`}
         showUpgrade={!isPlus}
       />
-      <DetailsPage report={report} pageLabel={`2 / ${totalPages}`} />
-      {isPlus && (
+      <DetailsPage report={report} pageLabel={`${pageNumber++} / ${totalPages}`} />
+      {includeSpec ? (
+        <VehicleSpecPage
+          report={report}
+          pageLabel={`${pageNumber++} / ${totalPages}`}
+        />
+      ) : null}
+      {isPlus ? (
         <InsightsPlusPage
           report={report}
           photos={photos}
-          pageLabel={`3 / ${totalPages}`}
+          pageLabel={`${pageNumber++} / ${totalPages}`}
         />
-      )}
+      ) : null}
+      {includePpsrIntro ? (
+        <PpsrCertificateIntroPage
+          report={report}
+          pageLabel={`${pageNumber++} / ${totalPages}+`}
+        />
+      ) : null}
     </Document>
   );
 }

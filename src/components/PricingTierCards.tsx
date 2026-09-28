@@ -7,6 +7,7 @@ import {
 } from "@/lib/pricing";
 import type { ReportTier } from "@/lib/types";
 import { PayButton } from "@/components/PayButton";
+import { SampleReportLink } from "@/components/SampleReportLink";
 
 type PricingTierCardsProps = {
   /** Registration plate or VIN used for checkout. */
@@ -20,6 +21,8 @@ type PricingTierCardsProps = {
   /** When set, tier cards select a plan instead of paying inline. */
   onSelectTier?: (tier: ReportTier) => void;
   selectedTier?: ReportTier | null;
+  /** Use `#check` when cards are rendered on the homepage. */
+  homePage?: boolean;
 };
 
 export function PricingTierCards({
@@ -31,7 +34,9 @@ export function PricingTierCards({
   variant = "light",
   onSelectTier,
   selectedTier = null,
+  homePage = false,
 }: PricingTierCardsProps) {
+  const checkHref = homePage ? "#check" : "/#check";
   const checkoutId = identifier ?? rego;
   const checkoutReady = Boolean(checkoutId && (isVin || state));
 
@@ -59,6 +64,7 @@ export function PricingTierCards({
             variant={variant}
             onSelectTier={onSelectTier}
             selectedTier={selectedTier}
+            checkHref={checkHref}
           />
         ))}
       </div>
@@ -75,6 +81,7 @@ function TierCard({
   variant,
   onSelectTier,
   selectedTier,
+  checkHref,
 }: {
   tier: ReportTier;
   identifier?: string;
@@ -84,6 +91,7 @@ function TierCard({
   variant: "dark" | "light";
   onSelectTier?: (tier: ReportTier) => void;
   selectedTier?: ReportTier | null;
+  checkHref: string;
 }) {
   const config = getReportTierConfig(tier);
   const isPlus = tier === "insights_plus";
@@ -101,26 +109,18 @@ function TierCard({
           className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full border border-accent-500/30 bg-accent-50 px-2.5 py-1 text-[10px] font-bold tracking-wider text-accent-700 dark:border-accent-400/40 dark:bg-accent-500/15 dark:text-accent-300"
         >
           <Sparkles className="h-3 w-3" aria-hidden />
-          Includes AI powered damage detection
+          Includes AI powered condition scan
         </span>
       )}
 
       <p className="text-sm font-semibold text-slate-900 dark:text-white sm:text-base">
         {config.name}
       </p>
-      <p className="mt-3 text-4xl font-extrabold text-accent-600 sm:text-5xl">
+      <p className="mt-3 text-4xl font-extrabold text-accent-500 sm:text-5xl">
         {formatTierPrice(tier)}
       </p>
       <p className="mt-2 text-sm text-slate-900 dark:text-slate-300">
         {config.tagline}
-        {config.taglineAccent ? (
-          <>
-            {" "}
-            <span className="font-medium text-accent-600 dark:text-accent-400">
-              {config.taglineAccent}
-            </span>
-          </>
-        ) : null}
       </p>
 
       <ul className="mt-5 flex-1 space-y-2 text-sm text-slate-700 dark:text-slate-300">
@@ -146,14 +146,14 @@ function TierCard({
         })}
       </ul>
 
-      <div className="mt-6 pt-2">
+      <div className="mt-6 space-y-3 pt-2">
         {checkoutReady && onSelectTier ? (
           <button
             type="button"
             onClick={() => onSelectTier(tier)}
             className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent-600 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-accent-500 sm:text-base"
           >
-            {isSelected ? "Selected" : `Get ${isPlus ? "Insights+" : "Insights"}`}
+            Buy report
             <ArrowRight className="h-4 w-4" aria-hidden />
           </button>
         ) : checkoutReady ? (
@@ -162,18 +162,20 @@ function TierCard({
             state={state}
             isVin={isVin}
             tier={tier}
-            label={`Get ${isPlus ? "Insights+" : "Insights"}`}
+            label="Buy report"
             requireEmail={false}
+            agreedTerms
           />
         ) : (
           <Link
-            href="/#check"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent-600 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-accent-500 sm:text-base"
+            href={checkHref}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-accent-600 sm:text-base"
           >
-            Get started
+            Buy Report
             <ArrowRight className="h-4 w-4" aria-hidden />
           </Link>
         )}
+        <SampleReportLink tier={tier} variant="outline" />
       </div>
     </div>
   );

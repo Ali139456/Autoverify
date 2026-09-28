@@ -52,16 +52,19 @@ export const REPORT_TIERS: Record<ReportTier, ReportTierConfig> = {
     name: "Auto Verifi Insights+",
     priceCents: INSIGHTS_PLUS_PRICE_CENTS,
     stripePriceId: process.env.STRIPE_INSIGHTS_PLUS_PRICE_ID,
-    tagline: "Everything in insights, plus AI damage detection+",
-    taglineAccent: "predicted future valuation",
+    tagline:
+      "Everything in insights + AI powered condition scan + predicted future valuation",
     highlights: [
       "Everything in Auto Verifi Insights",
-      "Guided photo image walkaround",
       "Predicted future valuation",
-      "AI Damage detection - body and tyres",
+      "AI powered condition scan of exterior, tyres and interior to detect any damage",
     ],
   },
 };
+
+export function tierStripeDescription(tier: ReportTier): string {
+  return getReportTierConfig(tier).highlights.join(" • ");
+}
 
 export const REPORT_TIER_ORDER: ReportTier[] = ["insights", "insights_plus"];
 
