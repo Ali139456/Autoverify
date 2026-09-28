@@ -1,4 +1,5 @@
 import { buildEstimatedFutureValue } from "./autograb";
+import { hasDamageAnalysis, resolveReportTier } from "./pricing";
 import type {
   FutureValueInfo,
   FutureValuePoint,
@@ -220,7 +221,14 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
     },
   ];
 
-  return insights.filter((insight) => insight.id !== "risk");
+  const tier = resolveReportTier(report.tier);
+  const includeFutureValue = hasDamageAnalysis(tier);
+
+  return insights.filter((insight) => {
+    if (insight.id === "risk") return false;
+    if (insight.id === "future" && !includeFutureValue) return false;
+    return true;
+  });
 }
 
 export function formatReportDate(iso: string): string {

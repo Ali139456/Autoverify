@@ -1,10 +1,21 @@
+import { generateSamplePpsrPdfBuffer } from "./sample-ppsr-pdf";
 import type { VehicleReport } from "./types";
 
 const FETCH_TIMEOUT_MS = 45_000;
 
+export function isSampleReportId(reportId: string): boolean {
+  return reportId.startsWith("SAMPLE-");
+}
+
 export function hasPpsrCertificate(report: VehicleReport): boolean {
+  if (isSampleReportId(report.id)) return true;
   const url = report.registration.ppsrCertificateUrl?.trim();
   return Boolean(url?.startsWith("http"));
+}
+
+export function ppsrCertificateProxyPath(report: VehicleReport): string {
+  if (isSampleReportId(report.id)) return "/api/sample-report/ppsr";
+  return `/api/report/${report.id}/ppsr`;
 }
 
 export async function fetchPpsrCertificateBuffer(
@@ -58,6 +69,9 @@ export async function mergePdfBuffers(
 export async function fetchPpsrCertificateForReport(
   report: VehicleReport,
 ): Promise<Buffer | null> {
+  if (isSampleReportId(report.id)) {
+    return generateSamplePpsrPdfBuffer(report);
+  }
   const url = report.registration.ppsrCertificateUrl;
   if (!url) return null;
   return fetchPpsrCertificateBuffer(url);

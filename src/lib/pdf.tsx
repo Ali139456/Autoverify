@@ -27,7 +27,7 @@ import {
   PdfSpecIcon,
   PdfStatusBadge,
 } from "./report-pdf-icons";
-import { hasDamageAnalysis } from "./pricing";
+import { hasDamageAnalysis, resolveReportTier } from "./pricing";
 import { VEHICLE_HERO_IMAGE_DISCLAIMER } from "./vehicle-hero-image";
 import { VehicleReport } from "./types";
 import type { InspectionPhoto } from "./types";
@@ -545,6 +545,7 @@ function DetailsPage({
   pageLabel: string;
 }) {
   const { market, ai, valuation } = report;
+  const showFutureValue = hasDamageAnalysis(resolveReportTier(report.tier));
   const futureValue = resolveFutureValue(report);
   const futureHorizons = [
     { label: "Today", years: 0 },
@@ -577,30 +578,32 @@ function DetailsPage({
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            Future Value Forecast ({futureValueConfidenceLabel(futureValue)}{" "}
-            confidence · {futureValue.yearlyKms.toLocaleString()} km/yr)
-          </Text>
-          <View style={styles.valRow}>
-            {futureHorizons.map(({ label, years }) => {
-              const point = getFutureValueAtYears(futureValue, years);
-              return (
-                <View key={label} style={styles.valBox}>
-                  <Text style={styles.valLabel}>{label}</Text>
-                  <Text style={styles.valAmount}>
-                    {point ? money(point.value) : "—"}
-                  </Text>
-                  {point ? (
-                    <Text style={{ fontSize: 7, color: GREY, marginTop: 2 }}>
-                      {point.odometer.toLocaleString()} km
+        {showFutureValue ? (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>
+              Future Value Forecast ({futureValueConfidenceLabel(futureValue)}{" "}
+              confidence · {futureValue.yearlyKms.toLocaleString()} km/yr)
+            </Text>
+            <View style={styles.valRow}>
+              {futureHorizons.map(({ label, years }) => {
+                const point = getFutureValueAtYears(futureValue, years);
+                return (
+                  <View key={label} style={styles.valBox}>
+                    <Text style={styles.valLabel}>{label}</Text>
+                    <Text style={styles.valAmount}>
+                      {point ? money(point.value) : "—"}
                     </Text>
-                  ) : null}
-                </View>
-              );
-            })}
+                    {point ? (
+                      <Text style={{ fontSize: 7, color: GREY, marginTop: 2 }}>
+                        {point.odometer.toLocaleString()} km
+                      </Text>
+                    ) : null}
+                  </View>
+                );
+              })}
+            </View>
           </View>
-        </View>
+        ) : null}
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Comparable Vehicles For Sale</Text>

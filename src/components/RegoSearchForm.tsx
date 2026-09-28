@@ -95,28 +95,6 @@ export function RegoSearchForm({
 
         <div className="grid grid-cols-2 gap-2">
           <div className="relative min-w-0">
-            {onDark && !compact ? (
-              <svg
-                className="pointer-events-none absolute -left-1 -top-[3.75rem] z-10 hidden h-[4.25rem] w-[5.5rem] text-[#0073E3] sm:block lg:-left-12 lg:-top-[4.25rem] lg:h-20 lg:w-24"
-                viewBox="0 0 96 88"
-                fill="none"
-                aria-hidden
-              >
-                <path
-                  d="M72 8 C 52 8, 38 22, 32 38 C 26 54, 24 62, 22 72"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M16 64 L22 76 L28 64"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            ) : null}
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}

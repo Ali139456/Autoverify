@@ -91,16 +91,39 @@ export function HomePage() {
 
         <div className="relative mx-auto max-w-6xl px-4 pb-8 pt-8 sm:px-6 sm:pb-10 sm:pt-14 lg:pb-12 lg:pt-20">
           <div className="grid items-center gap-8 sm:gap-10 lg:grid-cols-2 lg:gap-12">
-            <div className="min-w-0 text-center lg:text-left">
+            <div className="relative min-w-0 text-center lg:text-left">
               <h1 className="animate-fade-up delay-100 text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
                 Know what
                 <br />
                 you&apos;re buying.
               </h1>
               <p className="text-gradient-blue animate-fade-up delay-200 mt-3 text-2xl font-extrabold tracking-tight sm:mt-4 sm:text-3xl lg:text-4xl">
-                Past, Present and Future insights to buy with confidence
+                Past, Present and Future insights to buy with{" "}
+                <span className="relative inline-block">
+                  confidence
+                  <svg
+                    className="pointer-events-none absolute left-[0.15em] top-full hidden h-[5.25rem] w-[min(72vw,16rem)] text-[#0073E3] sm:block sm:h-[5.75rem] lg:h-[6.25rem] lg:w-[15rem]"
+                    viewBox="0 0 160 100"
+                    fill="none"
+                    aria-hidden
+                  >
+                    <path
+                      d="M6 4 C 6 26, 118 34, 118 68 C 118 82, 72 92, 38 92"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="M30 84 L38 96 L46 84"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </span>
               </p>
-              <div className="animate-fade-up delay-300 mt-6 sm:mt-8">
+              <div className="animate-fade-up delay-300 relative mt-6 sm:mt-8">
                 <RegoSearchForm onDark />
               </div>
             </div>

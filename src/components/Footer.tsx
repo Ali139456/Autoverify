@@ -25,7 +25,7 @@ const CHECKS = [
   "Vehicle specifications",
   "ANCAP safety ratings",
   "Market valuation & comparables",
-  "AI photo damage analysis",
+  "AI powered exterior, tyres and interior condition assessment",
 ];
 
 const CONTACT_EMAIL = "info@autoverifi.com.au";
@@ -64,8 +64,8 @@ export function Footer() {
           <Logo height={52} />
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-600 dark:text-slate-400">
             We combine official history records, live market data, future
-            predicted value and AI powered body condition so you can buy your
-            next car with confidence.
+            predicted value and AI powered condition assessment so you can buy
+            your next car with confidence.
           </p>
         </div>
 

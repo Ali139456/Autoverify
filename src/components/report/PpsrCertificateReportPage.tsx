@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { VehicleReport } from "@/lib/types";
-import { hasPpsrCertificate } from "@/lib/ppsr-certificate";
+import { hasPpsrCertificate, ppsrCertificateProxyPath } from "@/lib/ppsr-certificate";
 import { ReportShell } from "./ReportShell";
 
 export function PpsrCertificateReportPage({
@@ -12,8 +12,8 @@ export function PpsrCertificateReportPage({
 }) {
   if (!hasPpsrCertificate(report)) return null;
 
-  const proxyUrl = `/api/report/${report.id}/ppsr`;
-  const directUrl = report.registration.ppsrCertificateUrl!;
+  const proxyUrl = ppsrCertificateProxyPath(report);
+  const directUrl = report.registration.ppsrCertificateUrl?.trim() ?? "";
 
   return (
     <ReportShell

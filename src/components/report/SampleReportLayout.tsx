@@ -1,7 +1,9 @@
 import { CarInsightsReport } from "@/components/report/CarInsightsReport";
 import { InsightsPlusBodyReport } from "@/components/report/InsightsPlusBodyReport";
 import { ReportPrintActions } from "@/components/report/ReportPrintActions";
+import { PpsrCertificateReportPage } from "@/components/report/PpsrCertificateReportPage";
 import { VehicleSpecReportPage } from "@/components/report/VehicleSpecReportPage";
+import { hasPpsrCertificate } from "@/lib/ppsr-certificate";
 import {
   buildSampleInspectionPhotos,
   buildSampleReport,
@@ -14,7 +16,12 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
   const report = buildSampleReport(tier);
   const includesDamage = hasDamageAnalysis(tier);
   const hasSpecAppendix = hasVehicleSpecContent(report.vehicleSpec);
-  const pageCount = 1 + (hasSpecAppendix ? 1 : 0) + (includesDamage ? 1 : 0);
+  const hasPpsrAppendix = hasPpsrCertificate(report);
+  const pageCount =
+    1 +
+    (hasSpecAppendix ? 1 : 0) +
+    (includesDamage ? 1 : 0) +
+    (hasPpsrAppendix ? 1 : 0);
   let reportPage = 1;
 
   return (
@@ -55,6 +62,15 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
               report={report}
               photos={buildSampleInspectionPhotos()}
               showActions={false}
+              pageLabel={`${reportPage++} / ${pageCount}`}
+            />
+          </div>
+        ) : null}
+
+        {hasPpsrAppendix ? (
+          <div className="report-page-break">
+            <PpsrCertificateReportPage
+              report={report}
               pageLabel={`${reportPage++} / ${pageCount}`}
             />
           </div>
