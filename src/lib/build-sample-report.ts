@@ -3,7 +3,53 @@ import {
   computeAiInsights,
 } from "./autograb";
 import { buildVehicleSpecSheet } from "./vehicle-spec-sheet";
-import type { DamageAnalysis, ReportTier, VehicleReport } from "./types";
+import type {
+  DamageAnalysis,
+  InspectionPhoto,
+  ReportTier,
+  VehicleReport,
+} from "./types";
+
+/** Illustrative walkaround images (white sedan) for the public sample Insights+ report. */
+const SAMPLE_WALKAROUND = [
+  {
+    angle: "front",
+    label: "Front",
+    url: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d4?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    angle: "front_right",
+    label: "Front right",
+    url: "https://images.unsplash.com/photo-1606664515527-ed6580934936?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    angle: "rear_right",
+    label: "Rear right",
+    url: "https://images.unsplash.com/photo-1549315160-64f163341683?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    angle: "rear",
+    label: "Rear",
+    url: "https://images.unsplash.com/photo-1552518507-af3bfd703336?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    angle: "rear_left",
+    label: "Rear left",
+    url: "https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    angle: "front_left",
+    label: "Front left",
+    url: "https://images.unsplash.com/photo-1583121274602-3b2a1c4c6abc?auto=format&fit=crop&w=900&q=80",
+  },
+] as const;
+
+const SAMPLE_DAMAGE_PHOTOS = {
+  frontBumper:
+    "https://images.unsplash.com/photo-1489828101867-5e340edbc935?auto=format&fit=crop&w=900&q=80",
+  rearLeftDoor:
+    "https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=900&q=80",
+} as const;
 
 const SAMPLE_DAMAGE: DamageAnalysis = {
   analyzedPhotos: 6,
@@ -17,6 +63,7 @@ const SAMPLE_DAMAGE: DamageAnalysis = {
       confidence: 0.91,
       repairEstimate: 320,
       description: "Light scuff consistent with parking contact.",
+      imageUrl: SAMPLE_DAMAGE_PHOTOS.frontBumper,
     },
     {
       panel: "Rear left door",
@@ -25,9 +72,22 @@ const SAMPLE_DAMAGE: DamageAnalysis = {
       confidence: 0.87,
       repairEstimate: 600,
       description: "Small dent — paintless repair may be suitable.",
+      imageUrl: SAMPLE_DAMAGE_PHOTOS.rearLeftDoor,
     },
   ],
 };
+
+const SAMPLE_PHOTO_TIMESTAMP = "2026-01-15T10:30:00.000Z";
+
+export function buildSampleInspectionPhotos(): InspectionPhoto[] {
+  return SAMPLE_WALKAROUND.map((item) => ({
+    angle: item.angle,
+    label: item.label,
+    storagePath: item.url,
+    externalUrl: item.url,
+    uploadedAt: SAMPLE_PHOTO_TIMESTAMP,
+  }));
+}
 
 function buildMercedesSampleCore() {
   const vehicle = {
@@ -43,13 +103,14 @@ function buildMercedesSampleCore() {
     fuelType: "Petrol",
     transmission: "Automatic",
     engine: "2.0L 4cyl Turbo",
-    colour: "White",
+    colour: "Black",
     odometer: 57873,
     odometerSource: "Provided at purchase (sample report).",
     ancapRating: null,
     warrantyRemaining: null,
     pPlateLegal: null,
-    heroImageUrl: "/hero-car-white.png",
+    heroImageUrl:
+      "https://images.unsplash.com/photo-1617814076367-b759a7bf4653?auto=format&fit=crop&w=1200&q=80",
     heroImageDisclaimer:
       "Illustrative image for this sample report — may not match the exact vehicle.",
     heroImageKind: "stock" as const,

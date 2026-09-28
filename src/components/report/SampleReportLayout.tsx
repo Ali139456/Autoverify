@@ -2,14 +2,16 @@ import { CarInsightsReport } from "@/components/report/CarInsightsReport";
 import { InsightsPlusBodyReport } from "@/components/report/InsightsPlusBodyReport";
 import { ReportPrintActions } from "@/components/report/ReportPrintActions";
 import { VehicleSpecReportPage } from "@/components/report/VehicleSpecReportPage";
-import { buildSampleReport } from "@/lib/build-sample-report";
-import { hasDamageAnalysis, getReportTierConfig } from "@/lib/pricing";
+import {
+  buildSampleInspectionPhotos,
+  buildSampleReport,
+} from "@/lib/build-sample-report";
+import { hasDamageAnalysis } from "@/lib/pricing";
 import { hasVehicleSpecContent } from "@/lib/vehicle-spec-sheet";
 import type { ReportTier } from "@/lib/types";
 
 export function SampleReportLayout({ tier }: { tier: ReportTier }) {
   const report = buildSampleReport(tier);
-  const tierConfig = getReportTierConfig(tier);
   const includesDamage = hasDamageAnalysis(tier);
   const hasSpecAppendix = hasVehicleSpecContent(report.vehicleSpec);
   const pageCount = 1 + (hasSpecAppendix ? 1 : 0) + (includesDamage ? 1 : 0);
@@ -25,10 +27,9 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
 
         <div className="report-no-print flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-              {tierConfig.name}
-            </p>
-            <h1 className="text-xl font-bold text-slate-900">Vehicle intelligence report</h1>
+            <h1 className="text-xl font-bold text-slate-900">
+              Past | Present | Future vehicle insights
+            </h1>
           </div>
           <ReportPrintActions />
         </div>
@@ -52,7 +53,7 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
           <div className="report-page-break">
             <InsightsPlusBodyReport
               report={report}
-              photos={[]}
+              photos={buildSampleInspectionPhotos()}
               showActions={false}
               pageLabel={`${reportPage++} / ${pageCount}`}
             />

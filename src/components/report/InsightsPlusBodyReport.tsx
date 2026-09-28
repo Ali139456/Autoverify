@@ -1,5 +1,8 @@
 import { AlertTriangle, Camera, CheckCircle2 } from "lucide-react";
-import { getInspectionPhotoUrl } from "@/lib/report-design";
+import {
+  getInspectionPhotoUrl,
+  resolveDamageFindingImageUrl,
+} from "@/lib/report-design";
 import type { DamageAnalysis, InspectionPhoto, VehicleReport } from "@/lib/types";
 import { InspectionStarter } from "@/components/InspectionStarter";
 import { DamageUpload } from "@/components/DamageUpload";
@@ -141,29 +144,52 @@ export function InsightsPlusBodyReport({
               Detected damage
             </h3>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              {damage.findings.map((finding, i) => (
-                <div
-                  key={`${finding.panel}-${i}`}
-                  className="rounded-xl border border-red-100 bg-red-50/50 p-4"
-                >
-                  <div className="flex items-start gap-2">
-                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" aria-hidden />
-                    <div>
-                      <p className="font-bold text-slate-900">{finding.panel}</p>
-                      <p className="text-sm text-red-700">
-                        {finding.type} · {finding.severity}
-                      </p>
-                      {finding.description ? (
-                        <p className="mt-1 text-xs text-slate-600">{finding.description}</p>
-                      ) : null}
-                      <p className="mt-2 text-sm font-semibold text-slate-700">
-                        Est. repair {money(finding.repairEstimate)} ·{" "}
-                        {Math.round(finding.confidence * 100)}% confidence
-                      </p>
+              {damage.findings.map((finding, i) => {
+                const damageImageUrl = resolveDamageFindingImageUrl(
+                  finding,
+                  walkaroundPhotos,
+                );
+                return (
+                  <div
+                    key={`${finding.panel}-${i}`}
+                    className="overflow-hidden rounded-xl border border-red-100 bg-red-50/50"
+                  >
+                    {damageImageUrl ? (
+                      <div className="relative aspect-[16/10] border-b border-red-100 bg-slate-100">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={damageImageUrl}
+                          alt={`${finding.panel} — ${finding.type}`}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                    ) : null}
+                    <div className="p-4">
+                      <div className="flex items-start gap-2">
+                        <AlertTriangle
+                          className="mt-0.5 h-4 w-4 shrink-0 text-red-500"
+                          aria-hidden
+                        />
+                        <div>
+                          <p className="font-bold text-slate-900">{finding.panel}</p>
+                          <p className="text-sm text-red-700">
+                            {finding.type} · {finding.severity}
+                          </p>
+                          {finding.description ? (
+                            <p className="mt-1 text-xs text-slate-600">
+                              {finding.description}
+                            </p>
+                          ) : null}
+                          <p className="mt-2 text-sm font-semibold text-slate-700">
+                            Est. repair {money(finding.repairEstimate)} ·{" "}
+                            {Math.round(finding.confidence * 100)}% confidence
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

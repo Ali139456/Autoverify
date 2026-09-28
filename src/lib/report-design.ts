@@ -96,22 +96,10 @@ export function buildStatusChecks(report: VehicleReport): StatusCheck[] {
   ];
 }
 
-function formatMarketListingsDetail(report: VehicleReport): string | undefined {
-  const { market } = report;
-  const samples = market.comparableListings?.slice(0, 4) ?? [];
-  if (!samples.length) return undefined;
-  const lines = samples.map(
-    (listing) =>
-      `${listing.title} — ${money(listing.price)}, ${listing.odometer.toLocaleString()} km, ${listing.location}`,
-  );
-  return `Sample comparable listings (${market.activeListings} active): ${lines.join("; ")}.`;
-}
-
 export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
   const { registration, valuation, vehicle, market } = report;
   const future = resolveFutureValue(report);
   const inThreeYears = getFutureValueAtYears(future, 3);
-  const marketDetail = formatMarketListingsDetail(report);
 
   const insights: ReportInsight[] = [
     {
@@ -221,7 +209,6 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
       title: "Market Insights",
       status: `Retail ${money(valuation.retailLow)}–${money(valuation.retailHigh)} · ${market.activeListings} listings`,
       tone: "neutral",
-      detail: marketDetail,
     },
     {
       id: "specs",
@@ -249,7 +236,41 @@ export function formatReportDate(iso: string): string {
 export function getInspectionPhotoUrl(photo: InspectionPhoto): string | null {
   if (photo.externalUrl?.startsWith("http")) return photo.externalUrl;
   if (photo.storagePath.startsWith("http")) return photo.storagePath;
+  if (photo.storagePath.startsWith("/")) return photo.storagePath;
   return null;
+}
+
+/** Match a walkaround photo to a damage panel label when possible. */
+export function findInspectionPhotoForPanel(
+  photos: InspectionPhoto[],
+  panel: string,
+): InspectionPhoto | undefined {
+  const key = panel.trim().toLowerCase();
+  if (!key) return undefined;
+
+  return photos.find((photo) => {
+    const label = photo.label.trim().toLowerCase();
+    const angle = photo.angle.trim().toLowerCase();
+    return (
+      label === key ||
+      angle === key ||
+      label.includes(key) ||
+      key.includes(label) ||
+      angle.includes(key) ||
+      key.includes(angle)
+    );
+  });
+}
+
+export function resolveDamageFindingImageUrl(
+  finding: { panel: string; imageUrl?: string | null },
+  photos: InspectionPhoto[],
+): string | null {
+  if (finding.imageUrl?.startsWith("http") || finding.imageUrl?.startsWith("/")) {
+    return finding.imageUrl;
+  }
+  const matched = findInspectionPhotoForPanel(photos, finding.panel);
+  return matched ? getInspectionPhotoUrl(matched) : null;
 }
 
 export function insightToneClass(tone: InsightStatus): string {

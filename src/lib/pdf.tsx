@@ -18,6 +18,7 @@ import {
   futureValueConfidenceLabel,
   getFutureValueAtYears,
   getInspectionPhotoUrl,
+  resolveDamageFindingImageUrl,
   resolveFutureValue,
 } from "./report-design";
 import {
@@ -327,13 +328,12 @@ const styles = StyleSheet.create({
     left: 32,
     right: 32,
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
     alignItems: "center",
     borderTopWidth: 1,
     borderTopColor: "#e2e8f0",
     paddingTop: 8,
   },
-  footerLogo: { width: 90, height: 18 },
   footerText: { fontSize: 7, color: GREY, textTransform: "uppercase" },
 });
 
@@ -352,7 +352,7 @@ function ReportHeader({ report }: { report: VehicleReport }) {
       <View>
         <Image src={LOGO_BLUE} style={styles.logoHeader} />
         <Text style={styles.headerTagline}>
-          Past | Present | Future vehicle intelligence insights
+          Past | Present | Future vehicle insights
         </Text>
       </View>
       <View style={styles.headerMeta}>
@@ -366,8 +366,7 @@ function ReportHeader({ report }: { report: VehicleReport }) {
 function ReportFooter({ pageLabel }: { pageLabel: string }) {
   return (
     <View style={styles.footer} fixed>
-      <Image src={LOGO_BLUE} style={styles.footerLogo} />
-      <Text style={styles.footerText}>— Autoverifi.com.au | {pageLabel}</Text>
+      <Text style={styles.footerText}>Autoverifi.com.au | {pageLabel}</Text>
     </View>
   );
 }
@@ -495,7 +494,8 @@ function CarInsightsPage({
                         {insight.statusSubtext}
                       </Text>
                     ) : null}
-                    {insight.detail ? (
+                    {insight.detail &&
+                    insight.detail.trim() !== (insight.statusSubtext ?? "").trim() ? (
                       <Text
                         style={{
                           marginTop: 3,
@@ -823,25 +823,31 @@ function InsightsPlusPage({
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Detected Damage</Text>
             <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-              {damage.findings.map((f, i) => (
-                <View key={i} style={styles.damageCard}>
-                  <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 8.5 }}>
-                    {f.panel}
-                  </Text>
-                  <Text style={{ marginTop: 2, fontSize: 8, color: "#dc2626" }}>
-                    {f.type} · {f.severity}
-                  </Text>
-                  {f.description ? (
-                    <Text style={{ marginTop: 2, fontSize: 7.5, color: GREY }}>
-                      {f.description}
+              {damage.findings.map((f, i) => {
+                const damageImageUrl = resolveDamageFindingImageUrl(f, photos);
+                return (
+                  <View key={i} style={styles.damageCard}>
+                    {damageImageUrl ? (
+                      <Image src={damageImageUrl} style={styles.photoImage} />
+                    ) : null}
+                    <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 8.5 }}>
+                      {f.panel}
                     </Text>
-                  ) : null}
-                  <Text style={{ marginTop: 3, fontSize: 8 }}>
-                    Est. repair {money(f.repairEstimate)} ·{" "}
-                    {Math.round(f.confidence * 100)}% confidence
-                  </Text>
-                </View>
-              ))}
+                    <Text style={{ marginTop: 2, fontSize: 8, color: "#dc2626" }}>
+                      {f.type} · {f.severity}
+                    </Text>
+                    {f.description ? (
+                      <Text style={{ marginTop: 2, fontSize: 7.5, color: GREY }}>
+                        {f.description}
+                      </Text>
+                    ) : null}
+                    <Text style={{ marginTop: 3, fontSize: 8 }}>
+                      Est. repair {money(f.repairEstimate)} ·{" "}
+                      {Math.round(f.confidence * 100)}% confidence
+                    </Text>
+                  </View>
+                );
+              })}
             </View>
           </View>
         )}

@@ -26,7 +26,8 @@ const AUTOGRAB_BASE_URL =
   process.env.AUTOGRAB_BASE_URL ?? "https://api.autograb.com.au/v2";
 
 /** AutoGrab registration/VIN feature bundle (registration_status requires separate contract). */
-const REGISTRATION_FEATURES = "build_data,performance_info,writeoff_info";
+const REGISTRATION_FEATURES =
+  "build_data,performance_info,writeoff_info,extended_data,additional_upstream_data";
 
 type PpsrCertificateSummary = {
   regoExpiry: string | null;
@@ -503,6 +504,45 @@ function extractLeadImageUrl(lead: JsonRecord): string | null {
   return null;
 }
 
+function formatColourLabel(raw: string): string {
+  const trimmed = raw.trim();
+  if (!trimmed) return "";
+  return trimmed
+    .toLowerCase()
+    .split(/\s+/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+/** Prefer RTA / upstream colour over catalogue defaults when AutoGrab provides both. */
+function resolveVehicleColour(
+  registrationPayload: JsonRecord,
+  vehicleRecord: JsonRecord,
+): string {
+  const extended = registrationPayload.extended_data as JsonRecord | undefined;
+  const upstreamExtra = registrationPayload.additional_upstream_data as
+    | JsonRecord
+    | undefined;
+
+  const candidates = [
+    stringFromRecord(extended?.color_description),
+    stringFromRecord(extended?.colour_description),
+    stringFromRecord(upstreamExtra?.colour),
+    stringFromRecord(upstreamExtra?.color),
+    stringFromRecord(registrationPayload.colour),
+    stringFromRecord(registrationPayload.color),
+    stringFromRecord(vehicleRecord.colour),
+    stringFromRecord(vehicleRecord.color),
+  ];
+
+  for (const candidate of candidates) {
+    if (candidate?.trim()) {
+      return formatColourLabel(candidate);
+    }
+  }
+  return "";
+}
+
 function mapVehicleIdentityFromVin(
   vin: string,
   state: AustralianState,
@@ -522,7 +562,7 @@ function mapVehicleIdentityFromVin(
     fuelType: String(vehicle.fuel ?? vehicle.fuel_type ?? ""),
     transmission: String(vehicle.transmission ?? ""),
     engine: String(vehicle.engine ?? ""),
-    colour: String(vinData.colour ?? vehicle.colour ?? ""),
+    colour: resolveVehicleColour(vinData, vehicle),
     odometer: null,
   };
 }
@@ -600,6 +640,12 @@ function applyDetailedSpecs(
     ) {
       vehicle.pPlateLegal = value;
     }
+    if (
+      (description.includes("colour") || description.includes("color")) &&
+      !vehicle.colour?.trim()
+    ) {
+      vehicle.colour = formatColourLabel(value);
+    }
   }
 }
 
@@ -646,7 +692,7 @@ function mapVehicleIdentity(
     fuelType: String(vehicle.fuel ?? vehicle.fuel_type ?? ""),
     transmission: String(vehicle.transmission ?? ""),
     engine: String(vehicle.engine ?? ""),
-    colour: String(registrationData.colour ?? vehicle.colour ?? ""),
+    colour: resolveVehicleColour(registrationData, vehicle),
     odometer: null,
   };
 }

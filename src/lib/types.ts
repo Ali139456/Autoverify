@@ -120,6 +120,8 @@ export interface DamageFinding {
   confidence: number;
   repairEstimate: number;
   description?: string;
+  /** Close-up photo of the damage area when available. */
+  imageUrl?: string | null;
 }
 
 export interface DamageAnalysis {

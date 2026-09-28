@@ -10,7 +10,7 @@ import { hasPpsrCertificate } from "@/lib/ppsr-certificate";
 import { hasVehicleSpecContent } from "@/lib/vehicle-spec-sheet";
 import { ReportPrintActions } from "@/components/report/ReportPrintActions";
 import { getReport } from "@/lib/store";
-import { hasDamageAnalysis, resolveReportTier, getReportTierConfig } from "@/lib/pricing";
+import { hasDamageAnalysis, resolveReportTier } from "@/lib/pricing";
 import { getInspectionByReportId } from "@/lib/inspections";
 import { buildCheckSearchUrl } from "@/lib/vehicle-identifier";
 
@@ -31,7 +31,6 @@ export default async function ReportPage({
 
   const { vehicle } = report;
   const tier = resolveReportTier(report.tier);
-  const tierConfig = getReportTierConfig(tier);
   const includesDamage = hasDamageAnalysis(tier);
   const hasSpecAppendix = hasVehicleSpecContent(report.vehicleSpec);
   const hasPpsrAppendix = hasPpsrCertificate(report);
@@ -71,10 +70,9 @@ export default async function ReportPage({
       <div id="report-print-area" className="mx-auto max-w-5xl space-y-6 px-4 sm:px-6">
         <div className="report-no-print flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-              {tierConfig.name}
-            </p>
-            <h1 className="text-xl font-bold text-slate-900">Vehicle intelligence report</h1>
+            <h1 className="text-xl font-bold text-slate-900">
+              Past | Present | Future vehicle insights
+            </h1>
           </div>
           <ReportPrintActions />
         </div>

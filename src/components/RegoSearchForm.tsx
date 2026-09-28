@@ -84,28 +84,6 @@ export function RegoSearchForm({
   return (
     <form onSubmit={onSubmit} className="w-full">
       <div className={`relative w-full ${shellClass}`}>
-        {onDark && !compact ? (
-          <svg
-            className="pointer-events-none absolute -left-2 top-[4.5rem] z-10 hidden h-14 w-24 text-[#0073E3] sm:block lg:-left-10 lg:top-[4.25rem] lg:h-16 lg:w-32"
-            viewBox="0 0 128 64"
-            fill="none"
-            aria-hidden
-          >
-            <path
-              d="M4 52 C 36 52, 44 28, 72 18 C 88 13, 100 10, 118 8"
-              stroke="currentColor"
-              strokeWidth="3"
-              strokeLinecap="round"
-            />
-            <path
-              d="M108 4 L118 8 L112 18"
-              stroke="currentColor"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        ) : null}
         <div className="mb-1 grid grid-cols-2 gap-2 px-1 text-left">
           <span className={labelClass}>
             Registration Plate or VIN
@@ -117,6 +95,28 @@ export function RegoSearchForm({
 
         <div className="grid grid-cols-2 gap-2">
           <div className="relative min-w-0">
+            {onDark && !compact ? (
+              <svg
+                className="pointer-events-none absolute -left-1 -top-[3.75rem] z-10 hidden h-[4.25rem] w-[5.5rem] text-[#0073E3] sm:block lg:-left-12 lg:-top-[4.25rem] lg:h-20 lg:w-24"
+                viewBox="0 0 96 88"
+                fill="none"
+                aria-hidden
+              >
+                <path
+                  d="M72 8 C 52 8, 38 22, 32 38 C 26 54, 24 62, 22 72"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M16 64 L22 76 L28 64"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            ) : null}
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
