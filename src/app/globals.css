@@ -314,35 +314,40 @@ html.dark body {
 
   .report-shell {
     box-shadow: none !important;
-    border: none !important;
-    border-radius: 0 !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
     margin: 0 !important;
     display: flex !important;
     flex-direction: column !important;
     min-height: 100vh !important;
+    overflow: hidden !important;
   }
 
   .report-shell-header {
     break-inside: avoid;
     break-after: avoid;
     flex-shrink: 0 !important;
-    background-color: #0073e3 !important;
-    color: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-bottom: 2px solid #0073e3 !important;
     padding: 14px 18px !important;
   }
 
   .report-shell-header img {
     height: 34px !important;
     width: auto !important;
+    filter: none !important;
   }
 
-  .report-shell-header p {
+  .report-shell-header > div > div:first-child p {
+    color: #0073e3 !important;
     font-size: 8px !important;
     margin-top: 4px !important;
+    letter-spacing: 0.18em !important;
   }
 
-  .report-shell-header .border-l {
-    padding-left: 14px !important;
+  .report-shell-header > div > div:last-child p {
+    color: #64748b !important;
     font-size: 8px !important;
     line-height: 1.45 !important;
   }
