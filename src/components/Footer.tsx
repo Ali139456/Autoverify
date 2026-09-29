@@ -61,7 +61,7 @@ export function Footer() {
 
       <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-12">
         <div className="md:col-span-5">
-          <Logo height={52} />
+          <Logo height={52} variant="auto" />
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-600 dark:text-slate-400">
             We combine official history records, live market data, future
             predicted value and AI powered condition assessment so you can buy

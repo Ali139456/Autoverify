@@ -44,7 +44,7 @@ export function PreviewLoginForm() {
 
       <div className="relative w-full max-w-md rounded-3xl border border-white/10 bg-ink-900/80 p-8 shadow-2xl">
         <div className="flex justify-center">
-          <Logo height={48} linked={false} priority />
+          <Logo height={48} linked={false} priority variant="onDark" />
         </div>
 
         <h1 className="mt-6 text-center text-2xl font-bold text-white">

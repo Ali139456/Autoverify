@@ -155,7 +155,7 @@ export function Header() {
             : "shadow-[0_2px_16px_rgba(0,0,0,0.35)]"
         }`}
       >
-        <Logo height={48} priority />
+        <Logo height={48} priority variant="onDark" />
 
         <nav className="hidden items-center gap-1 rounded-full border border-white/10 bg-ink-800/80 p-1 md:flex">
           {links.map((l) => {

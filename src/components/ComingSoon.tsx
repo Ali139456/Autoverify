@@ -12,6 +12,7 @@ export function ComingSoon() {
           maxWidth="min(480px, 92vw)"
           linked={false}
           priority
+          variant="onDark"
           className="h-28 sm:h-32 lg:h-36"
         />
         <p className="mt-12 text-base font-bold uppercase tracking-[0.3em] text-white sm:mt-14 sm:text-lg lg:mt-16 lg:text-xl">

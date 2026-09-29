@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -10,8 +11,12 @@ type LogoProps = {
   maxWidth?: string;
   priority?: boolean;
   linked?: boolean;
-  /** auto, light, and dark all use the site accent blue lockup. */
-  variant?: "auto" | "light" | "dark";
+  /**
+   * onLight — all-blue wordmark (light backgrounds).
+   * onDark — blue AUTO + white VERIFI (dark header/footer).
+   * auto — both, toggled with `dark:` (footer light/dark mode).
+   */
+  variant?: "onLight" | "onDark" | "auto";
 };
 
 export function Logo({
@@ -20,29 +25,41 @@ export function Logo({
   maxWidth = "min(280px, 58vw)",
   priority = false,
   linked = true,
-  variant = "auto",
+  variant = "onLight",
 }: LogoProps) {
   const width = Math.round(height * LOGO_ASPECT);
-  const onLightBackground = variant === "dark" || variant === "auto";
 
-  const image = (
+  const renderLockup = (src: string, extraClass = "") => (
     <span
-      className={`inline-flex shrink-0 items-center ${className}`}
+      className={`inline-flex shrink-0 items-center ${className} ${extraClass}`.trim()}
       style={{ height, maxWidth }}
     >
       <Image
-        src="/logo/auto-verifi-accent.svg"
+        src={src}
         alt="Auto Verifi"
         width={width}
         height={height}
         priority={priority}
         style={{ width: "auto", height: "100%" }}
-        className={`max-w-full object-contain object-left ${
-          onLightBackground ? "" : "brightness-0 invert"
-        }`}
+        className="max-w-full object-contain object-left"
       />
     </span>
   );
+
+  let image: ReactNode;
+
+  if (variant === "onDark") {
+    image = renderLockup("/logo/auto-verifi-on-dark.svg");
+  } else if (variant === "auto") {
+    image = (
+      <>
+        {renderLockup("/logo/auto-verifi-accent.svg", "dark:hidden")}
+        {renderLockup("/logo/auto-verifi-on-dark.svg", "hidden dark:inline-flex")}
+      </>
+    );
+  } else {
+    image = renderLockup("/logo/auto-verifi-accent.svg");
+  }
 
   if (!linked) return image;
 
