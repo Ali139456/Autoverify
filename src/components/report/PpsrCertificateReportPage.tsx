@@ -1,6 +1,10 @@
 import Link from "next/link";
 import type { VehicleReport } from "@/lib/types";
-import { hasPpsrCertificate, ppsrCertificateProxyPath } from "@/lib/ppsr-certificate";
+import {
+  hasPpsrCertificate,
+  isSampleReportId,
+  ppsrCertificateProxyPath,
+} from "@/lib/ppsr-certificate";
 import { ReportShell } from "./ReportShell";
 
 export function PpsrCertificateReportPage({
@@ -14,6 +18,7 @@ export function PpsrCertificateReportPage({
 
   const proxyUrl = ppsrCertificateProxyPath(report);
   const directUrl = report.registration.ppsrCertificateUrl?.trim() ?? "";
+  const isSample = isSampleReportId(report.id);
 
   return (
     <ReportShell
@@ -52,6 +57,14 @@ export function PpsrCertificateReportPage({
           reflects PPSR data at the time the search was generated and may not include
           events recorded afterwards.
         </p>
+
+        {isSample ? (
+          <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-950">
+            Sample report: the PDF below is a demonstration certificate (for example
+            from a car history pack). Your purchased report uses a live PPSR search for
+            your vehicle.
+          </p>
+        ) : null}
 
         <div className="overflow-hidden rounded-xl border-2 border-slate-300 bg-white shadow-inner">
           <iframe

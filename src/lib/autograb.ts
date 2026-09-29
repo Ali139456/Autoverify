@@ -25,9 +25,13 @@ const AUTOGRAB_API_KEY = process.env.AUTOGRAB_API_KEY;
 const AUTOGRAB_BASE_URL =
   process.env.AUTOGRAB_BASE_URL ?? "https://api.autograb.com.au/v2";
 
-/** AutoGrab registration/VIN feature bundle (registration_status requires separate contract). */
+/**
+ * AutoGrab registration/VIN feature bundle (registration_status is a separate call).
+ * extended_data / additional_upstream_data need extra contract entitlements — omit by default.
+ */
 const REGISTRATION_FEATURES =
-  "build_data,performance_info,writeoff_info,extended_data,additional_upstream_data";
+  process.env.AUTOGRAB_REGISTRATION_FEATURES?.trim() ||
+  "build_data,performance_info,writeoff_info";
 
 type PpsrCertificateSummary = {
   regoExpiry: string | null;

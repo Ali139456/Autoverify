@@ -1,5 +1,6 @@
 "use client";
 
+import type { RefObject } from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -18,6 +19,7 @@ export function RegoSearchForm({
   defaultState = "NSW",
   compact = false,
   onDark = false,
+  heroArrowEndRef,
 }: {
   defaultRego?: string;
   defaultVin?: string;
@@ -25,6 +27,8 @@ export function RegoSearchForm({
   compact?: boolean;
   /** Force dark styling when the form sits on a navy hero background. */
   onDark?: boolean;
+  /** Anchor at the “E” in the Enter placeholder (hero guide arrow). */
+  heroArrowEndRef?: RefObject<HTMLSpanElement | null>;
 }) {
   const router = useRouter();
   const [query, setQuery] = useState(defaultVin || defaultRego);
@@ -103,6 +107,13 @@ export function RegoSearchForm({
               maxLength={17}
               className={`${fieldClass} px-3 text-left ${regoTextClass} ${!vinMode && query.trim() ? "plate-input uppercase" : ""}`}
             />
+            {heroArrowEndRef ? (
+              <span
+                ref={heroArrowEndRef}
+                className="pointer-events-none absolute left-[0.8125rem] top-[0.6875rem] z-40 h-px w-px sm:top-[0.75rem]"
+                aria-hidden
+              />
+            ) : null}
           </div>
 
           <div className="relative min-w-0">

@@ -16,7 +16,8 @@ export default function PricingPage() {
       <div className="relative mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-16 lg:py-24">
         <div className="text-center">
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
-            Simple, honest <span className="text-gradient-blue">pricing</span>
+            Simple, Value for Money{" "}
+            <span className="text-gradient-blue">Pricing</span>
           </h1>
           <p className="mt-3 text-base text-slate-600 dark:text-slate-400 sm:text-lg">
             No subscriptions. No hidden fees. Pay once per report.

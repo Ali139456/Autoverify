@@ -10,49 +10,28 @@ import type {
   VehicleReport,
 } from "./types";
 
-/** Illustrative walkaround images (white sedan) for the public sample Insights+ report. */
+function sampleWalkaroundUrl(file: string): string {
+  const path = `/sample/walkaround/${file}`;
+  const base = process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "");
+  return base ? `${base}${path}` : path;
+}
+
+/** Black sedan walkaround + tyres, interior and odometer for sample Insights+. */
 const SAMPLE_WALKAROUND = [
-  {
-    angle: "front",
-    label: "Front",
-    url: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d4?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    angle: "front_right",
-    label: "Front right",
-    url: "https://images.unsplash.com/photo-1606664515527-ed6580934936?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    angle: "rear_right",
-    label: "Rear right",
-    url: "https://images.unsplash.com/photo-1549315160-64f163341683?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    angle: "rear",
-    label: "Rear",
-    url: "https://images.unsplash.com/photo-1552518507-af3bfd703336?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    angle: "rear_left",
-    label: "Rear left",
-    url: "https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    angle: "front_left",
-    label: "Front left",
-    url: "https://images.unsplash.com/photo-1583121274602-3b2a1c4c6abc?auto=format&fit=crop&w=900&q=80",
-  },
+  { angle: "front", label: "Front", file: "front.jpg" },
+  { angle: "front_right", label: "Front right", file: "front-right.jpg" },
+  { angle: "front_left", label: "Front left", file: "front-left.jpg" },
+  { angle: "rear", label: "Rear", file: "rear.jpg" },
+  { angle: "rear_right", label: "Rear right", file: "rear-right.jpg" },
+  { angle: "rear_left", label: "Rear left", file: "rear-left.jpg" },
+  { angle: "wheels", label: "Tyres / wheels", file: "wheels.jpg" },
+  { angle: "interior_front", label: "Interior front", file: "interior-front.jpg" },
+  { angle: "interior_rear", label: "Interior rear", file: "interior-rear.jpg" },
+  { angle: "odometer", label: "Odometer", file: "odometer.jpg" },
 ] as const;
 
-const SAMPLE_DAMAGE_PHOTOS = {
-  frontBumper:
-    "https://images.unsplash.com/photo-1489828101867-5e340edbc935?auto=format&fit=crop&w=900&q=80",
-  rearLeftDoor:
-    "https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=900&q=80",
-} as const;
-
 const SAMPLE_DAMAGE: DamageAnalysis = {
-  analyzedPhotos: 6,
+  analyzedPhotos: SAMPLE_WALKAROUND.length,
   overallCondition: "Good",
   totalRepairEstimate: 920,
   findings: [
@@ -63,7 +42,7 @@ const SAMPLE_DAMAGE: DamageAnalysis = {
       confidence: 0.91,
       repairEstimate: 320,
       description: "Light scuff consistent with parking contact.",
-      imageUrl: SAMPLE_DAMAGE_PHOTOS.frontBumper,
+      imageUrl: sampleWalkaroundUrl("front.jpg"),
     },
     {
       panel: "Rear left door",
@@ -72,7 +51,7 @@ const SAMPLE_DAMAGE: DamageAnalysis = {
       confidence: 0.87,
       repairEstimate: 600,
       description: "Small dent — paintless repair may be suitable.",
-      imageUrl: SAMPLE_DAMAGE_PHOTOS.rearLeftDoor,
+      imageUrl: sampleWalkaroundUrl("rear-left.jpg"),
     },
   ],
 };
@@ -80,13 +59,16 @@ const SAMPLE_DAMAGE: DamageAnalysis = {
 const SAMPLE_PHOTO_TIMESTAMP = "2026-01-15T10:30:00.000Z";
 
 export function buildSampleInspectionPhotos(): InspectionPhoto[] {
-  return SAMPLE_WALKAROUND.map((item) => ({
-    angle: item.angle,
-    label: item.label,
-    storagePath: item.url,
-    externalUrl: item.url,
-    uploadedAt: SAMPLE_PHOTO_TIMESTAMP,
-  }));
+  return SAMPLE_WALKAROUND.map((item) => {
+    const url = sampleWalkaroundUrl(item.file);
+    return {
+      angle: item.angle,
+      label: item.label,
+      storagePath: url,
+      externalUrl: url,
+      uploadedAt: SAMPLE_PHOTO_TIMESTAMP,
+    };
+  });
 }
 
 function buildMercedesSampleCore() {
@@ -109,8 +91,7 @@ function buildMercedesSampleCore() {
     ancapRating: null,
     warrantyRemaining: null,
     pPlateLegal: null,
-    heroImageUrl:
-      "https://images.unsplash.com/photo-1617814076367-b759a7bf4653?auto=format&fit=crop&w=1200&q=80",
+    heroImageUrl: sampleWalkaroundUrl("front.jpg"),
     heroImageDisclaimer:
       "Illustrative image for this sample report — may not match the exact vehicle.",
     heroImageKind: "stock" as const,

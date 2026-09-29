@@ -1,5 +1,57 @@
+import fs from "fs/promises";
+import path from "path";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import type { VehicleReport } from "./types";
+
+const SAMPLE_PPSR_PDF_CANDIDATES = [
+  "public/sample/ppsr-certificate.pdf",
+  "public/sample/ppsr-serial-number-search-certificate.pdf",
+];
+
+const SAMPLE_PPSR_IMAGE_CANDIDATES = ["public/sample/ppsr-certificate.png"];
+
+async function pngBufferToPdf(pngBytes: Buffer): Promise<Buffer> {
+  const doc = await PDFDocument.create();
+  const image = await doc.embedPng(pngBytes);
+  const page = doc.addPage([image.width, image.height]);
+  page.drawImage(image, {
+    x: 0,
+    y: 0,
+    width: image.width,
+    height: image.height,
+  });
+  return Buffer.from(await doc.save());
+}
+
+/** Official AFSA sample PDF when bundled under `public/sample/` (see README there). */
+export async function loadBundledSamplePpsrPdf(): Promise<Buffer | null> {
+  for (const relativePath of SAMPLE_PPSR_PDF_CANDIDATES) {
+    const filePath = path.join(process.cwd(), relativePath);
+    try {
+      const buffer = await fs.readFile(filePath);
+      if (
+        buffer.length >= 5 &&
+        buffer.subarray(0, 4).toString("ascii") === "%PDF"
+      ) {
+        return buffer;
+      }
+    } catch {
+      // try next candidate
+    }
+  }
+
+  for (const relativePath of SAMPLE_PPSR_IMAGE_CANDIDATES) {
+    const filePath = path.join(process.cwd(), relativePath);
+    try {
+      const pngBytes = await fs.readFile(filePath);
+      return pngBufferToPdf(pngBytes);
+    } catch {
+      // try next candidate
+    }
+  }
+
+  return null;
+}
 
 const NAVY = rgb(0.05, 0.12, 0.28);
 const BODY = rgb(0.2, 0.25, 0.33);
@@ -22,10 +74,16 @@ function wrapText(text: string, maxChars: number): string[] {
   return lines;
 }
 
-/** Illustrative PPSR-style certificate PDF for public sample reports. */
+/**
+ * Sample PPSR PDF for public sample reports — bundled official PDF when present,
+ * otherwise a simple illustrative fallback.
+ */
 export async function generateSamplePpsrPdfBuffer(
   report: VehicleReport,
 ): Promise<Buffer> {
+  const bundled = await loadBundledSamplePpsrPdf();
+  if (bundled) return bundled;
+
   const { vehicle, registration } = report;
   const doc = await PDFDocument.create();
   const font = await doc.embedFont(StandardFonts.Helvetica);

@@ -805,7 +805,7 @@ function InsightsPlusPage({
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Walkaround Photos</Text>
             <View style={styles.photoGrid}>
-              {photos.slice(0, 9).map((photo) => {
+              {photos.map((photo) => {
                 const url = getInspectionPhotoUrl(photo);
                 return (
                   <View key={`${photo.angle}-${photo.uploadedAt}`} style={styles.photoTile}>
