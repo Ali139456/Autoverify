@@ -70,11 +70,17 @@ export function PpsrCertificateReportPage({
           <iframe
             src={proxyUrl}
             title="PPSR search certificate"
-            className="report-ppsr-iframe block h-[min(1200px,85vh)] w-full bg-slate-100"
+            className="report-ppsr-iframe block h-[min(720px,75vh)] w-full bg-slate-100"
+          />
+          <object
+            data={proxyUrl}
+            type="application/pdf"
+            aria-label="PPSR search certificate PDF"
+            className="report-ppsr-print-embed hidden w-full bg-white"
           />
         </div>
 
-        <div className="flex flex-wrap gap-4 text-sm">
+        <div className="report-ppsr-links report-no-print flex flex-wrap gap-4 text-sm">
           <Link
             href={proxyUrl}
             target="_blank"

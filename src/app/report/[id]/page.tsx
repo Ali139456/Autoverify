@@ -35,7 +35,7 @@ export default async function ReportPage({
   const hasSpecAppendix = hasVehicleSpecContent(report.vehicleSpec);
   const hasPpsrAppendix = hasPpsrCertificate(report);
   const pageCount =
-    1 +
+    2 +
     (hasSpecAppendix ? 1 : 0) +
     (includesDamage ? 1 : 0) +
     (hasPpsrAppendix ? 1 : 0);
@@ -80,7 +80,8 @@ export default async function ReportPage({
         <CarInsightsReport
           report={report}
           showUpgrade={!includesDamage}
-          pageLabel={`${reportPage++} / ${pageCount}`}
+          pageLabelOverview={`${reportPage++} / ${pageCount}`}
+          pageLabelInsights={`${reportPage++} / ${pageCount}`}
         />
 
         {hasSpecAppendix ? (
