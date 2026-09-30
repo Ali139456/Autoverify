@@ -78,13 +78,7 @@ export function CheckoutBookingForm({
 
 
 
-  const payLabel =
-
-    tier === "insights_plus"
-
-      ? "Pay securely — Get Insights+"
-
-      : "Pay securely — Get Insights";
+  const payLabel = "Pay securely — Buy Report";
 
 
 
@@ -101,25 +95,10 @@ export function CheckoutBookingForm({
       >
 
         <div className="flex flex-wrap items-center justify-between gap-2">
-
-          <div className="flex items-center gap-3">
-
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-sm font-bold text-white">
-
-              3
-
-            </span>
-
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white sm:text-xl">
-
-              Enter details to begin purchase
-
-            </h2>
-
-          </div>
-
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white sm:text-xl">
+            Enter details to begin purchase
+          </h2>
           <p className="text-xs italic text-slate-500">* indicates required field</p>
-
         </div>
 
 
@@ -498,21 +477,9 @@ export function CheckoutBookingForm({
 
       >
 
-        <div className="flex items-center gap-3">
-
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-sm font-bold text-white">
-
-            4
-
-          </span>
-
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white sm:text-xl">
-
-            Pay and confirm
-
-          </h2>
-
-        </div>
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white sm:text-xl">
+          Pay and confirm
+        </h2>
 
         <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
 

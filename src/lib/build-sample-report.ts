@@ -10,13 +10,20 @@ import type {
   VehicleReport,
 } from "./types";
 
-function sampleWalkaroundUrl(file: string): string {
-  const path = `/sample/walkaround/${file}`;
+function samplePublicUrl(path: string): string {
   const base = process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "");
   return base ? `${base}${path}` : path;
 }
 
-/** Black sedan walkaround + tyres, interior and odometer for sample Insights+. */
+function sampleWalkaroundUrl(file: string): string {
+  return samplePublicUrl(`/sample/walkaround/${file}`);
+}
+
+function sampleAssetUrl(file: string): string {
+  return samplePublicUrl(`/sample/${file}`);
+}
+
+/** Black Mercedes-Benz C-Class walkaround (Unsplash, sample only) for Insights+. */
 const SAMPLE_WALKAROUND = [
   { angle: "front", label: "Front", file: "front.jpg" },
   { angle: "front_right", label: "Front right", file: "front-right.jpg" },
@@ -91,9 +98,9 @@ function buildMercedesSampleCore() {
     ancapRating: null,
     warrantyRemaining: null,
     pPlateLegal: null,
-    heroImageUrl: sampleWalkaroundUrl("front.jpg"),
+    heroImageUrl: sampleAssetUrl("c300-hero.jpg"),
     heroImageDisclaimer:
-      "Illustrative image for this sample report — may not match the exact vehicle.",
+      "Illustrative sample image — 2022 Mercedes-Benz C-Class C300 (reference photos).",
     heroImageKind: "stock" as const,
   };
 

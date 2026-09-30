@@ -28,10 +28,10 @@ export function PpsrCertificateReportPage({
     >
       <section className="report-ppsr-certificate space-y-5">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-700">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#0073E3]">
             Official register search
           </p>
-          <h2 className="mt-1 text-2xl font-extrabold text-emerald-900">
+          <h2 className="mt-1 text-2xl font-extrabold text-[#0073E3]">
             PPSR certificate
           </h2>
         </div>

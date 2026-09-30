@@ -96,22 +96,23 @@ function TierCard({
   const config = getReportTierConfig(tier);
   const isPlus = tier === "insights_plus";
   const isSelected = selectedTier === tier;
+  const cardShell =
+    "relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 p-6 shadow-sm dark:border-white/10 sm:p-8 dark:shadow-none";
+  const cardBg = isPlus
+    ? "bg-gradient-to-b from-blue-50 to-white dark:from-accent-700/40 dark:to-ink-950"
+    : "bg-white dark:bg-ink-800";
+  const cardSelected = isSelected ? "ring-2 ring-accent-500" : "";
+
   return (
-    <div
-      className={`relative flex h-full flex-col overflow-hidden rounded-2xl border p-6 sm:p-8 ${
-        isPlus
-          ? `border-accent-500/30 bg-gradient-to-b from-blue-50 to-white shadow-sm dark:border-accent-500/50 dark:from-accent-700/40 dark:to-ink-950 dark:shadow-none ${isSelected ? "ring-2 ring-accent-500" : ""}`
-          : `border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-ink-800 dark:shadow-none ${isSelected ? "ring-2 ring-accent-500" : ""}`
-      }`}
-    >
-      {isPlus && (
-        <span
-          className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full border border-accent-500/30 bg-accent-50 px-2.5 py-1 text-[10px] font-bold tracking-wider text-accent-700 dark:border-accent-400/40 dark:bg-accent-500/15 dark:text-accent-300"
-        >
-          <Sparkles className="h-3 w-3" aria-hidden />
-          Includes AI powered condition scan
-        </span>
-      )}
+    <div className={`${cardShell} ${cardBg} ${cardSelected}`}>
+      {isPlus ? (
+        <div className="mb-5 flex justify-end sm:mb-6">
+          <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-accent-500/35 bg-accent-50 px-4 py-2 text-xs font-semibold leading-snug text-accent-800 dark:border-accent-400/45 dark:bg-accent-500/15 dark:text-accent-200 sm:px-5 sm:py-2.5">
+            <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden />
+            Includes AI powered condition scan
+          </span>
+        </div>
+      ) : null}
 
       <p className="text-sm font-semibold text-slate-900 dark:text-white sm:text-base">
         {config.name}

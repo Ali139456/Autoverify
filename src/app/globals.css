@@ -441,7 +441,7 @@ html.dark body {
 
   .report-status-grid {
     display: grid !important;
-    grid-template-columns: 1fr 210px !important;
+    grid-template-columns: 1fr 280px !important;
     align-items: stretch !important;
   }
 
@@ -484,6 +484,11 @@ html.dark body {
     min-height: 100% !important;
     height: auto !important;
     max-height: none !important;
+  }
+
+  .report-hero-image img {
+    object-fit: contain !important;
+    object-position: center !important;
   }
 
   .report-insights-section {

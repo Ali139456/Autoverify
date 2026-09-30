@@ -5,7 +5,7 @@ export function VehicleHeroImage({
   vehicle,
   vehicleTitle,
   className = "",
-  imageClassName = "absolute inset-0 h-full w-full object-cover object-center",
+  imageClassName,
 }: {
   vehicle: VehicleIdentity;
   vehicleTitle: string;
@@ -14,6 +14,13 @@ export function VehicleHeroImage({
 }) {
   const disclaimer =
     vehicle.heroImageDisclaimer ?? VEHICLE_HERO_IMAGE_DISCLAIMER;
+  const showFullVehicle =
+    vehicle.heroImageKind === "stock" || vehicle.heroImageKind === "generated";
+  const imgClass =
+    imageClassName ??
+    (showFullVehicle
+      ? "absolute inset-0 h-full w-full object-contain object-center"
+      : "absolute inset-0 h-full w-full object-cover object-center");
 
   return (
     <div className={className}>
@@ -23,7 +30,7 @@ export function VehicleHeroImage({
           <img
             src={vehicle.heroImageUrl}
             alt={`${vehicleTitle} reference photo`}
-            className={imageClassName}
+            className={imgClass}
           />
           <p className="absolute bottom-0 left-0 right-0 bg-black/55 px-3 py-1.5 text-[10px] leading-snug text-white">
             *{disclaimer}

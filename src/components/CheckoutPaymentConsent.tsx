@@ -33,7 +33,7 @@ export function CheckoutPaymentConsent({
             href="/terms"
             target="_blank"
             rel="noopener noreferrer"
-            className="font-semibold text-emerald-700 underline-offset-2 hover:underline dark:text-emerald-400"
+            className="font-semibold text-[#0073E3] underline-offset-2 hover:underline dark:text-[#4da3ff]"
           >
             terms and conditions
           </Link>

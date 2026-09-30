@@ -15,32 +15,29 @@ import {
 } from "@/lib/stripe";
 import { normalizeAuMobile } from "@/lib/phone";
 import { AustralianState, ReportTier, VehicleReport } from "@/lib/types";
-import {
-  formatVehicleIdentifierLabel,
-  parseVehicleIdentifier,
-} from "@/lib/vehicle-identifier";
+import { parseVehicleIdentifier } from "@/lib/vehicle-identifier";
 
 const STATES: AustralianState[] = ["ACT", "NSW", "NT", "QLD", "SA", "TAS", "VIC", "WA"];
 
-function buildStripeLineItem(
-  tier: ReportTier,
-  vehicleLabel: string,
-  identifierLabel: string,
-) {
+function buildStripeLineItem(tier: ReportTier) {
   const config = getReportTierConfig(tier);
-
-  if (config.stripePriceId) {
-    return { price: config.stripePriceId, quantity: 1 };
+  const productName =
+    tier === "insights_plus"
+      ? "Auto Verifi Insights+ Report"
+      : "Auto Verifi Insights Report";
+  const productData: {
+    name: string;
+    description?: string;
+  } = { name: productName };
+  if (tier === "insights_plus") {
+    productData.description = tierStripeDescription(tier);
   }
 
   return {
     price_data: {
       currency: REPORT_CURRENCY,
       unit_amount: config.priceCents,
-      product_data: {
-        name: `${config.name} — ${vehicleLabel}`,
-        description: tierStripeDescription(tier),
-      },
+      product_data: productData,
     },
     quantity: 1,
   };
@@ -113,11 +110,6 @@ export async function POST(req: NextRequest) {
       },
     );
     const reportId = generateReportId();
-    const vehicleLabel = `${lookup.vehicle.year} ${lookup.vehicle.make} ${lookup.vehicle.model}`;
-    const identifierLabel = formatVehicleIdentifierLabel(
-      parsed,
-      parsed.kind === "rego" ? state : STATES.includes(state) ? state : undefined,
-    );
 
     const report: VehicleReport = {
       id: reportId,
@@ -157,7 +149,7 @@ export async function POST(req: NextRequest) {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
-      line_items: [buildStripeLineItem(tier, vehicleLabel, identifierLabel)],
+      line_items: [buildStripeLineItem(tier)],
       metadata: {
         reportId,
         tier,
