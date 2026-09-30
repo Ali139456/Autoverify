@@ -31,7 +31,8 @@ export function ReportShell({
 
       <div className="report-shell-body px-6 py-8 sm:px-8">{children}</div>
 
-      <footer className="report-shell-footer flex justify-end border-t border-slate-200 px-6 py-4 sm:px-8">
+      <footer className="report-shell-footer flex items-center justify-between gap-4 border-t border-slate-200 px-6 py-4 sm:px-8">
+        <Logo height={22} linked={false} variant="onLight" />
         <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
           Autoverifi.com.au{pageLabel ? ` | ${pageLabel}` : ""}
         </p>

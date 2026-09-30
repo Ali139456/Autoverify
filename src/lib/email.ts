@@ -4,6 +4,7 @@ import {
 } from "./purchase-email-template";
 import { fetchPpsrCertificateForReport, hasPpsrCertificate } from "./ppsr-certificate";
 import { generateReportPdfBuffer } from "./report-pdf-buffer";
+import { generateTaxInvoicePdfBuffer } from "./tax-invoice-pdf-buffer";
 import { buildPurchaseEmailContextFromSession } from "./stripe-purchase-email";
 import { getBaseUrl } from "./stripe";
 import type { VehicleReport } from "./types";
@@ -56,11 +57,19 @@ export async function sendPurchaseConfirmationEmail(
     // Report PDF is optional if rendering fails; email still sends with links.
   }
 
-  if (ctx.invoicePdfUrl) {
+  try {
+    const invoicePdf = await generateTaxInvoicePdfBuffer(report, ctx);
     attachments.push({
       filename: "Auto-Verifi-Tax-Invoice.pdf",
-      path: ctx.invoicePdfUrl,
+      content: invoicePdf.toString("base64"),
     });
+  } catch {
+    if (ctx.invoicePdfUrl) {
+      attachments.push({
+        filename: "Auto-Verifi-Tax-Invoice.pdf",
+        path: ctx.invoicePdfUrl,
+      });
+    }
   }
 
   if (hasPpsrCertificate(report)) {

@@ -61,7 +61,7 @@ export function buildPurchaseConfirmationEmailHtml(
   const footerLines = formatCompanyFooterLines(company).map(escapeHtml);
 
   const logoWhiteUrl = `${baseUrl.replace(/\/$/, "")}/logo/logo-white.png`;
-  const logoBlueUrl = `${baseUrl.replace(/\/$/, "")}/logo/logo-blue-on-white.png`;
+  const logoFooterUrl = `${baseUrl.replace(/\/$/, "")}/logo/logo-white.png`;
 
   const currency = (ctx.currency ?? "aud").toLowerCase();
   const amountCents = ctx.amountPaidCents ?? tierConfig.priceCents;
@@ -81,7 +81,7 @@ export function buildPurchaseConfirmationEmailHtml(
         ? `${report.vehicle.rego} (${report.vehicle.state})`
         : report.vehicle.vin || "—",
     ],
-    ["Amount (incl. GST where applicable)", amountLabel],
+    ["Amount (incl.GST)", amountLabel],
   ];
   if (ctx.invoiceNumber) {
     invoiceRows.unshift(["Tax invoice no.", ctx.invoiceNumber]);
@@ -233,14 +233,12 @@ export function buildPurchaseConfirmationEmailHtml(
           </tr>
           <tr>
             <td style="background:${BRAND_NAVY};padding:26px 32px;border-radius:0 0 14px 14px;border:1px solid ${BRAND_NAVY};">
-              <img src="${escapeHtml(logoBlueUrl)}" alt="" width="120" height="24" style="display:block;height:24px;width:auto;opacity:0.95;filter:brightness(0) invert(1);" />
+              <img src="${escapeHtml(logoFooterUrl)}" alt="Auto Verifi" width="140" height="28" style="display:block;height:28px;width:auto;max-width:160px;" />
               <p style="margin:16px 0 12px;font-size:11px;line-height:1.65;color:#94a3b8;">
                 This report is compiled from third-party data sources and is provided for information only.
                 It is not personal financial, legal or tax advice. You should make your own enquiries before purchasing a vehicle.
               </p>
-              <p style="margin:0;font-size:12px;line-height:1.7;color:#cbd5e1;">
-                Regards,<br />
-                <strong style="color:#ffffff;">The Auto Verifi Team</strong><br />
+              <p style="margin:0;font-size:12px;line-height:1.75;color:#94a3b8;">
                 ${footerLines.join("<br />")}
               </p>
             </td>

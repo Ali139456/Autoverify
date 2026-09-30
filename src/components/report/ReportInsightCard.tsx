@@ -71,7 +71,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
 
   return (
 
-    <div className="report-insight-card flex min-h-[104px] flex-col justify-between rounded-xl border border-slate-200 bg-slate-100 p-3.5 sm:p-4">
+    <div className="report-insight-card flex min-h-[104px] flex-col gap-3 rounded-xl border border-slate-200 bg-slate-100 p-3.5 sm:p-4">
 
       <div className="flex items-start justify-between gap-2">
 

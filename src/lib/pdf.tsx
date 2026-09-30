@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: BLUE,
   },
-  logoHeader: { width: 150, height: 32 },
+  logoHeader: { width: 156, height: 28, objectFit: "contain" },
   headerTagline: {
     color: BLUE,
     fontSize: 6.5,
@@ -186,7 +186,8 @@ const styles = StyleSheet.create({
     borderColor: "#e2e8f0",
     borderRadius: 6,
     padding: 8,
-    minHeight: 58,
+    minHeight: 72,
+    backgroundColor: "#f1f5f9",
   },
   insightTop: {
     flexDirection: "row",
@@ -197,13 +198,11 @@ const styles = StyleSheet.create({
   insightTitle: { fontSize: 7, color: GREY, textAlign: "right", flex: 1 },
   insightBottom: {
     marginTop: 6,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-end",
-    gap: 4,
+    flexDirection: "column",
+    alignItems: "stretch",
   },
-  insightStatusRow: { flexDirection: "row", alignItems: "center", gap: 3, flex: 1 },
-  insightStatus: { fontSize: 7.5, fontFamily: "Helvetica-Bold", flex: 1 },
+  insightStatusRow: { flexDirection: "row", alignItems: "flex-start", gap: 3 },
+  insightStatus: { fontSize: 7.5, fontFamily: "Helvetica-Bold", lineHeight: 1.35 },
   upgradeBox: {
     marginTop: 12,
     flexDirection: "row",
@@ -328,12 +327,13 @@ const styles = StyleSheet.create({
     left: 32,
     right: 32,
     flexDirection: "row",
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
     alignItems: "center",
     borderTopWidth: 1,
     borderTopColor: "#e2e8f0",
     paddingTop: 8,
   },
+  footerLogo: { width: 88, height: 18, objectFit: "contain" },
   footerText: { fontSize: 7, color: GREY, textTransform: "uppercase" },
 });
 
@@ -366,6 +366,7 @@ function ReportHeader({ report }: { report: VehicleReport }) {
 function ReportFooter({ pageLabel }: { pageLabel: string }) {
   return (
     <View style={styles.footer} fixed>
+      <Image src={LOGO_BLUE} style={styles.footerLogo} />
       <Text style={styles.footerText}>Autoverifi.com.au | {pageLabel}</Text>
     </View>
   );
@@ -544,7 +545,7 @@ function DetailsPage({
   report: VehicleReport;
   pageLabel: string;
 }) {
-  const { market, ai, valuation } = report;
+  const { market, valuation } = report;
   const showFutureValue = hasDamageAnalysis(resolveReportTier(report.tier));
   const futureValue = resolveFutureValue(report);
   const futureHorizons = [
@@ -623,23 +624,6 @@ function DetailsPage({
               <Text style={{ width: "10%" }}>{l.daysListed}d</Text>
             </View>
           ))}
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            AI Risk Assessment — {ai.riskLabel} ({ai.riskScore}/100)
-          </Text>
-          <Text style={[styles.para, { marginBottom: 6 }]}>{ai.summary}</Text>
-          {ai.riskFactors.map((f, i) => (
-            <Text key={i} style={styles.para}>
-              • {f}
-            </Text>
-          ))}
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recommendation</Text>
-          <Text style={styles.para}>{ai.buyRecommendation}</Text>
         </View>
 
         <View style={styles.section}>

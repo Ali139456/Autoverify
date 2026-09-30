@@ -368,8 +368,9 @@ html.dark body {
   }
 
   .report-shell-footer img {
-    height: 24px !important;
+    height: 20px !important;
     width: auto !important;
+    filter: none !important;
   }
 
   .report-shell-footer p {
@@ -509,17 +510,19 @@ html.dark body {
   .report-insights-grid {
     flex: 1 1 auto !important;
     grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-    grid-auto-rows: 1fr !important;
+    grid-auto-rows: auto !important;
     gap: 8px !important;
-    align-content: stretch !important;
+    align-content: start !important;
+    align-items: start !important;
   }
 
   .report-insight-card {
-    min-height: 72px !important;
-    height: 100% !important;
+    min-height: 0 !important;
+    height: auto !important;
     box-shadow: none !important;
     padding: 10px !important;
     border-radius: 8px !important;
+    justify-content: flex-start !important;
   }
 
   .report-insight-card svg {
