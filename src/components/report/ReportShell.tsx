@@ -5,15 +5,19 @@ import { formatReportDate } from "@/lib/report-design";
 export function ReportShell({
   generatedAt,
   pageLabel,
+  className,
   children,
 }: {
   reportId: string;
   generatedAt: string;
   pageLabel?: string;
+  className?: string;
   children: ReactNode;
 }) {
   return (
-    <article className="report-shell overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60">
+    <article
+      className={`report-shell overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 ${className ?? ""}`}
+    >
       <header className="report-shell-header border-b-2 border-[#0073E3] bg-white px-6 py-5 sm:px-8">
         <div className="flex items-start justify-between gap-6">
           <div>

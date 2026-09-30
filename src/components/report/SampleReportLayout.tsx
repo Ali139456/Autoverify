@@ -18,7 +18,7 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
   const hasSpecAppendix = hasVehicleSpecContent(report.vehicleSpec);
   const hasPpsrAppendix = hasPpsrCertificate(report);
   const pageCount =
-    2 +
+    1 +
     (hasSpecAppendix ? 1 : 0) +
     (includesDamage ? 1 : 0) +
     (hasPpsrAppendix ? 1 : 0);
@@ -44,8 +44,7 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
         <CarInsightsReport
           report={report}
           showUpgrade={!includesDamage}
-          pageLabelOverview={`${reportPage++} / ${pageCount}`}
-          pageLabelInsights={`${reportPage++} / ${pageCount}`}
+          pageLabel={`${reportPage++} / ${pageCount}`}
         />
 
         {hasSpecAppendix ? (
