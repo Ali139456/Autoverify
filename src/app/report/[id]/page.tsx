@@ -12,6 +12,8 @@ import { ReportPrintActions } from "@/components/report/ReportPrintActions";
 import { getReport } from "@/lib/store";
 import { hasDamageAnalysis, resolveReportTier } from "@/lib/pricing";
 import { getInspectionByReportId } from "@/lib/inspections";
+import { FutureValueAndSpecReportPage } from "@/components/report/FutureValueAndSpecReportPage";
+import { countVehicleReportPages } from "@/lib/report-page-count";
 import { buildCheckSearchUrl } from "@/lib/vehicle-identifier";
 
 export const metadata: Metadata = {
@@ -34,12 +36,11 @@ export default async function ReportPage({
   const includesDamage = hasDamageAnalysis(tier);
   const hasSpecAppendix = hasVehicleSpecContent(report.vehicleSpec);
   const hasPpsrAppendix = hasPpsrCertificate(report);
-  const insightsPages = includesDamage ? 2 : 1;
-  const pageCount =
-    insightsPages +
-    (hasSpecAppendix ? 1 : 0) +
-    (includesDamage ? 1 : 0) +
-    (hasPpsrAppendix ? 1 : 0);
+  const pageCount = countVehicleReportPages(
+    includesDamage,
+    hasSpecAppendix,
+    hasPpsrAppendix,
+  );
   let reportPage = 1;
 
   if (report.status !== "paid") {
@@ -82,14 +83,17 @@ export default async function ReportPage({
           report={report}
           showUpgrade={!includesDamage}
           pageLabel={`${reportPage++} / ${pageCount}`}
-          pageLabelFuture={
-            includesDamage
-              ? `${reportPage++} / ${pageCount}`
-              : undefined
-          }
+          deferFutureValue={includesDamage}
         />
 
-        {hasSpecAppendix ? (
+        {includesDamage ? (
+          <div className="report-page-break">
+            <FutureValueAndSpecReportPage
+              report={report}
+              pageLabel={`${reportPage++} / ${pageCount}`}
+            />
+          </div>
+        ) : hasSpecAppendix ? (
           <div className="report-page-break">
             <VehicleSpecReportPage
               report={report}
@@ -111,7 +115,7 @@ export default async function ReportPage({
         )}
 
         {hasPpsrAppendix ? (
-          <div className="report-page-break">
+          <div className="report-page-break report-ppsr-page-break">
             <PpsrCertificateReportPage
               report={report}
               pageLabel={`${reportPage++} / ${pageCount}`}

@@ -576,7 +576,7 @@ function CarInsightsOverviewPage({
   );
 }
 
-function CarInsightsKeyInsightsPage({
+function CarInsightsInsightsAndDetailsPage({
   report,
   pageLabel,
   showUpgrade,
@@ -585,51 +585,9 @@ function CarInsightsKeyInsightsPage({
   pageLabel: string;
   showUpgrade: boolean;
 }) {
-  const { vehicle } = report;
+  const { vehicle, market, valuation } = report;
   const insights = buildKeyInsights(report);
   const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
-
-  return (
-    <Page size="A4" style={styles.page}>
-      <ReportHeader report={report} />
-      <View style={styles.body}>
-        <Text style={styles.subtitle}>Key insights — {vehicleTitle}</Text>
-        <View style={[styles.insightsHeader, { marginTop: 10 }]}>
-          <Text style={styles.sectionLabel}>Key Insights</Text>
-          <Text style={styles.sectionLabelAccent}>All the essentials. In one place.</Text>
-        </View>
-        <PdfInsightGrid insights={insights} />
-
-        {showUpgrade ? (
-          <View style={styles.upgradeBox} wrap={false}>
-            <PdfInsightIcon insightId="ppsr" size={16} />
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 9, fontFamily: "Helvetica-Bold", color: "#0f172a" }}>
-                Upgrade to Auto Verifi Insights+ for AI powered condition scan and
-                more insights.
-              </Text>
-              <Text style={{ marginTop: 3, fontSize: 7.5, color: GREY }}>
-                Get AI powered current condition insights of exterior body, tyres and
-                interior + predicted future valuation.
-              </Text>
-            </View>
-            <Text style={styles.upgradeButton}>View Upgrade Options  →</Text>
-          </View>
-        ) : null}
-      </View>
-      <ReportFooter pageLabel={pageLabel} />
-    </Page>
-  );
-}
-
-function DetailsPage({
-  report,
-  pageLabel,
-}: {
-  report: VehicleReport;
-  pageLabel: string;
-}) {
-  const { market, valuation } = report;
   const showFutureValue = hasDamageAnalysis(resolveReportTier(report.tier));
   const futureValue = resolveFutureValue(report);
   const futureHorizons = [
@@ -642,8 +600,15 @@ function DetailsPage({
   return (
     <Page size="A4" style={styles.page}>
       <ReportHeader report={report} />
-      <View style={styles.body}>
-        <View style={styles.section}>
+      <View style={[styles.body, { paddingBottom: 48 }]}>
+        <View style={[styles.insightsHeader, { marginTop: 4 }]}>
+          <Text style={styles.sectionLabel}>Key Insights</Text>
+          <Text style={styles.sectionLabelAccent}>All the essentials. In one place.</Text>
+        </View>
+        <Text style={[styles.subtitle, { marginTop: 4 }]}>Key insights — {vehicleTitle}</Text>
+        <PdfInsightGrid insights={insights} />
+
+        <View style={[styles.section, { marginTop: 10 }]}>
           <Text style={styles.sectionTitle}>
             Present Value — Market Valuation ({valuation.confidence} confidence)
           </Text>
@@ -664,7 +629,7 @@ function DetailsPage({
         </View>
 
         {showFutureValue ? (
-          <View style={styles.section}>
+          <View style={[styles.section, { marginTop: 10 }]}>
             <Text style={styles.sectionTitle}>
               Future Value Forecast ({futureValueConfidenceLabel(futureValue)}{" "}
               confidence · {futureValue.yearlyKms.toLocaleString()} km/yr)
@@ -690,7 +655,18 @@ function DetailsPage({
           </View>
         ) : null}
 
-        <View style={styles.section}>
+        {showUpgrade ? (
+          <View style={[styles.upgradeBox, { marginTop: 10 }]} wrap={false}>
+            <PdfInsightIcon insightId="ppsr" size={16} />
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 8.5, fontFamily: "Helvetica-Bold", color: "#0f172a" }}>
+                Upgrade to Auto Verifi Insights+ for AI powered condition scan.
+              </Text>
+            </View>
+          </View>
+        ) : null}
+
+        <View style={[styles.section, { marginTop: 10 }]}>
           <Text style={styles.sectionTitle}>Comparable Vehicles For Sale</Text>
           <View style={styles.tableHead}>
             <Text style={{ width: "42%" }}>Vehicle</Text>
@@ -708,15 +684,6 @@ function DetailsPage({
               <Text style={{ width: "10%" }}>{l.daysListed}d</Text>
             </View>
           ))}
-        </View>
-
-        <View style={styles.section}>
-          <Text style={[styles.para, { fontSize: 7, color: GREY }]}>
-            Disclaimer: This report is compiled from third-party data sources and AI
-            models at the time of generation. Auto Verifi does not guarantee the
-            accuracy or completeness of the information. Always conduct an
-            independent inspection and official PPSR search before purchasing.
-          </Text>
         </View>
       </View>
       <ReportFooter pageLabel={pageLabel} />
@@ -941,7 +908,7 @@ export function ReportPdf({
   const includeSpec = hasVehicleSpecContent(report.vehicleSpec);
   const includePpsrIntro = hasPpsrCertificate(report);
   const totalPages =
-    3 + (includeSpec ? 1 : 0) + (isPlus ? 1 : 0) + (includePpsrIntro ? 1 : 0);
+    2 + (includeSpec ? 1 : 0) + (isPlus ? 1 : 0) + (includePpsrIntro ? 1 : 0);
   let pageNumber = 1;
 
   return (
@@ -950,12 +917,11 @@ export function ReportPdf({
         report={report}
         pageLabel={`${pageNumber++} / ${totalPages}`}
       />
-      <CarInsightsKeyInsightsPage
+      <CarInsightsInsightsAndDetailsPage
         report={report}
         pageLabel={`${pageNumber++} / ${totalPages}`}
         showUpgrade={!isPlus}
       />
-      <DetailsPage report={report} pageLabel={`${pageNumber++} / ${totalPages}`} />
       {includeSpec ? (
         <VehicleSpecPage
           report={report}

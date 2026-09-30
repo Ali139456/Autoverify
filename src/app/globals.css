@@ -444,14 +444,17 @@ html.dark body {
     max-height: 52mm !important;
   }
 
-  .report-insights-future-page {
-    break-before: page;
-    page-break-before: always;
+  .report-shell-future-spec .report-body.space-y-8 > * + * {
+    margin-top: 10px !important;
   }
 
-  .report-shell-insights-page2 .report-future-section {
-    break-inside: avoid;
-    page-break-inside: avoid;
+  .report-shell-future-spec .report-spec-appendix .report-spec-sheet {
+    padding: 8px 10px !important;
+  }
+
+  .report-shell-future-spec .report-spec-hero-thumb {
+    max-height: 36mm !important;
+    height: 36mm !important;
   }
 
   .report-main-title {
@@ -687,41 +690,71 @@ html.dark body {
     -webkit-print-color-adjust: exact;
   }
 
+  .report-ppsr-page-break {
+    break-before: page;
+    page-break-before: always;
+  }
+
   .report-shell-ppsr {
     overflow: visible !important;
-    break-inside: auto;
-    page-break-inside: auto;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin: 0 !important;
+  }
+
+  .report-shell-ppsr .report-shell-header {
+    padding: 8px 14px !important;
+  }
+
+  .report-shell-ppsr .report-shell-header img {
+    height: 26px !important;
+  }
+
+  .report-shell-ppsr .report-shell-body {
+    padding: 4px 10px 2px !important;
+  }
+
+  .report-shell-ppsr .report-shell-footer {
+    padding: 4px 14px !important;
+  }
+
+  .report-ppsr-certificate {
+    gap: 4px !important;
+  }
+
+  .report-ppsr-intro-detail,
+  .report-ppsr-sample-note {
+    display: none !important;
+  }
+
+  .report-ppsr-intro p:first-child {
+    font-size: 9px !important;
+    margin-bottom: 2px !important;
   }
 
   .report-ppsr-viewer {
     overflow: visible !important;
-    break-inside: auto;
-    page-break-inside: auto;
-  }
-
-  .report-ppsr-intro {
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-
-  .report-ppsr-intro .text-sm {
-    font-size: 9px !important;
-    line-height: 1.35 !important;
+    border-width: 1px !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 
   .report-ppsr-full-image {
+    display: block !important;
     width: 100% !important;
     max-width: 100% !important;
+    max-height: 262mm !important;
     height: auto !important;
-    break-inside: avoid;
-    page-break-inside: avoid;
+    object-fit: contain !important;
+    object-position: top center !important;
+    margin: 0 auto !important;
   }
 
   .report-ppsr-iframe {
     display: block !important;
     width: 100% !important;
-    height: 1200px !important;
-    min-height: 280mm !important;
+    height: 262mm !important;
+    min-height: 0 !important;
     border: none !important;
   }
 
