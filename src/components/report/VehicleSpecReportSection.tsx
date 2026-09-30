@@ -24,12 +24,12 @@ export function VehicleSpecReportSection({ report }: { report: VehicleReport }) 
             build data sources.
           </p>
         </div>
-        <div className="relative h-44 w-full shrink-0 overflow-hidden rounded-xl bg-slate-900 lg:h-40 lg:w-56">
+        <div className="report-spec-hero-thumb relative h-44 w-full shrink-0 overflow-hidden rounded-xl bg-slate-900 lg:h-48 lg:w-64">
           <VehicleHeroImage
             vehicle={vehicle}
             vehicleTitle={vehicleTitle}
             className="relative h-full w-full"
-            imageClassName="h-full w-full object-cover object-center"
+            imageClassName="h-full w-full object-contain object-center"
           />
         </div>
       </div>

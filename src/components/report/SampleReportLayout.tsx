@@ -17,8 +17,9 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
   const includesDamage = hasDamageAnalysis(tier);
   const hasSpecAppendix = hasVehicleSpecContent(report.vehicleSpec);
   const hasPpsrAppendix = hasPpsrCertificate(report);
+  const insightsPages = includesDamage ? 2 : 1;
   const pageCount =
-    1 +
+    insightsPages +
     (hasSpecAppendix ? 1 : 0) +
     (includesDamage ? 1 : 0) +
     (hasPpsrAppendix ? 1 : 0);
@@ -45,6 +46,11 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
           report={report}
           showUpgrade={!includesDamage}
           pageLabel={`${reportPage++} / ${pageCount}`}
+          pageLabelFuture={
+            includesDamage
+              ? `${reportPage++} / ${pageCount}`
+              : undefined
+          }
         />
 
         {hasSpecAppendix ? (

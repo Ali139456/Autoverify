@@ -399,20 +399,59 @@ html.dark body {
     margin-top: 12px !important;
   }
 
-  .report-shell-insights .report-body.space-y-8 > * + * {
-    margin-top: 8px !important;
+  .report-shell-insights-page1 .report-body.space-y-8 > * + * {
+    margin-top: 14px !important;
   }
 
-  .report-shell-insights .report-shell-body {
-    padding: 10px 18px 6px !important;
+  .report-shell-insights-page1 .report-shell-body {
+    padding: 14px 20px 10px !important;
   }
 
-  .report-shell-insights .report-main-title {
+  .report-shell-insights-page1 .report-main-title {
+    font-size: 24px !important;
+  }
+
+  .report-shell-insights-page1 .report-vehicle-title {
     font-size: 17px !important;
   }
 
-  .report-shell-insights .report-vehicle-title {
-    font-size: 13px !important;
+  .report-shell-insights-page1 .report-subtitle {
+    font-size: 9px !important;
+  }
+
+  .report-shell-insights-page1 .report-spec-value {
+    font-size: 12px !important;
+  }
+
+  .report-shell-insights-page1 .report-status-items span {
+    font-size: 12px !important;
+  }
+
+  .report-shell-insights-page1 .report-insight-card p {
+    font-size: 10px !important;
+  }
+
+  .report-shell-insights-page1 .report-supplementary .text-base {
+    font-size: 14px !important;
+  }
+
+  .report-shell-insights-page1 .report-present-value {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .report-shell-insights-page1 .report-hero-image {
+    max-height: 52mm !important;
+  }
+
+  .report-insights-future-page {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  .report-shell-insights-page2 .report-future-section {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 
   .report-main-title {
@@ -508,9 +547,6 @@ html.dark body {
     max-height: 48mm !important;
   }
 
-  .report-shell-insights .report-hero-image {
-    max-height: 40mm !important;
-  }
 
   .report-hero-image img {
     object-fit: contain !important;
@@ -581,10 +617,6 @@ html.dark body {
     padding: 8px 10px !important;
   }
 
-  .report-shell-insights .report-supplementary {
-    break-inside: auto;
-    page-break-inside: auto;
-  }
 
   .report-supplementary h3 {
     font-size: 9px !important;
@@ -667,20 +699,40 @@ html.dark body {
     page-break-inside: auto;
   }
 
+  .report-ppsr-intro {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .report-ppsr-intro .text-sm {
+    font-size: 9px !important;
+    line-height: 1.35 !important;
+  }
+
+  .report-ppsr-full-image {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
   .report-ppsr-iframe {
     display: block !important;
     width: 100% !important;
     height: 1200px !important;
     min-height: 280mm !important;
     border: none !important;
-    break-inside: auto;
-    page-break-inside: auto;
   }
 
-  .report-ppsr-certificate .text-sm,
-  .report-ppsr-certificate .text-xs {
-    font-size: 9px !important;
-    line-height: 1.35 !important;
+  .report-spec-hero-thumb {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .report-spec-hero-thumb img {
+    object-fit: contain !important;
+    object-position: center !important;
   }
 
   .report-ppsr-links {
