@@ -43,11 +43,30 @@ export function InspectionStarter({
           ownerPhone,
         }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Could not create inspection link.");
+      const raw = await res.text();
+      let data: {
+        error?: string;
+        inspectUrl?: string;
+        smsSent?: boolean;
+        smsError?: string | null;
+        ravinWarning?: string | null;
+      } = {};
+      try {
+        data = raw ? (JSON.parse(raw) as typeof data) : {};
+      } catch {
+        throw new Error(
+          raw.trim().slice(0, 120) || `Could not create inspection link (${res.status}).`,
+        );
+      }
+      if (!res.ok) {
+        throw new Error(data.error ?? "Could not create inspection link.");
+      }
+      if (!data.inspectUrl) {
+        throw new Error("Inspection link was not returned. Please try again.");
+      }
       setInspectUrl(data.inspectUrl);
       setSmsSent(Boolean(data.smsSent));
-      setSmsError(data.smsError ?? null);
+      setSmsError(data.smsError ?? data.ravinWarning ?? null);
       if (openModal) setModalOpen(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not create inspection link.");

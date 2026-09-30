@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getBaseUrl } from "@/lib/stripe";
 import { getReport, updateReport } from "@/lib/store";
-import { createInspection, updateInspection } from "@/lib/inspections";
+import {
+  createInspection,
+  getInspectionByReportId,
+  isInspectionExpired,
+  updateInspection,
+} from "@/lib/inspections";
 import { isSupabaseServerConfigured } from "@/lib/supabase/server";
 import {
   createRavinPartnerInvite,
@@ -55,24 +60,39 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const inspection = await createInspection({ reportId, phone: ownerPhone });
+    let inspection = await getInspectionByReportId(reportId);
+    if (!inspection || isInspectionExpired(inspection)) {
+      inspection = await createInspection({ reportId, phone: ownerPhone });
+    }
+
     const internalInspectUrl = `${getBaseUrl()}/inspect/${inspection.accessToken}`;
 
-    let inspectUrl = internalInspectUrl;
-    let provider: "ravin" | "internal" = "internal";
-    let ravinInviteUrl: string | null = null;
+    let inspectUrl = inspection.ravinInviteUrl ?? internalInspectUrl;
+    let provider: "ravin" | "internal" = inspection.ravinInviteUrl ? "ravin" : "internal";
+    let ravinInviteUrl: string | null = inspection.ravinInviteUrl;
+    let ravinWarning: string | null = null;
 
-    if (isRavinPartnerConfigured()) {
-      const invite = await createRavinPartnerInvite({ invitationId: reportId });
-      inspectUrl = invite.inviteUrl;
-      ravinInviteUrl = invite.inviteUrl;
-      provider = "ravin";
+    if (isRavinPartnerConfigured() && !inspection.ravinInviteUrl) {
+      try {
+        const invite = await createRavinPartnerInvite({ invitationId: reportId });
+        inspectUrl = invite.inviteUrl;
+        ravinInviteUrl = invite.inviteUrl;
+        provider = "ravin";
 
-      await updateInspection(inspection.id, {
-        ravinInspectionId: invite.invitationId,
-        ravinInviteUrl: invite.inviteUrl,
-        status: "pending",
-      });
+        await updateInspection(inspection.id, {
+          ravinInspectionId: invite.invitationId,
+          ravinInviteUrl: invite.inviteUrl,
+          status: "pending",
+        });
+      } catch (ravinErr) {
+        console.error("[inspections/start] Ravin partner invite failed:", ravinErr);
+        inspectUrl = internalInspectUrl;
+        provider = "internal";
+        ravinWarning =
+          ravinErr instanceof Error
+            ? ravinErr.message
+            : "Ravin link unavailable; using Auto Verifi mobile inspection.";
+      }
     }
 
     await updateReport(reportId, {
@@ -105,6 +125,7 @@ export async function POST(req: NextRequest) {
       internalInspectUrl,
       ravinInviteUrl,
       provider,
+      ravinWarning,
       expiresAt: inspection.expiresAt,
       ownerPhone,
       customerPhone,
