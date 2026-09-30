@@ -12,7 +12,7 @@ import { ReportPrintActions } from "@/components/report/ReportPrintActions";
 import { getReport } from "@/lib/store";
 import { hasDamageAnalysis, resolveReportTier } from "@/lib/pricing";
 import { getInspectionByReportId } from "@/lib/inspections";
-import { FutureValueAndSpecReportPage } from "@/components/report/FutureValueAndSpecReportPage";
+import { PresentAndFutureValueReportPage } from "@/components/report/PresentAndFutureValueReportPage";
 import { countVehicleReportPages } from "@/lib/report-page-count";
 import { buildCheckSearchUrl } from "@/lib/vehicle-identifier";
 
@@ -83,17 +83,19 @@ export default async function ReportPage({
           report={report}
           showUpgrade={!includesDamage}
           pageLabel={`${reportPage++} / ${pageCount}`}
-          deferFutureValue={includesDamage}
+          deferValuations={includesDamage}
         />
 
         {includesDamage ? (
-          <div className="report-page-break">
-            <FutureValueAndSpecReportPage
+          <div className="report-page-break report-valuations-page-break">
+            <PresentAndFutureValueReportPage
               report={report}
               pageLabel={`${reportPage++} / ${pageCount}`}
             />
           </div>
-        ) : hasSpecAppendix ? (
+        ) : null}
+
+        {hasSpecAppendix ? (
           <div className="report-page-break">
             <VehicleSpecReportPage
               report={report}

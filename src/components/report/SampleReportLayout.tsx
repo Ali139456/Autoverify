@@ -1,6 +1,6 @@
 import { CarInsightsReport } from "@/components/report/CarInsightsReport";
-import { FutureValueAndSpecReportPage } from "@/components/report/FutureValueAndSpecReportPage";
 import { InsightsPlusBodyReport } from "@/components/report/InsightsPlusBodyReport";
+import { PresentAndFutureValueReportPage } from "@/components/report/PresentAndFutureValueReportPage";
 import { ReportPrintActions } from "@/components/report/ReportPrintActions";
 import { PpsrCertificateReportPage } from "@/components/report/PpsrCertificateReportPage";
 import { VehicleSpecReportPage } from "@/components/report/VehicleSpecReportPage";
@@ -47,17 +47,19 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
           report={report}
           showUpgrade={!includesDamage}
           pageLabel={`${reportPage++} / ${pageCount}`}
-          deferFutureValue={includesDamage}
+          deferValuations={includesDamage}
         />
 
         {includesDamage ? (
-          <div className="report-page-break">
-            <FutureValueAndSpecReportPage
+          <div className="report-page-break report-valuations-page-break">
+            <PresentAndFutureValueReportPage
               report={report}
               pageLabel={`${reportPage++} / ${pageCount}`}
             />
           </div>
-        ) : hasSpecAppendix ? (
+        ) : null}
+
+        {hasSpecAppendix ? (
           <div className="report-page-break">
             <VehicleSpecReportPage
               report={report}

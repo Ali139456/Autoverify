@@ -51,13 +51,13 @@ export function CarInsightsReport({
   report,
   showUpgrade,
   pageLabel,
-  deferFutureValue = false,
+  deferValuations = false,
 }: {
   report: VehicleReport;
   showUpgrade: boolean;
   pageLabel: string;
-  /** Future forecast shown on the combined page 2 (Insights+). */
-  deferFutureValue?: boolean;
+  /** Present + future valuation blocks render on report page 2 (Insights+). */
+  deferValuations?: boolean;
 }) {
   const { vehicle, valuation } = report;
   const showFutureValue = hasDamageAnalysis(resolveReportTier(report.tier));
@@ -178,31 +178,33 @@ export function CarInsightsReport({
           </div>
         </div>
 
-        <div className="report-supplementary report-present-value rounded-xl border border-slate-200 bg-slate-50 p-5">
-          <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">
-            Present value — market valuation ({valuation.confidence} confidence)
-          </h3>
-          <div className="report-valuation-grid mt-3 grid gap-3 sm:grid-cols-3">
-            {[
-              ["Trade-in", valuation.tradeLow, valuation.tradeHigh],
-              ["Private sale", valuation.privateLow, valuation.privateHigh],
-              ["Dealer retail", valuation.retailLow, valuation.retailHigh],
-            ].map(([label, low, high]) => (
-              <div
-                key={label as string}
-                className="rounded-lg bg-white p-4 ring-1 ring-slate-200"
-              >
-                <p className="text-xs text-slate-500">{label}</p>
-                <p className="mt-1 text-base font-extrabold text-[#0073E3]">
-                  ${(low as number).toLocaleString("en-AU")} – $
-                  {(high as number).toLocaleString("en-AU")}
-                </p>
-              </div>
-            ))}
+        {!deferValuations ? (
+          <div className="report-supplementary report-present-value rounded-xl border border-slate-200 bg-slate-50 p-5">
+            <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">
+              Present value — market valuation ({valuation.confidence} confidence)
+            </h3>
+            <div className="report-valuation-grid mt-3 grid gap-3 sm:grid-cols-3">
+              {[
+                ["Trade-in", valuation.tradeLow, valuation.tradeHigh],
+                ["Private sale", valuation.privateLow, valuation.privateHigh],
+                ["Dealer retail", valuation.retailLow, valuation.retailHigh],
+              ].map(([label, low, high]) => (
+                <div
+                  key={label as string}
+                  className="rounded-lg bg-white p-4 ring-1 ring-slate-200"
+                >
+                  <p className="text-xs text-slate-500">{label}</p>
+                  <p className="mt-1 text-base font-extrabold text-[#0073E3]">
+                    ${(low as number).toLocaleString("en-AU")} – $
+                    {(high as number).toLocaleString("en-AU")}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        ) : null}
 
-        {showFutureValue && !deferFutureValue ? (
+        {showFutureValue && !deferValuations ? (
           <div className="report-supplementary report-future-section rounded-xl border border-slate-200 bg-slate-50 p-5">
             <div className="flex flex-wrap items-end justify-between gap-2">
               <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">
@@ -242,8 +244,8 @@ export function CarInsightsReport({
               <FileText className="mt-0.5 h-8 w-8 shrink-0 text-[#0073E3]" aria-hidden />
               <div>
                 <p className="font-bold text-slate-900">
-                  Upgrade to Auto Verifi Insights+ for AI powered condition scan and
-                  more insights.
+                  Upgrade to Auto Verifi Insights+ for AI powered condition scan and more
+                  insights.
                 </p>
                 <p className="mt-1 text-sm text-slate-500">
                   Get AI powered current condition insights of exterior body, tyres and

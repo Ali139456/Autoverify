@@ -1,20 +1,19 @@
 import type { VehicleReport } from "@/lib/types";
-import { hasVehicleSpecContent } from "@/lib/vehicle-spec-sheet";
 import {
   futureValueConfidenceLabel,
   getFutureValueAtYears,
   resolveFutureValue,
 } from "@/lib/report-design";
 import { ReportShell } from "./ReportShell";
-import { VehicleSpecReportSection } from "./VehicleSpecReportSection";
 
-export function FutureValueAndSpecReportPage({
+export function PresentAndFutureValueReportPage({
   report,
   pageLabel,
 }: {
   report: VehicleReport;
   pageLabel: string;
 }) {
+  const { valuation } = report;
   const futureValue = resolveFutureValue(report);
   const futureHorizons = [
     { label: "Today", years: 0 },
@@ -22,16 +21,39 @@ export function FutureValueAndSpecReportPage({
     { label: "+3 years", years: 3 },
     { label: "+5 years", years: 5 },
   ];
-  const hasSpec = hasVehicleSpecContent(report.vehicleSpec);
 
   return (
     <ReportShell
       reportId={report.id}
       generatedAt={report.createdAt}
       pageLabel={pageLabel}
-      className="report-shell-future-spec"
+      className="report-shell-valuations"
     >
-      <div className="report-body space-y-8">
+      <div className="report-body space-y-6">
+        <div className="report-supplementary report-present-value rounded-xl border border-slate-200 bg-slate-50 p-5">
+          <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">
+            Present value — market valuation ({valuation.confidence} confidence)
+          </h3>
+          <div className="report-valuation-grid mt-3 grid gap-3 sm:grid-cols-3">
+            {[
+              ["Trade-in", valuation.tradeLow, valuation.tradeHigh],
+              ["Private sale", valuation.privateLow, valuation.privateHigh],
+              ["Dealer retail", valuation.retailLow, valuation.retailHigh],
+            ].map(([label, low, high]) => (
+              <div
+                key={label as string}
+                className="rounded-lg bg-white p-4 ring-1 ring-slate-200"
+              >
+                <p className="text-xs text-slate-500">{label}</p>
+                <p className="mt-1 text-base font-extrabold text-[#0073E3]">
+                  ${(low as number).toLocaleString("en-AU")} – $
+                  {(high as number).toLocaleString("en-AU")}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="report-supplementary report-future-section rounded-xl border border-slate-200 bg-slate-50 p-5">
           <div className="flex flex-wrap items-end justify-between gap-2">
             <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">
@@ -67,12 +89,6 @@ export function FutureValueAndSpecReportPage({
             Actual future value may differ based on condition, usage and market changes.
           </p>
         </div>
-
-        {hasSpec ? (
-          <div className="report-spec-appendix">
-            <VehicleSpecReportSection report={report} />
-          </div>
-        ) : null}
       </div>
     </ReportShell>
   );

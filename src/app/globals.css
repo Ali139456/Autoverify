@@ -435,26 +435,35 @@ html.dark body {
     font-size: 14px !important;
   }
 
-  .report-shell-insights-page1 .report-present-value {
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-
   .report-shell-insights-page1 .report-hero-image {
     max-height: 52mm !important;
   }
 
-  .report-shell-future-spec .report-body.space-y-8 > * + * {
-    margin-top: 10px !important;
+  .report-valuations-page-break {
+    break-before: page;
+    page-break-before: always;
   }
 
-  .report-shell-future-spec .report-spec-appendix .report-spec-sheet {
-    padding: 8px 10px !important;
+  .report-shell-valuations .report-shell-body {
+    padding: 14px 20px 10px !important;
   }
 
-  .report-shell-future-spec .report-spec-hero-thumb {
-    max-height: 36mm !important;
-    height: 36mm !important;
+  .report-shell-valuations .report-body.space-y-6 > * + * {
+    margin-top: 12px !important;
+  }
+
+  .report-shell-valuations .report-present-value,
+  .report-shell-valuations .report-future-section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .report-shell-valuations .report-supplementary .text-base {
+    font-size: 15px !important;
+  }
+
+  .report-shell-valuations .report-supplementary h3 {
+    font-size: 10px !important;
   }
 
   .report-main-title {
