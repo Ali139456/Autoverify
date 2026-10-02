@@ -208,7 +208,8 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
     {
       id: "market",
       title: "Market Insights",
-      status: `Retail ${money(valuation.retailLow)}–${money(valuation.retailHigh)} · ${market.activeListings} listings`,
+      status: `Retail ${money(valuation.retailLow)}–${money(valuation.retailHigh)}`,
+      statusSubtext: `${market.activeListings.toLocaleString("en-AU")} listings`,
       tone: "neutral",
     },
     {

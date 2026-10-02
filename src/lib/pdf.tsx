@@ -276,12 +276,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderBottomWidth: 1,
     borderBottomColor: "#e2e8f0",
+  },
+  specSheetLabelCell: {
+    width: "42%",
+    backgroundColor: LIGHT,
+    borderRightWidth: 1,
+    borderRightColor: "#e2e8f0",
     paddingVertical: 4,
     paddingHorizontal: 6,
   },
-  specSheetLabel: { width: "42%", fontSize: 7.5, color: GREY },
-  specSheetValue: {
+  specSheetLabel: { fontSize: 7.5, color: GREY },
+  specSheetValueCell: {
     width: "58%",
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+  },
+  specSheetValue: {
     fontSize: 7.5,
     fontFamily: "Helvetica-Bold",
     color: "#0f172a",
@@ -423,7 +433,7 @@ function PdfInsightGrid({ insights }: { insights: ReportInsight[] }) {
                     <Text
                       style={[
                         styles.insightStatus,
-                        insight.id === "registration"
+                        insight.id === "registration" || insight.id === "market"
                           ? toneStyle(insight.tone)
                           : { color: GREY, fontFamily: "Helvetica" },
                         { marginTop: 2, fontSize: 7 },
@@ -720,8 +730,12 @@ function VehicleSpecPage({
             <Text style={styles.sectionTitle}>Vehicle data</Text>
             {sheet.dataRows.map((row) => (
               <View key={row.label} style={styles.specSheetRow}>
-                <Text style={styles.specSheetLabel}>{row.label}</Text>
-                <Text style={styles.specSheetValue}>{row.value}</Text>
+                <View style={styles.specSheetLabelCell}>
+                  <Text style={styles.specSheetLabel}>{row.label}</Text>
+                </View>
+                <View style={styles.specSheetValueCell}>
+                  <Text style={styles.specSheetValue}>{row.value}</Text>
+                </View>
               </View>
             ))}
           </View>
@@ -824,9 +838,7 @@ function InsightsPlusPage({
             <Text style={styles.para}>
               Overall condition: {damage.overallCondition} · {damage.analyzedPhotos}{" "}
               photo(s) analyzed
-              {damage.findings.length > 0
-                ? ` · Total estimated repair ${money(damage.totalRepairEstimate)}`
-                : " · No visible damage detected"}
+              {damage.findings.length === 0 ? " · No visible damage detected" : ""}
             </Text>
           </View>
         ) : (
@@ -881,10 +893,6 @@ function InsightsPlusPage({
                         {f.description}
                       </Text>
                     ) : null}
-                    <Text style={{ marginTop: 3, fontSize: 8 }}>
-                      Est. repair {money(f.repairEstimate)} ·{" "}
-                      {Math.round(f.confidence * 100)}% confidence
-                    </Text>
                   </View>
                 );
               })}

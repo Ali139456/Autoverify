@@ -16,7 +16,7 @@ export function ReportShell({
 }) {
   return (
     <article
-      className={`report-shell overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 ${className ?? ""}`}
+      className={`report-shell flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 ${className ?? ""}`}
     >
       <header className="report-shell-header border-b-2 border-[#0073E3] bg-white px-6 py-5 sm:px-8">
         <div className="flex items-start justify-between gap-6">
@@ -33,9 +33,11 @@ export function ReportShell({
         </div>
       </header>
 
-      <div className="report-shell-body px-6 py-8 sm:px-8">{children}</div>
+      <div className="report-shell-body min-h-0 flex-1 px-6 py-8 sm:px-8">
+        {children}
+      </div>
 
-      <footer className="report-shell-footer flex items-center justify-between gap-4 border-t border-slate-200 px-6 py-4 sm:px-8">
+      <footer className="report-shell-footer mt-auto flex shrink-0 items-center justify-between gap-4 border-t border-slate-200 px-6 py-4 sm:px-8">
         <Logo height={22} linked={false} variant="onLight" />
         <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
           Autoverifi.com.au{pageLabel ? ` | ${pageLabel}` : ""}

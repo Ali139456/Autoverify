@@ -272,6 +272,32 @@ html.dark body {
   }
 }
 
+/* ---- Vehicle report: one logical page per shell, footer at bottom ---- */
+.report-shell {
+  display: flex;
+  flex-direction: column;
+  /* ~A4 printable height at 96dpi (matches print preview) */
+  min-height: 1056px;
+}
+
+.report-shell-header {
+  flex-shrink: 0;
+}
+
+.report-shell-body {
+  flex: 1 1 auto;
+}
+
+.report-shell-footer {
+  flex-shrink: 0;
+  margin-top: auto;
+}
+
+.report-spec-data-label {
+  background-color: #f8fafc;
+  border-right: 1px solid #e2e8f0;
+}
+
 /* ---- Vehicle report: browser Print / Save as PDF ---- */
 @media print {
   @page {
@@ -320,9 +346,10 @@ html.dark body {
     box-shadow: none !important;
     border: 1px solid #e2e8f0 !important;
     border-radius: 12px !important;
-    margin: 0 0 6mm !important;
-    display: block !important;
-    min-height: auto !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 100vh !important;
     height: auto !important;
     overflow: visible !important;
     break-inside: auto;
@@ -360,13 +387,15 @@ html.dark body {
 
   .report-shell-body {
     display: block !important;
+    flex: 1 1 auto !important;
     padding: 12px 18px 8px !important;
   }
 
   .report-shell-footer {
     break-inside: avoid;
     page-break-inside: avoid;
-    margin-top: 0 !important;
+    flex-shrink: 0 !important;
+    margin-top: auto !important;
     padding: 8px 18px !important;
     border-top: 1px solid #e2e8f0 !important;
   }
@@ -672,11 +701,7 @@ html.dark body {
   }
 
   .report-upgrade-banner {
-    break-inside: avoid;
-    page-break-inside: avoid;
-    flex-shrink: 0 !important;
-    padding: 12px 14px !important;
-    gap: 10px !important;
+    display: none !important;
   }
 
   .report-upgrade-banner svg {
@@ -765,6 +790,13 @@ html.dark body {
     height: 262mm !important;
     min-height: 0 !important;
     border: none !important;
+  }
+
+  .report-spec-data-label {
+    background-color: #f8fafc !important;
+    border-right: 1px solid #e2e8f0 !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 
   .report-spec-hero-thumb {

@@ -39,14 +39,18 @@ export function VehicleSpecReportSection({ report }: { report: VehicleReport }) 
           <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">
             Vehicle data
           </h3>
-          <dl className="mt-3 divide-y divide-slate-100 rounded-xl border border-slate-200">
+          <dl className="report-spec-data-table mt-3 overflow-hidden rounded-xl border border-slate-200">
             {sheet!.dataRows.map((row) => (
               <div
                 key={row.label}
-                className="grid grid-cols-[minmax(0,42%)_1fr] gap-3 px-4 py-2.5 text-sm"
+                className="report-spec-data-row grid grid-cols-[minmax(0,42%)_1fr] border-t border-slate-200 text-sm first:border-t-0"
               >
-                <dt className="font-medium text-slate-500">{row.label}</dt>
-                <dd className="font-semibold text-slate-900">{row.value}</dd>
+                <dt className="report-spec-data-label border-r border-slate-200 bg-slate-50 px-4 py-2.5 font-medium text-slate-600">
+                  {row.label}
+                </dt>
+                <dd className="bg-white px-4 py-2.5 font-semibold text-slate-900">
+                  {row.value}
+                </dd>
               </div>
             ))}
           </dl>

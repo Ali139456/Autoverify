@@ -8,8 +8,6 @@ import { InspectionStarter } from "@/components/InspectionStarter";
 import { DamageUpload } from "@/components/DamageUpload";
 import { ReportShell } from "./ReportShell";
 
-const money = (n: number) => `$${n.toLocaleString("en-AU")}`;
-
 function PhotoTile({
   photo,
   caption,
@@ -180,10 +178,6 @@ export function InsightsPlusBodyReport({
                               {finding.description}
                             </p>
                           ) : null}
-                          <p className="mt-2 text-sm font-semibold text-slate-700">
-                            Est. repair {money(finding.repairEstimate)} ·{" "}
-                            {Math.round(finding.confidence * 100)}% confidence
-                          </p>
                         </div>
                       </div>
                     </div>
@@ -212,11 +206,7 @@ function DamageSummary({ damage }: { damage: DamageAnalysis }) {
           <CheckCircle2 className="h-4 w-4" aria-hidden />
           No visible damage detected
         </span>
-      ) : (
-        <span className="text-sm font-semibold text-slate-700">
-          Total estimated repair: {money(damage.totalRepairEstimate)}
-        </span>
-      )}
+      ) : null}
     </div>
   );
 }

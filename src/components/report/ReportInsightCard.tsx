@@ -115,7 +115,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
 
                 className={`mt-1 text-[11px] leading-snug break-words ${
 
-                  insight.id === "registration"
+                  insight.id === "registration" || insight.id === "market"
 
                     ? `font-bold ${insightToneClass(insight.tone)}`
 

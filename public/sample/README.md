@@ -2,7 +2,7 @@
 
 `c300-hero.jpg` — black **Mercedes-Benz C-Class** full-car reference for the sample hero panel (AI-generated demo asset).
 
-`walkaround/*.jpg` — reference photos for the sample **2022 Mercedes-Benz C-Class C300** (Insights+ walkaround). Sourced from [Unsplash](https://unsplash.com/license) for demonstration only.
+`walkaround/*.jpg` — one image per angle label (front, corners, rear, wheels, interior, odometer) for the sample **2022 Mercedes-Benz C-Class C300** Insights+ walkaround. `front-left.jpg` matches `c300-hero.jpg`; other exterior shots are distinct [Unsplash](https://unsplash.com/license) demo assets.
 
 # Sample PPSR certificate
 

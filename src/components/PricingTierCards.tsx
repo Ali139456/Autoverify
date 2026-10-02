@@ -97,7 +97,7 @@ function TierCard({
   const isPlus = tier === "insights_plus";
   const isSelected = selectedTier === tier;
   const cardShell =
-    "relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 p-6 shadow-sm dark:border-white/10 sm:p-8 dark:shadow-none";
+    "relative flex h-full flex-col overflow-hidden rounded-2xl border-2 border-accent-500 p-6 shadow-sm sm:p-8 dark:shadow-none";
   const cardBg = isPlus
     ? "bg-gradient-to-b from-blue-50 to-white dark:from-accent-700/40 dark:to-ink-950"
     : "bg-white dark:bg-ink-800";
@@ -105,18 +105,17 @@ function TierCard({
 
   return (
     <div className={`${cardShell} ${cardBg} ${cardSelected}`}>
-      {isPlus ? (
-        <div className="mb-5 flex justify-end sm:mb-6">
-          <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-accent-500/35 bg-accent-50 px-4 py-2 text-xs font-semibold leading-snug text-accent-800 dark:border-accent-400/45 dark:bg-accent-500/15 dark:text-accent-200 sm:px-5 sm:py-2.5">
-            <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden />
+      <div className="flex min-h-[4rem] items-start justify-between gap-3 sm:min-h-[4.25rem]">
+        <p className="min-w-0 flex-1 text-sm font-semibold leading-snug text-slate-900 dark:text-white sm:text-base">
+          {config.name}
+        </p>
+        {isPlus ? (
+          <span className="inline-flex max-w-[11rem] shrink-0 items-center gap-1.5 rounded-full border border-accent-500/35 bg-accent-50 px-2.5 py-1 text-[10px] font-semibold leading-snug text-accent-800 shadow-sm dark:border-accent-400/45 dark:bg-accent-500/15 dark:text-accent-200 sm:max-w-[13rem] sm:gap-2 sm:px-3 sm:py-1.5 sm:text-[11px]">
+            <Sparkles className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5" aria-hidden />
             Includes AI powered condition scan
           </span>
-        </div>
-      ) : null}
-
-      <p className="text-sm font-semibold text-slate-900 dark:text-white sm:text-base">
-        {config.name}
-      </p>
+        ) : null}
+      </div>
       <p className="mt-3 text-4xl font-extrabold text-accent-500 sm:text-5xl">
         {formatTierPrice(tier)}
       </p>

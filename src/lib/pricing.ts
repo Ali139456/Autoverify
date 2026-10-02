@@ -49,7 +49,7 @@ export const REPORT_TIERS: Record<ReportTier, ReportTierConfig> = {
   },
   insights_plus: {
     id: "insights_plus",
-    name: "Auto Verifi Insights+",
+    name: "Auto Verifi Insights+ Report",
     priceCents: INSIGHTS_PLUS_PRICE_CENTS,
     stripePriceId: process.env.STRIPE_INSIGHTS_PLUS_PRICE_ID,
     tagline:
