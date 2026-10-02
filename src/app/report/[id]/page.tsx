@@ -79,12 +79,14 @@ export default async function ReportPage({
           <ReportPrintActions />
         </div>
 
-        <CarInsightsReport
-          report={report}
-          showUpgrade={!includesDamage}
-          pageLabel={`${reportPage++} / ${pageCount}`}
-          deferValuations={includesDamage}
-        />
+        <div className="report-print-page-first">
+          <CarInsightsReport
+            report={report}
+            showUpgrade={!includesDamage}
+            pageLabel={`${reportPage++} / ${pageCount}`}
+            deferValuations={includesDamage}
+          />
+        </div>
 
         {includesDamage ? (
           <div className="report-page-break report-valuations-page-break">

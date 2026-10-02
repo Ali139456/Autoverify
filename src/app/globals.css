@@ -276,8 +276,7 @@ html.dark body {
 .report-shell {
   display: flex;
   flex-direction: column;
-  /* ~A4 printable height at 96dpi (matches print preview) */
-  min-height: 1056px;
+  width: 100%;
 }
 
 .report-shell-header {
@@ -286,11 +285,26 @@ html.dark body {
 
 .report-shell-body {
   flex: 1 1 auto;
+  min-height: 0;
 }
 
 .report-shell-footer {
   flex-shrink: 0;
   margin-top: auto;
+}
+
+/* Each report page fills one A4 canvas (screen preview + print) */
+#report-print-area > .report-page-break,
+#report-print-area > .report-print-page-first {
+  display: flex;
+  flex-direction: column;
+  min-height: 1056px;
+}
+
+#report-print-area > .report-page-break > .report-shell,
+#report-print-area > .report-print-page-first > .report-shell {
+  flex: 1 1 auto;
+  min-height: 100%;
 }
 
 .report-spec-data-label {
@@ -342,6 +356,22 @@ html.dark body {
     margin-top: 0 !important;
   }
 
+  #report-print-area > .report-page-break,
+  #report-print-area > .report-print-page-first {
+    display: flex !important;
+    flex-direction: column !important;
+    /* A4 297mm minus @page 8mm top/bottom margins */
+    min-height: 281mm !important;
+    box-sizing: border-box !important;
+  }
+
+  #report-print-area > .report-page-break > .report-shell,
+  #report-print-area > .report-print-page-first > .report-shell {
+    flex: 1 1 auto !important;
+    min-height: 100% !important;
+    height: auto !important;
+  }
+
   .report-shell {
     box-shadow: none !important;
     border: 1px solid #e2e8f0 !important;
@@ -349,11 +379,12 @@ html.dark body {
     margin: 0 !important;
     display: flex !important;
     flex-direction: column !important;
-    min-height: 100vh !important;
+    min-height: 281mm !important;
     height: auto !important;
     overflow: visible !important;
     break-inside: auto;
     page-break-inside: auto;
+    box-sizing: border-box !important;
   }
 
   .report-shell-header {
@@ -386,8 +417,8 @@ html.dark body {
   }
 
   .report-shell-body {
-    display: block !important;
     flex: 1 1 auto !important;
+    min-height: 0 !important;
     padding: 12px 18px 8px !important;
   }
 
@@ -415,7 +446,7 @@ html.dark body {
     page-break-before: always;
   }
 
-  .report-page-break:first-child {
+  .report-print-page-first {
     break-before: auto;
     page-break-before: auto;
   }

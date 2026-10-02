@@ -88,17 +88,21 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
 
 
 
-        <CarInsightsReport
+        <div className="report-print-page-first">
 
-          report={report}
+          <CarInsightsReport
 
-          showUpgrade={false}
+            report={report}
 
-          pageLabel={`${reportPage++} / ${pageCount}`}
+            showUpgrade={false}
 
-          deferValuations={includesDamage}
+            pageLabel={`${reportPage++} / ${pageCount}`}
 
-        />
+            deferValuations={includesDamage}
+
+          />
+
+        </div>
 
 
 
