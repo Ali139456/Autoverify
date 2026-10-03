@@ -184,7 +184,7 @@ export function CarInsightsReport({
 
       pageLabel={pageLabel}
 
-      className="report-shell-insights report-shell-insights-page1"
+      className="report-shell-insights report-shell-insights-page1 !overflow-visible"
 
     >
 
@@ -260,9 +260,9 @@ export function CarInsightsReport({
 
 
 
-        <div className="report-status-panel overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
+        <div className="report-status-panel overflow-visible rounded-2xl border border-slate-200 bg-slate-100">
 
-          <div className="report-status-grid grid lg:grid-cols-[1fr_380px]">
+          <div className="report-status-grid grid overflow-hidden rounded-2xl lg:grid-cols-[1fr_380px]">
 
             <div className="report-status-list border-b border-slate-200 p-6 sm:p-8 lg:border-b-0 lg:border-r">
 
@@ -316,7 +316,8 @@ export function CarInsightsReport({
 
               vehicleTitle={vehicleTitle}
 
-              className="report-hero-image relative min-h-[240px] bg-slate-950 lg:min-h-[280px]"
+              className="report-hero-image relative min-h-[260px] bg-slate-950 lg:min-h-[300px]"
+              imageClassName="absolute inset-0 h-full w-full object-contain object-[center_top]"
 
             />
 

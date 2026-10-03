@@ -5,10 +5,11 @@ import {
   BadgeDollarSign,
   ChevronDown,
   Camera,
-  ShieldCheck,
   CarFront,
   FileText,
   History,
+  Sparkles,
+  TrendingUp,
 } from "lucide-react";
 import { AboutUsSection } from "@/components/AboutUsSection";
 import { HomeCheckLink } from "@/components/HomeCheckLink";
@@ -17,22 +18,61 @@ import { HeroCheckLead } from "@/components/HeroCheckLead";
 import { Reveal } from "@/components/Reveal";
 import { formatTierPrice } from "@/lib/pricing";
 
-const CHECKS = [
-  { icon: History, title: "Full history checks", text: "PPSR encumbrance, finance owing, write-off and stolen vehicle records." },
-  { icon: BadgeDollarSign, title: "Market valuation", text: "Trade in and Retail valuation powered by real time market data." },
+const INSIGHT_PILLARS = [
   {
-    icon: ShieldCheck,
-    title: "Vehicle Insights",
-    text: "Safety data, recall data, warranty remaining, P plate legal status, vehicle specs and odometer checks.",
+    label: "Past",
+    summary: "Available history and recorded events associated with the vehicle.",
+    items: [
+      {
+        icon: History,
+        title: "Full history checks",
+        text: "PPSR encumbrance, finance owing, write-off and stolen vehicle records.",
+      },
+      {
+        icon: FileText,
+        title: "Recall & registration data",
+        text: "Safety recall signals and registration status from official register sources.",
+      },
+    ],
   },
   {
-    icon: Camera,
-    title: "AI powered condition scan",
-    text: "Take guided photos of the car to detect dents, scratches and current condition of exterior body, tyres and interior.",
+    label: "Present",
+    summary: "Identification, specification, condition and market context today.",
+    items: [
+      {
+        icon: BadgeDollarSign,
+        title: "Market valuation",
+        text: "Trade-in and retail valuation powered by live market data.",
+      },
+      {
+        icon: CarFront,
+        title: "Market comparables",
+        text: "Similar cars for sale — price, kilometres and time on market.",
+      },
+      {
+        icon: Camera,
+        title: "AI powered condition scan",
+        text: "Guided photos to assess exterior, tyres and interior (Insights+).",
+      },
+    ],
   },
-  { icon: CarFront, title: "Market comparables", text: "See similar cars currently for sale, their prices, kilometres and how long they've been listed." },
-  { icon: FileText, title: "Professional PDF report", text: "Everything compiled into a beautifully designed report you can download, save and share." },
-];
+  {
+    label: "Future",
+    summary: "Data-driven outlook to support longer-term buying decisions.",
+    items: [
+      {
+        icon: TrendingUp,
+        title: "Future value forecast",
+        text: "Predicted valuation at 1, 3 and 5 years based on market models (Insights+).",
+      },
+      {
+        icon: Sparkles,
+        title: "Professional PDF report",
+        text: "Past, present and future insights in one report you can download and share.",
+      },
+    ],
+  },
+] as const;
 
 const STEPS = [
   { n: "1", title: "Enter rego or VIN", text: "Type in the registration plate and state, or the 17-digit VIN if the car isn't registered." },
@@ -122,26 +162,38 @@ export function HomePage() {
               Report <span className="text-accent-500">Features</span>
             </h2>
             <p className="mt-3 text-sm text-slate-600 dark:text-slate-400 sm:text-base">
-              Past, Present &amp; Future Insights
+              Past | Present | Future vehicle insights
             </p>
           </Reveal>
-          <div className="mt-6 grid gap-4 sm:mt-8 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
-            {CHECKS.map(({ icon: Icon, title, text }, i) => (
-              <Reveal key={title} delay={(i % 3) * 120} className={featureCardClass}>
-                <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-accent-500/0 blur-3xl transition-all duration-500 group-hover:bg-accent-500/15" />
-                <span className="pointer-events-none absolute right-6 top-5 text-5xl font-black tracking-tight text-accent-500/35 transition-colors duration-300 group-hover:text-accent-500/50 dark:text-accent-500/30 dark:group-hover:text-accent-500/45">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span className="relative inline-flex rounded-2xl bg-gradient-to-br from-accent-500 to-accent-700 p-3.5 transition-transform duration-300 group-hover:scale-110">
-                  <Icon className="h-6 w-6 text-white" aria-hidden />
-                </span>
-                <h3 className="relative mt-5 text-lg font-bold text-slate-900 transition-colors group-hover:text-accent-600 dark:text-white dark:group-hover:text-accent-300">
-                  {title}
-                </h3>
-                <p className="relative mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                  {text}
-                </p>
-                <div className="absolute inset-x-8 bottom-0 h-px bg-gradient-to-r from-transparent via-accent-500 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          <div className="mt-6 grid gap-6 sm:mt-8 lg:grid-cols-3 lg:gap-8">
+            {INSIGHT_PILLARS.map((pillar, pillarIndex) => (
+              <Reveal key={pillar.label} delay={pillarIndex * 120} className="space-y-4">
+                <div className="border-l-4 border-accent-500 pl-4">
+                  <h3 className="text-lg font-extrabold uppercase tracking-wide text-slate-900 dark:text-white">
+                    {pillar.label}
+                  </h3>
+                  <p className="mt-1 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                    {pillar.summary}
+                  </p>
+                </div>
+                <ul className="space-y-4">
+                  {pillar.items.map(({ icon: Icon, title, text }) => (
+                    <li
+                      key={title}
+                      className={`${featureCardClass} !p-5 sm:!p-6`}
+                    >
+                      <span className="relative inline-flex rounded-2xl bg-gradient-to-br from-accent-500 to-accent-700 p-3 transition-transform duration-300 group-hover:scale-110">
+                        <Icon className="h-5 w-5 text-white" aria-hidden />
+                      </span>
+                      <h4 className="relative mt-4 text-base font-bold text-slate-900 dark:text-white">
+                        {title}
+                      </h4>
+                      <p className="relative mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                        {text}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
               </Reveal>
             ))}
           </div>

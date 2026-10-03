@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: BLUE,
   },
-  logoHeader: { width: 156, height: 28, objectFit: "contain" },
+  logoHeader: { width: 184, height: 34, objectFit: "contain" },
   headerTagline: {
     color: BLUE,
     fontSize: 6.5,

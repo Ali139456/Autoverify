@@ -430,7 +430,7 @@ html.dark body {
   }
 
   .report-shell-header img {
-    height: 34px !important;
+    height: 42px !important;
     width: auto !important;
     filter: none !important;
   }
@@ -528,7 +528,14 @@ html.dark body {
   }
 
   .report-shell-insights-page1 .report-hero-image {
-    max-height: 52mm !important;
+    min-height: 46mm !important;
+    max-height: 58mm !important;
+    overflow: hidden !important;
+  }
+
+  .report-shell-insights-page1 .report-hero-image img {
+    object-fit: contain !important;
+    object-position: center top !important;
   }
 
   .report-valuations-page-break {
@@ -602,6 +609,7 @@ html.dark body {
     break-inside: avoid;
     page-break-inside: avoid;
     flex-shrink: 0 !important;
+    overflow: visible !important;
   }
 
   .report-status-grid {
@@ -646,15 +654,15 @@ html.dark body {
 
   .report-hero-image {
     position: relative !important;
-    min-height: 0 !important;
+    min-height: 46mm !important;
     height: auto !important;
-    max-height: 48mm !important;
+    max-height: 58mm !important;
+    overflow: hidden !important;
   }
-
 
   .report-hero-image img {
     object-fit: contain !important;
-    object-position: center !important;
+    object-position: center top !important;
   }
 
   .report-insights-section {

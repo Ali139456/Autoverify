@@ -21,7 +21,7 @@ export function ReportShell({
       <header className="report-shell-header border-b-2 border-[#0073E3] bg-white px-6 py-5 sm:px-8">
         <div className="flex items-start justify-between gap-6">
           <div>
-            <Logo height={44} linked={false} variant="onLight" />
+            <Logo height={52} linked={false} variant="onLight" />
             <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0073E3]">
               Past | Present | Future vehicle insights
             </p>
@@ -38,7 +38,7 @@ export function ReportShell({
       </div>
 
       <footer className="report-shell-footer mt-auto flex shrink-0 items-center justify-between gap-4 border-t border-slate-200 px-6 py-4 sm:px-8">
-        <Logo height={22} linked={false} variant="onLight" />
+        <Logo height={24} linked={false} variant="onLight" />
         <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
           Autoverifi.com.au{pageLabel ? ` | ${pageLabel}` : ""}
         </p>
