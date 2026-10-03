@@ -143,24 +143,6 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
         : "ANCAP rating was not available for this exact vehicle variant in AutoGrab.",
     },
     {
-      id: "warranty",
-      title: "Warranty Remaining",
-      status: vehicle.warrantyRemaining ?? "Not available",
-      tone: vehicle.warrantyRemaining ? "clear" : "neutral",
-      detail: vehicle.warrantyRemaining
-        ? "Factory warranty estimate sourced from AutoGrab build and specification data."
-        : "Remaining factory warranty could not be determined for this vehicle.",
-    },
-    {
-      id: "pplate",
-      title: "P Plate Legal",
-      status: vehicle.pPlateLegal ?? "Not available",
-      tone: vehicle.pPlateLegal?.toLowerCase().includes("yes") ? "clear" : "neutral",
-      detail: vehicle.pPlateLegal
-        ? "Probationary (P plate) eligibility based on vehicle specifications and state restrictions."
-        : "P plate eligibility could not be confirmed for this vehicle variant.",
-    },
-    {
       id: "registration",
       title: "Registration",
       status:
@@ -210,7 +192,7 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
       title: "Market Insights",
       status: `Retail ${money(valuation.retailLow)}–${money(valuation.retailHigh)}`,
       statusSubtext: `${market.activeListings.toLocaleString("en-AU")} listings`,
-      tone: "neutral",
+      tone: "clear",
     },
     {
       id: "specs",

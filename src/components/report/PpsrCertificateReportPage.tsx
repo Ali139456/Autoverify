@@ -106,7 +106,7 @@ export function PpsrCertificateReportPage({
 
 
 
-        <div className="report-ppsr-viewer overflow-visible rounded-lg border border-slate-300 bg-white">
+        <div className="report-ppsr-viewer overflow-hidden rounded-lg border border-slate-300 bg-white">
 
           {isSample ? (
 
@@ -120,7 +120,7 @@ export function PpsrCertificateReportPage({
 
               height={1754}
 
-              className="report-ppsr-full-image h-auto w-full max-w-full object-contain object-left-top"
+              className="report-ppsr-full-image mx-auto h-auto w-full max-w-full object-contain object-top"
 
               priority
 

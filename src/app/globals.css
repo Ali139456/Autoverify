@@ -312,6 +312,20 @@ html.dark body {
   border-right: 1px solid #e2e8f0;
 }
 
+.report-ppsr-viewer {
+  line-height: 0;
+}
+
+.report-ppsr-full-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  object-position: top center;
+  vertical-align: top;
+  transform: none;
+}
+
 /* ---- Vehicle report: browser Print / Save as PDF ---- */
 @media print {
   @page {
