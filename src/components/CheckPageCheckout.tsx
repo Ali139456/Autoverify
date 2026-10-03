@@ -49,7 +49,7 @@ export function CheckPageCheckout({
         selectedTier={selectedTier}
       />
 
-      <div className="mt-8">
+      <div className="mt-6 sm:mt-8">
           <CheckoutBookingForm
             identifier={identifier}
             state={state}

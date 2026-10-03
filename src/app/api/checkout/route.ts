@@ -6,6 +6,7 @@ import {
   parseReportTier,
   tierStripeDescription,
 } from "@/lib/pricing";
+import { applyPercentDiscount, lookupPromoCode } from "@/lib/promo-codes";
 import { generateReportId, saveReport } from "@/lib/store";
 import {
   getBaseUrl,
@@ -19,7 +20,7 @@ import { parseVehicleIdentifier } from "@/lib/vehicle-identifier";
 
 const STATES: AustralianState[] = ["ACT", "NSW", "NT", "QLD", "SA", "TAS", "VIC", "WA"];
 
-function buildStripeLineItem(tier: ReportTier) {
+function buildStripeLineItem(tier: ReportTier, unitAmountCents: number) {
   const config = getReportTierConfig(tier);
   const productName =
     tier === "insights_plus"
@@ -36,7 +37,7 @@ function buildStripeLineItem(tier: ReportTier) {
   return {
     price_data: {
       currency: REPORT_CURRENCY,
-      unit_amount: config.priceCents,
+      unit_amount: unitAmountCents,
       product_data: productData,
     },
     quantity: 1,
@@ -51,6 +52,18 @@ export async function POST(req: NextRequest) {
       .toUpperCase();
     const state = String(body.state ?? "").toUpperCase() as AustralianState;
     const tier = parseReportTier(body.tier);
+    const tierConfig = getReportTierConfig(tier);
+    const promoRaw = String(body.promoCode ?? "");
+    const promo = lookupPromoCode(promoRaw);
+    if (promoRaw.trim() && !promo) {
+      return NextResponse.json(
+        { error: "That discount code is not valid." },
+        { status: 400 },
+      );
+    }
+    const unitAmountCents = promo
+      ? applyPercentDiscount(tierConfig.priceCents, promo.percentOff)
+      : tierConfig.priceCents;
     const requiresPhones = hasDamageAnalysis(tier);
     const agreedTerms = body.agreedTerms === true;
     if (!agreedTerms) {
@@ -149,11 +162,15 @@ export async function POST(req: NextRequest) {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
-      line_items: [buildStripeLineItem(tier)],
+      line_items: [buildStripeLineItem(tier, unitAmountCents)],
+      allow_promotion_codes: !promo,
       metadata: {
         reportId,
         tier,
         marketingOptIn: marketingOptIn ? "yes" : "no",
+        promoCode: promo?.code ?? "",
+        listPriceCents: String(tierConfig.priceCents),
+        amountCents: String(unitAmountCents),
       },
       customer_email: customerEmail || undefined,
       invoice_creation: { enabled: true },

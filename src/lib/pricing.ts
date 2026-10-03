@@ -20,11 +20,11 @@ export type ReportTierConfig = {
 export const INSIGHTS_PRICE_CENTS = Number(
   process.env.INSIGHTS_PRICE_CENTS ??
     process.env.REPORT_PRICE_CENTS ??
-    3900,
+    3500,
 );
 
 export const INSIGHTS_PLUS_PRICE_CENTS = Number(
-  process.env.INSIGHTS_PLUS_PRICE_CENTS ?? 6900,
+  process.env.INSIGHTS_PLUS_PRICE_CENTS ?? 6500,
 );
 
 const CURRENCY = (process.env.REPORT_CURRENCY ?? "aud").toUpperCase();

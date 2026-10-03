@@ -31,6 +31,7 @@ export function PayButton({
   customerBirthDate,
   customerOdometer,
   advertisedPrice,
+  promoCode,
 }: {
   identifier?: string;
   /** @deprecated Use `identifier` instead. */
@@ -53,6 +54,7 @@ export function PayButton({
   customerBirthDate?: string;
   customerOdometer?: number;
   advertisedPrice?: number;
+  promoCode?: string;
 }) {
   const vehicleId = identifier ?? rego ?? "";
   const router = useRouter();
@@ -137,6 +139,7 @@ export function PayButton({
           ownerPhone: requiresPhones ? ownerPhone : undefined,
           agreedTerms: true,
           marketingOptIn,
+          promoCode: promoCode?.trim() || undefined,
         }),
       });
       const data = await res.json();
@@ -157,7 +160,7 @@ export function PayButton({
       <button
         onClick={pay}
         disabled={loading}
-        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0073E3] px-8 py-4 text-lg font-bold text-white shadow-md transition hover:bg-[#005bb5] disabled:opacity-60"
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0073E3] px-6 py-3.5 text-base font-bold text-white shadow-md transition hover:bg-[#005bb5] disabled:opacity-60 sm:px-8 sm:py-4 sm:text-lg"
       >
         {loading ? (
           <Loader2 className="h-5 w-5 animate-spin" aria-hidden />

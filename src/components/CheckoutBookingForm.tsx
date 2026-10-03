@@ -10,6 +10,8 @@ import { CheckoutPaymentConsent } from "@/components/CheckoutPaymentConsent";
 
 import { PaymentTermsModal } from "@/components/PaymentTermsModal";
 
+import { formatCents, getReportTierConfig } from "@/lib/pricing";
+import { applyPercentDiscount, lookupPromoCode } from "@/lib/promo-codes";
 import type { ReportTier } from "@/lib/types";
 
 
@@ -73,12 +75,29 @@ export function CheckoutBookingForm({
   const [marketingOptIn, setMarketingOptIn] = useState(false);
 
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [promoCode, setPromoCode] = useState("");
+  const [promoApplied, setPromoApplied] = useState<string | null>(null);
 
   const requiresPhones = tier === "insights_plus";
+  const tierConfig = getReportTierConfig(tier);
+  const activePromo = promoApplied ? lookupPromoCode(promoApplied) : null;
+  const totalCents = activePromo
+    ? applyPercentDiscount(tierConfig.priceCents, activePromo.percentOff)
+    : tierConfig.priceCents;
 
+  function applyPromoCode() {
+    const match = lookupPromoCode(promoCode);
+    if (!match) {
+      setPromoApplied(null);
+      return;
+    }
+    setPromoApplied(match.code);
+    setPromoCode(match.code);
+  }
 
-
-  const payLabel = "Pay securely — Buy Report";
+  const payLabel = activePromo
+    ? `Pay securely — ${formatCents(totalCents)}`
+    : "Pay securely — Buy Report";
 
 
 
@@ -489,7 +508,70 @@ export function CheckoutBookingForm({
 
         </p>
 
+        <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-ink-950/60 sm:p-5">
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            Order summary
+          </p>
+          <div className="mt-3 space-y-2 text-sm">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+              <span className="min-w-0 flex-1 font-medium text-slate-800 dark:text-slate-200">
+                {tierConfig.name}
+              </span>
+              <span className="shrink-0 font-semibold text-slate-900 dark:text-white">
+                {activePromo ? (
+                  <>
+                    <span className="mr-2 text-slate-400 line-through">
+                      {formatCents(tierConfig.priceCents)}
+                    </span>
+                    {formatCents(totalCents)}
+                  </>
+                ) : (
+                  formatCents(tierConfig.priceCents)
+                )}
+              </span>
+            </div>
+            {activePromo ? (
+              <p className="text-xs font-medium text-accent-600 dark:text-accent-400">
+                Code {activePromo.code} applied ({activePromo.percentOff}% off, incl. GST)
+              </p>
+            ) : null}
+          </div>
 
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-end">
+            <label className="block min-w-0 flex-1 text-sm">
+              <span className={labelClass}>Discount code</span>
+              <input
+                value={promoCode}
+                onChange={(e) => {
+                  setPromoCode(e.target.value.toUpperCase());
+                  setPromoApplied(null);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    applyPromoCode();
+                  }
+                }}
+                className={inputClass}
+                placeholder="AVFREE or AVCLUB"
+                autoComplete="off"
+                spellCheck={false}
+              />
+            </label>
+            <button
+              type="button"
+              onClick={applyPromoCode}
+              className="shrink-0 rounded-xl border border-accent-500 bg-white px-4 py-3 text-sm font-bold text-accent-600 transition hover:bg-accent-50 dark:border-accent-400 dark:bg-ink-900 dark:text-accent-300 dark:hover:bg-accent-500/10 sm:py-3"
+            >
+              Apply
+            </button>
+          </div>
+          {promoCode.trim() && !activePromo && promoCode.length >= 4 ? (
+            <p className="mt-2 text-xs text-amber-700 dark:text-amber-400">
+              Tap Apply to validate your code, or continue without a discount.
+            </p>
+          ) : null}
+        </div>
 
         <div className="mt-6 space-y-5">
 
@@ -550,6 +632,8 @@ export function CheckoutBookingForm({
             onTermsBlocked={() => setShowTermsModal(true)}
 
             validateCustomerDetails
+
+            promoCode={promoApplied ?? undefined}
 
           />
 
