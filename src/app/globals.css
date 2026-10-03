@@ -280,6 +280,10 @@ html.dark body {
   min-height: 1056px;
 }
 
+.report-shell-ppsr {
+  min-height: auto;
+}
+
 .report-shell-header {
   flex-shrink: 0;
 }
@@ -396,12 +400,23 @@ html.dark body {
     margin: 0 !important;
     display: flex !important;
     flex-direction: column !important;
-    min-height: 281mm !important;
+    min-height: auto !important;
     height: auto !important;
     overflow: visible !important;
     break-inside: auto;
     page-break-inside: auto;
     box-sizing: border-box !important;
+  }
+
+  /* Short pages: pin footer without forcing extra print sheets */
+  .report-shell-valuations {
+    min-height: 281mm !important;
+  }
+
+  #report-print-area > .report-page-break:last-child,
+  #report-print-area > .report-print-page-first:last-child {
+    break-after: avoid !important;
+    page-break-after: avoid !important;
   }
 
   .report-shell-header {
@@ -774,9 +789,15 @@ html.dark body {
 
   .report-shell-ppsr {
     overflow: visible !important;
-    break-inside: avoid;
-    page-break-inside: avoid;
+    break-inside: auto;
+    page-break-inside: auto;
     margin: 0 !important;
+    min-height: auto !important;
+    border-radius: 0 !important;
+  }
+
+  .report-shell-ppsr .report-shell-footer {
+    margin-top: 0 !important;
   }
 
   .report-shell-ppsr .report-shell-header {
@@ -820,7 +841,8 @@ html.dark body {
     display: block !important;
     width: 100% !important;
     max-width: 100% !important;
-    max-height: 262mm !important;
+    /* Header + footer + @page margins must fit on one sheet */
+    max-height: 232mm !important;
     height: auto !important;
     object-fit: contain !important;
     object-position: top center !important;
