@@ -51,7 +51,7 @@ export const REPORT_TIERS: Record<ReportTier, ReportTierConfig> = {
     priceCents: INSIGHTS_PLUS_PRICE_CENTS,
     stripePriceId: process.env.STRIPE_INSIGHTS_PLUS_PRICE_ID,
     tagline:
-      "Everything in insights + AI powered condition scan + predicted future valuation",
+      "Complete vehicle intelligence with AI-powered condition analysis and future value insights",
     highlights: [
       "Everything in Auto Verifi Insights",
       "Predicted future valuation",
