@@ -3,11 +3,11 @@ import { DocumentProps, renderToBuffer } from "@react-pdf/renderer";
 import { getReportTierConfig, resolveReportTier } from "./pricing";
 import type { PurchaseEmailContext } from "./purchase-email-template";
 import { TaxInvoicePdf } from "./tax-invoice-pdf";
+import { formatReportReference } from "./report-design";
 import type { VehicleReport } from "./types";
 
 function defaultInvoiceNumber(report: VehicleReport): string {
-  const compact = report.id.replace(/[^a-zA-Z0-9]/g, "").slice(0, 12).toUpperCase();
-  return `AV-${compact || "DRAFT"}`;
+  return formatReportReference(report.vehicle);
 }
 
 export async function generateTaxInvoicePdfBuffer(

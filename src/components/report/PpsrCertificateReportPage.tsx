@@ -16,6 +16,7 @@ import {
 
 } from "@/lib/ppsr-certificate";
 
+import { formatReportReference } from "@/lib/report-design";
 import { ReportShell } from "./ReportShell";
 
 
@@ -53,6 +54,8 @@ export function PpsrCertificateReportPage({
       reportId={report.id}
 
       generatedAt={report.createdAt}
+
+      reportReference={formatReportReference(report.vehicle)}
 
       pageLabel={pageLabel}
 

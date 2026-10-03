@@ -1,6 +1,7 @@
 import { AlertTriangle, Camera, CheckCircle2 } from "lucide-react";
 import {
   getInspectionPhotoUrl,
+  formatReportReference,
   resolveDamageFindingImageUrl,
 } from "@/lib/report-design";
 import type { DamageAnalysis, InspectionPhoto, VehicleReport } from "@/lib/types";
@@ -70,6 +71,7 @@ export function InsightsPlusBodyReport({
     <ReportShell
       reportId={report.id}
       generatedAt={report.createdAt}
+      reportReference={formatReportReference(report.vehicle)}
       pageLabel={pageLabel}
     >
       <div className="space-y-8">

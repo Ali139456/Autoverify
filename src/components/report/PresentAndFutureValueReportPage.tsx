@@ -2,6 +2,7 @@ import type { VehicleReport } from "@/lib/types";
 import {
   futureValueConfidenceLabel,
   getFutureValueAtYears,
+  formatReportReference,
   resolveFutureValue,
 } from "@/lib/report-design";
 import { ReportShell } from "./ReportShell";
@@ -26,6 +27,7 @@ export function PresentAndFutureValueReportPage({
     <ReportShell
       reportId={report.id}
       generatedAt={report.createdAt}
+      reportReference={formatReportReference(report.vehicle)}
       pageLabel={pageLabel}
       className="report-shell-valuations"
     >

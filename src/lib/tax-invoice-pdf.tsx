@@ -10,6 +10,7 @@ import {
 } from "@react-pdf/renderer";
 import { getCompanyDetails } from "./company";
 import { getReportTierConfig, resolveReportTier } from "./pricing";
+import { formatReportReference } from "./report-design";
 import type { VehicleReport } from "./types";
 
 const BLUE = "#0073E3";
@@ -253,7 +254,7 @@ export function TaxInvoicePdf({
           <View>
             <Image src={LOGO} style={styles.logo} />
             <Text style={styles.tagline}>
-              Past | Present | Future vehicle insights
+              Past | Present | Future Vehicle Insights
             </Text>
           </View>
           <Text style={styles.taxTitle}>TAX INVOICE</Text>
@@ -292,6 +293,10 @@ export function TaxInvoicePdf({
             { label: "Registration", value: regoLine },
             { label: "VIN", value: vinLine },
             { label: "Report generated", value: reportGenerated },
+            {
+              label: "Report reference",
+              value: formatReportReference(report.vehicle),
+            },
           ]}
         />
 

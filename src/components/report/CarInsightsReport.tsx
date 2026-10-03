@@ -17,6 +17,7 @@ import {
   buildKeyInsights,
 
   buildStatusChecks,
+  formatReportReference,
 
   futureValueConfidenceLabel,
 
@@ -181,6 +182,8 @@ export function CarInsightsReport({
       reportId={report.id}
 
       generatedAt={report.createdAt}
+
+      reportReference={formatReportReference(report.vehicle)}
 
       pageLabel={pageLabel}
 

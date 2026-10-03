@@ -162,7 +162,7 @@ export function HomePage() {
               Report <span className="text-accent-500">Features</span>
             </h2>
             <p className="mt-3 text-sm text-slate-600 dark:text-slate-400 sm:text-base">
-              Past | Present | Future vehicle insights
+              Past | Present | Future Vehicle Insights
             </p>
           </Reveal>
           <div className="mt-6 grid gap-6 sm:mt-8 lg:grid-cols-3 lg:gap-8">

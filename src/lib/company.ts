@@ -24,6 +24,12 @@ export function getCompanyDetails(baseUrl?: string): CompanyDetails {
   };
 }
 
+export function formatAbnDisplay(abn: string): string {
+  const digits = abn.replace(/\D/g, "");
+  if (digits.length !== 11) return abn.trim();
+  return `${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5, 8)} ${digits.slice(8, 11)}`;
+}
+
 export function formatCompanyFooterLines(details: CompanyDetails): string[] {
   const lines = [details.legalName];
   if (details.abn) lines.push(`ABN ${details.abn}`);

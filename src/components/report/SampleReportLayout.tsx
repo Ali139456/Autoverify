@@ -8,6 +8,8 @@ import { ReportPrintActions } from "@/components/report/ReportPrintActions";
 
 import { PpsrCertificateReportPage } from "@/components/report/PpsrCertificateReportPage";
 
+import { ReportLegalFooter } from "@/components/report/ReportLegalFooter";
+
 import { VehicleSpecReportPage } from "@/components/report/VehicleSpecReportPage";
 
 import { hasPpsrCertificate } from "@/lib/ppsr-certificate";
@@ -76,7 +78,7 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
 
             <h1 className="text-xl font-bold text-slate-900">
 
-              Past | Present | Future vehicle insights
+              Past | Present | Future Vehicle Insights
 
             </h1>
 
@@ -181,6 +183,8 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
         ) : null}
 
 
+
+        <ReportLegalFooter />
 
         <p className="report-no-print text-center text-xs leading-relaxed text-slate-500">
 

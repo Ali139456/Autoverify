@@ -1,4 +1,5 @@
 import { getCompanyDetails, formatCompanyFooterLines } from "./company";
+import { formatReportReference } from "./report-design";
 import { formatTierPrice, getReportTierConfig, resolveReportTier } from "./pricing";
 import type { VehicleReport } from "./types";
 
@@ -86,7 +87,7 @@ export function buildPurchaseConfirmationEmailHtml(
   if (ctx.invoiceNumber) {
     invoiceRows.unshift(["Tax invoice no.", ctx.invoiceNumber]);
   }
-  invoiceRows.push(["Report reference", report.id]);
+  invoiceRows.push(["Report reference", formatReportReference(report.vehicle)]);
 
   const invoiceTable = invoiceRows
     .map(
@@ -233,7 +234,7 @@ export function buildPurchaseConfirmationEmailHtml(
           </tr>
           <tr>
             <td style="background:${BRAND_NAVY};padding:26px 32px;border-radius:0 0 14px 14px;border:1px solid ${BRAND_NAVY};">
-              <img src="${escapeHtml(logoFooterUrl)}" alt="Auto Verifi" width="140" height="28" style="display:block;height:28px;width:auto;max-width:160px;" />
+              <img src="${escapeHtml(logoFooterUrl)}" alt="Auto Verifi" width="180" height="40" style="display:block;height:40px;width:auto;max-width:200px;" />
               <p style="margin:16px 0 12px;font-size:11px;line-height:1.65;color:#94a3b8;">
                 This report is compiled from third-party data sources and is provided for information only.
                 It is not personal financial, legal or tax advice. You should make your own enquiries before purchasing a vehicle.

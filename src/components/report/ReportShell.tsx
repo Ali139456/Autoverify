@@ -5,12 +5,14 @@ import { formatReportDate } from "@/lib/report-design";
 export function ReportShell({
   generatedAt,
   pageLabel,
+  reportReference,
   className,
   children,
 }: {
   reportId: string;
   generatedAt: string;
   pageLabel?: string;
+  reportReference?: string;
   className?: string;
   children: ReactNode;
 }) {
@@ -23,11 +25,12 @@ export function ReportShell({
           <div>
             <Logo height={52} linked={false} variant="onLight" />
             <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0073E3]">
-              Past | Present | Future vehicle insights
+              Past | Present | Future Vehicle Insights
             </p>
           </div>
           <div className="text-right text-[10px] font-semibold uppercase leading-relaxed tracking-wide text-slate-500">
             <p>Generated: {formatReportDate(generatedAt)}</p>
+            {reportReference ? <p>Report ref: {reportReference}</p> : null}
             <p>Autoverifi.com.au</p>
           </div>
         </div>
@@ -38,8 +41,14 @@ export function ReportShell({
       </div>
 
       <footer className="report-shell-footer mt-auto flex shrink-0 items-center justify-between gap-4 border-t border-slate-200 px-6 py-4 sm:px-8">
-        <Logo height={24} linked={false} variant="onLight" />
-        <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+        <Logo height={34} linked={false} variant="onLight" />
+        <p className="text-right text-xs font-medium uppercase tracking-wide text-slate-400">
+          {reportReference ? (
+            <>
+              {reportReference}
+              <span aria-hidden> · </span>
+            </>
+          ) : null}
           Autoverifi.com.au{pageLabel ? ` | ${pageLabel}` : ""}
         </p>
       </footer>

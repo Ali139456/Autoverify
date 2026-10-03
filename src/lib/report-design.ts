@@ -214,6 +214,23 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
   });
 }
 
+/** Public report reference: AV-{rego} or AV-{last 4 of VIN} when rego is unavailable. */
+export function formatReportReference(vehicle: {
+  rego?: string | null;
+  vin?: string | null;
+}): string {
+  const rego = vehicle.rego?.trim();
+  if (rego) {
+    return `AV-${rego.toUpperCase()}`;
+  }
+  const vinCompact = (vehicle.vin ?? "").replace(/[^a-zA-Z0-9]/g, "");
+  const lastFour = vinCompact.slice(-4).toUpperCase();
+  if (lastFour.length === 4) {
+    return `AV-${lastFour}`;
+  }
+  return lastFour ? `AV-${lastFour}` : "AV-—";
+}
+
 export function formatReportDate(iso: string): string {
   return new Date(iso)
     .toLocaleDateString("en-AU", {

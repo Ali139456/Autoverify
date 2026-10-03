@@ -1,3 +1,4 @@
+import { formatReportReference } from "@/lib/report-design";
 import type { VehicleReport } from "@/lib/types";
 import { hasVehicleSpecContent } from "@/lib/vehicle-spec-sheet";
 import { ReportShell } from "./ReportShell";
@@ -16,6 +17,7 @@ export function VehicleSpecReportPage({
     <ReportShell
       reportId={report.id}
       generatedAt={report.createdAt}
+      reportReference={formatReportReference(report.vehicle)}
       pageLabel={pageLabel}
     >
       <VehicleSpecReportSection report={report} />

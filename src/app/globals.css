@@ -464,9 +464,17 @@ html.dark body {
   }
 
   .report-shell-footer img {
-    height: 20px !important;
+    height: 32px !important;
     width: auto !important;
     filter: none !important;
+  }
+
+  .report-legal-footer {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    break-before: avoid;
+    page-break-before: avoid;
+    display: none !important;
   }
 
   .report-shell-footer p {

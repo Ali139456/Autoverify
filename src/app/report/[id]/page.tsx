@@ -13,6 +13,7 @@ import { getReport } from "@/lib/store";
 import { hasDamageAnalysis, resolveReportTier } from "@/lib/pricing";
 import { getInspectionByReportId } from "@/lib/inspections";
 import { PresentAndFutureValueReportPage } from "@/components/report/PresentAndFutureValueReportPage";
+import { ReportLegalFooter } from "@/components/report/ReportLegalFooter";
 import { countVehicleReportPages } from "@/lib/report-page-count";
 import { buildCheckSearchUrl } from "@/lib/vehicle-identifier";
 
@@ -73,7 +74,7 @@ export default async function ReportPage({
         <div className="report-no-print flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-xl font-bold text-slate-900">
-              Past | Present | Future vehicle insights
+              Past | Present | Future Vehicle Insights
             </h1>
           </div>
           <ReportPrintActions />
@@ -127,10 +128,10 @@ export default async function ReportPage({
           </div>
         ) : null}
 
+        <ReportLegalFooter />
+
         <p className="report-no-print text-center text-xs leading-relaxed text-slate-500">
-          Generated {new Date(report.createdAt).toLocaleString("en-AU")}. This
-          report is compiled from third-party data sources and AI models and is
-          provided for information only.
+          Generated {new Date(report.createdAt).toLocaleString("en-AU")}.
         </p>
       </div>
     </div>
