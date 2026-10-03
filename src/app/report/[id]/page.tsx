@@ -119,7 +119,7 @@ export default async function ReportPage({
         )}
 
         {hasPpsrAppendix ? (
-          <div className="report-page-break report-ppsr-page-break">
+          <div className="report-page-break">
             <PpsrCertificateReportPage
               report={report}
               pageLabel={`${reportPage++} / ${pageCount}`}

@@ -41,8 +41,6 @@ export const REPORT_TIERS: Record<ReportTier, ReportTierConfig> = {
       "Live market insights and Retail vs Trade in Valuation",
       "Safety Recall Data",
       "ANCAP Safety rating",
-      "Warranty remaining",
-      "P Plate legal status",
       "Odometer check",
       "Professional PDF report",
     ],

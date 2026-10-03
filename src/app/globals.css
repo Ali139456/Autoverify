@@ -277,6 +277,7 @@ html.dark body {
   display: flex;
   flex-direction: column;
   width: 100%;
+  min-height: 1056px;
 }
 
 .report-shell-header {
@@ -293,18 +294,17 @@ html.dark body {
   margin-top: auto;
 }
 
-/* Each report page fills one A4 canvas (screen preview + print) */
+/* Page wrappers only group shells; height comes from .report-shell */
 #report-print-area > .report-page-break,
 #report-print-area > .report-print-page-first {
   display: flex;
   flex-direction: column;
-  min-height: 1056px;
 }
 
 #report-print-area > .report-page-break > .report-shell,
 #report-print-area > .report-print-page-first > .report-shell {
   flex: 1 1 auto;
-  min-height: 100%;
+  width: 100%;
 }
 
 .report-spec-data-label {
@@ -374,16 +374,19 @@ html.dark body {
   #report-print-area > .report-print-page-first {
     display: flex !important;
     flex-direction: column !important;
-    /* A4 297mm minus @page 8mm top/bottom margins */
-    min-height: 281mm !important;
-    box-sizing: border-box !important;
+    min-height: 0 !important;
+    height: auto !important;
   }
 
   #report-print-area > .report-page-break > .report-shell,
   #report-print-area > .report-print-page-first > .report-shell {
     flex: 1 1 auto !important;
-    min-height: 100% !important;
+    width: 100% !important;
     height: auto !important;
+  }
+
+  #report-print-area.space-y-6 > * {
+    margin-top: 0 !important;
   }
 
   .report-shell {
@@ -767,11 +770,6 @@ html.dark body {
     max-width: 100% !important;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
-  }
-
-  .report-ppsr-page-break {
-    break-before: page;
-    page-break-before: always;
   }
 
   .report-shell-ppsr {
