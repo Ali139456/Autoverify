@@ -20,8 +20,22 @@ import { parseVehicleIdentifier } from "@/lib/vehicle-identifier";
 
 const STATES: AustralianState[] = ["ACT", "NSW", "NT", "QLD", "SA", "TAS", "VIC", "WA"];
 
-function buildStripeLineItem(tier: ReportTier, unitAmountCents: number) {
+function buildStripeLineItem(
+  tier: ReportTier,
+  unitAmountCents: number,
+  listPriceCents: number,
+) {
   const config = getReportTierConfig(tier);
+  if (
+    config.stripePriceId &&
+    unitAmountCents === listPriceCents
+  ) {
+    return {
+      price: config.stripePriceId,
+      quantity: 1,
+    };
+  }
+
   const productName =
     tier === "insights_plus"
       ? "Auto Verifi Insights+ Report"
@@ -162,7 +176,9 @@ export async function POST(req: NextRequest) {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
-      line_items: [buildStripeLineItem(tier, unitAmountCents)],
+      line_items: [
+        buildStripeLineItem(tier, unitAmountCents, tierConfig.priceCents),
+      ],
       allow_promotion_codes: !promo,
       metadata: {
         reportId,
