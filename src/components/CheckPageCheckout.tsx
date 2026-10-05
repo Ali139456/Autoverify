@@ -44,7 +44,6 @@ export function CheckPageCheckout({
         state={state}
         isVin={isVin}
         showHeading={false}
-        variant="light"
         onSelectTier={handleSelectTier}
         selectedTier={selectedTier}
       />

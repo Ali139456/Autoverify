@@ -252,7 +252,7 @@ export function TaxInvoicePdf({
       <Page size="A4" style={styles.page}>
         <View style={styles.topRow}>
           <View>
-            <Image src={LOGO} style={styles.logo} />
+            <Image src={LOGO} style={styles.logo} alt="Auto Verifi" />
             <Text style={styles.tagline}>
               Past | Present | Future Vehicle Insights
             </Text>
@@ -329,7 +329,7 @@ export function TaxInvoicePdf({
         </View>
 
         <View style={styles.pageFooter} fixed>
-          <Image src={LOGO} style={styles.footerLogo} />
+          <Image src={LOGO} style={styles.footerLogo} alt="" />
           <Text style={styles.footerMeta}>{company.website}</Text>
         </View>
       </Page>

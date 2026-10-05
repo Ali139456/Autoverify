@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { HomeCheckLink } from "@/components/HomeCheckLink";
 import {
@@ -18,7 +17,6 @@ type PricingTierCardsProps = {
   state?: string;
   isVin?: boolean;
   showHeading?: boolean;
-  variant?: "dark" | "light";
   /** When set, tier cards select a plan instead of paying inline. */
   onSelectTier?: (tier: ReportTier) => void;
   selectedTier?: ReportTier | null;
@@ -30,7 +28,6 @@ export function PricingTierCards({
   state,
   isVin = false,
   showHeading = true,
-  variant = "light",
   onSelectTier,
   selectedTier = null,
 }: PricingTierCardsProps) {
@@ -58,7 +55,6 @@ export function PricingTierCards({
             state={state}
             isVin={isVin}
             checkoutReady={checkoutReady}
-            variant={variant}
             onSelectTier={onSelectTier}
             selectedTier={selectedTier}
           />
@@ -91,7 +87,6 @@ function TierCard({
   state,
   isVin,
   checkoutReady,
-  variant,
   onSelectTier,
   selectedTier,
 }: {
@@ -100,7 +95,6 @@ function TierCard({
   state?: string;
   isVin?: boolean;
   checkoutReady: boolean;
-  variant: "dark" | "light";
   onSelectTier?: (tier: ReportTier) => void;
   selectedTier?: ReportTier | null;
 }) {

@@ -25,7 +25,7 @@ export default function PricingPage() {
         </div>
 
         <div className="mt-10 sm:mt-12">
-          <PricingTierCards showHeading={false} variant="light" />
+          <PricingTierCards showHeading={false} />
         </div>
 
         <div className="mt-10 text-center">

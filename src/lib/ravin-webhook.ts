@@ -109,7 +109,7 @@ function collectPhotoRefs(payload: unknown, refs: RavinPhotoRef[] = []): RavinPh
   if (!payload || typeof payload !== "object") return refs;
 
   if (Array.isArray(payload)) {
-    payload.forEach((entry, index) => {
+    payload.forEach((entry) => {
       if (typeof entry === "string" && isImageUrl(entry)) {
         refs.push({
           angle: `photo-${refs.length + 1}`,

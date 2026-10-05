@@ -425,7 +425,7 @@ function ReportHeader({ report }: { report: VehicleReport }) {
   return (
     <View style={styles.header}>
       <View>
-        <Image src={LOGO_BLUE} style={styles.logoHeader} />
+        <Image src={LOGO_BLUE} style={styles.logoHeader} alt="Auto Verifi" />
         <Text style={styles.headerTagline}>
           Past | Present | Future Vehicle Insights
         </Text>
@@ -448,7 +448,7 @@ function ReportFooter({
 }) {
   return (
     <View style={styles.footer} fixed>
-      <Image src={LOGO_BLUE} style={styles.footerLogo} />
+      <Image src={LOGO_BLUE} style={styles.footerLogo} alt="" />
       <Text style={styles.footerText}>
         {reportReference} · Autoverifi.com.au | {pageLabel}
       </Text>
@@ -545,6 +545,7 @@ function PdfVehicleHero({
           <Image
             src={heroSrc}
             style={useContain ? styles.statusImageContain : styles.statusImage}
+            alt=""
           />
           <Text style={styles.statusImageCaption}>
             *{vehicle.heroImageDisclaimer ?? VEHICLE_HERO_IMAGE_DISCLAIMER}
@@ -1157,7 +1158,11 @@ function InsightsPlusPage({
                 return (
                   <View key={`${photo.angle}-${photo.uploadedAt}`} style={styles.photoTile}>
                     {url ? (
-                      <Image src={url} style={styles.photoImage} />
+                      <Image
+                        src={url}
+                        style={styles.photoImage}
+                        alt={photo.label}
+                      />
                     ) : (
                       <View style={[styles.photoImage, { backgroundColor: LIGHT }]} />
                     )}
@@ -1180,7 +1185,11 @@ function InsightsPlusPage({
                 return (
                   <View key={i} style={styles.damageCard}>
                     {damageImageUrl ? (
-                      <Image src={damageImageUrl} style={styles.photoImage} />
+                      <Image
+                        src={damageImageUrl}
+                        style={styles.photoImage}
+                        alt={f.panel}
+                      />
                     ) : null}
                     <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 8.5 }}>
                       {f.panel}

@@ -126,93 +126,33 @@ function InspectionsDropdown({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-export function Header() {
+function HeaderMobileMenu({
+  isInspectionPage,
+  links,
+}: {
+  isInspectionPage: boolean;
+  links: typeof MAIN_LINKS | typeof INSPECTION_PAGE_LINKS;
+}) {
   const [open, setOpen] = useState(false);
   const [mobileInspectionsOpen, setMobileInspectionsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const pathname = usePathname();
-  const isInspectionPage = pathname.startsWith("/vehicleinspections");
-  const links = isInspectionPage ? INSPECTION_PAGE_LINKS : MAIN_LINKS;
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
-    setOpen(false);
-    setMobileInspectionsOpen(false);
-  }, [pathname]);
 
   return (
-    <header className="av-site-header fixed inset-x-0 top-0 z-50 bg-ink-950 px-3 py-3 sm:px-6">
-      <div
-        className={`mx-auto flex h-[4.25rem] max-w-6xl items-center justify-between gap-3 rounded-2xl border border-white/10 bg-ink-900 px-3 transition-shadow duration-300 sm:px-4 ${
-          scrolled
-            ? "shadow-[0_8px_30px_rgba(0,0,0,0.45)]"
-            : "shadow-[0_2px_16px_rgba(0,0,0,0.35)]"
-        }`}
+    <>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        aria-label={open ? "Close menu" : "Open menu"}
+        aria-expanded={open}
+        className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-ink-800 text-slate-200 transition hover:bg-white/5 md:hidden"
       >
-        <Logo height={48} priority variant="onDark" />
-
-        <nav className="hidden items-center gap-1 rounded-full border border-white/10 bg-ink-800/80 p-1 md:flex">
-          {links.map((l) => {
-            const active = l.href === "/pricing" && pathname === "/pricing";
-            return (
-              <Link
-                key={l.href}
-                href={l.href}
-                className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition ${
-                  active
-                    ? "bg-accent-500 text-white"
-                    : "text-slate-300 hover:bg-white/5 hover:text-white"
-                }`}
-              >
-                {l.label}
-              </Link>
-            );
-          })}
-          {!isInspectionPage && <InspectionsDropdown />}
-        </nav>
-
-        <div className="flex shrink-0 items-center gap-2">
-          {isInspectionPage ? (
-            <Link href="#contact" className={buyReportClass}>
-              Request an inspection
-              <ArrowRight
-                className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                aria-hidden
-              />
-            </Link>
-          ) : (
-            <HomeCheckLink className={buyReportClass}>
-              Buy Report
-              <ArrowRight
-                className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                aria-hidden
-              />
-            </HomeCheckLink>
-          )}
-
-          <button
-            onClick={() => setOpen((v) => !v)}
-            aria-label={open ? "Close menu" : "Open menu"}
-            aria-expanded={open}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-ink-800 text-slate-200 transition hover:bg-white/5 md:hidden"
-          >
-            {open ? (
-              <X className="h-5 w-5" aria-hidden />
-            ) : (
-              <Menu className="h-5 w-5" aria-hidden />
-            )}
-          </button>
-        </div>
-      </div>
+        {open ? (
+          <X className="h-5 w-5" aria-hidden />
+        ) : (
+          <Menu className="h-5 w-5" aria-hidden />
+        )}
+      </button>
 
       {open && (
-        <div className="mx-auto mt-2 max-w-6xl rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_20px_60px_rgba(15,23,42,0.12)] md:hidden">
+        <div className="fixed inset-x-3 top-[5.75rem] z-[60] mx-auto max-w-6xl rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_20px_60px_rgba(15,23,42,0.12)] sm:top-[6rem] sm:inset-x-6 md:hidden">
           <nav className="flex flex-col gap-1">
             {links.map((l) => (
               <Link
@@ -274,6 +214,80 @@ export function Header() {
           )}
         </div>
       )}
+    </>
+  );
+}
+
+export function Header() {
+  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+  const isInspectionPage = pathname.startsWith("/vehicleinspections");
+  const links = isInspectionPage ? INSPECTION_PAGE_LINKS : MAIN_LINKS;
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <header className="av-site-header fixed inset-x-0 top-0 z-50 bg-ink-950 px-3 py-3 sm:px-6">
+      <div
+        className={`mx-auto flex h-[4.25rem] max-w-6xl items-center justify-between gap-3 rounded-2xl border border-white/10 bg-ink-900 px-3 transition-shadow duration-300 sm:px-4 ${
+          scrolled
+            ? "shadow-[0_8px_30px_rgba(0,0,0,0.45)]"
+            : "shadow-[0_2px_16px_rgba(0,0,0,0.35)]"
+        }`}
+      >
+        <Logo height={48} priority variant="onDark" />
+
+        <nav className="hidden items-center gap-1 rounded-full border border-white/10 bg-ink-800/80 p-1 md:flex">
+          {links.map((l) => {
+            const active = l.href === "/pricing" && pathname === "/pricing";
+            return (
+              <Link
+                key={l.href}
+                href={l.href}
+                className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition ${
+                  active
+                    ? "bg-accent-500 text-white"
+                    : "text-slate-300 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                {l.label}
+              </Link>
+            );
+          })}
+          {!isInspectionPage && <InspectionsDropdown />}
+        </nav>
+
+        <div className="flex shrink-0 items-center gap-2">
+          {isInspectionPage ? (
+            <Link href="#contact" className={buyReportClass}>
+              Request an inspection
+              <ArrowRight
+                className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                aria-hidden
+              />
+            </Link>
+          ) : (
+            <HomeCheckLink className={buyReportClass}>
+              Buy Report
+              <ArrowRight
+                className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                aria-hidden
+              />
+            </HomeCheckLink>
+          )}
+
+          <HeaderMobileMenu
+            key={pathname}
+            isInspectionPage={isInspectionPage}
+            links={links}
+          />
+        </div>
+      </div>
     </header>
   );
 }

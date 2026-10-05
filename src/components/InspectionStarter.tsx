@@ -24,7 +24,9 @@ export function InspectionStarter({
   const [error, setError] = useState<string | null>(null);
   const [smsSent, setSmsSent] = useState(false);
   const [smsError, setSmsError] = useState<string | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(
+    () => Boolean(autoShowQr && initialInspectUrl),
+  );
   const autoStarted = useRef(false);
 
   const startInspection = useCallback(async (openModal: boolean) => {
@@ -78,13 +80,12 @@ export function InspectionStarter({
   useEffect(() => {
     if (!autoShowQr || autoStarted.current) return;
     autoStarted.current = true;
+    if (initialInspectUrl) return;
 
-    if (initialInspectUrl) {
-      setModalOpen(true);
-      return;
-    }
-
-    void startInspection(true);
+    const frame = requestAnimationFrame(() => {
+      void startInspection(true);
+    });
+    return () => cancelAnimationFrame(frame);
   }, [autoShowQr, initialInspectUrl, startInspection]);
 
   function openQrModal() {

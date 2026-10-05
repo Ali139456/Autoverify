@@ -43,6 +43,7 @@ function QrCodeImage({ value }: { value: string }) {
   }
 
   return (
+    // eslint-disable-next-line @next/next/no-img-element -- QR is a generated data URL
     <img
       src={src}
       alt="QR code to open the mobile condition check"
@@ -51,13 +52,12 @@ function QrCodeImage({ value }: { value: string }) {
   );
 }
 
-export function InspectionQrModal({
-  open,
+function InspectionQrModalContent({
   inspectUrl,
   reportId,
   defaultRecipientPhone = "",
   onClose,
-}: InspectionQrModalProps) {
+}: Omit<InspectionQrModalProps, "open">) {
   const [recipientPhone, setRecipientPhone] = useState(defaultRecipientPhone);
   const [showSmsForm, setShowSmsForm] = useState(false);
   const [smsLoading, setSmsLoading] = useState(false);
@@ -66,17 +66,6 @@ export function InspectionQrModal({
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (!open) return;
-    setRecipientPhone(defaultRecipientPhone);
-    setShowSmsForm(false);
-    setSmsSent(false);
-    setSmsError(null);
-    setCopied(false);
-  }, [open, inspectUrl, defaultRecipientPhone]);
-
-  useEffect(() => {
-    if (!open) return;
-
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
     };
@@ -87,7 +76,7 @@ export function InspectionQrModal({
       document.body.style.overflow = "";
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [open, onClose]);
+  }, [onClose]);
 
   async function copyLink() {
     await navigator.clipboard.writeText(inspectUrl);
@@ -118,8 +107,6 @@ export function InspectionQrModal({
       setSmsLoading(false);
     }
   }
-
-  if (!open) return null;
 
   return (
     <div
@@ -232,5 +219,25 @@ export function InspectionQrModal({
         )}
       </div>
     </div>
+  );
+}
+
+export function InspectionQrModal({
+  open,
+  inspectUrl,
+  reportId,
+  defaultRecipientPhone = "",
+  onClose,
+}: InspectionQrModalProps) {
+  if (!open) return null;
+
+  return (
+    <InspectionQrModalContent
+      key={`${inspectUrl}:${defaultRecipientPhone}`}
+      inspectUrl={inspectUrl}
+      reportId={reportId}
+      defaultRecipientPhone={defaultRecipientPhone}
+      onClose={onClose}
+    />
   );
 }

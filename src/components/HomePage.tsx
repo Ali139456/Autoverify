@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import {
   ArrowRight,
   BadgeDollarSign,
@@ -200,7 +199,7 @@ export function HomePage() {
             </p>
           </Reveal>
           <Reveal delay={150} className="mt-8 sm:mt-12">
-            <PricingTierCards showHeading={false} variant="light" />
+            <PricingTierCards showHeading={false} />
           </Reveal>
         </div>
       </section>

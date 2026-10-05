@@ -11,12 +11,12 @@ type HomeCheckLinkProps = Omit<ComponentProps<typeof Link>, "href"> & {
 };
 
 export function HomeCheckLink({
-  href: _href,
+  href: hrefProp,
   onClick,
   ...props
 }: HomeCheckLinkProps) {
   const pathname = usePathname();
-  const href = homeCheckHref(pathname);
+  const href = hrefProp ?? homeCheckHref(pathname);
 
   function handleClick(event: MouseEvent<HTMLAnchorElement>) {
     onClick?.(event);
