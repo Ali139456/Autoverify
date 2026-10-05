@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { HomeCheckLink } from "@/components/HomeCheckLink";
 import {
   formatTierPrice,
   REPORT_TIER_ORDER,
@@ -21,8 +22,6 @@ type PricingTierCardsProps = {
   /** When set, tier cards select a plan instead of paying inline. */
   onSelectTier?: (tier: ReportTier) => void;
   selectedTier?: ReportTier | null;
-  /** Use `#check` when cards are rendered on the homepage. */
-  homePage?: boolean;
 };
 
 export function PricingTierCards({
@@ -34,9 +33,7 @@ export function PricingTierCards({
   variant = "light",
   onSelectTier,
   selectedTier = null,
-  homePage = false,
 }: PricingTierCardsProps) {
-  const checkHref = homePage ? "#check" : "/#check";
   const checkoutId = identifier ?? rego;
   const checkoutReady = Boolean(checkoutId && (isVin || state));
 
@@ -64,11 +61,27 @@ export function PricingTierCards({
             variant={variant}
             onSelectTier={onSelectTier}
             selectedTier={selectedTier}
-            checkHref={checkHref}
           />
         ))}
       </div>
     </div>
+  );
+}
+
+function TierProductTitle({ tier }: { tier: ReportTier }) {
+  const lines =
+    tier === "insights_plus"
+      ? (["Auto Verifi", "Insights+", "Report"] as const)
+      : (["Auto Verifi", "Insights", "Report"] as const);
+
+  return (
+    <p className="text-sm font-semibold leading-snug text-slate-900 dark:text-white sm:text-base">
+      {lines.map((line) => (
+        <span key={line} className="block">
+          {line}
+        </span>
+      ))}
+    </p>
   );
 }
 
@@ -81,7 +94,6 @@ function TierCard({
   variant,
   onSelectTier,
   selectedTier,
-  checkHref,
 }: {
   tier: ReportTier;
   identifier?: string;
@@ -91,7 +103,6 @@ function TierCard({
   variant: "dark" | "light";
   onSelectTier?: (tier: ReportTier) => void;
   selectedTier?: ReportTier | null;
-  checkHref: string;
 }) {
   const config = getReportTierConfig(tier);
   const isPlus = tier === "insights_plus";
@@ -106,9 +117,9 @@ function TierCard({
   return (
     <div className={`${cardShell} ${cardBg} ${cardSelected}`}>
       <div className="flex min-h-0 flex-col gap-2 sm:min-h-[4.25rem] sm:flex-row sm:items-start sm:justify-between sm:gap-3">
-        <p className="min-w-0 text-sm font-semibold leading-snug text-slate-900 dark:text-white sm:flex-1 sm:text-base">
-          {config.name}
-        </p>
+        <div className="min-w-0 sm:flex-1">
+          <TierProductTitle tier={tier} />
+        </div>
         {isPlus ? (
           <span className="inline-flex w-fit max-w-full items-center gap-1.5 self-start rounded-full border border-accent-500/35 bg-accent-50 px-2.5 py-1 text-[10px] font-semibold leading-snug text-accent-800 shadow-sm dark:border-accent-400/45 dark:bg-accent-500/15 dark:text-accent-200 sm:max-w-[13rem] sm:gap-2 sm:px-3 sm:py-1.5 sm:text-[11px]">
             <Sparkles className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5" aria-hidden />
@@ -167,13 +178,12 @@ function TierCard({
             agreedTerms
           />
         ) : (
-          <Link
-            href={checkHref}
+          <HomeCheckLink
             className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-accent-600 sm:text-base"
           >
             Buy Report
             <ArrowRight className="h-4 w-4" aria-hidden />
-          </Link>
+          </HomeCheckLink>
         )}
         <SampleReportLink tier={tier} variant="outline" />
       </div>

@@ -4,10 +4,9 @@
 
 import {
 
+  ANCAP_SAFETY_RATINGS_URL,
   insightToneClass,
-
   type ReportInsight,
-
 } from "@/lib/report-design";
 
 import { InsightCategoryIcon } from "./ReportInsightIcon";
@@ -135,10 +134,20 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
 
         </div>
 
-        {note ? (
-
+        {insight.id === "ancap" && insight.status === "Not available" ? (
+          <p className="mt-2 text-[11px] leading-relaxed text-slate-600">
+            Verify ANCAP rating here:{" "}
+            <a
+              href={ANCAP_SAFETY_RATINGS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-[#0073E3] underline underline-offset-2"
+            >
+              {ANCAP_SAFETY_RATINGS_URL}
+            </a>
+          </p>
+        ) : note ? (
           <p className="mt-2 text-[11px] leading-relaxed text-slate-600">{note}</p>
-
         ) : null}
 
       </div>

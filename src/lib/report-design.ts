@@ -4,6 +4,7 @@ import type {
   FutureValueInfo,
   FutureValuePoint,
   InspectionPhoto,
+  VehicleIdentity,
   VehicleReport,
 } from "./types";
 
@@ -29,13 +30,78 @@ export type StatusCheck = {
 
 const money = (n: number) => `$${n.toLocaleString("en-AU")}`;
 
+export const ANCAP_SAFETY_RATINGS_URL = "https://www.ancap.com.au/safety-ratings";
+
+export const MANUFACTURERS_WARRANTY_NOTICE =
+  "Contact Authorised dealer/service centre and quote VIN to confirm remaining Manufacturers warranty.";
+
+/** Registration expiry for reports: DD-MM-YYYY (e.g. 16-02-2027). */
 export function formatExpiryDate(iso: string): string {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return iso;
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
+  const trimmed = iso.trim();
+  const ymd = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (ymd) {
+    return `${ymd[3]}-${ymd[2]}-${ymd[1]}`;
+  }
+  const date = new Date(trimmed);
+  if (Number.isNaN(date.getTime())) return trimmed;
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const year = date.getUTCFullYear();
   return `${day}-${month}-${year}`;
+}
+
+function formatVehicleCount(value: number | null | undefined): string {
+  if (value == null || Number.isNaN(value)) return "—";
+  return String(value);
+}
+
+export function resolveVehicleDoorAndSeatCounts(
+  vehicle: VehicleIdentity,
+  report?: Pick<VehicleReport, "vehicleSpec">,
+): { doors: string; passengers: string } {
+  let doors = vehicle.doors ?? null;
+  let seats = vehicle.seats ?? null;
+  const rows = report?.vehicleSpec?.dataRows ?? [];
+  for (const row of rows) {
+    if (doors == null && row.label === "Doors") {
+      const parsed = Number(String(row.value).replace(/[^\d]/g, ""));
+      if (Number.isFinite(parsed) && parsed > 0) doors = parsed;
+    }
+    if (seats == null && row.label === "Seats") {
+      const parsed = Number(String(row.value).replace(/[^\d]/g, ""));
+      if (Number.isFinite(parsed) && parsed > 0) seats = parsed;
+    }
+  }
+  return {
+    doors: formatVehicleCount(doors),
+    passengers: formatVehicleCount(seats),
+  };
+}
+
+export function buildReportOverviewSpecs(
+  vehicle: VehicleIdentity,
+  report?: Pick<VehicleReport, "vehicleSpec">,
+): { label: string; value: string }[] {
+  const { doors, passengers } = resolveVehicleDoorAndSeatCounts(vehicle, report);
+  return [
+    { label: "Make", value: vehicle.make },
+    { label: "Model", value: vehicle.model },
+    { label: "Badge", value: vehicle.variant || "—" },
+    { label: "Year", value: String(vehicle.year) },
+    { label: "VIN", value: vehicle.vin || "—" },
+    {
+      label: "Odometer",
+      value: vehicle.odometer ? `${vehicle.odometer.toLocaleString()} km` : "—",
+    },
+    { label: "Doors", value: doors },
+    { label: "Passengers", value: passengers },
+  ];
+}
+
+export function formatPPlateStatus(vehicle: VehicleIdentity): string {
+  const raw = vehicle.pPlateLegal?.trim();
+  if (raw) return raw;
+  return "Not available — check P plate rules for your state";
 }
 
 export function resolveFutureValue(report: VehicleReport): FutureValueInfo {
@@ -140,7 +206,7 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
       tone: vehicle.ancapRating ? "clear" : "neutral",
       detail: vehicle.ancapRating
         ? "ANCAP safety rating sourced from AutoGrab detailed vehicle specifications."
-        : "ANCAP rating was not available for this exact vehicle variant in AutoGrab.",
+        : undefined,
     },
     {
       id: "registration",

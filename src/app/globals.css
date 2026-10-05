@@ -312,8 +312,10 @@ html.dark body {
 }
 
 .report-spec-data-label {
-  background-color: #f8fafc;
+  background-color: #f1f5f9;
   border-right: 1px solid #e2e8f0;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
 }
 
 .report-ppsr-viewer {
@@ -408,9 +410,13 @@ html.dark body {
     box-sizing: border-box !important;
   }
 
-  /* Short pages: pin footer without forcing extra print sheets */
-  .report-shell-valuations {
+  /* Pin footer + logo to bottom of each logical printed page */
+  #report-print-area .report-shell:not(.report-shell-ppsr):not(.report-shell-spec) {
     min-height: 281mm !important;
+  }
+
+  #report-print-area .report-shell-spec {
+    min-height: auto !important;
   }
 
   #report-print-area > .report-page-break:last-child,
@@ -874,7 +880,7 @@ html.dark body {
   }
 
   .report-spec-data-label {
-    background-color: #f8fafc !important;
+    background-color: #f1f5f9 !important;
     border-right: 1px solid #e2e8f0 !important;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;

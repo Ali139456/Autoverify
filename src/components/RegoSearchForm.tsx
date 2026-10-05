@@ -9,6 +9,8 @@ import {
   isVin,
   parseVehicleIdentifier,
 } from "@/lib/vehicle-identifier";
+import { VEHICLE_SEARCH_INPUT_ID } from "@/lib/scroll-to-vehicle-search";
+import { VehicleSearchLoading } from "@/components/VehicleSearchLoading";
 
 const STATES = ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "ACT", "NT"];
 
@@ -82,7 +84,16 @@ export function RegoSearchForm({
         : "";
 
   return (
-    <form onSubmit={onSubmit} className="w-full">
+    <form onSubmit={onSubmit} className="relative w-full">
+      {loading ? (
+        <div
+          className={`absolute inset-0 z-20 flex items-center justify-center rounded-2xl ${
+            onDark ? "bg-ink-950/95" : "bg-white/95 dark:bg-ink-950/95"
+          }`}
+        >
+          <VehicleSearchLoading embedded />
+        </div>
+      ) : null}
       <div className={`relative w-full ${shellClass}`}>
         <div className="mb-1 grid grid-cols-2 gap-2 px-1 text-left">
           <span className={labelClass}>
@@ -96,6 +107,7 @@ export function RegoSearchForm({
         <div className="grid grid-cols-2 gap-2">
           <div className="relative min-w-0">
             <input
+              id={VEHICLE_SEARCH_INPUT_ID}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Enter Rego or VIN here"

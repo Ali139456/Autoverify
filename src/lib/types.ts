@@ -28,6 +28,8 @@ export interface VehicleIdentity {
   ancapRating?: string | null;
   warrantyRemaining?: string | null;
   pPlateLegal?: string | null;
+  doors?: number | null;
+  seats?: number | null;
   /** Hero / sample vehicle image for reports. */
   heroImageUrl?: string | null;
   /** Shown under hero images sourced from stock or generated catalog photos. */

@@ -7,6 +7,7 @@ import {
   tierStripeDescription,
 } from "@/lib/pricing";
 import { applyPercentDiscount, lookupPromoCode } from "@/lib/promo-codes";
+import { sendPurchaseConfirmationEmail } from "@/lib/email";
 import { generateReportId, saveReport } from "@/lib/store";
 import {
   getBaseUrl,
@@ -169,6 +170,24 @@ export async function POST(req: NextRequest) {
       report.status = "paid";
       await saveReport(report);
       return NextResponse.json({ url: `/report/${reportId}`, demo: true });
+    }
+
+    if (unitAmountCents <= 0) {
+      report.status = "paid";
+      await saveReport(report);
+      const baseUrl = getBaseUrl();
+      if (customerEmail) {
+        await sendPurchaseConfirmationEmail(report, customerEmail, {
+          emailContext: {
+            reportUrl: `${baseUrl}/report/${reportId}`,
+            pdfUrl: `${baseUrl}/api/report/${reportId}/pdf`,
+            amountPaidCents: 0,
+            currency: REPORT_CURRENCY,
+            paidAt: new Date(),
+          },
+        }).catch(() => null);
+      }
+      return NextResponse.json({ url: `/report/${reportId}` });
     }
 
     const stripe = getStripe();

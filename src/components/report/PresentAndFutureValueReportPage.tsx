@@ -6,6 +6,7 @@ import {
   resolveFutureValue,
 } from "@/lib/report-design";
 import { ReportShell } from "./ReportShell";
+import { ReportValuationSupplements } from "./ReportValuationSupplements";
 
 export function PresentAndFutureValueReportPage({
   report,
@@ -53,6 +54,9 @@ export function PresentAndFutureValueReportPage({
                 </p>
               </div>
             ))}
+          </div>
+          <div className="mt-5">
+            <ReportValuationSupplements report={report} />
           </div>
         </div>
 

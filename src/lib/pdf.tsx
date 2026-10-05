@@ -10,10 +10,18 @@ import {
   View,
 } from "@react-pdf/renderer";
 import { hasPpsrCertificate } from "./ppsr-certificate";
+import {
+  evaluateRideShareQuickEligibility,
+  RIDE_SHARE_ELIGIBILITY_ROWS,
+} from "./ride-share-eligibility";
 import { hasVehicleSpecContent } from "./vehicle-spec-sheet";
 import {
   buildKeyInsights,
+  ANCAP_SAFETY_RATINGS_URL,
+  buildReportOverviewSpecs,
   buildStatusChecks,
+  formatPPlateStatus,
+  MANUFACTURERS_WARRANTY_NOTICE,
   formatReportDate,
   formatReportReference,
   futureValueConfidenceLabel,
@@ -37,6 +45,8 @@ import type { InspectionPhoto } from "./types";
 const BLUE = "#0073E3";
 const GREY = "#64748b";
 const LIGHT = "#f8fafc";
+const SPEC_LABEL_BG = "#f1f5f9";
+const RIDE_SHARE_ORANGE = "#E87722";
 const LOGO_BLUE = path.join(process.cwd(), "public/logo/logo-blue-on-white.png");
 
 const styles = StyleSheet.create({
@@ -92,6 +102,7 @@ const styles = StyleSheet.create({
   specBar: {
     marginTop: 14,
     flexDirection: "row",
+    flexWrap: "wrap",
     borderWidth: 1,
     borderColor: "#e2e8f0",
     borderRadius: 8,
@@ -99,7 +110,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   specItem: {
-    width: "16.66%",
+    width: "25%",
     paddingVertical: 8,
     paddingHorizontal: 8,
     borderRightWidth: 1,
@@ -280,7 +291,7 @@ const styles = StyleSheet.create({
   },
   specSheetLabelCell: {
     width: "42%",
-    backgroundColor: LIGHT,
+    backgroundColor: SPEC_LABEL_BG,
     borderRightWidth: 1,
     borderRightColor: "#e2e8f0",
     paddingVertical: 4,
@@ -476,7 +487,22 @@ function PdfInsightGrid({ insights }: { insights: ReportInsight[] }) {
                       {insight.statusSubtext}
                     </Text>
                   ) : null}
-                  {footnote ? (
+                  {insight.id === "ancap" && insight.status === "Not available" ? (
+                    <Text
+                      style={{
+                        marginTop: 3,
+                        fontSize: 7,
+                        color: GREY,
+                        fontFamily: "Helvetica",
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      Verify ANCAP rating here:{" "}
+                      <Link src={ANCAP_SAFETY_RATINGS_URL}>
+                        {ANCAP_SAFETY_RATINGS_URL}
+                      </Link>
+                    </Text>
+                  ) : footnote ? (
                     <Text
                       style={{
                         marginTop: 3,
@@ -544,6 +570,203 @@ function PdfVehicleHero({
   );
 }
 
+function PdfManufacturersWarrantyNotice() {
+  return (
+    <View
+      style={{
+        marginTop: 8,
+        padding: 10,
+        backgroundColor: LIGHT,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: "#e2e8f0",
+      }}
+      wrap={false}
+    >
+      <Text
+        style={{
+          fontSize: 9,
+          fontFamily: "Helvetica-Bold",
+          color: RIDE_SHARE_ORANGE,
+        }}
+      >
+        Manufacturers Warranty Remaining
+      </Text>
+      <Text
+        style={{
+          marginTop: 4,
+          fontSize: 8,
+          color: "#475569",
+          lineHeight: 1.45,
+        }}
+      >
+        {MANUFACTURERS_WARRANTY_NOTICE}
+      </Text>
+    </View>
+  );
+}
+
+function PdfRideShareEligibilitySummary({ report }: { report: VehicleReport }) {
+  const check = evaluateRideShareQuickEligibility(
+    report.vehicle,
+    report,
+    new Date(report.createdAt).getFullYear(),
+  );
+
+  return (
+    <View style={{ marginTop: 10 }} wrap={false}>
+      <Text style={[styles.sectionTitle, { fontSize: 8 }]}>
+        Ride share eligibility
+      </Text>
+      {check.allEligible ? (
+        <View style={{ marginTop: 4 }}>
+          {[
+            "Age — eligible",
+            "Doors — eligible",
+            "Passenger capacity — eligible",
+          ].map((line) => (
+            <Text
+              key={line}
+              style={{
+                fontSize: 8.5,
+                fontFamily: "Helvetica-Bold",
+                color: RIDE_SHARE_ORANGE,
+                marginTop: 2,
+              }}
+            >
+              {line}
+            </Text>
+          ))}
+          <Text
+            style={{
+              marginTop: 4,
+              fontSize: 8.5,
+              fontFamily: "Helvetica-Bold",
+              color: RIDE_SHARE_ORANGE,
+            }}
+          >
+            ✓ Check remaining requirements
+          </Text>
+          <Text
+            style={{
+              marginTop: 2,
+              fontSize: 7.5,
+              fontFamily: "Helvetica-Bold",
+              color: RIDE_SHARE_ORANGE,
+            }}
+          >
+            Refer table below.
+          </Text>
+        </View>
+      ) : (
+        <Text style={{ marginTop: 4, fontSize: 7.5, color: GREY }}>
+          This vehicle did not pass all quick age, door and passenger checks.
+          See the ride share requirements table below.
+        </Text>
+      )}
+    </View>
+  );
+}
+
+function PdfValuationSupplements({ report }: { report: VehicleReport }) {
+  const pPlateStatus = formatPPlateStatus(report.vehicle);
+  return (
+    <View style={{ marginTop: 8 }} wrap={false}>
+      <Text style={[styles.sectionTitle, { fontSize: 8 }]}>P plate status</Text>
+      <View
+        style={{
+          marginTop: 4,
+          borderWidth: 1,
+          borderColor: "#e2e8f0",
+          borderRadius: 6,
+          overflow: "hidden",
+        }}
+      >
+        <View style={{ flexDirection: "row" }}>
+          <View
+            style={{
+              width: "36%",
+              backgroundColor: SPEC_LABEL_BG,
+              padding: 5,
+              borderRightWidth: 1,
+              borderRightColor: "#e2e8f0",
+            }}
+          >
+            <Text style={styles.specSheetLabel}>P plate eligibility</Text>
+          </View>
+          <View style={{ flex: 1, padding: 5 }}>
+            <Text style={styles.specSheetValue}>{pPlateStatus}</Text>
+          </View>
+        </View>
+      </View>
+
+      <Text style={[styles.sectionTitle, { marginTop: 8, fontSize: 8 }]}>
+        Ride share ready — eligibility requirements
+      </Text>
+      <Text style={{ fontSize: 6.5, color: GREY, marginTop: 2 }}>
+        Platform rules for NSW (information only).
+      </Text>
+      <View
+        style={{
+          marginTop: 4,
+          borderWidth: 1,
+          borderColor: "#e2e8f0",
+          borderRadius: 6,
+        }}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            backgroundColor: LIGHT,
+            borderBottomWidth: 1,
+            borderBottomColor: "#e2e8f0",
+            padding: 4,
+          }}
+        >
+          <Text style={{ width: "28%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
+            Requirement
+          </Text>
+          <Text style={{ width: "36%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
+            UberX
+          </Text>
+          <Text style={{ width: "36%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
+            DiDi
+          </Text>
+        </View>
+        {RIDE_SHARE_ELIGIBILITY_ROWS.map((row, index) => (
+          <View
+            key={row.requirement}
+            style={{
+              flexDirection: "row",
+              borderTopWidth: index === 0 ? 0 : 1,
+              borderTopColor: "#e2e8f0",
+              alignItems: "flex-start",
+            }}
+          >
+            <View
+              style={{
+                width: "28%",
+                backgroundColor: SPEC_LABEL_BG,
+                padding: 4,
+                borderRightWidth: 1,
+                borderRightColor: "#e2e8f0",
+              }}
+            >
+              <Text style={styles.specSheetLabel}>{row.requirement}</Text>
+            </View>
+            <Text style={{ width: "36%", fontSize: 6.5, padding: 4, color: "#334155" }}>
+              {row.uberX}
+            </Text>
+            <Text style={{ width: "36%", fontSize: 6.5, padding: 4, color: "#334155" }}>
+              {row.didi}
+            </Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
 function CarInsightsOverviewPage({
   report,
   pageLabel,
@@ -552,17 +775,7 @@ function CarInsightsOverviewPage({
   pageLabel: string;
 }) {
   const { vehicle } = report;
-  const specs = [
-    { label: "Make", value: vehicle.make },
-    { label: "Model", value: vehicle.model },
-    { label: "Badge", value: vehicle.variant || "—" },
-    { label: "Year", value: String(vehicle.year) },
-    { label: "VIN", value: vehicle.vin || "—" },
-    {
-      label: "Odometer",
-      value: vehicle.odometer ? `${vehicle.odometer.toLocaleString()} km` : "—",
-    },
-  ];
+  const specs = buildReportOverviewSpecs(vehicle, report);
   const statusChecks = buildStatusChecks(report);
   const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
 
@@ -614,6 +827,8 @@ function CarInsightsOverviewPage({
           </View>
           <PdfVehicleHero vehicle={vehicle} vehicleTitle={vehicleTitle} />
         </View>
+
+        <PdfRideShareEligibilitySummary report={report} />
       </View>
       <ReportFooter
         pageLabel={pageLabel}
@@ -654,6 +869,7 @@ function CarInsightsInsightsAndDetailsPage({
         </View>
         <Text style={[styles.subtitle, { marginTop: 4 }]}>Key insights — {vehicleTitle}</Text>
         <PdfInsightGrid insights={insights} />
+        <PdfManufacturersWarrantyNotice />
 
         <View style={[styles.section, { marginTop: 10 }]}>
           <Text style={styles.sectionTitle}>
@@ -674,6 +890,8 @@ function CarInsightsInsightsAndDetailsPage({
             ))}
           </View>
         </View>
+
+        <PdfValuationSupplements report={report} />
 
         {showFutureValue ? (
           <View style={[styles.section, { marginTop: 10 }]}>

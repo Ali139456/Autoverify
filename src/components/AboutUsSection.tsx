@@ -22,7 +22,9 @@ export function AboutUsSection() {
             Built on decades of{" "}
             <span className="text-accent-500 dark:text-accent-400">automotive expertise</span>
           </h2>
-          <p className="mt-4 text-sm leading-relaxed text-slate-600 dark:text-slate-400 sm:text-base">
+        </Reveal>
+        <Reveal className="mx-auto mt-4 max-w-3xl text-left">
+          <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400 sm:text-base">
             {INTRO}
           </p>
         </Reveal>
@@ -55,7 +57,10 @@ export function AboutUsSection() {
                   of Mechanical Engineers and a licensed panel beater. Theo has a
                   successful track record in automotive services, co-founding
                   Australia&apos;s leading vehicle inspections business, RedBook
-                  Inspect, which was acquired by an ASX Top 50 company.
+                  Inspect, which was acquired by an ASX Top 50 company. Theo is
+                  passionate about all things auto, using his knowledge to improve
+                  road safety outcomes, and developing market leading customer
+                  experiences in the car buying process.
                 </p>
               </div>
             </div>
@@ -72,14 +77,17 @@ export function AboutUsSection() {
                   Denise Cosmetatos
                 </h3>
                 <p className="mt-4 text-sm leading-relaxed text-slate-600 dark:text-slate-300 sm:text-base">
-                  With over 25 years of experience in the finance, investment,
-                  technology and advisory industries, Denise holds a Bachelor of
-                  Commerce, is a CPA, has a PWC Audit lead accreditation and has
-                  completed her Graduate Diploma in Financial markets with FINSIA.
-                  After holding senior positions in the finance and investment
-                  management industry, Denise co-founded Australia&apos;s leading
-                  vehicle inspections business, RedBook Inspect, which was acquired
-                  by an ASX Top 50 company.
+                  With over 25 years of experience in the finance, investment, and
+                  advisory industries, Denise holds a Bachelor of Commerce, is a
+                  CPA, has a PWC Audit lead accreditation and has completed her
+                  Graduate Diploma in Financial markets with FINSIA. After holding
+                  senior positions in the finance and investment management industry,
+                  Denise co-founded and built Australia&apos;s leading vehicle
+                  inspections business, RedBook Inspect, which was acquired by an
+                  ASX Top 50 company. With over 10 years of experience in Automotive
+                  Services and Tech, Denise is passionate about research in road
+                  safety, innovation in the auto industry and delivering market
+                  leading customer experiences across the car buying journey.
                 </p>
               </div>
               <div className="order-1 mx-auto lg:order-2 lg:mx-0">

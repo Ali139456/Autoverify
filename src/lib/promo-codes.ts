@@ -4,9 +4,9 @@ export type PromoCodeDefinition = {
   label: string;
 };
 
-/** Denise promo codes — both apply 10% off Insights and Insights+ (inc. GST). */
+/** Denise promo codes for Insights and Insights+ (amounts inc. GST). */
 const PROMO_CODES: PromoCodeDefinition[] = [
-  { code: "AVFREE", percentOff: 10, label: "10% off" },
+  { code: "AVFREE", percentOff: 100, label: "Free" },
   { code: "AVCLUB", percentOff: 10, label: "10% off" },
 ];
 

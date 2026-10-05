@@ -1,0 +1,82 @@
+import { formatPPlateStatus } from "@/lib/report-design";
+import { RIDE_SHARE_ELIGIBILITY_ROWS } from "@/lib/ride-share-eligibility";
+import type { VehicleReport } from "@/lib/types";
+
+export function ReportValuationSupplements({
+  report,
+}: {
+  report: VehicleReport;
+}) {
+  const pPlateStatus = formatPPlateStatus(report.vehicle);
+
+  return (
+    <div className="report-valuation-supplements space-y-5">
+      <div className="report-pplate-status rounded-xl border border-slate-200 bg-slate-50 p-5">
+        <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">
+          P plate status
+        </h3>
+        <div className="mt-3 overflow-hidden rounded-lg border border-slate-200 bg-white">
+          <table className="w-full text-left text-sm">
+            <tbody>
+              <tr className="border-b border-slate-100">
+                <th
+                  scope="row"
+                  className="report-spec-data-label w-[38%] px-4 py-2.5 font-medium text-slate-600"
+                >
+                  P plate eligibility
+                </th>
+                <td className="px-4 py-2.5 font-semibold text-slate-900">
+                  {pPlateStatus}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="report-rideshare-eligibility rounded-xl border border-slate-200 bg-slate-50 p-5">
+        <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">
+          Ride share ready — eligibility requirements
+        </h3>
+        <p className="mt-1 text-[10px] leading-relaxed text-slate-400">
+          Platform rules for NSW (information only). Final eligibility is determined
+          by Uber and DiDi.
+        </p>
+        <div className="mt-3 overflow-x-auto rounded-lg border border-slate-200 bg-white">
+          <table className="min-w-[640px] w-full border-collapse text-left text-xs sm:text-sm">
+            <thead>
+              <tr className="border-b border-slate-200 bg-slate-50">
+                <th className="px-3 py-2.5 font-bold uppercase tracking-wide text-slate-500 sm:px-4">
+                  Eligibility requirement
+                </th>
+                <th className="px-3 py-2.5 font-bold uppercase tracking-wide text-slate-500 sm:px-4">
+                  UberX
+                </th>
+                <th className="px-3 py-2.5 font-bold uppercase tracking-wide text-slate-500 sm:px-4">
+                  DiDi
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {RIDE_SHARE_ELIGIBILITY_ROWS.map((row) => (
+                <tr
+                  key={row.requirement}
+                  className="border-t border-slate-100 align-top"
+                >
+                  <th
+                    scope="row"
+                    className="report-spec-data-label px-3 py-2.5 font-medium text-slate-600 sm:px-4"
+                  >
+                    {row.requirement}
+                  </th>
+                  <td className="px-3 py-2.5 text-slate-700 sm:px-4">{row.uberX}</td>
+                  <td className="px-3 py-2.5 text-slate-700 sm:px-4">{row.didi}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}

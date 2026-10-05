@@ -1,3 +1,4 @@
+import { formatExpiryDate } from "./report-design";
 import type {
   RegistrationInfo,
   VehicleFactoryFeature,
@@ -65,7 +66,13 @@ export function buildVehicleSpecSheet(input: {
     "Registration status",
     registration.status === "Registered" ? "Registered" : registration.status,
   );
-  pushRow(dataRows, "Registration expiry", registration.expiryDate);
+  pushRow(
+    dataRows,
+    "Registration expiry",
+    registration.expiryDate
+      ? formatExpiryDate(registration.expiryDate)
+      : null,
+  );
 
   pushRow(dataRows, "Model year", vehicleRecord.model_year);
   pushRow(dataRows, "Release year", vehicleRecord.release_year);

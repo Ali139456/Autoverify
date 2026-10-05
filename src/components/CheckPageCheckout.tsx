@@ -22,7 +22,7 @@ export function CheckPageCheckout({
     if (initialTier === "insights_plus") {
       requestAnimationFrame(() => {
         document
-          .getElementById("booking-payment")
+          .getElementById("checkout-details")
           ?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     }
@@ -32,7 +32,7 @@ export function CheckPageCheckout({
     setSelectedTier(tier);
     requestAnimationFrame(() => {
       document
-        .getElementById("booking-payment")
+        .getElementById("checkout-details")
         ?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   }

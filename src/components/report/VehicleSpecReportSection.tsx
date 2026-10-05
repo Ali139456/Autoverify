@@ -45,7 +45,7 @@ export function VehicleSpecReportSection({ report }: { report: VehicleReport }) 
                 key={row.label}
                 className="report-spec-data-row grid grid-cols-[minmax(0,42%)_1fr] border-t border-slate-200 text-sm first:border-t-0"
               >
-                <dt className="report-spec-data-label border-r border-slate-200 bg-slate-50 px-4 py-2.5 font-medium text-slate-600">
+                <dt className="report-spec-data-label px-4 py-2.5 font-medium text-slate-600">
                   {row.label}
                 </dt>
                 <dd className="bg-white px-4 py-2.5 font-semibold text-slate-900">

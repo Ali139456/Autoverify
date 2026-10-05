@@ -568,7 +568,15 @@ function mapVehicleIdentityFromVin(
     engine: String(vehicle.engine ?? ""),
     colour: resolveVehicleColour(vinData, vehicle),
     odometer: null,
+    doors: parseOptionalCount(vehicle.num_doors),
+    seats: parseOptionalCount(vehicle.num_seats),
   };
+}
+
+function parseOptionalCount(value: unknown): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? Math.round(n) : null;
 }
 
 function stringFromRecord(value: unknown): string | null {
@@ -698,6 +706,8 @@ function mapVehicleIdentity(
     engine: String(vehicle.engine ?? ""),
     colour: resolveVehicleColour(registrationData, vehicle),
     odometer: null,
+    doors: parseOptionalCount(vehicle.num_doors),
+    seats: parseOptionalCount(vehicle.num_seats),
   };
 }
 

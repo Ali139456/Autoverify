@@ -95,9 +95,12 @@ export function CheckoutBookingForm({
     setPromoCode(match.code);
   }
 
-  const payLabel = activePromo
-    ? `Pay securely — ${formatCents(totalCents)}`
-    : "Pay securely — Buy Report";
+  const payLabel =
+    totalCents <= 0
+      ? "Confirm — Free report"
+      : activePromo
+        ? `Pay securely — ${formatCents(totalCents)}`
+        : "Pay securely — Buy Report";
 
 
 
@@ -532,7 +535,7 @@ export function CheckoutBookingForm({
             </div>
             {activePromo ? (
               <p className="text-xs font-medium text-accent-600 dark:text-accent-400">
-                Code {activePromo.code} applied ({activePromo.percentOff}% off, incl. GST)
+                Code {activePromo.code} applied ({activePromo.label}, incl. GST)
               </p>
             ) : null}
           </div>
@@ -553,7 +556,7 @@ export function CheckoutBookingForm({
                   }
                 }}
                 className={inputClass}
-                placeholder="AVFREE or AVCLUB"
+                placeholder="Enter discount code"
                 autoComplete="off"
                 spellCheck={false}
               />

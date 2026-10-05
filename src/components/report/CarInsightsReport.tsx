@@ -16,6 +16,8 @@ import {
 
   buildKeyInsights,
 
+  buildReportOverviewSpecs,
+
   buildStatusChecks,
   formatReportReference,
 
@@ -39,6 +41,9 @@ import { ReportInsightCard } from "./ReportInsightCard";
 
 import { ReportShell } from "./ReportShell";
 
+import { ReportManufacturersWarrantyNotice } from "./ReportManufacturersWarrantyNotice";
+import { ReportRideShareEligibilitySummary } from "./ReportRideShareEligibilitySummary";
+import { ReportValuationSupplements } from "./ReportValuationSupplements";
 import { VehicleHeroImage } from "./VehicleHeroImage";
 
 
@@ -145,27 +150,7 @@ export function CarInsightsReport({
 
 
 
-  const specs = [
-
-    { label: "Make", value: vehicle.make },
-
-    { label: "Model", value: vehicle.model },
-
-    { label: "Badge", value: vehicle.variant || "—" },
-
-    { label: "Year", value: String(vehicle.year) },
-
-    { label: "VIN", value: vehicle.vin || "—" },
-
-    {
-
-      label: "Odometer",
-
-      value: vehicle.odometer ? `${vehicle.odometer.toLocaleString()} km` : "—",
-
-    },
-
-  ];
+  const specs = buildReportOverviewSpecs(vehicle, report);
 
 
 
@@ -217,7 +202,7 @@ export function CarInsightsReport({
 
 
 
-        <div className="report-spec-bar grid grid-cols-2 divide-x divide-y divide-slate-200 rounded-xl border border-slate-200 bg-slate-50 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="report-spec-bar grid grid-cols-2 divide-x divide-y divide-slate-200 rounded-xl border border-slate-200 bg-slate-50 sm:grid-cols-4">
 
           {specs.map(({ label, value }, i) => (
 
@@ -225,7 +210,7 @@ export function CarInsightsReport({
 
               key={label}
 
-              className={`min-w-0 px-4 py-3 first:pl-4 ${label === "VIN" ? "col-span-2 lg:col-span-2" : ""}`}
+              className={`min-w-0 px-4 py-3 first:pl-4 ${label === "VIN" ? "col-span-2 sm:col-span-2" : ""}`}
 
             >
 
@@ -328,7 +313,7 @@ export function CarInsightsReport({
 
         </div>
 
-
+        <ReportRideShareEligibilitySummary report={report} />
 
         <div className="report-insights-section">
 
@@ -360,7 +345,7 @@ export function CarInsightsReport({
 
         </div>
 
-
+        <ReportManufacturersWarrantyNotice />
 
         {!deferValuations ? (
 
@@ -406,6 +391,10 @@ export function CarInsightsReport({
 
               ))}
 
+            </div>
+
+            <div className="mt-5">
+              <ReportValuationSupplements report={report} />
             </div>
 
           </div>

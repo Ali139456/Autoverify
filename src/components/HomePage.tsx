@@ -8,20 +8,19 @@ import {
   CarFront,
   FileText,
   History,
-  Sparkles,
   TrendingUp,
 } from "lucide-react";
 import { AboutUsSection } from "@/components/AboutUsSection";
 import { HomeCheckLink } from "@/components/HomeCheckLink";
 import { PricingTierCards } from "@/components/PricingTierCards";
 import { HeroCheckLead } from "@/components/HeroCheckLead";
+import { ScrollToCheckOnHash } from "@/components/ScrollToCheckOnHash";
 import { Reveal } from "@/components/Reveal";
 import { formatTierPrice } from "@/lib/pricing";
 
 const INSIGHT_PILLARS = [
   {
-    label: "Past",
-    summary: "Available history and recorded events associated with the vehicle.",
+    id: "past",
     items: [
       {
         icon: History,
@@ -36,8 +35,7 @@ const INSIGHT_PILLARS = [
     ],
   },
   {
-    label: "Present",
-    summary: "Identification, specification, condition and market context today.",
+    id: "present",
     items: [
       {
         icon: BadgeDollarSign,
@@ -49,16 +47,10 @@ const INSIGHT_PILLARS = [
         title: "Market comparables",
         text: "Similar cars for sale — price, kilometres and time on market.",
       },
-      {
-        icon: Camera,
-        title: "AI powered condition scan",
-        text: "Guided photos to assess exterior, tyres and interior (Insights+).",
-      },
     ],
   },
   {
-    label: "Future",
-    summary: "Data-driven outlook to support longer-term buying decisions.",
+    id: "future",
     items: [
       {
         icon: TrendingUp,
@@ -66,9 +58,9 @@ const INSIGHT_PILLARS = [
         text: "Predicted valuation at 1, 3 and 5 years based on market models (Insights+).",
       },
       {
-        icon: Sparkles,
-        title: "Professional PDF report",
-        text: "Past, present and future insights in one report you can download and share.",
+        icon: Camera,
+        title: "AI powered condition scan",
+        text: "Guided photos to assess exterior, tyres and interior (Insights+).",
       },
     ],
   },
@@ -127,6 +119,7 @@ export function HomePage() {
         id="check"
         className="relative scroll-mt-24 overflow-x-clip bg-ink-950"
       >
+        <ScrollToCheckOnHash />
         <div className="pointer-events-none absolute -top-40 left-1/2 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-accent-500/15 blur-[140px]" />
 
         <div className="relative mx-auto max-w-6xl px-4 pb-8 pt-8 sm:px-6 sm:pb-10 sm:pt-14 lg:pb-12 lg:pt-20">
@@ -161,21 +154,10 @@ export function HomePage() {
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
               Report <span className="text-accent-500">Features</span>
             </h2>
-            <p className="mt-3 text-sm text-slate-600 dark:text-slate-400 sm:text-base">
-              Past | Present | Future Vehicle Insights
-            </p>
           </Reveal>
-          <div className="mt-6 grid gap-6 sm:mt-8 lg:grid-cols-3 lg:gap-8">
+          <div className="mt-6 grid gap-4 sm:mt-8 sm:gap-6 lg:grid-cols-3 lg:gap-8">
             {INSIGHT_PILLARS.map((pillar, pillarIndex) => (
-              <Reveal key={pillar.label} delay={pillarIndex * 120} className="space-y-4">
-                <div className="border-l-4 border-accent-500 pl-4">
-                  <h3 className="text-lg font-extrabold uppercase tracking-wide text-slate-900 dark:text-white">
-                    {pillar.label}
-                  </h3>
-                  <p className="mt-1 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                    {pillar.summary}
-                  </p>
-                </div>
+              <Reveal key={pillar.id} delay={pillarIndex * 120} className="space-y-4">
                 <ul className="space-y-4">
                   {pillar.items.map(({ icon: Icon, title, text }) => (
                     <li
@@ -218,7 +200,7 @@ export function HomePage() {
             </p>
           </Reveal>
           <Reveal delay={150} className="mt-8 sm:mt-12">
-            <PricingTierCards showHeading={false} variant="light" homePage />
+            <PricingTierCards showHeading={false} variant="light" />
           </Reveal>
         </div>
       </section>

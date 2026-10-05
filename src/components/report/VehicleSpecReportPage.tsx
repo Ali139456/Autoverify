@@ -19,6 +19,7 @@ export function VehicleSpecReportPage({
       generatedAt={report.createdAt}
       reportReference={formatReportReference(report.vehicle)}
       pageLabel={pageLabel}
+      className="report-shell-spec"
     >
       <VehicleSpecReportSection report={report} />
     </ReportShell>

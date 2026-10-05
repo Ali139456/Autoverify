@@ -97,7 +97,9 @@ function buildMercedesSampleCore() {
     odometerSource: "Provided at purchase (sample report).",
     ancapRating: null,
     warrantyRemaining: null,
-    pPlateLegal: null,
+    pPlateLegal: "Check state restrictions for P plate drivers",
+    doors: 4,
+    seats: 5,
     heroImageUrl: sampleAssetUrl("c300-hero.jpg"),
     heroImageDisclaimer:
       "Illustrative sample image — 2022 Mercedes-Benz C-Class C300 (reference photos).",
@@ -170,7 +172,7 @@ function buildMercedesSampleCore() {
   const vehicleSpec = buildVehicleSpecSheet({
     vehicle,
     registration,
-    vehicleRecord: {},
+    vehicleRecord: { num_doors: 4, num_seats: 5 },
     registrationData: {},
     detailedSpecs: [
       { description: "Body", value: "Sedan" },
