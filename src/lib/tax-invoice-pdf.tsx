@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text -- @react-pdf/renderer Image has no alt prop */
 import React from "react";
 import path from "path";
 import {
@@ -252,7 +253,7 @@ export function TaxInvoicePdf({
       <Page size="A4" style={styles.page}>
         <View style={styles.topRow}>
           <View>
-            <Image src={LOGO} style={styles.logo} alt="Auto Verifi" />
+            <Image src={LOGO} style={styles.logo} />
             <Text style={styles.tagline}>
               Past | Present | Future Vehicle Insights
             </Text>
@@ -329,7 +330,7 @@ export function TaxInvoicePdf({
         </View>
 
         <View style={styles.pageFooter} fixed>
-          <Image src={LOGO} style={styles.footerLogo} alt="" />
+          <Image src={LOGO} style={styles.footerLogo} />
           <Text style={styles.footerMeta}>{company.website}</Text>
         </View>
       </Page>
