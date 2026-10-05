@@ -1,5 +1,5 @@
 import type { VehicleIdentity, VehicleReport } from "./types";
-import { resolveVehicleDoorAndSeatCounts } from "./report-design";
+import { resolveVehicleDoorAndSeatCounts } from "./vehicle-door-seats";
 
 export type RideShareEligibilityRow = {
   requirement: string;

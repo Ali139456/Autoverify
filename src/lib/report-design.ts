@@ -1,5 +1,7 @@
 import { buildEstimatedFutureValue } from "./autograb";
 import { hasDamageAnalysis, resolveReportTier } from "./pricing";
+import { evaluateRideShareQuickEligibility } from "./ride-share-eligibility";
+import { resolveVehicleDoorAndSeatCounts } from "./vehicle-door-seats";
 import type {
   FutureValueInfo,
   FutureValuePoint,
@@ -10,6 +12,17 @@ import type {
 
 export type InsightStatus = "clear" | "warn" | "info" | "neutral";
 
+export type ReportInsightLineVariant =
+  | "eligible"
+  | "action"
+  | "ineligible"
+  | "muted";
+
+export type ReportInsightLine = {
+  text: string;
+  variant: ReportInsightLineVariant;
+};
+
 export type ReportInsight = {
   id: string;
   title: string;
@@ -18,6 +31,8 @@ export type ReportInsight = {
   statusSubtext?: string;
   tone: InsightStatus;
   detail?: string;
+  /** Multi-line body (e.g. ride share quick checks). Replaces default status row when set. */
+  lines?: ReportInsightLine[];
 };
 
 export type StatusCheck = {
@@ -50,33 +65,7 @@ export function formatExpiryDate(iso: string): string {
   return `${day}-${month}-${year}`;
 }
 
-function formatVehicleCount(value: number | null | undefined): string {
-  if (value == null || Number.isNaN(value)) return "—";
-  return String(value);
-}
-
-export function resolveVehicleDoorAndSeatCounts(
-  vehicle: VehicleIdentity,
-  report?: Pick<VehicleReport, "vehicleSpec">,
-): { doors: string; passengers: string } {
-  let doors = vehicle.doors ?? null;
-  let seats = vehicle.seats ?? null;
-  const rows = report?.vehicleSpec?.dataRows ?? [];
-  for (const row of rows) {
-    if (doors == null && row.label === "Doors") {
-      const parsed = Number(String(row.value).replace(/[^\d]/g, ""));
-      if (Number.isFinite(parsed) && parsed > 0) doors = parsed;
-    }
-    if (seats == null && row.label === "Seats") {
-      const parsed = Number(String(row.value).replace(/[^\d]/g, ""));
-      if (Number.isFinite(parsed) && parsed > 0) seats = parsed;
-    }
-  }
-  return {
-    doors: formatVehicleCount(doors),
-    passengers: formatVehicleCount(seats),
-  };
-}
+export { resolveVehicleDoorAndSeatCounts } from "./vehicle-door-seats";
 
 export function buildReportOverviewSpecs(
   vehicle: VehicleIdentity,
@@ -124,6 +113,48 @@ export function futureValueConfidenceLabel(future: FutureValueInfo): string {
   if (future.source === "autograb" && score >= 0.85) return "High";
   if (future.source === "autograb") return "Medium";
   return "Estimated";
+}
+
+function buildRideShareKeyInsight(report: VehicleReport): ReportInsight {
+  const check = evaluateRideShareQuickEligibility(
+    report.vehicle,
+    report,
+    new Date(report.createdAt).getFullYear(),
+  );
+
+  const quickLine = (label: string, eligible: boolean): ReportInsightLine => ({
+    text: eligible ? `${label} — eligible` : `${label} — check requirements`,
+    variant: eligible ? "eligible" : "ineligible",
+  });
+
+  if (check.allEligible) {
+    return {
+      id: "rideshare",
+      title: "Ride Share Eligibility",
+      status: "",
+      tone: "clear",
+      lines: [
+        { text: "Age — eligible", variant: "eligible" },
+        { text: "Doors — eligible", variant: "eligible" },
+        { text: "Passenger capacity — eligible", variant: "eligible" },
+        { text: "Check remaining requirements", variant: "action" },
+      ],
+      detail: "Refer table below.",
+    };
+  }
+
+  return {
+    id: "rideshare",
+    title: "Ride Share Eligibility",
+    status: "Quick checks not met",
+    tone: "neutral",
+    lines: [
+      quickLine("Age", check.ageEligible),
+      quickLine("Doors", check.doorsEligible),
+      quickLine("Passenger capacity", check.passengersEligible),
+    ],
+    detail: "See the ride share requirements table below.",
+  };
 }
 
 export function buildStatusChecks(report: VehicleReport): StatusCheck[] {
@@ -268,6 +299,7 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
         .join(" · ") || "Available",
       tone: "clear",
     },
+    buildRideShareKeyInsight(report),
   ];
 
   const tier = resolveReportTier(report.tier);

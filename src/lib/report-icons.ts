@@ -64,6 +64,7 @@ export const INSIGHT_ICON_NAMES: Record<string, ReportIconName> = {
   specs: "sliders",
   future: "sparkles",
   risk: "search-doc",
+  rideshare: "car-front",
 };
 
 export const WEB_ICONS: Record<ReportIconName, LucideIcon> = {

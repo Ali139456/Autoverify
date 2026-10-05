@@ -42,7 +42,6 @@ import { ReportInsightCard } from "./ReportInsightCard";
 import { ReportShell } from "./ReportShell";
 
 import { ReportManufacturersWarrantyNotice } from "./ReportManufacturersWarrantyNotice";
-import { ReportRideShareEligibilitySummary } from "./ReportRideShareEligibilitySummary";
 import { ReportValuationSupplements } from "./ReportValuationSupplements";
 import { VehicleHeroImage } from "./VehicleHeroImage";
 
@@ -312,8 +311,6 @@ export function CarInsightsReport({
           </div>
 
         </div>
-
-        <ReportRideShareEligibilitySummary report={report} />
 
         <div className="report-insights-section">
 

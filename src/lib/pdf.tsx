@@ -12,7 +12,6 @@ import {
 } from "@react-pdf/renderer";
 import { hasPpsrCertificate } from "./ppsr-certificate";
 import {
-  evaluateRideShareQuickEligibility,
   RIDE_SHARE_ELIGIBILITY_ROWS,
 } from "./ride-share-eligibility";
 import { hasVehicleSpecContent } from "./vehicle-spec-sheet";
@@ -469,6 +468,36 @@ function PdfInsightGrid({ insights }: { insights: ReportInsight[] }) {
               <Text style={styles.insightTitle}>{insight.title}</Text>
             </View>
             <View style={styles.insightBottom}>
+              {insight.lines?.length ? (
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  {insight.lines.map((line) => (
+                    <Text
+                      key={line.text}
+                      style={{
+                        fontSize: 7.5,
+                        fontFamily: "Helvetica-Bold",
+                        color: pdfRideShareLineColor(line.variant),
+                        marginTop: 2,
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      {line.variant === "action" ? `✓ ${line.text}` : line.text}
+                    </Text>
+                  ))}
+                  {insight.detail ? (
+                    <Text
+                      style={{
+                        marginTop: 3,
+                        fontSize: 7,
+                        color: GREY,
+                        fontFamily: "Helvetica",
+                      }}
+                    >
+                      {insight.detail}
+                    </Text>
+                  ) : null}
+                </View>
+              ) : (
               <View style={styles.insightStatusRow}>
                 <PdfStatusBadge tone={insight.tone} />
                 <View style={{ flex: 1, minWidth: 0 }}>
@@ -518,6 +547,7 @@ function PdfInsightGrid({ insights }: { insights: ReportInsight[] }) {
                   ) : null}
                 </View>
               </View>
+              )}
             </View>
           </View>
         );
@@ -607,66 +637,13 @@ function PdfManufacturersWarrantyNotice() {
   );
 }
 
-function PdfRideShareEligibilitySummary({ report }: { report: VehicleReport }) {
-  const check = evaluateRideShareQuickEligibility(
-    report.vehicle,
-    report,
-    new Date(report.createdAt).getFullYear(),
-  );
+const RIDE_SHARE_GREEN = "#059669";
 
-  return (
-    <View style={{ marginTop: 10 }} wrap={false}>
-      <Text style={[styles.sectionTitle, { fontSize: 8 }]}>
-        Ride share eligibility
-      </Text>
-      {check.allEligible ? (
-        <View style={{ marginTop: 4 }}>
-          {[
-            "Age — eligible",
-            "Doors — eligible",
-            "Passenger capacity — eligible",
-          ].map((line) => (
-            <Text
-              key={line}
-              style={{
-                fontSize: 8.5,
-                fontFamily: "Helvetica-Bold",
-                color: RIDE_SHARE_ORANGE,
-                marginTop: 2,
-              }}
-            >
-              {line}
-            </Text>
-          ))}
-          <Text
-            style={{
-              marginTop: 4,
-              fontSize: 8.5,
-              fontFamily: "Helvetica-Bold",
-              color: RIDE_SHARE_ORANGE,
-            }}
-          >
-            ✓ Check remaining requirements
-          </Text>
-          <Text
-            style={{
-              marginTop: 2,
-              fontSize: 7.5,
-              fontFamily: "Helvetica-Bold",
-              color: RIDE_SHARE_ORANGE,
-            }}
-          >
-            Refer table below.
-          </Text>
-        </View>
-      ) : (
-        <Text style={{ marginTop: 4, fontSize: 7.5, color: GREY }}>
-          This vehicle did not pass all quick age, door and passenger checks.
-          See the ride share requirements table below.
-        </Text>
-      )}
-    </View>
-  );
+function pdfRideShareLineColor(variant: string): string {
+  if (variant === "eligible") return RIDE_SHARE_GREEN;
+  if (variant === "action") return RIDE_SHARE_ORANGE;
+  if (variant === "ineligible") return "#d97706";
+  return GREY;
 }
 
 function PdfValuationSupplements({ report }: { report: VehicleReport }) {
@@ -829,7 +806,6 @@ function CarInsightsOverviewPage({
           <PdfVehicleHero vehicle={vehicle} vehicleTitle={vehicleTitle} />
         </View>
 
-        <PdfRideShareEligibilitySummary report={report} />
       </View>
       <ReportFooter
         pageLabel={pageLabel}
