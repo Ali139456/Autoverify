@@ -95,6 +95,10 @@ export function CheckoutBookingForm({
     setPromoCode(match.code);
   }
 
+  function onPostcodeChange(raw: string) {
+    setPostcode(raw.replace(/\D/g, "").slice(0, 4));
+  }
+
   const payLabel =
     totalCents <= 0
       ? "Confirm — Free report"
@@ -133,6 +137,10 @@ export function CheckoutBookingForm({
 
             <input
 
+              id="av-given-name"
+
+              name="given-name"
+
               value={firstName}
 
               onChange={(e) => setFirstName(e.target.value)}
@@ -141,7 +149,7 @@ export function CheckoutBookingForm({
 
               required
 
-              autoComplete="given-name"
+              autoComplete="billing given-name"
 
             />
 
@@ -153,6 +161,10 @@ export function CheckoutBookingForm({
 
             <input
 
+              id="av-family-name"
+
+              name="family-name"
+
               value={lastName}
 
               onChange={(e) => setLastName(e.target.value)}
@@ -161,7 +173,7 @@ export function CheckoutBookingForm({
 
               required
 
-              autoComplete="family-name"
+              autoComplete="billing family-name"
 
             />
 
@@ -173,6 +185,10 @@ export function CheckoutBookingForm({
 
             <input
 
+              id="av-email"
+
+              name="email"
+
               type="email"
 
               value={customerEmail}
@@ -183,7 +199,7 @@ export function CheckoutBookingForm({
 
               required
 
-              autoComplete="email"
+              autoComplete="billing email"
 
             />
 
@@ -195,15 +211,27 @@ export function CheckoutBookingForm({
 
             <input
 
+              id="av-postcode"
+
+              name="postal-code"
+
               value={postcode}
 
-              onChange={(e) => setPostcode(e.target.value)}
+              onChange={(e) => onPostcodeChange(e.target.value)}
 
               className={inputClass}
 
               inputMode="numeric"
 
-              autoComplete="postal-code"
+              placeholder="2xxx"
+
+              maxLength={4}
+
+              pattern="[0-9]{4}"
+
+              title="Australian postcode (4 digits)"
+
+              autoComplete="billing postal-code"
 
             />
 
@@ -215,6 +243,10 @@ export function CheckoutBookingForm({
 
             <input
 
+              id="av-phone"
+
+              name="tel"
+
               type="tel"
 
               value={customerPhone}
@@ -225,7 +257,7 @@ export function CheckoutBookingForm({
 
               placeholder="04xx xxx xxx"
 
-              autoComplete="tel"
+              autoComplete="billing tel"
 
             />
 

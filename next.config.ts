@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    // Inspection photo uploads pass through proxy; default 10MB can truncate multipart bodies.
+    proxyClientMaxBodySize: "15mb",
+  },
   async redirects() {
     return [
       {

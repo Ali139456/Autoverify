@@ -1,4 +1,4 @@
-import { Loader2 } from "lucide-react";
+import Image from "next/image";
 
 export function VehicleSearchLoading({
   embedded = false,
@@ -20,9 +20,14 @@ export function VehicleSearchLoading({
       <p className="text-lg font-bold tracking-tight text-slate-900 dark:text-white sm:text-xl">
         Searching
       </p>
-      <Loader2
-        className="mt-6 h-10 w-10 animate-spin text-accent-500 sm:h-12 sm:w-12"
+      <Image
+        src="/logo/icon.png"
+        alt=""
+        width={56}
+        height={56}
+        className="mt-6 h-10 w-10 animate-spin object-contain sm:h-12 sm:w-12"
         aria-hidden
+        priority
       />
       <p className="sr-only">Looking up your vehicle registration or VIN.</p>
     </div>

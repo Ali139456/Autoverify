@@ -4,7 +4,7 @@ import {
   isInspectionExpired,
   uploadInspectionPhoto,
 } from "@/lib/inspections";
-import { INSPECTION_ANGLE_IDS } from "@/lib/inspection-angles";
+import { isValidInspectionAngleId } from "@/lib/inspection-angles";
 
 export async function POST(
   req: NextRequest,
@@ -32,15 +32,24 @@ export async function POST(
   const angle = String(form.get("angle") ?? "").trim();
   const file = form.get("photo");
 
-  if (!INSPECTION_ANGLE_IDS.includes(angle as (typeof INSPECTION_ANGLE_IDS)[number])) {
+  if (!isValidInspectionAngleId(angle)) {
     return NextResponse.json({ error: "Invalid photo angle." }, { status: 400 });
   }
 
-  if (!(file instanceof File)) {
-    return NextResponse.json({ error: "Photo file is required." }, { status: 400 });
+  if (!(file instanceof File) || file.size === 0) {
+    return NextResponse.json(
+      {
+        error:
+          "Photo file is missing or incomplete. Try again or use a smaller photo.",
+      },
+      { status: 400 },
+    );
   }
 
-  if (!file.type.startsWith("image/")) {
+  const isImage =
+    file.type.startsWith("image/") ||
+    /\.(jpe?g|png|gif|webp|heic|heif)$/i.test(file.name);
+  if (!isImage) {
     return NextResponse.json({ error: "Only image uploads are supported." }, { status: 400 });
   }
 

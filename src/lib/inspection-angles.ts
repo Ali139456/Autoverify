@@ -1,16 +1,19 @@
+/** Walk-around order: front → right side → rear → left side, then interior. */
 export const INSPECTION_ANGLES = [
   { id: "front_left", label: "Front left" },
   { id: "front", label: "Front" },
   { id: "front_right", label: "Front right" },
-  { id: "left_side", label: "Left side" },
-  { id: "rear_left", label: "Rear left" },
-  { id: "rear", label: "Rear" },
-  { id: "rear_right", label: "Rear right" },
   { id: "right_side", label: "Right side" },
-  { id: "dashboard", label: "Dashboard" },
-  { id: "odometer", label: "Odometer" },
+  { id: "rear_right", label: "Rear right" },
+  { id: "rear", label: "Rear" },
+  { id: "rear_left", label: "Rear left" },
+  { id: "left_side", label: "Left side" },
+  { id: "dashboard", label: "Interior Dash/ Odometer cluster" },
   { id: "interior", label: "Interior" },
-  { id: "wheels", label: "Wheels" },
+  { id: "wheel_right_front", label: "Right front wheel" },
+  { id: "wheel_right_rear", label: "Right rear wheel" },
+  { id: "wheel_left_rear", label: "Left rear wheel" },
+  { id: "wheel_left_front", label: "Left front wheel" },
   { id: "vin_plate", label: "VIN plate" },
 ] as const;
 
@@ -18,8 +21,27 @@ export type InspectionAngleId = (typeof INSPECTION_ANGLES)[number]["id"];
 
 export const INSPECTION_ANGLE_IDS = INSPECTION_ANGLES.map((angle) => angle.id);
 
+/** Still accepted on upload for older inspection links. */
+export const LEGACY_INSPECTION_ANGLE_IDS = ["odometer", "wheels"] as const;
+
+export function isValidInspectionAngleId(id: string): boolean {
+  return (
+    INSPECTION_ANGLE_IDS.includes(id as (typeof INSPECTION_ANGLE_IDS)[number]) ||
+    (LEGACY_INSPECTION_ANGLE_IDS as readonly string[]).includes(id)
+  );
+}
+
 export function getInspectionAngleLabel(id: string): string {
+  if (id === "odometer") return "Odometer";
+  if (id === "wheels") return "Wheels";
   return INSPECTION_ANGLES.find((angle) => angle.id === id)?.label ?? id;
+}
+
+export function getInspectionAngleHint(id: string): string | undefined {
+  if (id === "vin_plate") {
+    return "Usually located inside the driver door.";
+  }
+  return undefined;
 }
 
 export const INSPECTION_PHOTO_BUCKET = "inspection-photos";

@@ -9,13 +9,49 @@ import {
   Loader2,
   Sparkles,
 } from "lucide-react";
-import { INSPECTION_ANGLES } from "@/lib/inspection-angles";
+import {
+  getInspectionAngleHint,
+  INSPECTION_ANGLES,
+} from "@/lib/inspection-angles";
+import { prepareInspectionPhoto } from "@/lib/prepare-inspection-photo";
 
 type UploadedPhoto = {
   angle: string;
   label: string;
   uploadedAt: string;
 };
+
+/** Safari reports non-JSON bodies from res.json() as "The string did not match the expected pattern." */
+async function readJsonResponse<T extends object>(
+  res: Response,
+  fallback: string,
+): Promise<T> {
+  const raw = await res.text();
+  if (!raw.trim()) {
+    throw new Error(
+      res.ok ? fallback : `${fallback} (HTTP ${res.status}).`,
+    );
+  }
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    const snippet = raw.trim().slice(0, 120);
+    const looksHtml = snippet.startsWith("<");
+    throw new Error(
+      looksHtml
+        ? `${fallback} Server returned an error page (HTTP ${res.status}). Try a smaller photo or check your connection.`
+        : snippet || `${fallback} (HTTP ${res.status}).`,
+    );
+  }
+}
+
+function inspectionErrorMessage(err: unknown, fallback: string): string {
+  if (!(err instanceof Error)) return fallback;
+  if (/did not match the expected pattern|JSON Parse error/i.test(err.message)) {
+    return `${fallback} Try a smaller photo or check your connection.`;
+  }
+  return err.message;
+}
 
 export function InspectionCapture({
   token,
@@ -33,6 +69,7 @@ export function InspectionCapture({
   const [doneMessage, setDoneMessage] = useState<string | null>(null);
 
   const currentAngle = INSPECTION_ANGLES[stepIndex];
+  const captureHint = getInspectionAngleHint(currentAngle.id);
   const uploadedAngles = useMemo(
     () => new Set(photos.map((photo) => photo.angle)),
     [photos],
@@ -41,32 +78,73 @@ export function InspectionCapture({
     uploadedAngles.has(angle.id),
   ).length;
 
+  function findNextStepIndex(
+    fromIndex: number,
+    uploaded: Set<string>,
+  ): number {
+    for (let i = fromIndex + 1; i < INSPECTION_ANGLES.length; i++) {
+      if (!uploaded.has(INSPECTION_ANGLES[i].id)) return i;
+    }
+    for (let i = 0; i <= fromIndex; i++) {
+      if (!uploaded.has(INSPECTION_ANGLES[i].id)) return i;
+    }
+    return fromIndex;
+  }
+
+  async function fetchPhotosFromServer(): Promise<UploadedPhoto[] | null> {
+    const res = await fetch(`/api/inspections/${token}`);
+    if (!res.ok) return null;
+    try {
+      const data = await readJsonResponse<{ photos?: UploadedPhoto[] }>(
+        res,
+        "Could not refresh photo list.",
+      );
+      return Array.isArray(data.photos) ? data.photos : null;
+    } catch {
+      return null;
+    }
+  }
+
   async function uploadPhoto(file: File) {
     setUploading(true);
     setError(null);
 
+    const capturedStep = stepIndex;
+    const capturedAngleId = currentAngle.id;
+
     try {
+      const prepared = await prepareInspectionPhoto(file, capturedAngleId);
       const form = new FormData();
-      form.append("angle", currentAngle.id);
-      form.append("photo", file);
+      form.append("angle", capturedAngleId);
+      form.append("photo", prepared, prepared.name);
 
       const res = await fetch(`/api/inspections/${token}/photos`, {
         method: "POST",
         body: form,
       });
-      const data = await res.json();
+      const data = await readJsonResponse<{
+        error?: string;
+        photo?: UploadedPhoto;
+      }>(res, "Upload failed.");
       if (!res.ok) throw new Error(data.error ?? "Upload failed.");
-
-      setPhotos((prev) => {
-        const rest = prev.filter((photo) => photo.angle !== currentAngle.id);
-        return [...rest, data.photo];
-      });
-
-      if (stepIndex < INSPECTION_ANGLES.length - 1) {
-        setStepIndex((value) => value + 1);
+      if (!data.photo?.angle) {
+        throw new Error("Upload did not confirm. Please try again.");
       }
+
+      const optimistic = [
+        ...photos.filter((photo) => photo.angle !== capturedAngleId),
+        data.photo!,
+      ];
+      setPhotos(optimistic);
+
+      const synced = await fetchPhotosFromServer();
+      const finalPhotos = synced ?? optimistic;
+      if (synced) setPhotos(synced);
+
+      const uploaded = new Set(finalPhotos.map((photo) => photo.angle));
+      setStepIndex(findNextStepIndex(capturedStep, uploaded));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload failed.");
+      setError(inspectionErrorMessage(err, "Upload failed."));
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -81,7 +159,11 @@ export function InspectionCapture({
       const res = await fetch(`/api/inspections/${token}/complete`, {
         method: "POST",
       });
-      const data = await res.json();
+      const data = await readJsonResponse<{
+        error?: string;
+        complete?: boolean;
+        message?: string;
+      }>(res, "Submission failed.");
       if (!res.ok) throw new Error(data.error ?? "Submission failed.");
 
       if (data.complete) {
@@ -95,7 +177,7 @@ export function InspectionCapture({
         );
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Submission failed.");
+      setError(inspectionErrorMessage(err, "Submission failed."));
     } finally {
       setSubmitting(false);
     }
@@ -150,6 +232,9 @@ export function InspectionCapture({
               Capture
             </p>
             <p className="mt-1 text-lg font-bold">{currentAngle.label}</p>
+            {captureHint ? (
+              <p className="mt-1 text-xs font-medium text-slate-400">{captureHint}</p>
+            ) : null}
           </div>
 
           <button
@@ -229,9 +314,12 @@ export function InspectionCapture({
       </div>
 
       {error && (
-        <p className="mt-4 text-sm font-medium text-red-400" role="alert">
+        <div
+          className="mt-4 rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-200"
+          role="alert"
+        >
           {error}
-        </p>
+        </div>
       )}
 
       <button

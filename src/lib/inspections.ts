@@ -4,6 +4,7 @@ import {
   INSPECTION_LINK_TTL_HOURS,
   INSPECTION_PHOTO_BUCKET,
   getInspectionAngleLabel,
+  isValidInspectionAngleId,
 } from "./inspection-angles";
 import { createServerClient } from "./supabase/server";
 import { isSupabaseServerConfigured } from "./supabase/server";
@@ -198,17 +199,20 @@ export async function uploadInspectionPhoto(input: {
   buffer: Buffer;
   contentType: string;
 }): Promise<InspectionPhoto> {
-  if (!INSPECTION_ANGLE_IDS.includes(input.angle as (typeof INSPECTION_ANGLE_IDS)[number])) {
+  if (!isValidInspectionAngleId(input.angle)) {
     throw new Error("Invalid photo angle.");
   }
 
   const supabase = createServerClient();
   const storagePath = `${input.inspection.id}/${input.angle}.jpg`;
 
+  const contentType =
+    input.contentType?.startsWith("image/") ? input.contentType : "image/jpeg";
+
   const { error: uploadError } = await supabase.storage
     .from(INSPECTION_PHOTO_BUCKET)
     .upload(storagePath, input.buffer, {
-      contentType: input.contentType,
+      contentType,
       upsert: true,
     });
 

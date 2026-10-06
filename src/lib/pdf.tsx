@@ -14,6 +14,10 @@ import { hasPpsrCertificate } from "./ppsr-certificate";
 import {
   RIDE_SHARE_ELIGIBILITY_ROWS,
 } from "./ride-share-eligibility";
+import {
+  isPPlateAdvisoryCopy,
+  P_PLATE_REFERENCE_ROWS,
+} from "./p-plate-reference";
 import { hasVehicleSpecContent } from "./vehicle-spec-sheet";
 import {
   buildKeyInsights,
@@ -673,9 +677,80 @@ function PdfValuationSupplements({ report }: { report: VehicleReport }) {
             <Text style={styles.specSheetLabel}>P plate eligibility</Text>
           </View>
           <View style={{ flex: 1, padding: 5 }}>
-            <Text style={styles.specSheetValue}>{pPlateStatus}</Text>
+            <Text
+              style={[
+                styles.specSheetValue,
+                isPPlateAdvisoryCopy(pPlateStatus)
+                  ? { color: RIDE_SHARE_ORANGE, fontFamily: "Helvetica-Bold" }
+                  : {},
+              ]}
+            >
+              {pPlateStatus}
+            </Text>
           </View>
         </View>
+      </View>
+
+      <Text
+        style={[
+          styles.sectionTitle,
+          { marginTop: 6, fontSize: 7.5, color: GREY },
+        ]}
+      >
+        Official P-plate vehicle/legal reference
+      </Text>
+      <View
+        style={{
+          marginTop: 3,
+          borderWidth: 1,
+          borderColor: "#e2e8f0",
+          borderRadius: 6,
+        }}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            backgroundColor: LIGHT,
+            borderBottomWidth: 1,
+            borderBottomColor: "#e2e8f0",
+            padding: 4,
+          }}
+        >
+          <Text style={{ width: "22%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
+            State
+          </Text>
+          <Text style={{ flex: 1, fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
+            Official P-plate vehicle/legal reference
+          </Text>
+        </View>
+        {P_PLATE_REFERENCE_ROWS.map((row, index) => (
+          <View
+            key={row.state}
+            style={{
+              flexDirection: "row",
+              borderTopWidth: index === 0 ? 0 : 1,
+              borderTopColor: "#e2e8f0",
+              alignItems: "flex-start",
+            }}
+          >
+            <View
+              style={{
+                width: "22%",
+                backgroundColor: SPEC_LABEL_BG,
+                padding: 4,
+                borderRightWidth: 1,
+                borderRightColor: "#e2e8f0",
+              }}
+            >
+              <Text style={styles.specSheetLabel}>{row.state}</Text>
+            </View>
+            <View style={{ flex: 1, padding: 4 }}>
+              <Link src={row.href} style={{ fontSize: 6.5, color: BLUE }}>
+                {row.label}
+              </Link>
+            </View>
+          </View>
+        ))}
       </View>
 
       <Text style={[styles.sectionTitle, { marginTop: 8, fontSize: 8 }]}>

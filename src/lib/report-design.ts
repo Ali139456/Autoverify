@@ -90,7 +90,7 @@ export function buildReportOverviewSpecs(
 export function formatPPlateStatus(vehicle: VehicleIdentity): string {
   const raw = vehicle.pPlateLegal?.trim();
   if (raw) return raw;
-  return "Not available — check P plate rules for your state";
+  return "Check state restrictions for P plate drivers";
 }
 
 export function resolveFutureValue(report: VehicleReport): FutureValueInfo {

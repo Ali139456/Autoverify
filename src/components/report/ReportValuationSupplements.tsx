@@ -1,6 +1,12 @@
 import { formatPPlateStatus } from "@/lib/report-design";
+import {
+  isPPlateAdvisoryCopy,
+  P_PLATE_REFERENCE_ROWS,
+} from "@/lib/p-plate-reference";
 import { RIDE_SHARE_ELIGIBILITY_ROWS } from "@/lib/ride-share-eligibility";
 import type { VehicleReport } from "@/lib/types";
+
+const P_PLATE_ORANGE = "#E87722";
 
 export function ReportValuationSupplements({
   report,
@@ -25,10 +31,64 @@ export function ReportValuationSupplements({
                 >
                   P plate eligibility
                 </th>
-                <td className="px-4 py-2.5 font-semibold text-slate-900">
+                <td
+                  className={`px-4 py-2.5 font-semibold ${
+                    isPPlateAdvisoryCopy(pPlateStatus)
+                      ? ""
+                      : "text-slate-900"
+                  }`}
+                  style={
+                    isPPlateAdvisoryCopy(pPlateStatus)
+                      ? { color: P_PLATE_ORANGE }
+                      : undefined
+                  }
+                >
                   {pPlateStatus}
                 </td>
               </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p className="mt-4 text-[10px] font-bold uppercase tracking-wide text-slate-500">
+          Official P-plate vehicle/legal reference
+        </p>
+        <div className="mt-2 overflow-x-auto rounded-lg border border-slate-200 bg-white">
+          <table className="min-w-[520px] w-full border-collapse text-left text-xs sm:text-sm">
+            <thead>
+              <tr className="border-b border-slate-200 bg-slate-50">
+                <th className="px-3 py-2.5 font-bold uppercase tracking-wide text-slate-500 sm:px-4">
+                  State
+                </th>
+                <th className="px-3 py-2.5 font-bold uppercase tracking-wide text-slate-500 sm:px-4">
+                  Official P-plate vehicle/legal reference
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {P_PLATE_REFERENCE_ROWS.map((row) => (
+                <tr
+                  key={row.state}
+                  className="border-t border-slate-100 align-top"
+                >
+                  <th
+                    scope="row"
+                    className="report-spec-data-label px-3 py-2.5 font-medium text-slate-600 sm:px-4"
+                  >
+                    {row.state}
+                  </th>
+                  <td className="px-3 py-2.5 sm:px-4">
+                    <a
+                      href={row.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium text-[#0073E3] underline underline-offset-2 hover:text-[#0062c2]"
+                    >
+                      {row.label}
+                    </a>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
