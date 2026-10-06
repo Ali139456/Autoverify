@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { MANUAL_DAMAGE_UPLOAD_MAX_PHOTOS } from "@/lib/inspection-angles";
 import { analyzeDamage } from "@/lib/ravin";
 import { getReport, updateReport } from "@/lib/store";
 
-const MAX_PHOTOS = 12;
-const MAX_SIZE = 10 * 1024 * 1024; // 10 MB per photo
+const MAX_PHOTOS = MANUAL_DAMAGE_UPLOAD_MAX_PHOTOS;
+const MAX_SIZE = 12 * 1024 * 1024; // 12 MB per photo
 
 export async function POST(req: NextRequest) {
   try {

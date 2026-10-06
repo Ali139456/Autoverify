@@ -59,3 +59,6 @@ export function getInspectionAngleHint(id: string): string | undefined {
 export const INSPECTION_PHOTO_BUCKET = "inspection-photos";
 
 export const INSPECTION_LINK_TTL_HOURS = 72;
+
+/** Max photos for manual desktop upload (matches guided capture count). */
+export const MANUAL_DAMAGE_UPLOAD_MAX_PHOTOS = INSPECTION_ANGLES.length;
