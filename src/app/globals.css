@@ -376,21 +376,18 @@ html.dark body {
     margin-top: 0 !important;
   }
 
-  /* One logical report page = one printable sheet; footer pinned via flex */
-  #report-print-area > .report-page-break,
+  /* One logical report page ≥ one A4 content area (297mm − 8mm @page margins × 2) */
+  #report-print-area > .report-page-break:not(:has(> .report-shell-ppsr)),
   #report-print-area > .report-print-page-first {
-    display: flex !important;
-    flex-direction: column !important;
+    display: block !important;
     min-height: 281mm !important;
     box-sizing: border-box !important;
   }
 
-  #report-print-area > .report-page-break > .report-shell,
+  #report-print-area > .report-page-break:not(:has(> .report-shell-ppsr)) > .report-shell,
   #report-print-area > .report-print-page-first > .report-shell {
-    flex: 1 1 auto !important;
     width: 100% !important;
     min-height: 281mm !important;
-    height: 100% !important;
   }
 
   #report-print-area.space-y-6 > * {
@@ -410,14 +407,24 @@ html.dark body {
     box-sizing: border-box !important;
   }
 
+  #report-print-area .report-shell:not(.report-shell-ppsr) {
+    position: relative !important;
+    min-height: 281mm !important;
+  }
+
   /* PPSR appendix: natural height (certificate may span its own sheet) */
   #report-print-area > .report-page-break:has(> .report-shell-ppsr) {
+    min-height: auto !important;
+  }
+
+  #report-print-area > .report-page-break:has(> .report-shell-ppsr) > .report-shell {
     min-height: auto !important;
   }
 
   #report-print-area .report-shell-ppsr {
     min-height: auto !important;
     height: auto !important;
+    overflow: visible !important;
     break-inside: auto;
     page-break-inside: auto;
   }
@@ -461,16 +468,36 @@ html.dark body {
     flex: 1 1 auto !important;
     flex-grow: 1 !important;
     min-height: 0 !important;
-    padding: 12px 18px 8px !important;
+    overflow: visible !important;
+    padding: 12px 18px 16mm !important;
+  }
+
+  #report-print-area .report-shell-ppsr .report-shell-body {
+    overflow: visible !important;
+    padding-bottom: 8px !important;
   }
 
   .report-shell-footer {
     break-inside: avoid;
     page-break-inside: avoid;
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 2 !important;
     flex-shrink: 0 !important;
-    margin-top: auto !important;
+    margin-top: 0 !important;
     padding: 8px 18px !important;
     border-top: 1px solid #e2e8f0 !important;
+    background-color: #ffffff !important;
+  }
+
+  #report-print-area .report-shell-ppsr .report-shell-footer {
+    position: relative !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+    margin-top: auto !important;
   }
 
   .report-shell-footer img {
