@@ -331,7 +331,7 @@ export function CarInsightsReport({
 
           </div>
 
-          <div className="report-insights-grid grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="report-insights-grid grid grid-cols-1 gap-3 min-[480px]:grid-cols-2 lg:grid-cols-4 [&>*]:min-w-0">
 
             {insights.map((insight) => (
 

@@ -85,7 +85,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
 
   return (
 
-    <div className="report-insight-card flex min-h-[104px] flex-col gap-3 rounded-xl border border-slate-200 bg-slate-100 p-3.5 sm:p-4">
+    <div className="report-insight-card flex min-h-[104px] min-w-0 flex-col gap-3 overflow-hidden rounded-xl border border-slate-200 bg-slate-100 p-3.5 sm:p-4">
 
       <div className="flex items-start justify-between gap-2">
 
@@ -159,13 +159,13 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
               </div>
             </div>
             {insight.id === "ancap" && insight.status === "Not available" ? (
-              <p className="mt-2 text-[11px] leading-relaxed text-slate-600">
+              <p className="mt-2 min-w-0 text-[11px] leading-relaxed break-words text-slate-600">
                 Verify ANCAP rating here:{" "}
                 <a
                   href={ANCAP_SAFETY_RATINGS_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-semibold text-[#0073E3] underline underline-offset-2"
+                  className="font-semibold text-[#0073E3] underline underline-offset-2 [overflow-wrap:anywhere]"
                 >
                   {ANCAP_SAFETY_RATINGS_URL}
                 </a>

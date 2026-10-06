@@ -728,6 +728,11 @@ html.dark body {
     line-height: 1.3 !important;
   }
 
+  .report-insight-card a {
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+  }
+
   .report-insight-card .mt-3 {
     margin-top: 8px !important;
   }

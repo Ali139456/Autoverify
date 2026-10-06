@@ -524,15 +524,15 @@ function PdfInsightGrid({ insights }: { insights: ReportInsight[] }) {
                     <Text
                       style={{
                         marginTop: 3,
-                        fontSize: 7,
+                        fontSize: 6.5,
                         color: GREY,
                         fontFamily: "Helvetica",
-                        lineHeight: 1.35,
+                        lineHeight: 1.4,
                       }}
                     >
                       Verify ANCAP rating here:{" "}
                       <Link src={ANCAP_SAFETY_RATINGS_URL}>
-                        {ANCAP_SAFETY_RATINGS_URL}
+                        www.ancap.com.au/safety-ratings
                       </Link>
                     </Text>
                   ) : footnote ? (
