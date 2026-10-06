@@ -13,25 +13,24 @@ export function VehicleSpecReportSection({ report }: { report: VehicleReport }) 
 
   return (
     <section className="report-spec-sheet rounded-xl border border-slate-200 bg-white p-5 sm:p-8">
-      <div className="flex flex-col gap-4 border-b border-slate-200 pb-5 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
-            Vehicle data &amp; factory equipment
-          </p>
-          <h2 className="mt-1 text-xl font-bold text-slate-900">{vehicleTitle}</h2>
-          <p className="mt-1 text-xs text-slate-500">
-            Captured {formatReportDate(sheet!.capturedAt)} from registration and
-            build data sources.
-          </p>
-        </div>
-        <div className="report-spec-hero-thumb relative h-44 w-full shrink-0 overflow-hidden rounded-xl bg-slate-900 lg:h-48 lg:w-64">
-          <VehicleHeroImage
-            vehicle={vehicle}
-            vehicleTitle={vehicleTitle}
-            className="relative h-full w-full"
-            imageClassName="h-full w-full object-contain object-center"
-          />
-        </div>
+      <div className="border-b border-slate-200 pb-5">
+        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
+          Vehicle data &amp; factory equipment
+        </p>
+        <h2 className="mt-1 text-xl font-bold text-slate-900">{vehicleTitle}</h2>
+        <p className="mt-1 text-xs text-slate-500">
+          Captured {formatReportDate(sheet!.capturedAt)} from registration and
+          build data sources.
+        </p>
+      </div>
+
+      <div className="report-spec-hero-main relative mt-5 flex h-[240px] items-center justify-center overflow-hidden rounded-xl bg-slate-950 sm:h-[280px]">
+        <VehicleHeroImage
+          vehicle={vehicle}
+          vehicleTitle={vehicleTitle}
+          className="relative h-full w-full pb-9"
+          imageClassName="mx-auto h-[calc(100%-0.25rem)] w-full max-w-full object-contain object-center"
+        />
       </div>
 
       <div className="mt-6 grid gap-8 lg:grid-cols-[1.2fr_1fr]">

@@ -3,7 +3,10 @@ import {
   isPPlateAdvisoryCopy,
   P_PLATE_REFERENCE_ROWS,
 } from "@/lib/p-plate-reference";
-import { RIDE_SHARE_ELIGIBILITY_ROWS } from "@/lib/ride-share-eligibility";
+import {
+  RIDE_SHARE_ELIGIBILITY_ROWS,
+  RIDE_SHARE_TABLE_HEADING,
+} from "@/lib/ride-share-eligibility";
 import type { VehicleReport } from "@/lib/types";
 
 const P_PLATE_ORANGE = "#E87722";
@@ -96,7 +99,7 @@ export function ReportValuationSupplements({
 
       <div className="report-rideshare-eligibility rounded-xl border border-slate-200 bg-slate-50 p-5">
         <h3 className="text-xs font-bold uppercase tracking-wide text-slate-900">
-          Ride share ready — eligibility requirements
+          {RIDE_SHARE_TABLE_HEADING}
         </h3>
         <div className="mt-3 overflow-x-auto rounded-lg border border-slate-200 bg-white">
           <table className="min-w-[640px] w-full border-collapse text-left text-xs sm:text-sm">

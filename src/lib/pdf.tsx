@@ -13,6 +13,7 @@ import {
 import { hasPpsrCertificate } from "./ppsr-certificate";
 import {
   RIDE_SHARE_ELIGIBILITY_ROWS,
+  RIDE_SHARE_TABLE_HEADING,
 } from "./ride-share-eligibility";
 import {
   isPPlateAdvisoryCopy,
@@ -47,6 +48,12 @@ import {
   REPORT_DISCLAIMER_CLOSING,
   REPORT_DISCLAIMER_LEAD,
 } from "./report-disclaimer";
+import {
+  REPORT_FOOTER_LOGO_HEIGHT,
+  REPORT_FOOTER_LOGO_WIDTH,
+  REPORT_HEADER_LOGO_HEIGHT,
+  REPORT_HEADER_LOGO_WIDTH,
+} from "./report-logo-size";
 import { VEHICLE_HERO_IMAGE_DISCLAIMER } from "./vehicle-hero-image";
 import { VehicleReport } from "./types";
 import type { InspectionPhoto } from "./types";
@@ -87,7 +94,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: BLUE,
   },
-  logoHeader: { width: 184, height: 34, objectFit: "contain" },
+  logoHeader: {
+    width: REPORT_HEADER_LOGO_WIDTH,
+    height: REPORT_HEADER_LOGO_HEIGHT,
+    objectFit: "contain",
+  },
   headerTagline: {
     color: BLUE,
     fontSize: 6.5,
@@ -157,7 +168,7 @@ const styles = StyleSheet.create({
     borderColor: "#e2e8f0",
     borderRadius: 8,
     overflow: "hidden",
-    minHeight: 150,
+    minHeight: 168,
   },
   statusLeft: {
     width: "58%",
@@ -165,13 +176,24 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
     borderRightColor: "#e2e8f0",
   },
-  statusImageWrap: { width: "42%", position: "relative", minHeight: 150 },
+  statusImageWrap: {
+    width: "42%",
+    position: "relative",
+    minHeight: 168,
+    backgroundColor: "#020617",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   statusImage: { width: "100%", height: "100%", objectFit: "cover" },
   statusImageContain: {
-    width: "100%",
-    height: "100%",
+    width: "94%",
+    height: "88%",
     objectFit: "contain",
-    backgroundColor: "#0f172a",
+    objectPosition: "center",
+    backgroundColor: "#020617",
+    alignSelf: "center",
   },
   statusImageCaption: {
     position: "absolute",
@@ -184,6 +206,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 4,
     lineHeight: 1.35,
+  },
+  specHeroBanner: {
+    marginTop: 10,
+    width: "100%",
+    minHeight: 128,
+    backgroundColor: "#020617",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    overflow: "hidden",
+    position: "relative",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  specHeroBannerImage: {
+    width: "98%",
+    height: 108,
+    objectFit: "contain",
+    objectPosition: "center",
+    backgroundColor: "#020617",
   },
   statusTitle: {
     fontSize: 7,
@@ -389,7 +433,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     flexShrink: 0,
   },
-  footerLogo: { width: 132, height: 28, objectFit: "contain" },
+  footerLogo: {
+    width: REPORT_FOOTER_LOGO_WIDTH,
+    height: REPORT_FOOTER_LOGO_HEIGHT,
+    objectFit: "contain",
+  },
   footerText: { fontSize: 7, color: GREY, textTransform: "uppercase" },
 });
 
@@ -606,9 +654,11 @@ function PdfInsightGrid({ insights }: { insights: ReportInsight[] }) {
 function PdfVehicleHero({
   vehicle,
   vehicleTitle,
+  layout = "panel",
 }: {
   vehicle: VehicleReport["vehicle"];
   vehicleTitle: string;
+  layout?: "panel" | "banner";
 }) {
   const heroSrc = resolvePdfImageSrc(vehicle.heroImageUrl);
   const useContain =
@@ -616,13 +666,24 @@ function PdfVehicleHero({
     vehicle.heroImageKind === "generated" ||
     Boolean(vehicle.heroImageUrl?.includes("/sample/"));
 
+  const wrapStyle =
+    layout === "banner" ? styles.specHeroBanner : styles.statusImageWrap;
+
   return (
-    <View style={styles.statusImageWrap}>
+    <View style={wrapStyle}>
       {heroSrc ? (
         <>
           <Image
             src={heroSrc}
-            style={useContain ? styles.statusImageContain : styles.statusImage}
+            style={
+              layout === "banner"
+                ? useContain
+                  ? styles.specHeroBannerImage
+                  : styles.statusImage
+                : useContain
+                  ? styles.statusImageContain
+                  : styles.statusImage
+            }
           />
           <Text style={styles.statusImageCaption}>
             *{vehicle.heroImageDisclaimer ?? VEHICLE_HERO_IMAGE_DISCLAIMER}
@@ -795,7 +856,7 @@ function PdfValuationSupplements({ report }: { report: VehicleReport }) {
       </View>
 
       <Text style={[styles.sectionTitle, { marginTop: 8, fontSize: 8 }]}>
-        Ride share ready — eligibility requirements
+        {RIDE_SHARE_TABLE_HEADING}
       </Text>
       <View
         style={{
@@ -1137,6 +1198,12 @@ function VehicleSpecPages({
             data sources.
           </Text>
 
+          <PdfVehicleHero
+            vehicle={vehicle}
+            vehicleTitle={specTitle}
+            layout="banner"
+          />
+
           <View style={[styles.section, { marginTop: 10 }]}>
             <Text style={styles.sectionTitle}>Vehicle data</Text>
             {sheet.dataRows.map((row) => (
@@ -1353,7 +1420,14 @@ function PdfReportDisclaimerPage({
         }}
       >
         <View>
-          <Image src={LOGO_INVERSE} style={{ width: 140, height: 32, objectFit: "contain" }} />
+          <Image
+            src={LOGO_INVERSE}
+            style={{
+              width: REPORT_HEADER_LOGO_WIDTH,
+              height: REPORT_HEADER_LOGO_HEIGHT,
+              objectFit: "contain",
+            }}
+          />
           <Text
             style={{
               marginTop: 22,

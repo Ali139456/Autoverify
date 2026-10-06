@@ -120,9 +120,7 @@ export const RIDE_SHARE_ELIGIBILITY_ROWS: RideShareEligibilityRow[] = [
     didi:
       "DiDi's general rules also exclude taxi, government, branded and rebuilt vehicles",
   },
-  {
-    requirement: "Final eligibility",
-    uberX: "Determined by Uber",
-    didi: "Determined by DiDi",
-  },
 ];
+
+export const RIDE_SHARE_TABLE_HEADING =
+  "Ride share — eligibility requirements";

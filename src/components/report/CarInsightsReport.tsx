@@ -238,7 +238,7 @@ export function CarInsightsReport({
 
         <div className="report-status-panel overflow-visible rounded-2xl border border-slate-200 bg-slate-100">
 
-          <div className="report-status-grid grid overflow-hidden rounded-2xl lg:grid-cols-[1fr_380px]">
+          <div className="report-status-grid grid overflow-hidden rounded-2xl lg:grid-cols-[1fr_minmax(340px,42%)]">
 
             <div className="report-status-list border-b border-slate-200 p-6 sm:p-8 lg:border-b-0 lg:border-r">
 
@@ -292,8 +292,7 @@ export function CarInsightsReport({
 
               vehicleTitle={vehicleTitle}
 
-              className="report-hero-image relative min-h-[260px] bg-slate-950 lg:min-h-[300px]"
-              imageClassName="absolute inset-0 h-full w-full object-contain object-[center_top]"
+              className="report-hero-image relative min-h-[300px] bg-slate-950 sm:min-h-[340px] lg:min-h-[380px]"
 
             />
 

@@ -16,23 +16,29 @@ export function VehicleHeroImage({
     vehicle.heroImageDisclaimer ?? VEHICLE_HERO_IMAGE_DISCLAIMER;
   const showFullVehicle =
     vehicle.heroImageKind === "stock" || vehicle.heroImageKind === "generated";
-  const imgClass =
-    imageClassName ??
-    (showFullVehicle
-      ? "absolute inset-0 h-full w-full object-contain object-center"
-      : "absolute inset-0 h-full w-full object-cover object-center");
+  const defaultImgClass = showFullVehicle
+    ? "max-h-[min(340px,78%)] w-auto max-w-[96%] object-contain object-center"
+    : "h-full w-full object-cover object-center";
+  const imgClass = imageClassName ?? defaultImgClass;
+  const useFlexCenter = showFullVehicle && !imageClassName;
 
   return (
-    <div className={className}>
+    <div
+      className={`${className} ${useFlexCenter ? "flex items-center justify-center" : ""}`}
+    >
       {vehicle.heroImageUrl ? (
         <>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={vehicle.heroImageUrl}
             alt={`${vehicleTitle} reference photo`}
-            className={imgClass}
+            className={
+              useFlexCenter || imageClassName
+                ? imgClass
+                : `${imgClass} absolute inset-0 h-full w-full`
+            }
           />
-          <p className="absolute bottom-0 left-0 right-0 bg-black/55 px-3 py-1.5 text-[10px] leading-snug text-white">
+          <p className="absolute bottom-0 left-0 right-0 z-10 bg-black/55 px-3 py-1.5 text-[10px] leading-snug text-white">
             *{disclaimer}
           </p>
         </>

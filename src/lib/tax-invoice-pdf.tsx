@@ -11,6 +11,12 @@ import {
 } from "@react-pdf/renderer";
 import { getCompanyDetails } from "./company";
 import { getReportTierConfig, resolveReportTier } from "./pricing";
+import {
+  TAX_INVOICE_FOOTER_LOGO_HEIGHT,
+  TAX_INVOICE_FOOTER_LOGO_WIDTH,
+  TAX_INVOICE_HEADER_LOGO_HEIGHT,
+  TAX_INVOICE_HEADER_LOGO_WIDTH,
+} from "./report-logo-size";
 import { formatReportReference } from "./report-design";
 import type { VehicleReport } from "./types";
 
@@ -80,10 +86,14 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     marginBottom: 28,
   },
-  logo: { width: 260, height: 48, objectFit: "contain" },
+  logo: {
+    width: TAX_INVOICE_HEADER_LOGO_WIDTH,
+    height: TAX_INVOICE_HEADER_LOGO_HEIGHT,
+    objectFit: "contain",
+  },
   tagline: {
-    marginTop: 6,
-    fontSize: 6.5,
+    marginTop: 8,
+    fontSize: 7,
     color: BLUE,
     fontFamily: "Helvetica-Bold",
     letterSpacing: 0.6,
@@ -192,7 +202,7 @@ const styles = StyleSheet.create({
   totalAmt: { fontFamily: "Helvetica-Bold", fontSize: 10 },
   pageFooter: {
     position: "absolute",
-    bottom: 32,
+    bottom: 28,
     left: 40,
     right: 40,
     flexDirection: "row",
@@ -200,9 +210,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderTopWidth: 1,
     borderTopColor: BORDER,
-    paddingTop: 10,
+    paddingTop: 12,
+    minHeight: 56,
   },
-  footerLogo: { width: 220, height: 40, objectFit: "contain" },
+  footerLogo: {
+    width: TAX_INVOICE_FOOTER_LOGO_WIDTH,
+    height: TAX_INVOICE_FOOTER_LOGO_HEIGHT,
+    objectFit: "contain",
+  },
   footerMeta: { fontSize: 8, color: GREY },
 });
 

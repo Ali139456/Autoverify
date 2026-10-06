@@ -1,7 +1,5 @@
 import Image from "next/image";
-
 import Link from "next/link";
-
 import type { VehicleReport } from "@/lib/types";
 
 import {
@@ -17,9 +15,8 @@ import {
 } from "@/lib/ppsr-certificate";
 
 import { formatReportReference } from "@/lib/report-design";
+import { PpsrCertificateViewer } from "./PpsrCertificateViewer";
 import { ReportShell } from "./ReportShell";
-
-
 
 export function PpsrCertificateReportPage({
 
@@ -130,17 +127,7 @@ export function PpsrCertificateReportPage({
             />
 
           ) : (
-
-            <iframe
-
-              src={proxyUrl}
-
-              title="PPSR search certificate"
-
-              className="report-ppsr-iframe block h-[1200px] w-full bg-slate-100"
-
-            />
-
+            <PpsrCertificateViewer proxyUrl={proxyUrl} />
           )}
 
         </div>

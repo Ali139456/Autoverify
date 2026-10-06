@@ -376,19 +376,21 @@ html.dark body {
     margin-top: 0 !important;
   }
 
+  /* One logical report page = one printable sheet; footer pinned via flex */
   #report-print-area > .report-page-break,
   #report-print-area > .report-print-page-first {
     display: flex !important;
     flex-direction: column !important;
-    min-height: 0 !important;
-    height: auto !important;
+    min-height: 281mm !important;
+    box-sizing: border-box !important;
   }
 
   #report-print-area > .report-page-break > .report-shell,
   #report-print-area > .report-print-page-first > .report-shell {
     flex: 1 1 auto !important;
     width: 100% !important;
-    height: auto !important;
+    min-height: 281mm !important;
+    height: 100% !important;
   }
 
   #report-print-area.space-y-6 > * {
@@ -402,17 +404,22 @@ html.dark body {
     margin: 0 !important;
     display: flex !important;
     flex-direction: column !important;
-    min-height: auto !important;
-    height: auto !important;
     overflow: visible !important;
-    break-inside: auto;
-    page-break-inside: auto;
+    break-inside: avoid;
+    page-break-inside: avoid;
     box-sizing: border-box !important;
   }
 
-  /* Pin footer + logo to bottom of each logical printed page */
-  #report-print-area .report-shell:not(.report-shell-ppsr) {
-    min-height: 281mm !important;
+  /* PPSR appendix: natural height (certificate may span its own sheet) */
+  #report-print-area > .report-page-break:has(> .report-shell-ppsr) {
+    min-height: auto !important;
+  }
+
+  #report-print-area .report-shell-ppsr {
+    min-height: auto !important;
+    height: auto !important;
+    break-inside: auto;
+    page-break-inside: auto;
   }
 
   #report-print-area > .report-page-break:last-child,
@@ -452,6 +459,7 @@ html.dark body {
 
   .report-shell-body {
     flex: 1 1 auto !important;
+    flex-grow: 1 !important;
     min-height: 0 !important;
     padding: 12px 18px 8px !important;
   }
@@ -542,14 +550,14 @@ html.dark body {
   }
 
   .report-shell-insights-page1 .report-hero-image {
-    min-height: 46mm !important;
-    max-height: 58mm !important;
+    min-height: 52mm !important;
+    max-height: none !important;
     overflow: hidden !important;
   }
 
   .report-shell-insights-page1 .report-hero-image img {
     object-fit: contain !important;
-    object-position: center top !important;
+    object-position: center center !important;
   }
 
   .report-valuations-page-break {
@@ -628,7 +636,7 @@ html.dark body {
 
   .report-status-grid {
     display: grid !important;
-    grid-template-columns: 1fr 280px !important;
+    grid-template-columns: 1fr 34% !important;
     align-items: stretch !important;
   }
 
@@ -668,15 +676,24 @@ html.dark body {
 
   .report-hero-image {
     position: relative !important;
-    min-height: 46mm !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 52mm !important;
     height: auto !important;
-    max-height: 58mm !important;
+    max-height: none !important;
     overflow: hidden !important;
+    background-color: #020617 !important;
   }
 
   .report-hero-image img {
+    position: static !important;
+    width: auto !important;
+    max-width: 96% !important;
+    max-height: 48mm !important;
+    height: auto !important;
     object-fit: contain !important;
-    object-position: center top !important;
+    object-position: center center !important;
   }
 
   .report-insights-section {
@@ -837,7 +854,7 @@ html.dark body {
   }
 
   .report-shell-ppsr .report-shell-footer {
-    margin-top: 0 !important;
+    margin-top: auto !important;
   }
 
   .report-shell-ppsr .report-shell-header {
@@ -845,7 +862,7 @@ html.dark body {
   }
 
   .report-shell-ppsr .report-shell-header img {
-    height: 26px !important;
+    height: 42px !important;
   }
 
   .report-shell-ppsr .report-shell-body {
@@ -889,6 +906,16 @@ html.dark body {
     margin: 0 auto !important;
   }
 
+  .report-ppsr-iframe-fallback {
+    display: none !important;
+  }
+
+  .report-ppsr-rendered .report-ppsr-full-image + .report-ppsr-full-image {
+    break-before: page;
+    page-break-before: always;
+    margin-top: 0 !important;
+  }
+
   .report-ppsr-iframe {
     display: block !important;
     width: 100% !important;
@@ -904,14 +931,29 @@ html.dark body {
     -webkit-print-color-adjust: exact;
   }
 
-  .report-spec-hero-thumb {
+  .report-spec-hero-main {
     break-inside: avoid;
     page-break-inside: avoid;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 52mm !important;
+    min-height: 52mm !important;
+    max-height: 52mm !important;
+    background-color: #020617 !important;
+    padding: 2mm 3mm 0 !important;
+    box-sizing: border-box !important;
   }
 
-  .report-spec-hero-thumb img {
+  .report-spec-hero-main img {
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 42mm !important;
+    max-height: 42mm !important;
+    min-height: 36mm !important;
     object-fit: contain !important;
-    object-position: center !important;
+    object-position: center center !important;
   }
 
   .report-ppsr-links {

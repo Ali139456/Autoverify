@@ -1,4 +1,10 @@
 import { getCompanyDetails } from "./company";
+import {
+  PURCHASE_EMAIL_FOOTER_LOGO_HEIGHT,
+  PURCHASE_EMAIL_FOOTER_LOGO_WIDTH,
+  PURCHASE_EMAIL_HEADER_LOGO_HEIGHT,
+  PURCHASE_EMAIL_HEADER_LOGO_WIDTH,
+} from "./report-logo-size";
 import { PRE_PURCHASE_INSPECTIONS_HREF } from "./inspection-menu";
 import { hasPpsrCertificate } from "./ppsr-certificate";
 import { formatReportReference } from "./report-design";
@@ -93,8 +99,9 @@ export function buildPurchaseConfirmationEmailHtml(
   const reportHeading = purchaseEmailReportHeading(tier, includePpsr);
   const footerContactHtml = buildEmailFooterContactHtml(company);
 
-  const logoWhiteUrl = `${baseUrl.replace(/\/$/, "")}/logo/logo-white.png`;
-  const logoFooterUrl = `${baseUrl.replace(/\/$/, "")}/logo/logo-white.png`;
+  const logoBase = `${baseUrl.replace(/\/$/, "")}/logo`;
+  const logoHeaderUrl = `${logoBase}/logo-inverse.png`;
+  const logoFooterUrl = `${logoBase}/logo-inverse.png`;
 
   const currency = (ctx.currency ?? "aud").toLowerCase();
   const amountCents = ctx.amountPaidCents ?? tierConfig.priceCents;
@@ -178,7 +185,7 @@ export function buildPurchaseConfirmationEmailHtml(
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td>
-                    <img src="${escapeHtml(logoWhiteUrl)}" alt="Auto Verifi" width="320" height="64" style="display:block;height:64px;width:auto;max-width:340px;" />
+                    <img src="${escapeHtml(logoHeaderUrl)}" alt="Auto Verifi" width="${PURCHASE_EMAIL_HEADER_LOGO_WIDTH}" height="${PURCHASE_EMAIL_HEADER_LOGO_HEIGHT}" style="display:block;border:0;outline:none;text-decoration:none;height:${PURCHASE_EMAIL_HEADER_LOGO_HEIGHT}px!important;width:auto!important;max-width:${PURCHASE_EMAIL_HEADER_LOGO_WIDTH}px!important;-ms-interpolation-mode:bicubic;" />
                     <p style="margin:8px 0 0;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.85);">Past &nbsp;|&nbsp; Present &nbsp;|&nbsp; Future</p>
                   </td>
                   <td align="right" valign="top" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:rgba(255,255,255,0.9);line-height:1.6;">
@@ -271,7 +278,7 @@ export function buildPurchaseConfirmationEmailHtml(
           </tr>
           <tr>
             <td style="background:${BRAND_NAVY};padding:26px 32px;border-radius:0 0 14px 14px;border:1px solid ${BRAND_NAVY};">
-              <img src="${escapeHtml(logoFooterUrl)}" alt="Auto Verifi" width="300" height="64" style="display:block;height:64px;width:auto;max-width:320px;" />
+              <img src="${escapeHtml(logoFooterUrl)}" alt="Auto Verifi" width="${PURCHASE_EMAIL_FOOTER_LOGO_WIDTH}" height="${PURCHASE_EMAIL_FOOTER_LOGO_HEIGHT}" style="display:block;border:0;outline:none;text-decoration:none;height:${PURCHASE_EMAIL_FOOTER_LOGO_HEIGHT}px!important;width:auto!important;max-width:${PURCHASE_EMAIL_FOOTER_LOGO_WIDTH}px!important;-ms-interpolation-mode:bicubic;" />
               <p style="margin:16px 0 12px;font-size:11px;line-height:1.65;color:#94a3b8;">
                 This report is compiled from third-party data sources and is provided for information only.
                 It is not personal financial, legal or tax advice. You should make your own enquiries before purchasing a vehicle.
