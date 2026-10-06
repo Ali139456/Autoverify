@@ -98,10 +98,6 @@ export function ReportValuationSupplements({
         <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">
           Ride share ready — eligibility requirements
         </h3>
-        <p className="mt-1 text-[10px] leading-relaxed text-slate-400">
-          Platform rules for NSW (information only). Final eligibility is determined
-          by Uber and DiDi.
-        </p>
         <div className="mt-3 overflow-x-auto rounded-lg border border-slate-200 bg-white">
           <table className="min-w-[640px] w-full border-collapse text-left text-xs sm:text-sm">
             <thead>

@@ -756,9 +756,6 @@ function PdfValuationSupplements({ report }: { report: VehicleReport }) {
       <Text style={[styles.sectionTitle, { marginTop: 8, fontSize: 8 }]}>
         Ride share ready — eligibility requirements
       </Text>
-      <Text style={{ fontSize: 6.5, color: GREY, marginTop: 2 }}>
-        Platform rules for NSW (information only).
-      </Text>
       <View
         style={{
           marginTop: 4,

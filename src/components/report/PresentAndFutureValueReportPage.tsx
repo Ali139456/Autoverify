@@ -55,10 +55,9 @@ export function PresentAndFutureValueReportPage({
               </div>
             ))}
           </div>
-          <div className="mt-5">
-            <ReportValuationSupplements report={report} />
-          </div>
         </div>
+
+        <ReportValuationSupplements report={report} />
 
         <div className="report-supplementary report-future-section rounded-xl border border-slate-200 bg-slate-50 p-5">
           <div className="flex flex-wrap items-end justify-between gap-2">

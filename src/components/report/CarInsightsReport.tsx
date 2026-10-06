@@ -345,7 +345,7 @@ export function CarInsightsReport({
         <ReportManufacturersWarrantyNotice />
 
         {!deferValuations ? (
-
+          <>
           <div className="report-supplementary report-present-value rounded-xl border border-slate-200 bg-slate-50 p-5">
 
             <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">
@@ -390,12 +390,10 @@ export function CarInsightsReport({
 
             </div>
 
-            <div className="mt-5">
-              <ReportValuationSupplements report={report} />
-            </div>
-
           </div>
 
+          <ReportValuationSupplements report={report} />
+          </>
         ) : null}
 
 
