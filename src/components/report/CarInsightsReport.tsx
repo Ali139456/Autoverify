@@ -104,7 +104,7 @@ export function CarInsightsReport({
 
   pageLabel,
 
-  deferValuations = false,
+  deferValuations = true,
 
 }: {
 

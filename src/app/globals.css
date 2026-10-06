@@ -388,8 +388,11 @@ html.dark body {
 
   #report-print-area > .report-print-page-first {
     display: block !important;
+    height: 281mm !important;
     min-height: 281mm !important;
     box-sizing: border-box !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
   #report-print-area.space-y-6 > * {
@@ -424,9 +427,9 @@ html.dark body {
   }
 
   #report-print-area > .report-print-page-first > .report-shell {
+    height: 281mm !important;
     min-height: 281mm !important;
-    height: auto !important;
-    max-height: none !important;
+    max-height: 281mm !important;
   }
 
   /* PPSR appendix: natural height (certificate may span its own sheet) */
@@ -583,14 +586,23 @@ html.dark body {
   }
 
   .report-shell-insights-page1 .report-hero-image {
-    min-height: 52mm !important;
-    max-height: none !important;
+    min-height: 38mm !important;
+    max-height: 40mm !important;
     overflow: hidden !important;
   }
 
   .report-shell-insights-page1 .report-hero-image img {
+    max-height: 36mm !important;
     object-fit: contain !important;
     object-position: center center !important;
+  }
+
+  .report-shell-insights-page1 .report-body.space-y-8 > * + * {
+    margin-top: 10px !important;
+  }
+
+  .report-shell-insights-page1 .report-insights-grid {
+    gap: 6px !important;
   }
 
   .report-valuations-page-break {

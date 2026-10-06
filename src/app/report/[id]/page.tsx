@@ -94,18 +94,16 @@ export default async function ReportPage({
             report={report}
             showUpgrade={!includesDamage}
             pageLabel={`${reportPage++} / ${pageCount}`}
-            deferValuations={includesDamage}
+            deferValuations
           />
         </div>
 
-        {includesDamage ? (
-          <div className="report-page-break report-valuations-page-break">
-            <PresentAndFutureValueReportPage
-              report={report}
-              pageLabel={`${reportPage++} / ${pageCount}`}
-            />
-          </div>
-        ) : null}
+        <div className="report-page-break report-valuations-page-break">
+          <PresentAndFutureValueReportPage
+            report={report}
+            pageLabel={`${reportPage++} / ${pageCount}`}
+          />
+        </div>
 
         {hasVehicleSpecSheet ? (
           <div className="report-page-break">
