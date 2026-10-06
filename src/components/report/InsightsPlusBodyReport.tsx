@@ -62,12 +62,15 @@ export function InsightsPlusBodyReport({
   inspectUrl,
   showActions = false,
   pageLabel = "2 / 2",
+  photosPageLabel,
 }: {
   report: VehicleReport;
   photos: InspectionPhoto[];
   inspectUrl?: string | null;
   showActions?: boolean;
   pageLabel?: string;
+  /** When set, walkaround photos + damage render on a new page with this label. */
+  photosPageLabel?: string;
 }) {
   const { vehicle, damage } = report;
   const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
@@ -78,57 +81,61 @@ export function InsightsPlusBodyReport({
   });
 
   const walkaroundPhotos = photos.length > 0 ? photos : [];
+  const splitPhotosPage = Boolean(photosPageLabel?.trim());
+  const shellProps = {
+    reportId: report.id,
+    generatedAt: report.createdAt,
+    reportReference: formatReportReference(report.vehicle),
+  };
 
-  return (
-    <ReportShell
-      reportId={report.id}
-      generatedAt={report.createdAt}
-      reportReference={formatReportReference(report.vehicle)}
-      pageLabel={pageLabel}
-    >
-      <div className="space-y-8">
-        <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
-            Auto Verifi Insights+ Report
-          </h1>
-          <p className="mt-2 text-lg font-bold text-[#0073E3]">{vehicleTitle}</p>
-          <div className="mt-4 border-l-4 border-[#0073E3] pl-4">
-            <h2 className="text-sm font-extrabold uppercase tracking-[0.16em] text-slate-900">
-              Current Body Condition
-            </h2>
-            <p className="mt-1 text-base font-bold text-[#0073E3]">
-              AI-Powered Image Analysis
-            </p>
-          </div>
-        </div>
-
-        {showActions && (
-          <div className="report-no-print rounded-xl border border-slate-200 bg-slate-50 p-4">
-            <InspectionStarter
-              reportId={report.id}
-              initialInspectUrl={inspectUrl}
-              customerPhone={report.customerPhone}
-              ownerPhone={report.ownerPhone}
-              autoShowQr={!damage && !inspectUrl}
-            />
-            {!damage && (
-              <div className="mt-4">
-                <DamageUpload reportId={report.id} />
-              </div>
-            )}
-          </div>
-        )}
-
-        {damage ? (
-          <DamageSummary damage={damage} />
-        ) : (
-          <p className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-500">
-            Complete the guided mobile walkaround to populate AI damage analysis
-            and inspection photos in this report.
+  const introBlock = (
+    <>
+      <div>
+        <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+          Auto Verifi Insights+ Report
+        </h1>
+        <p className="mt-2 text-lg font-bold text-[#0073E3]">{vehicleTitle}</p>
+        <div className="mt-4 border-l-4 border-[#0073E3] pl-4">
+          <h2 className="text-sm font-extrabold uppercase tracking-[0.16em] text-slate-900">
+            Current Body Condition
+          </h2>
+          <p className="mt-1 text-base font-bold text-[#0073E3]">
+            AI-Powered Image Analysis
           </p>
-        )}
+        </div>
+      </div>
 
-        <div>
+      {showActions && (
+        <div className="report-no-print rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <InspectionStarter
+            reportId={report.id}
+            initialInspectUrl={inspectUrl}
+            customerPhone={report.customerPhone}
+            ownerPhone={report.ownerPhone}
+            autoShowQr={!damage && !inspectUrl}
+          />
+          {!damage && (
+            <div className="mt-4">
+              <DamageUpload reportId={report.id} />
+            </div>
+          )}
+        </div>
+      )}
+
+      {damage ? (
+        <DamageSummary damage={damage} />
+      ) : (
+        <p className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-500">
+          Complete the guided mobile walkaround to populate AI damage analysis
+          and inspection photos in this report.
+        </p>
+      )}
+    </>
+  );
+
+  const photosBlock = (
+    <>
+        <div className="report-inspection-photos">
           <h3 className="text-xs font-bold uppercase tracking-[0.16em] text-slate-900">
             Walkaround photos
           </h3>
@@ -206,8 +213,31 @@ export function InsightsPlusBodyReport({
             </div>
           </div>
         )}
+    </>
+  );
+
+  if (!splitPhotosPage) {
+    return (
+      <ReportShell {...shellProps} pageLabel={pageLabel}>
+        <div className="space-y-8">
+          {introBlock}
+          {photosBlock}
+        </div>
+      </ReportShell>
+    );
+  }
+
+  return (
+    <>
+      <ReportShell {...shellProps} pageLabel={pageLabel}>
+        <div className="space-y-8">{introBlock}</div>
+      </ReportShell>
+      <div className="report-page-break report-inspection-continued">
+        <ReportShell {...shellProps} pageLabel={photosPageLabel!}>
+          <div className="space-y-8">{photosBlock}</div>
+        </ReportShell>
       </div>
-    </ReportShell>
+    </>
   );
 }
 

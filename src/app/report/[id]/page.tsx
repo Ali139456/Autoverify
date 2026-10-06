@@ -46,10 +46,13 @@ export default async function ReportPage({
   const includesDamage = hasDamageAnalysis(tier);
   const hasPpsrAppendix = hasPpsrCertificate(report);
   const hasVehicleSpecSheet = hasVehicleSpecContent(report.vehicleSpec);
+  const hasFactoryFeatures =
+    (report.vehicleSpec?.factoryFeatures.length ?? 0) > 0;
   const pageCount = countVehicleReportPages(
     includesDamage,
     hasPpsrAppendix,
     hasVehicleSpecSheet,
+    hasFactoryFeatures,
   );
   let reportPage = 1;
 
@@ -110,6 +113,11 @@ export default async function ReportPage({
             <VehicleSpecReportPage
               report={report}
               pageLabel={`${reportPage++} / ${pageCount}`}
+              factoryPageLabel={
+                hasFactoryFeatures
+                  ? `${reportPage++} / ${pageCount}`
+                  : undefined
+              }
             />
           </div>
         ) : null}
@@ -122,6 +130,7 @@ export default async function ReportPage({
               inspectUrl={inspectUrlForOwner}
               showActions
               pageLabel={`${reportPage++} / ${pageCount}`}
+              photosPageLabel={`${reportPage++} / ${pageCount}`}
             />
           </div>
         )}

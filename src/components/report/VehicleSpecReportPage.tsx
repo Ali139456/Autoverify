@@ -7,21 +7,41 @@ import { VehicleSpecReportSection } from "./VehicleSpecReportSection";
 export function VehicleSpecReportPage({
   report,
   pageLabel,
+  factoryPageLabel,
 }: {
   report: VehicleReport;
   pageLabel: string;
+  factoryPageLabel?: string;
 }) {
-  if (!hasVehicleSpecContent(report.vehicleSpec)) return null;
+  const sheet = report.vehicleSpec;
+  if (!hasVehicleSpecContent(sheet)) return null;
+
+  const hasFactory = sheet!.factoryFeatures.length > 0;
+  const shellProps = {
+    reportId: report.id,
+    generatedAt: report.createdAt,
+    reportReference: formatReportReference(report.vehicle),
+    className: "report-shell-spec",
+  };
+
+  if (!hasFactory || !factoryPageLabel) {
+    return (
+      <ReportShell {...shellProps} pageLabel={pageLabel}>
+        <VehicleSpecReportSection report={report} part="full" />
+      </ReportShell>
+    );
+  }
 
   return (
-    <ReportShell
-      reportId={report.id}
-      generatedAt={report.createdAt}
-      reportReference={formatReportReference(report.vehicle)}
-      pageLabel={pageLabel}
-      className="report-shell-spec"
-    >
-      <VehicleSpecReportSection report={report} />
-    </ReportShell>
+    <>
+      <ReportShell {...shellProps} pageLabel={pageLabel}>
+        <VehicleSpecReportSection report={report} part="data" />
+      </ReportShell>
+      <div className="report-page-break report-spec-continued">
+        <ReportShell {...shellProps} pageLabel={factoryPageLabel}>
+          <VehicleSpecReportSection report={report} part="factory" />
+        </ReportShell>
+      </div>
+    </>
   );
 }

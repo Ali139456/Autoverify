@@ -39,10 +39,13 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
   const hasPpsrAppendix = hasPpsrCertificate(report);
 
   const hasVehicleSpecSheet = hasVehicleSpecContent(report.vehicleSpec);
+  const hasFactoryFeatures =
+    (report.vehicleSpec?.factoryFeatures.length ?? 0) > 0;
   const pageCount = countVehicleReportPages(
     includesDamage,
     hasPpsrAppendix,
     hasVehicleSpecSheet,
+    hasFactoryFeatures,
   );
 
   let reportPage = 1;
@@ -111,6 +114,11 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
             <VehicleSpecReportPage
               report={report}
               pageLabel={`${reportPage++} / ${pageCount}`}
+              factoryPageLabel={
+                hasFactoryFeatures
+                  ? `${reportPage++} / ${pageCount}`
+                  : undefined
+              }
             />
           </div>
         ) : null}
@@ -130,6 +138,7 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
               showActions={false}
 
               pageLabel={`${reportPage++} / ${pageCount}`}
+              photosPageLabel={`${reportPage++} / ${pageCount}`}
 
             />
 

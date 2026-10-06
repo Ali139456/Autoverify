@@ -376,77 +376,31 @@ html.dark body {
     margin-top: 0 !important;
   }
 
-  /* Printable area: A4 297mm − 8mm @page margins × 2 = 281mm */
-  #report-print-area > .report-page-break:not(:has(> .report-shell-ppsr)) {
-    display: block !important;
-    height: 281mm !important;
-    min-height: 281mm !important;
-    box-sizing: border-box !important;
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
-  }
-
-  #report-print-area > .report-print-page-first {
-    display: block !important;
-    height: 281mm !important;
-    min-height: 281mm !important;
-    box-sizing: border-box !important;
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
-  }
-
   #report-print-area.space-y-6 > * {
     margin-top: 0 !important;
   }
 
+  /* Simple print flow: one section per break, natural height, no clipping */
   .report-shell {
     box-shadow: none !important;
     border: 1px solid #e2e8f0 !important;
     border-radius: 12px !important;
-    margin: 0 !important;
+    margin: 0 0 0 0 !important;
     width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
     overflow: visible !important;
-    break-inside: avoid;
-    page-break-inside: avoid;
+    break-inside: auto !important;
+    page-break-inside: auto !important;
     box-sizing: border-box !important;
   }
 
-  /* Grid pins footer row to the bottom of the 281mm frame (Chrome print) */
-  #report-print-area .report-shell:not(.report-shell-ppsr) {
-    display: grid !important;
-    grid-template-rows: auto 1fr auto !important;
-    align-content: stretch !important;
-    min-height: 281mm !important;
-    height: 100% !important;
-  }
-
-  #report-print-area > .report-page-break:not(:has(> .report-shell-ppsr)) > .report-shell {
-    height: 281mm !important;
-    min-height: 281mm !important;
-    max-height: 281mm !important;
-  }
-
-  #report-print-area > .report-print-page-first > .report-shell {
-    height: 281mm !important;
-    min-height: 281mm !important;
-    max-height: 281mm !important;
-  }
-
-  /* PPSR appendix: natural height (certificate may span its own sheet) */
-  #report-print-area > .report-page-break:has(> .report-shell-ppsr) {
-    min-height: auto !important;
-  }
-
-  #report-print-area > .report-page-break:has(> .report-shell-ppsr) > .report-shell {
-    min-height: auto !important;
-  }
-
   #report-print-area .report-shell-ppsr {
-    min-height: auto !important;
-    height: auto !important;
-    overflow: visible !important;
-    break-inside: auto;
-    page-break-inside: auto;
+    break-inside: auto !important;
+    page-break-inside: auto !important;
   }
 
   #report-print-area > .report-page-break:last-child,
@@ -456,9 +410,11 @@ html.dark body {
   }
 
   .report-shell-header {
-    break-inside: avoid;
-    break-after: avoid;
-    grid-row: 1 !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+    flex-shrink: 0 !important;
     background-color: #ffffff !important;
     color: #0f172a !important;
     border-bottom: 2px solid #0073e3 !important;
@@ -485,24 +441,22 @@ html.dark body {
   }
 
   .report-shell-body {
-    grid-row: 2 !important;
-    min-height: 0 !important;
-    align-self: stretch !important;
+    flex: 0 1 auto !important;
     overflow: visible !important;
-    padding: 12px 18px 8px !important;
+    padding: 12px 18px 12px !important;
   }
 
   #report-print-area .report-shell-ppsr .report-shell-body {
-    overflow: visible !important;
     padding-bottom: 8px !important;
   }
 
   .report-shell-footer {
-    break-inside: avoid;
-    page-break-inside: avoid;
-    grid-row: 3 !important;
-    align-self: end !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    break-before: avoid !important;
+    page-break-before: avoid !important;
     position: static !important;
+    flex-shrink: 0 !important;
     margin-top: 0 !important;
     padding: 8px 18px !important;
     border-top: 1px solid #e2e8f0 !important;
@@ -534,6 +488,12 @@ html.dark body {
   .report-page-break {
     break-before: page;
     page-break-before: always;
+  }
+
+  .report-spec-factory-list li,
+  .report-inspection-photos figure {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 
   .report-print-page-first {
