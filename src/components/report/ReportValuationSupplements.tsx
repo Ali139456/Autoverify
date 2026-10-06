@@ -18,7 +18,7 @@ export function ReportValuationSupplements({
   return (
     <div className="report-valuation-supplements space-y-5">
       <div className="report-pplate-status rounded-xl border border-slate-200 bg-slate-50 p-5">
-        <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">
+        <h3 className="text-xs font-bold uppercase tracking-wide text-slate-900">
           P plate status
         </h3>
         <div className="mt-3 overflow-hidden rounded-lg border border-slate-200 bg-white">
@@ -50,7 +50,7 @@ export function ReportValuationSupplements({
           </table>
         </div>
 
-        <p className="mt-4 text-[10px] font-bold uppercase tracking-wide text-slate-500">
+        <p className="mt-4 text-[10px] font-bold uppercase tracking-wide text-slate-900">
           Official P-plate vehicle/legal reference
         </p>
         <div className="mt-2 overflow-x-auto rounded-lg border border-slate-200 bg-white">
@@ -95,7 +95,7 @@ export function ReportValuationSupplements({
       </div>
 
       <div className="report-rideshare-eligibility rounded-xl border border-slate-200 bg-slate-50 p-5">
-        <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">
+        <h3 className="text-xs font-bold uppercase tracking-wide text-slate-900">
           Ride share ready — eligibility requirements
         </h3>
         <div className="mt-3 overflow-x-auto rounded-lg border border-slate-200 bg-white">

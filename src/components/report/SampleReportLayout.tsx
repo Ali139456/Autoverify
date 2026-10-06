@@ -21,6 +21,8 @@ import {
 } from "@/lib/build-sample-report";
 
 import { countVehicleReportPages } from "@/lib/report-page-count";
+import { hasVehicleSpecContent } from "@/lib/vehicle-spec-sheet";
+import { VehicleSpecReportPage } from "@/components/report/VehicleSpecReportPage";
 
 import { hasDamageAnalysis } from "@/lib/pricing";
 
@@ -36,12 +38,11 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
 
   const hasPpsrAppendix = hasPpsrCertificate(report);
 
+  const hasVehicleSpecSheet = hasVehicleSpecContent(report.vehicleSpec);
   const pageCount = countVehicleReportPages(
-
     includesDamage,
-
     hasPpsrAppendix,
-
+    hasVehicleSpecSheet,
   );
 
   let reportPage = 1;
@@ -98,10 +99,7 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
 
         </div>
 
-
-
         {includesDamage ? (
-
           <div className="report-page-break report-valuations-page-break">
 
             <PresentAndFutureValueReportPage
@@ -114,6 +112,15 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
 
           </div>
 
+        ) : null}
+
+        {hasVehicleSpecSheet ? (
+          <div className="report-page-break">
+            <VehicleSpecReportPage
+              report={report}
+              pageLabel={`${reportPage++} / ${pageCount}`}
+            />
+          </div>
         ) : null}
 
 

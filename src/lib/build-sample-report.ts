@@ -74,6 +74,10 @@ export function buildSampleInspectionPhotos(): InspectionPhoto[] {
       storagePath: url,
       externalUrl: url,
       uploadedAt: SAMPLE_PHOTO_TIMESTAMP,
+      capturedAt: SAMPLE_PHOTO_TIMESTAMP,
+      latitude: -33.86882,
+      longitude: 151.20929,
+      locationAccuracyM: 12,
     };
   });
 }
@@ -172,11 +176,17 @@ function buildMercedesSampleCore() {
   const vehicleSpec = buildVehicleSpecSheet({
     vehicle,
     registration,
-    vehicleRecord: { num_doors: 4, num_seats: 5 },
+    vehicleRecord: {
+      num_doors: 4,
+      num_seats: 5,
+      engine_size: "2.0L",
+      engine_type: "T4",
+      performance_info: { power_kw: 190, torque_nm: 400 },
+    },
     registrationData: {},
     detailedSpecs: [
       { description: "Body", value: "Sedan" },
-      { description: "Fuel", value: "Petrol — Mild hybrid" },
+      { description: "Fuel type", value: "Premium unleaded / electric (mild hybrid)" },
       { description: "Transmission", value: "Automatic" },
     ],
   });

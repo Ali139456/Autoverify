@@ -24,6 +24,23 @@ const inputClass =
 
 const labelClass = "mb-1.5 block font-medium text-slate-700 dark:text-slate-300";
 
+const BIRTH_MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+] as const;
+
+const dobSelectClass = `${inputClass} min-w-0 px-2.5 text-sm sm:px-4 sm:text-sm`;
+
 
 
 export function CheckoutBookingForm({
@@ -116,7 +133,7 @@ export function CheckoutBookingForm({
 
         id="checkout-details"
 
-        className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-ink-800 sm:p-8"
+        className="w-full min-w-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-ink-800 sm:p-8"
 
       >
 
@@ -129,7 +146,7 @@ export function CheckoutBookingForm({
 
 
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        <div className="mt-6 grid w-full min-w-0 gap-4 sm:grid-cols-2">
 
           <label className="block text-sm">
 
@@ -263,11 +280,11 @@ export function CheckoutBookingForm({
 
           </label>
 
-          <fieldset className="sm:col-span-2">
+          <fieldset className="min-w-0 sm:col-span-2">
 
             <legend className={`${labelClass} text-sm`}>Date of birth *</legend>
 
-            <div className="mt-1 grid grid-cols-3 gap-2">
+            <div className="mt-1 grid w-full min-w-0 grid-cols-[minmax(0,4.5rem)_minmax(0,1fr)_minmax(0,5.25rem)] gap-2 sm:grid-cols-[minmax(0,5.25rem)_minmax(0,1fr)_minmax(0,6.25rem)] sm:gap-3">
 
               <select
 
@@ -275,7 +292,7 @@ export function CheckoutBookingForm({
 
                 onChange={(e) => setBirthDay(e.target.value)}
 
-                className={inputClass}
+                className={dobSelectClass}
 
                 required
 
@@ -303,7 +320,7 @@ export function CheckoutBookingForm({
 
                 onChange={(e) => setBirthMonth(e.target.value)}
 
-                className={inputClass}
+                className={dobSelectClass}
 
                 required
 
@@ -313,33 +330,7 @@ export function CheckoutBookingForm({
 
                 <option value="">Month</option>
 
-                {[
-
-                  "January",
-
-                  "February",
-
-                  "March",
-
-                  "April",
-
-                  "May",
-
-                  "June",
-
-                  "July",
-
-                  "August",
-
-                  "September",
-
-                  "October",
-
-                  "November",
-
-                  "December",
-
-                ].map((m, i) => (
+                {BIRTH_MONTHS.map((m, i) => (
 
                   <option key={m} value={String(i + 1)}>
 
@@ -357,7 +348,7 @@ export function CheckoutBookingForm({
 
                 onChange={(e) => setBirthYear(e.target.value)}
 
-                className={inputClass}
+                className={`${dobSelectClass} tabular-nums`}
 
                 required
 
@@ -509,9 +500,11 @@ export function CheckoutBookingForm({
 
             <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
 
-              The vehicle owner will receive an SMS link to complete the guided photo
+              After you pay, we send the owner an SMS with the mobile inspection link
 
-              condition scan.
+              (Insights+ only). If the text does not arrive, use the QR code on your
+
+              report to open or resend the link.
 
             </p>
 
@@ -540,6 +533,9 @@ export function CheckoutBookingForm({
           After payment, your full vehicle report opens immediately and we email your
 
           receipt and report link.
+          {requiresPhones
+            ? " The owner inspection SMS is sent when that report page loads."
+            : null}
 
         </p>
 

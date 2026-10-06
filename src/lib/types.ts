@@ -151,6 +151,11 @@ export interface InspectionPhoto {
   label: string;
   storagePath: string;
   uploadedAt: string;
+  /** Device time when the photo was taken (ISO), when provided by the capture UI. */
+  capturedAt?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  locationAccuracyM?: number | null;
   /** Ravin Inspector Lite source URL when photos arrive via webhook. */
   externalUrl?: string;
 }

@@ -207,6 +207,10 @@ export async function uploadInspectionPhoto(input: {
   angle: string;
   buffer: Buffer;
   contentType: string;
+  capturedAt?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  locationAccuracyM?: number | null;
 }): Promise<InspectionPhoto> {
   if (!isValidInspectionAngleId(input.angle)) {
     throw new Error("Invalid photo angle.");
@@ -225,16 +229,31 @@ export async function uploadInspectionPhoto(input: {
       upsert: true,
     });
 
-  if (uploadError) throw new Error(uploadError.message);
+  if (uploadError) {
+    const hint =
+      uploadError.message.toLowerCase().includes("bucket") ||
+      uploadError.message.toLowerCase().includes("not found")
+        ? " Photo storage may not be configured on the server."
+        : "";
+    throw new Error(`${uploadError.message}${hint}`);
+  }
 
   const photo: InspectionPhoto = {
     angle: input.angle,
     label: getInspectionAngleLabel(input.angle),
     storagePath,
     uploadedAt: new Date().toISOString(),
+    capturedAt: input.capturedAt ?? null,
+    latitude: input.latitude ?? null,
+    longitude: input.longitude ?? null,
+    locationAccuracyM: input.locationAccuracyM ?? null,
   };
 
-  const existing = input.inspection.photos.filter((item) => item.angle !== input.angle);
+  const fresh = await getInspectionById(input.inspection.id);
+  if (!fresh) {
+    throw new Error("Inspection session not found.");
+  }
+  const existing = fresh.photos.filter((item) => item.angle !== input.angle);
   const photos = [...existing, photo];
 
   await updateInspection(input.inspection.id, {

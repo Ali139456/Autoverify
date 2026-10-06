@@ -14,7 +14,7 @@ export function AboutUsSection() {
       <div className="pointer-events-none absolute -top-40 right-0 h-[400px] w-[400px] rounded-full bg-accent-600/10 blur-[120px]" />
 
       <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
-        <Reveal className="mx-auto max-w-3xl text-center">
+        <Reveal className="max-w-3xl text-left">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent-500 dark:text-accent-400">
             About us
           </p>
@@ -22,9 +22,7 @@ export function AboutUsSection() {
             Built on decades of{" "}
             <span className="text-accent-500 dark:text-accent-400">automotive expertise</span>
           </h2>
-        </Reveal>
-        <Reveal className="mx-auto mt-4 max-w-3xl text-left">
-          <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400 sm:text-base">
+          <p className="mt-4 text-sm leading-relaxed text-slate-600 dark:text-slate-400 sm:text-base">
             {INTRO}
           </p>
         </Reveal>

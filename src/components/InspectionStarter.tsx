@@ -24,6 +24,7 @@ export function InspectionStarter({
   const [error, setError] = useState<string | null>(null);
   const [smsSent, setSmsSent] = useState(false);
   const [smsError, setSmsError] = useState<string | null>(null);
+  const [smsNotice, setSmsNotice] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(
     () => Boolean(autoShowQr && initialInspectUrl),
   );
@@ -34,6 +35,7 @@ export function InspectionStarter({
     setError(null);
     setSmsSent(false);
     setSmsError(null);
+    setSmsNotice(null);
 
     try {
       const res = await fetch("/api/inspections/start", {
@@ -53,6 +55,7 @@ export function InspectionStarter({
         provider?: "ravin" | "internal";
         smsSent?: boolean;
         smsError?: string | null;
+        smsNotice?: string | null;
         ravinWarning?: string | null;
       } = {};
       try {
@@ -74,6 +77,7 @@ export function InspectionStarter({
       }
       setSmsSent(Boolean(data.smsSent));
       setSmsError(data.smsError ?? data.ravinWarning ?? null);
+      setSmsNotice(data.smsNotice ?? null);
       if (openModal) setModalOpen(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not create inspection link.");
@@ -111,9 +115,9 @@ export function InspectionStarter({
           <div>
             <h3 className="font-bold text-white">AI condition check</h3>
             <p className="mt-1 text-sm text-slate-400">
-              The vehicle owner completes the guided photo walkaround on their
-              mobile. An SMS link is sent to the owner&apos;s number provided at
-              checkout.
+              After payment, we text the inspection link to the owner&apos;s mobile
+              from checkout. They complete the guided photo walkaround on their
+              phone.
             </p>
             {ownerPhone && (
               <p className="mt-2 text-xs text-slate-500">
@@ -152,6 +156,9 @@ export function InspectionStarter({
           <p className="mt-3 text-sm font-medium text-amber-400" role="alert">
             {smsError}
           </p>
+        )}
+        {smsNotice && !smsError && (
+          <p className="mt-3 text-sm text-slate-400">{smsNotice}</p>
         )}
 
         {inspectUrl && !modalOpen && (

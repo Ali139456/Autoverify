@@ -42,11 +42,6 @@ import { ReportShell } from "./ReportShell";
 import { ReportManufacturersWarrantyNotice } from "./ReportManufacturersWarrantyNotice";
 import { ReportValuationSupplements } from "./ReportValuationSupplements";
 import { VehicleHeroImage } from "./VehicleHeroImage";
-import { VehicleSpecReportSection } from "./VehicleSpecReportSection";
-import { hasVehicleSpecContent } from "@/lib/vehicle-spec-sheet";
-
-
-
 function StatusIcon({
 
   ok,
@@ -150,7 +145,6 @@ export function CarInsightsReport({
 
 
   const specs = buildReportOverviewSpecs(vehicle, report);
-  const showFullVehicleSpec = hasVehicleSpecContent(report.vehicleSpec);
 
   const vehicleTitle =
 
@@ -198,11 +192,6 @@ export function CarInsightsReport({
 
         </div>
 
-        {showFullVehicleSpec ? (
-          <VehicleSpecReportSection report={report} />
-        ) : null}
-
-        {!showFullVehicleSpec ? (
         <div className="report-spec-bar grid grid-cols-2 divide-x divide-y divide-slate-200 rounded-xl border border-slate-200 bg-slate-50 sm:grid-cols-4">
 
           {specs.map(({ label, value }, i) => (
@@ -246,7 +235,6 @@ export function CarInsightsReport({
           ))}
 
         </div>
-        ) : null}
 
         <div className="report-status-panel overflow-visible rounded-2xl border border-slate-200 bg-slate-100">
 
@@ -254,7 +242,7 @@ export function CarInsightsReport({
 
             <div className="report-status-list border-b border-slate-200 p-6 sm:p-8 lg:border-b-0 lg:border-r">
 
-              <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+              <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-slate-900">
 
                 Vehicle Status
 
@@ -315,19 +303,13 @@ export function CarInsightsReport({
 
         <div className="report-insights-section">
 
-          <div className="report-insights-header mb-4 flex flex-wrap items-end justify-between gap-3">
+          <div className="report-insights-header mb-4">
 
             <h2 className="text-sm font-extrabold uppercase tracking-[0.16em] text-slate-900">
 
               Key Insights
 
             </h2>
-
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#0073E3]">
-
-              All the essentials. In one place.
-
-            </p>
 
           </div>
 
@@ -349,7 +331,7 @@ export function CarInsightsReport({
           <>
           <div className="report-supplementary report-present-value rounded-xl border border-slate-200 bg-slate-50 p-5">
 
-            <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">
+            <h3 className="text-xs font-bold uppercase tracking-wide text-slate-900">
 
               Present value — market valuation
 
@@ -399,7 +381,7 @@ export function CarInsightsReport({
 
             <div className="flex flex-wrap items-end justify-between gap-2">
 
-              <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">
+              <h3 className="text-xs font-bold uppercase tracking-wide text-slate-900">
 
                 Future value forecast
 

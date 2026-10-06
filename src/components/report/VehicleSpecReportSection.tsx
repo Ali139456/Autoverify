@@ -36,7 +36,7 @@ export function VehicleSpecReportSection({ report }: { report: VehicleReport }) 
 
       <div className="mt-6 grid gap-8 lg:grid-cols-[1.2fr_1fr]">
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">
+          <h3 className="text-xs font-bold uppercase tracking-wide text-slate-900">
             Vehicle data
           </h3>
           <dl className="report-spec-data-table mt-3 overflow-hidden rounded-xl border border-slate-200">
@@ -48,7 +48,14 @@ export function VehicleSpecReportSection({ report }: { report: VehicleReport }) 
                 <dt className="report-spec-data-label px-4 py-2.5 font-medium text-slate-600">
                   {row.label}
                 </dt>
-                <dd className="bg-white px-4 py-2.5 font-semibold text-slate-900">
+                <dd
+                  className={`bg-white px-4 py-2.5 font-semibold ${
+                    row.label === "Odometer history" &&
+                    row.value === "No odometer history reported"
+                      ? "text-[#E87722]"
+                      : "text-slate-900"
+                  }`}
+                >
                   {row.value}
                 </dd>
               </div>
@@ -57,7 +64,7 @@ export function VehicleSpecReportSection({ report }: { report: VehicleReport }) 
         </div>
 
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">
+          <h3 className="text-xs font-bold uppercase tracking-wide text-slate-900">
             Factory features &amp; options
           </h3>
           {sheet!.factoryFeatures.length > 0 ? (

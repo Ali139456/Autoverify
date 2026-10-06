@@ -77,20 +77,22 @@ export const RIDE_SHARE_ELIGIBILITY_ROWS: RideShareEligibilityRow[] = [
   },
   {
     requirement: "Registration",
-    uberX: "NSW registered",
-    didi: "NSW registered",
-  },
-  {
-    requirement: "CTP Insurance",
-    uberX: "NSW CTP required",
-    didi: "NSW CTP required",
-  },
-  {
-    requirement: "Property insurance",
     uberX:
-      "Minimum Third Party Property Damage; driver must be listed on policy",
+      "Valid registration in the state/territory where the vehicle operates",
     didi:
-      "Current Third Party or Comprehensive insurance; driver must be listed as insured",
+      "Valid registration in the state/territory where the vehicle operates",
+  },
+  {
+    requirement: "Compulsory Insurance",
+    uberX:
+      "Valid compulsory third-party (CTP) insurance applicable to the state/territory of operation",
+    didi:
+      "Valid compulsory third-party (CTP) insurance applicable to the state/territory of operation",
+  },
+  {
+    requirement: "Vehicle Insurance",
+    uberX: "Third-party property damage insurance or higher required",
+    didi: "Third-party property damage or comprehensive insurance required",
   },
   {
     requirement: "Vehicle Inspection",

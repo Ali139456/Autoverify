@@ -35,7 +35,7 @@ export function PricingTierCards({
   const checkoutReady = Boolean(checkoutId && (isVin || state));
 
   return (
-    <div>
+    <div className="w-full min-w-0 max-w-full">
       {showHeading && (
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-3xl lg:text-4xl">
@@ -46,7 +46,7 @@ export function PricingTierCards({
         </div>
       )}
 
-      <div className="mt-8 grid grid-cols-1 gap-5 sm:mt-10 sm:grid-cols-2 sm:items-stretch sm:gap-6">
+      <div className="mt-8 grid w-full min-w-0 grid-cols-1 gap-5 sm:mt-10 sm:grid-cols-2 sm:items-stretch sm:gap-6">
         {REPORT_TIER_ORDER.map((tier) => (
           <TierCard
             key={tier}
@@ -65,19 +65,12 @@ export function PricingTierCards({
 }
 
 function TierProductTitle({ tier }: { tier: ReportTier }) {
-  const lines =
-    tier === "insights_plus"
-      ? (["Auto Verifi", "Insights+", "Report"] as const)
-      : (["Auto Verifi", "Insights", "Report"] as const);
+  const { name } = getReportTierConfig(tier);
 
   return (
-    <p className="text-sm font-semibold leading-snug text-slate-900 dark:text-white sm:text-base">
-      {lines.map((line) => (
-        <span key={line} className="block">
-          {line}
-        </span>
-      ))}
-    </p>
+    <h3 className="text-balance text-base font-semibold leading-snug text-slate-900 dark:text-white sm:text-lg">
+      {name}
+    </h3>
   );
 }
 
@@ -102,7 +95,7 @@ function TierCard({
   const isPlus = tier === "insights_plus";
   const isSelected = selectedTier === tier;
   const cardShell =
-    "relative flex h-full flex-col overflow-hidden rounded-2xl border-2 border-accent-500 p-5 shadow-sm sm:p-8 dark:shadow-none";
+    "relative box-border flex h-full w-full min-w-0 max-w-full flex-col overflow-hidden rounded-2xl border-2 border-accent-500 px-5 py-6 shadow-sm sm:px-8 sm:py-8 dark:shadow-none";
   const cardBg = isPlus
     ? "bg-gradient-to-b from-blue-50 to-white dark:from-accent-700/40 dark:to-ink-950"
     : "bg-white dark:bg-ink-800";
@@ -121,28 +114,28 @@ function TierCard({
           </span>
         ) : null}
       </div>
-      <p className="mt-3 text-4xl font-extrabold text-accent-500 sm:text-5xl">
+      <p className="mt-3 text-3xl font-extrabold tabular-nums text-accent-500 sm:text-5xl">
         {formatTierPrice(tier)}
       </p>
       <p className="mt-2 text-pretty text-sm leading-relaxed text-slate-900 dark:text-slate-300">
         {config.tagline}
       </p>
 
-      <ul className="mt-5 flex-1 space-y-2 text-sm text-slate-700 dark:text-slate-300">
+      <ul className="mt-5 flex-1 space-y-2.5 text-sm text-slate-700 dark:text-slate-300">
         {config.highlights.map((item) => {
           const text = typeof item === "string" ? item : item.text;
           const accent = typeof item === "object" && item.accent;
           return (
-            <li key={text} className="flex gap-2">
-              <span className="text-accent-600" aria-hidden>
+            <li key={text} className="flex min-w-0 gap-2.5">
+              <span className="shrink-0 text-accent-600" aria-hidden>
                 •
               </span>
               <span
-                className={
+                className={`min-w-0 break-words ${
                   accent
                     ? "font-medium text-accent-600 dark:text-accent-400"
-                    : undefined
-                }
+                    : ""
+                }`}
               >
                 {text}
               </span>

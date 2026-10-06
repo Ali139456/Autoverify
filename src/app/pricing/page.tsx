@@ -11,9 +11,9 @@ export const metadata: Metadata = {
 
 export default function PricingPage() {
   return (
-    <div className="relative min-h-[calc(100vh-6rem)] overflow-hidden bg-white dark:bg-ink-950">
-      <div className="pointer-events-none absolute -top-32 left-1/2 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-accent-600/15 blur-[130px]" />
-      <div className="relative mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-16 lg:py-24">
+    <div className="relative min-h-[calc(100vh-6rem)] w-full min-w-0 overflow-x-clip bg-white dark:bg-ink-950">
+      <div className="pointer-events-none absolute -top-32 left-1/2 h-[420px] w-[820px] max-w-[100vw] -translate-x-1/2 rounded-full bg-accent-600/15 blur-[130px]" />
+      <div className="relative mx-auto w-full min-w-0 max-w-5xl px-4 py-10 sm:px-6 sm:py-16 lg:py-24">
         <div className="text-center">
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
             Simple, Value for Money{" "}

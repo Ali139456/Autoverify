@@ -69,8 +69,8 @@ export function RegoSearchForm({
       : "mx-auto max-w-md rounded-2xl border border-slate-200 bg-white p-2.5 shadow-lg dark:border-white/10 dark:bg-ink-800 dark:shadow-none sm:p-3 lg:mx-0";
 
   const fieldClass = onDark
-    ? "h-10 w-full min-w-0 rounded-lg border border-white/15 bg-ink-950 text-sm font-bold outline-none transition placeholder:font-bold placeholder:normal-case placeholder:text-[#0073E3] focus:border-[#0073E3] focus:ring-2 focus:ring-[#0073E3]/25 sm:text-base"
-    : "h-10 w-full min-w-0 rounded-lg border border-slate-200 bg-white text-sm font-semibold text-slate-900 outline-none transition placeholder:font-normal placeholder:normal-case placeholder:text-slate-400 focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 dark:border-white/15 dark:bg-ink-950 dark:font-black dark:text-white dark:placeholder:text-slate-500 sm:text-base";
+    ? "h-10 w-full min-w-0 rounded-lg border border-white/15 bg-ink-950 text-sm font-bold outline-none transition placeholder:text-xs placeholder:font-semibold placeholder:normal-case placeholder:text-[#0073E3] focus:border-[#0073E3] focus:ring-2 focus:ring-[#0073E3]/25 sm:placeholder:text-sm sm:placeholder:font-bold sm:text-base"
+    : "h-10 w-full min-w-0 rounded-lg border border-slate-200 bg-white text-sm font-semibold text-slate-900 outline-none transition placeholder:text-xs placeholder:font-normal placeholder:normal-case placeholder:text-slate-400 focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 dark:border-white/15 dark:bg-ink-950 dark:font-black dark:text-white dark:placeholder:text-slate-500 sm:placeholder:text-sm sm:text-base";
 
   const labelClass = onDark
     ? "text-[9px] font-bold uppercase tracking-[0.14em] text-slate-400"
@@ -87,7 +87,7 @@ export function RegoSearchForm({
     <form onSubmit={onSubmit} className="relative w-full">
       {loading ? (
         <div
-          className={`absolute inset-0 z-20 flex items-center justify-center rounded-2xl ${
+          className={`absolute inset-0 z-20 flex w-full items-center justify-center rounded-2xl ${
             onDark ? "bg-ink-950/95" : "bg-white/95 dark:bg-ink-950/95"
           }`}
         >
@@ -95,34 +95,34 @@ export function RegoSearchForm({
         </div>
       ) : null}
       <div className={`relative w-full ${shellClass}`}>
-        <div className="mb-1 grid grid-cols-2 gap-2 px-1 text-left">
-          <span className={labelClass}>
+        <div className="mb-1 flex gap-2 px-1 text-left">
+          <span className={`${labelClass} min-w-0 flex-1`}>
             Registration Plate or VIN
           </span>
-          <span className={labelClass}>
+          <span className={`${labelClass} w-[5.75rem] shrink-0`}>
             State{vinMode ? " (optional)" : ""}
           </span>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
-          <div className="relative min-w-0">
+        <div className="flex gap-2">
+          <div className="relative min-w-0 flex-1">
             <input
               id={VEHICLE_SEARCH_INPUT_ID}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Enter Rego or VIN here"
+              placeholder="Rego or VIN"
               aria-label="Registration plate or VIN"
               maxLength={17}
               className={`${fieldClass} px-3 text-left ${regoTextClass} ${!vinMode && query.trim() ? "plate-input uppercase" : ""}`}
             />
           </div>
 
-          <div className="relative min-w-0">
+          <div className="relative w-[5.75rem] shrink-0">
             <select
               value={state}
               onChange={(e) => setState(e.target.value)}
               aria-label="State of registration"
-              className={`${fieldClass} cursor-pointer appearance-none pl-3 pr-8 text-center font-bold`}
+              className={`${fieldClass} cursor-pointer appearance-none pl-2 pr-7 text-center text-sm font-bold sm:pl-3 sm:pr-8 sm:text-base`}
             >
               {STATES.map((s) => (
                 <option key={s} value={s}>

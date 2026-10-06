@@ -48,7 +48,7 @@ const money = (n: number) => `$${n.toLocaleString("en-AU")}`;
 export const ANCAP_SAFETY_RATINGS_URL = "https://www.ancap.com.au/safety-ratings";
 
 export const MANUFACTURERS_WARRANTY_NOTICE =
-  "Contact Authorised dealer/service centre and quote VIN to confirm remaining Manufacturers warranty.";
+  "Contact Authorised Dealer/service centre and quote VIN to confirm remaining Manufacturer's warranty.";
 
 /** Registration expiry for reports: DD-MM-YYYY (e.g. 16-02-2027). */
 export function formatExpiryDate(iso: string): string {
@@ -83,7 +83,10 @@ export function buildReportOverviewSpecs(
       value: vehicle.odometer ? `${vehicle.odometer.toLocaleString()} km` : "—",
     },
     { label: "Doors", value: doors },
-    { label: "Passengers", value: passengers },
+    { label: "Seat capacity", value: passengers },
+    { label: "Colour", value: vehicle.colour?.trim() || "—" },
+    { label: "Body", value: vehicle.bodyType?.trim() || "—" },
+    { label: "Fuel", value: vehicle.fuelType?.trim() || "—" },
   ];
 }
 
@@ -175,6 +178,12 @@ export function buildStatusChecks(report: VehicleReport): StatusCheck[] {
       ok: !registration.writtenOff,
     },
     {
+      label: registration.stolen
+        ? "Stolen record found"
+        : "No stolen record",
+      ok: !registration.stolen,
+    },
+    {
       label: vehicle.odometer
         ? "Odometer reading consistent"
         : "Odometer reading not available",
@@ -184,12 +193,6 @@ export function buildStatusChecks(report: VehicleReport): StatusCheck[] {
       label: "Service history available at dealer",
       ok: false,
       muted: true,
-    },
-    {
-      label: registration.stolen
-        ? "Stolen record found"
-        : "No stolen record",
-      ok: !registration.stolen,
     },
   ];
 }
@@ -220,15 +223,15 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
     },
     {
       id: "odometer",
-      title: "Odometer",
+      title: "Odometer history",
       status: vehicle.odometer
         ? `${vehicle.odometer.toLocaleString()} km`
-        : "Not available",
+        : "No odometer history reported",
       tone: vehicle.odometer ? "clear" : "neutral",
       detail: vehicle.odometer
         ? vehicle.odometerSource ??
           "Estimated from vehicle age and market listing data when a live odometer reading is unavailable."
-        : "No odometer reading was available from the register or market comparables for this vehicle.",
+        : undefined,
     },
     {
       id: "ancap",
@@ -245,8 +248,8 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
       status:
         registration.status === "Registered" ? "Active" : registration.status,
       statusSubtext: registration.expiryDate
-        ? `Expiry ${formatExpiryDate(registration.expiryDate)}`
-        : undefined,
+        ? `${vehicle.state} · Expiry ${formatExpiryDate(registration.expiryDate)}`
+        : vehicle.state,
       tone: registration.status === "Registered" ? "clear" : "warn",
     },
     {
@@ -308,6 +311,9 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
   return insights.filter((insight) => {
     if (insight.id === "risk") return false;
     if (insight.id === "future" && !includeFutureValue) return false;
+    if (includeFutureValue && (insight.id === "future" || insight.id === "market")) {
+      return false;
+    }
     return true;
   });
 }

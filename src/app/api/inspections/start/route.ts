@@ -15,7 +15,11 @@ import {
 } from "@/lib/ravin-partner";
 import { hasDamageAnalysis } from "@/lib/pricing";
 import { normalizeAuMobile } from "@/lib/phone";
-import { isSmsConfigured, sendInspectionLinkSms } from "@/lib/sms";
+import {
+  isSmsConfigured,
+  SMS_NOT_CONFIGURED_MESSAGE,
+  sendInspectionLinkSms,
+} from "@/lib/sms";
 
 export async function POST(req: NextRequest) {
   if (!isSupabaseServerConfigured()) {
@@ -116,8 +120,11 @@ export async function POST(req: NextRequest) {
 
     let smsSent = false;
     let smsError: string | null = null;
+    let smsNotice: string | null = null;
 
-    if (isSmsConfigured() && createdNewInspection) {
+    if (!isSmsConfigured()) {
+      smsError = SMS_NOT_CONFIGURED_MESSAGE;
+    } else if (createdNewInspection) {
       try {
         const vehicleLabel = `${report.vehicle.year} ${report.vehicle.make} ${report.vehicle.model}`;
         await sendInspectionLinkSms({
@@ -130,6 +137,9 @@ export async function POST(req: NextRequest) {
         smsError =
           err instanceof Error ? err.message : "Could not send inspection SMS.";
       }
+    } else {
+      smsNotice =
+        "An inspection link was already created for this report. Open the QR code and tap Send SMS link if the owner needs the text again.";
     }
 
     return NextResponse.json({
@@ -144,6 +154,7 @@ export async function POST(req: NextRequest) {
       customerPhone,
       smsSent,
       smsError,
+      smsNotice,
     });
   } catch (err) {
     const message =

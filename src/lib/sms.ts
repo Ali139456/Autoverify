@@ -15,13 +15,37 @@ function formatSmsFailureMessage(raw: string, status: number): string {
   return normalized.length > 160 ? `${normalized.slice(0, 157)}…` : normalized;
 }
 
+function resolveTwilioFromNumber(): string | null {
+  const raw = process.env.TWILIO_FROM_NUMBER?.trim();
+  if (!raw) return null;
+  if (raw.startsWith("+")) return raw;
+  const digits = raw.replace(/\D/g, "");
+  if (digits.startsWith("61") && digits.length >= 11) return `+${digits}`;
+  if (digits.startsWith("0") && digits.length === 10) return `+61${digits.slice(1)}`;
+  if (digits.length >= 9) return `+${digits}`;
+  return null;
+}
+
+function readTwilioCredentials(): {
+  accountSid: string | null;
+  authToken: string | null;
+  from: string | null;
+} {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID?.trim() ?? null;
+  const authToken = process.env.TWILIO_AUTH_TOKEN?.trim() ?? null;
+  const from = resolveTwilioFromNumber();
+  return { accountSid, authToken, from };
+}
+
 export function isSmsConfigured(): boolean {
+  const { accountSid, authToken, from } = readTwilioCredentials();
   return Boolean(
-    process.env.TWILIO_ACCOUNT_SID &&
-      process.env.TWILIO_AUTH_TOKEN &&
-      process.env.TWILIO_FROM_NUMBER,
+    accountSid?.startsWith("AC") && authToken && from?.startsWith("+"),
   );
 }
+
+export const SMS_NOT_CONFIGURED_MESSAGE =
+  "SMS is not configured on this deployment. Add TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_FROM_NUMBER in Vercel → Settings → Environment Variables (Production), then redeploy.";
 
 export async function sendInspectionLinkSms(input: {
   to: string;
@@ -29,9 +53,7 @@ export async function sendInspectionLinkSms(input: {
   vehicleLabel?: string;
 }): Promise<{ to: string }> {
   if (!isSmsConfigured()) {
-    throw new Error(
-      "SMS is not configured yet. Add Twilio credentials to send inspection links by text.",
-    );
+    throw new Error(SMS_NOT_CONFIGURED_MESSAGE);
   }
 
   const to = normalizeAuMobile(input.to);
@@ -39,9 +61,7 @@ export async function sendInspectionLinkSms(input: {
     throw new Error("Please enter a valid Australian mobile number.");
   }
 
-  const accountSid = process.env.TWILIO_ACCOUNT_SID!;
-  const authToken = process.env.TWILIO_AUTH_TOKEN!;
-  const from = process.env.TWILIO_FROM_NUMBER!;
+  const { accountSid, authToken, from } = readTwilioCredentials();
   const vehicle = input.vehicleLabel ? ` for ${input.vehicleLabel}` : "";
 
   const body = `Auto Verifi: complete the AI condition check${vehicle} on your phone:\n${input.inspectUrl}`;
@@ -56,7 +76,7 @@ export async function sendInspectionLinkSms(input: {
       },
       body: new URLSearchParams({
         To: to,
-        From: from,
+        From: from!,
         Body: body,
       }),
     },

@@ -141,7 +141,12 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
               <InsightStatusBadge tone={insight.tone} />
               <div className="min-w-0">
                 <p
-                  className={`text-xs font-bold leading-snug break-words ${insightToneClass(insight.tone)}`}
+                  className={`text-xs font-bold leading-snug break-words ${
+                    insight.id === "odometer" &&
+                    insight.status === "No odometer history reported"
+                      ? "text-[#E87722]"
+                      : insightToneClass(insight.tone)
+                  }`}
                 >
                   {insight.status}
                 </p>

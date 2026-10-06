@@ -18,6 +18,7 @@ import {
   isPPlateAdvisoryCopy,
   P_PLATE_REFERENCE_ROWS,
 } from "./p-plate-reference";
+import { formatInspectionPhotoEvidenceLine } from "./inspection-photo-evidence";
 import { hasVehicleSpecContent } from "./vehicle-spec-sheet";
 import {
   buildKeyInsights,
@@ -40,7 +41,12 @@ import {
   PdfSpecIcon,
   PdfStatusBadge,
 } from "./report-pdf-icons";
+import { formatAbnDisplay, getCompanyDetails } from "./company";
 import { hasDamageAnalysis, resolveReportTier } from "./pricing";
+import {
+  REPORT_DISCLAIMER_CLOSING,
+  REPORT_DISCLAIMER_LEAD,
+} from "./report-disclaimer";
 import { VEHICLE_HERO_IMAGE_DISCLAIMER } from "./vehicle-hero-image";
 import { VehicleReport } from "./types";
 import type { InspectionPhoto } from "./types";
@@ -51,6 +57,9 @@ const LIGHT = "#f8fafc";
 const SPEC_LABEL_BG = "#f1f5f9";
 const RIDE_SHARE_ORANGE = "#E87722";
 const LOGO_BLUE = path.join(process.cwd(), "public/logo/logo-blue-on-white.png");
+const LOGO_INVERSE = path.join(process.cwd(), "public/logo/logo-inverse.png");
+
+const PDF_A4_HEIGHT = 841.89;
 
 const styles = StyleSheet.create({
   page: {
@@ -59,6 +68,15 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica",
     color: "#1e293b",
     backgroundColor: "#ffffff",
+  },
+  pageFrame: {
+    height: PDF_A4_HEIGHT,
+    flexDirection: "column",
+    justifyContent: "space-between",
+  },
+  pageContent: {
+    flexGrow: 1,
+    flexShrink: 1,
   },
   header: {
     backgroundColor: "#ffffff",
@@ -169,7 +187,7 @@ const styles = StyleSheet.create({
   },
   statusTitle: {
     fontSize: 7,
-    color: GREY,
+    color: "#0f172a",
     textTransform: "uppercase",
     fontFamily: "Helvetica-Bold",
     marginBottom: 8,
@@ -343,6 +361,13 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#e2e8f0",
   },
+  photoEvidenceCaption: {
+    paddingHorizontal: 5,
+    paddingBottom: 4,
+    fontSize: 6,
+    color: GREY,
+    lineHeight: 1.35,
+  },
   damageCard: {
     width: "48%",
     marginRight: "2%",
@@ -353,17 +378,16 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     padding: 8,
   },
-  footer: {
-    position: "absolute",
-    bottom: 16,
-    left: 32,
-    right: 32,
+  footerBar: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     borderTopWidth: 1,
     borderTopColor: "#e2e8f0",
     paddingTop: 8,
+    paddingBottom: 16,
+    paddingHorizontal: 32,
+    flexShrink: 0,
   },
   footerLogo: { width: 132, height: 28, objectFit: "contain" },
   footerText: { fontSize: 7, color: GREY, textTransform: "uppercase" },
@@ -373,8 +397,8 @@ const money = (n: number) => `$${n.toLocaleString("en-AU")}`;
 
 const MAX_COMPARABLE_ROWS = 7;
 
-/** Factory options on the first spec page (right column beside vehicle data). */
-const SPEC_FEATURES_FIRST_PAGE = 14;
+/** Factory options below the full-width vehicle data table on spec page 1. */
+const SPEC_FEATURES_ON_FIRST_SPEC_PAGE = 28;
 /** Factory options per continuation page (full width). */
 const SPEC_FEATURES_CONTINUATION = 40;
 
@@ -382,9 +406,10 @@ function countVehicleSpecPdfPages(
   sheet: NonNullable<VehicleReport["vehicleSpec"]>,
 ): number {
   const featureCount = sheet.factoryFeatures.length;
-  if (featureCount <= SPEC_FEATURES_FIRST_PAGE) return 0;
-  const remainder = featureCount - SPEC_FEATURES_FIRST_PAGE;
-  return Math.ceil(remainder / SPEC_FEATURES_CONTINUATION);
+  if (featureCount === 0) return 1;
+  if (featureCount <= SPEC_FEATURES_ON_FIRST_SPEC_PAGE) return 1;
+  const remainder = featureCount - SPEC_FEATURES_ON_FIRST_SPEC_PAGE;
+  return 1 + Math.ceil(remainder / SPEC_FEATURES_CONTINUATION);
 }
 
 function chunkFactoryFeatures<T>(items: T[], size: number): T[][] {
@@ -442,20 +467,31 @@ function ReportHeader({ report }: { report: VehicleReport }) {
   );
 }
 
-function ReportFooter({
+function PdfPageShell({
+  report,
   pageLabel,
-  reportReference,
+  children,
 }: {
+  report: VehicleReport;
   pageLabel: string;
-  reportReference: string;
+  children: React.ReactNode;
 }) {
+  const reportReference = formatReportReference(report.vehicle);
   return (
-    <View style={styles.footer} fixed>
-      <Image src={LOGO_BLUE} style={styles.footerLogo} />
-      <Text style={styles.footerText}>
-        {reportReference} · Autoverifi.com.au | {pageLabel}
-      </Text>
-    </View>
+    <Page size="A4" style={styles.page}>
+      <View style={styles.pageFrame}>
+        <View style={styles.pageContent}>
+          <ReportHeader report={report} />
+          {children}
+        </View>
+        <View style={styles.footerBar} fixed>
+          <Image src={LOGO_BLUE} style={styles.footerLogo} />
+          <Text style={styles.footerText}>
+            {reportReference} · Autoverifi.com.au | {pageLabel}
+          </Text>
+        </View>
+      </View>
+    </Page>
   );
 }
 
@@ -504,7 +540,15 @@ function PdfInsightGrid({ insights }: { insights: ReportInsight[] }) {
               <View style={styles.insightStatusRow}>
                 <PdfStatusBadge tone={insight.tone} />
                 <View style={{ flex: 1, minWidth: 0 }}>
-                  <Text style={[styles.insightStatus, toneStyle(insight.tone)]}>
+                  <Text
+                    style={[
+                      styles.insightStatus,
+                      insight.id === "odometer" &&
+                      insight.status === "No odometer history reported"
+                        ? { color: RIDE_SHARE_ORANGE }
+                        : toneStyle(insight.tone),
+                    ]}
+                  >
                     {insight.status}
                   </Text>
                   {insight.statusSubtext && !footnote ? (
@@ -619,18 +663,21 @@ function PdfManufacturersWarrantyNotice() {
     >
       <Text
         style={{
-          fontSize: 9,
+          fontSize: 8,
           fontFamily: "Helvetica-Bold",
-          color: RIDE_SHARE_ORANGE,
+          color: "#0f172a",
+          textTransform: "uppercase",
+          letterSpacing: 0.6,
         }}
       >
-        Manufacturers Warranty Remaining
+        Manufacturer&apos;s warranty remaining
       </Text>
       <Text
         style={{
           marginTop: 4,
           fontSize: 8,
-          color: "#475569",
+          fontFamily: "Helvetica-Bold",
+          color: RIDE_SHARE_ORANGE,
           lineHeight: 1.45,
         }}
       >
@@ -690,12 +737,7 @@ function PdfValuationSupplements({ report }: { report: VehicleReport }) {
         </View>
       </View>
 
-      <Text
-        style={[
-          styles.sectionTitle,
-          { marginTop: 6, fontSize: 7.5, color: GREY },
-        ]}
-      >
+      <Text style={[styles.sectionTitle, { marginTop: 6, fontSize: 8 }]}>
         Official P-plate vehicle/legal reference
       </Text>
       <View
@@ -824,17 +866,12 @@ function CarInsightsOverviewPage({
   pageLabel: string;
 }) {
   const { vehicle } = report;
-  const sheet = report.vehicleSpec;
-  const showFullVehicleSpec = hasVehicleSpecContent(sheet);
   const specs = buildReportOverviewSpecs(vehicle, report);
   const statusChecks = buildStatusChecks(report);
   const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
-  const specTitle =
-    `${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.variant}`.trim();
 
   return (
-    <Page size="A4" style={styles.page}>
-      <ReportHeader report={report} />
+    <PdfPageShell report={report} pageLabel={pageLabel}>
       <View style={styles.body}>
         <Text style={styles.title}>Auto Verifi – Vehicle Insights Report</Text>
         <Text style={styles.vehicleName}>{vehicleTitle}</Text>
@@ -842,62 +879,24 @@ function CarInsightsOverviewPage({
           A comprehensive summary of your vehicle&apos;s history, status and key insights.
         </Text>
 
-        {!showFullVehicleSpec ? (
-          <View style={styles.specBar}>
-            {specs.map((s, i) => (
-              <View key={s.label} style={styles.specItem}>
-                <View style={styles.specLabelRow}>
-                  <PdfSpecIcon index={i} />
-                  <Text style={styles.specLabel}>{s.label}</Text>
-                </View>
-                <Text
-                  style={[
-                    styles.specValue,
-                    s.label === "VIN" ? { fontSize: 6.5, lineHeight: 1.35 } : {},
-                  ]}
-                >
-                  {s.value}
-                </Text>
+        <View style={styles.specBar}>
+          {specs.map((s, i) => (
+            <View key={s.label} style={styles.specItem}>
+              <View style={styles.specLabelRow}>
+                <PdfSpecIcon index={i} />
+                <Text style={styles.specLabel}>{s.label}</Text>
               </View>
-            ))}
-          </View>
-        ) : null}
-
-        {showFullVehicleSpec && sheet ? (
-          <View style={{ marginTop: 8 }}>
-            <Text style={[styles.sectionTitle, { fontSize: 7.5, color: GREY }]}>
-              Vehicle data &amp; factory equipment
-            </Text>
-            <Text style={[styles.vehicleName, { fontSize: 11, marginTop: 2 }]}>
-              {specTitle}
-            </Text>
-            <Text style={{ fontSize: 6.5, color: GREY, marginTop: 2 }}>
-              Captured {formatReportDate(sheet.capturedAt)} from registration and build
-              data sources.
-            </Text>
-            <View style={[styles.section, { flexDirection: "row", marginTop: 6 }]}>
-              <View style={{ width: "58%", marginRight: 12 }}>
-                <Text style={styles.sectionTitle}>Vehicle data</Text>
-                {sheet.dataRows.map((row) => (
-                  <View key={row.label} style={styles.specSheetRow}>
-                    <View style={styles.specSheetLabelCell}>
-                      <Text style={styles.specSheetLabel}>{row.label}</Text>
-                    </View>
-                    <View style={styles.specSheetValueCell}>
-                      <Text style={styles.specSheetValue}>{row.value}</Text>
-                    </View>
-                  </View>
-                ))}
-              </View>
-              <View style={{ width: "40%" }}>
-                <Text style={styles.sectionTitle}>Factory features &amp; options</Text>
-                <FactoryFeatureLines
-                  features={sheet.factoryFeatures.slice(0, SPEC_FEATURES_FIRST_PAGE)}
-                />
-              </View>
+              <Text
+                style={[
+                  styles.specValue,
+                  s.label === "VIN" ? { fontSize: 6.5, lineHeight: 1.35 } : {},
+                ]}
+              >
+                {s.value}
+              </Text>
             </View>
-          </View>
-        ) : null}
+          ))}
+        </View>
 
         <View style={styles.statusPanel}>
           <View style={styles.statusLeft}>
@@ -920,27 +919,18 @@ function CarInsightsOverviewPage({
         </View>
 
       </View>
-      <ReportFooter
-        pageLabel={pageLabel}
-        reportReference={formatReportReference(report.vehicle)}
-      />
-    </Page>
+    </PdfPageShell>
   );
 }
 
-function CarInsightsInsightsAndDetailsPage({
+function PdfPresentAndFutureValuations({
   report,
-  pageLabel,
-  showUpgrade,
+  showFutureValue,
 }: {
   report: VehicleReport;
-  pageLabel: string;
-  showUpgrade: boolean;
+  showFutureValue: boolean;
 }) {
-  const { vehicle, market, valuation } = report;
-  const insights = buildKeyInsights(report);
-  const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
-  const showFutureValue = hasDamageAnalysis(resolveReportTier(report.tier));
+  const { valuation } = report;
   const futureValue = resolveFutureValue(report);
   const futureHorizons = [
     { label: "Today", years: 0 },
@@ -950,65 +940,105 @@ function CarInsightsInsightsAndDetailsPage({
   ];
 
   return (
-    <Page size="A4" style={styles.page}>
-      <ReportHeader report={report} />
-      <View style={[styles.body, { paddingBottom: 48 }]}>
-        <View style={[styles.insightsHeader, { marginTop: 4 }]}>
+    <>
+      <View style={[styles.section, { marginTop: 4 }]}>
+        <Text style={styles.sectionTitle}>Present Value — Market Valuation</Text>
+        <View style={styles.valRow}>
+          {[
+            ["Trade-in", valuation.tradeLow, valuation.tradeHigh],
+            ["Private sale", valuation.privateLow, valuation.privateHigh],
+            ["Dealer retail", valuation.retailLow, valuation.retailHigh],
+          ].map(([label, low, high]) => (
+            <View key={label as string} style={styles.valBox}>
+              <Text style={styles.valLabel}>{label}</Text>
+              <Text style={styles.valAmount}>
+                {money(low as number)} – {money(high as number)}
+              </Text>
+            </View>
+          ))}
+        </View>
+      </View>
+
+      {showFutureValue ? (
+        <View style={[styles.section, { marginTop: 10 }]}>
+          <Text style={styles.sectionTitle}>Future Value Forecast</Text>
+          <Text style={{ fontSize: 7, color: GREY, marginTop: 2 }}>
+            Based on {futureValue.yearlyKms.toLocaleString()} km per year
+          </Text>
+          <View style={styles.valRow}>
+            {futureHorizons.map(({ label, years }) => {
+              const point = getFutureValueAtYears(futureValue, years);
+              return (
+                <View key={label} style={styles.valBox}>
+                  <Text style={styles.valLabel}>{label}</Text>
+                  <Text style={styles.valAmount}>
+                    {point ? money(point.value) : "—"}
+                  </Text>
+                  {point ? (
+                    <Text style={{ fontSize: 7, color: GREY, marginTop: 2 }}>
+                      {point.odometer.toLocaleString()} km
+                    </Text>
+                  ) : null}
+                </View>
+              );
+            })}
+          </View>
+        </View>
+      ) : null}
+
+      <PdfValuationSupplements report={report} />
+    </>
+  );
+}
+
+function PdfPresentFutureValuationPage({
+  report,
+  pageLabel,
+}: {
+  report: VehicleReport;
+  pageLabel: string;
+}) {
+  return (
+    <PdfPageShell report={report} pageLabel={pageLabel}>
+      <View style={styles.body}>
+        <PdfPresentAndFutureValuations report={report} showFutureValue />
+      </View>
+    </PdfPageShell>
+  );
+}
+
+function CarInsightsInsightsAndDetailsPage({
+  report,
+  pageLabel,
+  showUpgrade,
+  includeValuationSections = true,
+}: {
+  report: VehicleReport;
+  pageLabel: string;
+  showUpgrade: boolean;
+  includeValuationSections?: boolean;
+}) {
+  const { vehicle, market, valuation } = report;
+  const insights = buildKeyInsights(report);
+  const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
+  const showFutureValue = hasDamageAnalysis(resolveReportTier(report.tier));
+
+  return (
+    <PdfPageShell report={report} pageLabel={pageLabel}>
+      <View style={styles.body}>
+        <View style={{ marginTop: 4 }}>
           <Text style={styles.sectionLabel}>Key Insights</Text>
-          <Text style={styles.sectionLabelAccent}>All the essentials. In one place.</Text>
         </View>
         <Text style={[styles.subtitle, { marginTop: 4 }]}>Key insights — {vehicleTitle}</Text>
         <PdfInsightGrid insights={insights} />
         <PdfManufacturersWarrantyNotice />
 
-        <View style={[styles.section, { marginTop: 10 }]}>
-          <Text style={styles.sectionTitle}>
-            Present Value — Market Valuation
-          </Text>
-          <View style={styles.valRow}>
-            {[
-              ["Trade-in", valuation.tradeLow, valuation.tradeHigh],
-              ["Private sale", valuation.privateLow, valuation.privateHigh],
-              ["Dealer retail", valuation.retailLow, valuation.retailHigh],
-            ].map(([label, low, high]) => (
-              <View key={label as string} style={styles.valBox}>
-                <Text style={styles.valLabel}>{label}</Text>
-                <Text style={styles.valAmount}>
-                  {money(low as number)} – {money(high as number)}
-                </Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {showFutureValue ? (
-          <View style={[styles.section, { marginTop: 10 }]}>
-            <Text style={styles.sectionTitle}>Future Value Forecast</Text>
-            <Text style={{ fontSize: 7, color: GREY, marginTop: 2 }}>
-              Based on {futureValue.yearlyKms.toLocaleString()} km per year
-            </Text>
-            <View style={styles.valRow}>
-              {futureHorizons.map(({ label, years }) => {
-                const point = getFutureValueAtYears(futureValue, years);
-                return (
-                  <View key={label} style={styles.valBox}>
-                    <Text style={styles.valLabel}>{label}</Text>
-                    <Text style={styles.valAmount}>
-                      {point ? money(point.value) : "—"}
-                    </Text>
-                    {point ? (
-                      <Text style={{ fontSize: 7, color: GREY, marginTop: 2 }}>
-                        {point.odometer.toLocaleString()} km
-                      </Text>
-                    ) : null}
-                  </View>
-                );
-              })}
-            </View>
-          </View>
+        {includeValuationSections ? (
+          <PdfPresentAndFutureValuations
+            report={report}
+            showFutureValue={showFutureValue}
+          />
         ) : null}
-
-        <PdfValuationSupplements report={report} />
 
         {showUpgrade ? (
           <View style={[styles.upgradeBox, { marginTop: 10 }]} wrap={false}>
@@ -1041,11 +1071,7 @@ function CarInsightsInsightsAndDetailsPage({
           ))}
         </View>
       </View>
-      <ReportFooter
-        pageLabel={pageLabel}
-        reportReference={formatReportReference(report.vehicle)}
-      />
-    </Page>
+    </PdfPageShell>
   );
 }
 
@@ -1086,19 +1112,64 @@ function VehicleSpecPages({
   const sheet = report.vehicleSpec;
   if (!sheet || !hasVehicleSpecContent(sheet)) return null;
 
-  const reportReference = formatReportReference(report.vehicle);
+  const { vehicle } = report;
+  const specTitle =
+    `${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.variant}`.trim();
+  const firstPageFeatures = sheet.factoryFeatures.slice(
+    0,
+    SPEC_FEATURES_ON_FIRST_SPEC_PAGE,
+  );
   const continuationChunks = chunkFactoryFeatures(
-    sheet.factoryFeatures.slice(SPEC_FEATURES_FIRST_PAGE),
+    sheet.factoryFeatures.slice(SPEC_FEATURES_ON_FIRST_SPEC_PAGE),
     SPEC_FEATURES_CONTINUATION,
   );
 
-  if (continuationChunks.length === 0) return null;
-
   return (
     <>
+      <PdfPageShell report={report} pageLabel={pageLabels[0] ?? ""}>
+        <View style={styles.body}>
+          <Text style={styles.title}>Vehicle Data &amp; Factory Equipment</Text>
+          <Text style={[styles.vehicleName, { fontSize: 12, marginTop: 4 }]}>
+            {specTitle}
+          </Text>
+          <Text style={{ fontSize: 7, color: GREY, marginTop: 4 }}>
+            Captured {formatReportDate(sheet.capturedAt)} from registration and build
+            data sources.
+          </Text>
+
+          <View style={[styles.section, { marginTop: 10 }]}>
+            <Text style={styles.sectionTitle}>Vehicle data</Text>
+            {sheet.dataRows.map((row) => (
+              <View key={row.label} style={styles.specSheetRow}>
+                <View style={styles.specSheetLabelCell}>
+                  <Text style={styles.specSheetLabel}>{row.label}</Text>
+                </View>
+                <View style={styles.specSheetValueCell}>
+                  <Text style={styles.specSheetValue}>{row.value}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+
+          <View style={[styles.section, { marginTop: 10 }]}>
+            <Text style={styles.sectionTitle}>Factory features &amp; options</Text>
+            {sheet.factoryFeatures.length > 0 ? (
+              <FactoryFeatureLines features={firstPageFeatures} />
+            ) : (
+              <Text style={[styles.para, { marginTop: 6 }]}>
+                No factory option list was returned for this vehicle.
+              </Text>
+            )}
+          </View>
+        </View>
+      </PdfPageShell>
+
       {continuationChunks.map((chunk, index) => (
-        <Page key={`spec-cont-${index}`} size="A4" style={styles.page}>
-          <ReportHeader report={report} />
+        <PdfPageShell
+          key={`spec-cont-${index}`}
+          report={report}
+          pageLabel={pageLabels[index + 1] ?? ""}
+        >
           <View style={styles.body}>
             <Text style={styles.title}>Vehicle Data &amp; Factory Equipment</Text>
             <Text style={styles.subtitle}>
@@ -1106,11 +1177,7 @@ function VehicleSpecPages({
             </Text>
             <FactoryFeatureLines features={chunk} />
           </View>
-          <ReportFooter
-            pageLabel={pageLabels[index] ?? ""}
-            reportReference={reportReference}
-          />
-        </Page>
+        </PdfPageShell>
       ))}
     </>
   );
@@ -1126,8 +1193,7 @@ function PpsrCertificateIntroPage({
   if (!hasPpsrCertificate(report)) return null;
 
   return (
-    <Page size="A4" style={styles.page}>
-      <ReportHeader report={report} />
+    <PdfPageShell report={report} pageLabel={pageLabel}>
       <View style={styles.body}>
         <Text
           style={{
@@ -1156,11 +1222,7 @@ function PpsrCertificateIntroPage({
           your downloaded report file.
         </Text>
       </View>
-      <ReportFooter
-        pageLabel={pageLabel}
-        reportReference={formatReportReference(report.vehicle)}
-      />
-    </Page>
+    </PdfPageShell>
   );
 }
 
@@ -1177,8 +1239,7 @@ function InsightsPlusPage({
   const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
 
   return (
-    <Page size="A4" style={styles.page}>
-      <ReportHeader report={report} />
+    <PdfPageShell report={report} pageLabel={pageLabel}>
       <View style={styles.body}>
         <Text style={styles.title}>Auto Verifi Insights+ Report</Text>
         <Text style={styles.vehicleName}>{vehicleTitle}</Text>
@@ -1205,9 +1266,18 @@ function InsightsPlusPage({
         {photos.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Walkaround Photos</Text>
+            <Text style={[styles.para, { marginTop: 4, fontSize: 7 }]}>
+              Time and GPS coordinates are recorded at capture when the owner allows
+              location access. The front photo should show the registration plate.
+            </Text>
             <View style={styles.photoGrid}>
               {photos.map((photo) => {
                 const url = resolvePdfImageSrc(getInspectionPhotoUrl(photo));
+                const evidence = formatInspectionPhotoEvidenceLine(photo);
+                const label =
+                  photo.angle === "front"
+                    ? `${photo.label} (registration visible)`
+                    : photo.label;
                 return (
                   <View key={`${photo.angle}-${photo.uploadedAt}`} style={styles.photoTile}>
                     {url ? (
@@ -1215,7 +1285,10 @@ function InsightsPlusPage({
                     ) : (
                       <View style={[styles.photoImage, { backgroundColor: LIGHT }]} />
                     )}
-                    <Text style={styles.photoCaption}>{photo.label}</Text>
+                    <Text style={styles.photoCaption}>{label}</Text>
+                    {evidence ? (
+                      <Text style={styles.photoEvidenceCaption}>{evidence}</Text>
+                    ) : null}
                   </View>
                 );
               })}
@@ -1254,10 +1327,83 @@ function InsightsPlusPage({
           </View>
         )}
       </View>
-      <ReportFooter
-        pageLabel={pageLabel}
-        reportReference={formatReportReference(report.vehicle)}
-      />
+    </PdfPageShell>
+  );
+}
+
+function PdfReportDisclaimerPage({
+  report,
+  pageLabel,
+}: {
+  report: VehicleReport;
+  pageLabel: string;
+}) {
+  const company = getCompanyDetails();
+  const abn = formatAbnDisplay(company.abn);
+
+  return (
+    <Page size="A4" style={styles.page}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: "#0f172a",
+          paddingHorizontal: 36,
+          paddingVertical: 40,
+          justifyContent: "space-between",
+        }}
+      >
+        <View>
+          <Image src={LOGO_INVERSE} style={{ width: 140, height: 32, objectFit: "contain" }} />
+          <Text
+            style={{
+              marginTop: 22,
+              fontSize: 9,
+              lineHeight: 1.5,
+              color: "#94a3b8",
+            }}
+          >
+            {REPORT_DISCLAIMER_LEAD}
+          </Text>
+          <Text
+            style={{
+              marginTop: 8,
+              fontSize: 9,
+              lineHeight: 1.5,
+              color: "#94a3b8",
+            }}
+          >
+            {REPORT_DISCLAIMER_CLOSING}
+          </Text>
+          <Text
+            style={{
+              marginTop: 18,
+              fontSize: 9,
+              lineHeight: 1.55,
+              color: "#94a3b8",
+            }}
+          >
+            {company.legalName}
+            {"\n"}
+            {abn ? `ABN ${abn}` : ""}
+            {abn ? "\n" : ""}
+            {company.address}
+            {"\n"}
+            {company.email}
+            {"\n"}
+            {company.website}
+          </Text>
+        </View>
+        <Text
+          style={{
+            fontSize: 7,
+            color: GREY,
+            textTransform: "uppercase",
+            textAlign: "right",
+          }}
+        >
+          {formatReportReference(report.vehicle)} · Autoverifi.com.au | {pageLabel}
+        </Text>
+      </View>
     </Page>
   );
 }
@@ -1279,12 +1425,14 @@ export function ReportPdf({
   const totalPages =
     2 +
     specPageCount +
-    (isPlus ? 1 : 0) +
-    (includePpsrIntro ? 1 : 0);
+    (isPlus ? 2 : 0) +
+    (includePpsrIntro ? 1 : 0) +
+    1;
   let pageNumber = 1;
   const nextPageLabel = () => `${pageNumber++} / ${totalPages}`;
   const overviewLabel = nextPageLabel();
   const insightsLabel = nextPageLabel();
+  const valuationsLabel = isPlus ? nextPageLabel() : null;
   const specPageLabels = Array.from({ length: specPageCount }, () =>
     nextPageLabel(),
   );
@@ -1292,14 +1440,21 @@ export function ReportPdf({
   return (
     <Document title={`Auto Verifi Report ${report.id}`}>
       <CarInsightsOverviewPage report={report} pageLabel={overviewLabel} />
-      {includeSpec && report.vehicleSpec ? (
-        <VehicleSpecPages report={report} pageLabels={specPageLabels} />
-      ) : null}
       <CarInsightsInsightsAndDetailsPage
         report={report}
         pageLabel={insightsLabel}
         showUpgrade={!isPlus}
+        includeValuationSections={!isPlus}
       />
+      {isPlus && valuationsLabel ? (
+        <PdfPresentFutureValuationPage
+          report={report}
+          pageLabel={valuationsLabel}
+        />
+      ) : null}
+      {includeSpec && report.vehicleSpec ? (
+        <VehicleSpecPages report={report} pageLabels={specPageLabels} />
+      ) : null}
       {isPlus ? (
         <InsightsPlusPage
           report={report}
@@ -1313,6 +1468,10 @@ export function ReportPdf({
           pageLabel={`${pageNumber++} / ${totalPages}+`}
         />
       ) : null}
+      <PdfReportDisclaimerPage
+        report={report}
+        pageLabel={`${pageNumber} / ${totalPages}`}
+      />
     </Document>
   );
 }

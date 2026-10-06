@@ -5,6 +5,10 @@ import {
   uploadInspectionPhoto,
 } from "@/lib/inspections";
 import { isValidInspectionAngleId } from "@/lib/inspection-angles";
+import {
+  parseOptionalFloat,
+  parseOptionalIsoTimestamp,
+} from "@/lib/inspection-photo-evidence";
 
 export async function POST(
   req: NextRequest,
@@ -64,6 +68,10 @@ export async function POST(
       angle,
       buffer,
       contentType: file.type,
+      capturedAt: parseOptionalIsoTimestamp(form.get("capturedAt")),
+      latitude: parseOptionalFloat(form.get("latitude")),
+      longitude: parseOptionalFloat(form.get("longitude")),
+      locationAccuracyM: parseOptionalFloat(form.get("locationAccuracyM")),
     });
 
     return NextResponse.json({ ok: true, photo });

@@ -1,8 +1,13 @@
-import { getCompanyDetails, formatCompanyFooterLines } from "./company";
+import { getCompanyDetails } from "./company";
 import { PRE_PURCHASE_INSPECTIONS_HREF } from "./inspection-menu";
+import { hasPpsrCertificate } from "./ppsr-certificate";
 import { formatReportReference } from "./report-design";
-import { formatTierPrice, getReportTierConfig, resolveReportTier } from "./pricing";
-import type { VehicleReport } from "./types";
+import {
+  formatTierPrice,
+  getReportTierConfig,
+  resolveReportTier,
+} from "./pricing";
+import type { ReportTier, VehicleReport } from "./types";
 
 const BRAND_BLUE = "#0073E3";
 const BRAND_NAVY = "#0f172a";
@@ -43,11 +48,35 @@ function formatMoney(cents: number, currency: string): string {
   }).format(cents / 100);
 }
 
-function greetingName(raw?: string | null): string {
-  const trimmed = raw?.trim();
-  if (!trimmed) return "there";
-  const first = trimmed.split(/\s+/)[0];
-  return first || "there";
+function purchaseEmailReportHeading(tier: ReportTier, includePpsr: boolean): string {
+  const productName =
+    tier === "insights_plus"
+      ? "Auto Verifi Insights+ Report"
+      : "Auto Verifi Insights Report";
+  return includePpsr ? `${productName} & PPSR Certificate` : productName;
+}
+
+function buildEmailFooterContactHtml(
+  company: ReturnType<typeof getCompanyDetails>,
+): string {
+  const lines = [escapeHtml(company.legalName)];
+  if (company.abn.trim()) {
+    lines.push(`ABN ${escapeHtml(formatAbnPlain(company.abn))}`);
+  }
+  lines.push(escapeHtml(company.address));
+  lines.push(
+    `<a href="mailto:${escapeHtml(company.email)}" style="color:#cbd5e1;text-decoration:none;">${escapeHtml(company.email)}</a>`,
+  );
+  lines.push(
+    `<a href="${escapeHtml(company.websiteUrl)}" style="color:#cbd5e1;text-decoration:none;">${escapeHtml(company.website)}</a>`,
+  );
+  return lines.join("<br />");
+}
+
+function formatAbnPlain(abn: string): string {
+  const digits = abn.replace(/\D/g, "");
+  if (digits.length !== 11) return abn.trim();
+  return `${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5, 8)} ${digits.slice(8, 11)}`;
 }
 
 export function buildPurchaseConfirmationEmailHtml(
@@ -60,7 +89,9 @@ export function buildPurchaseConfirmationEmailHtml(
   const tierConfig = getReportTierConfig(tier);
   const generatedOn = formatAuDate(ctx.paidAt ?? new Date(report.createdAt));
   const company = getCompanyDetails(baseUrl);
-  const footerLines = formatCompanyFooterLines(company).map(escapeHtml);
+  const includePpsr = hasPpsrCertificate(report);
+  const reportHeading = purchaseEmailReportHeading(tier, includePpsr);
+  const footerContactHtml = buildEmailFooterContactHtml(company);
 
   const logoWhiteUrl = `${baseUrl.replace(/\/$/, "")}/logo/logo-white.png`;
   const logoFooterUrl = `${baseUrl.replace(/\/$/, "")}/logo/logo-white.png`;
@@ -147,12 +178,12 @@ export function buildPurchaseConfirmationEmailHtml(
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td>
-                    <img src="${escapeHtml(logoWhiteUrl)}" alt="Auto Verifi" width="190" height="36" style="display:block;height:36px;width:auto;max-width:200px;" />
+                    <img src="${escapeHtml(logoWhiteUrl)}" alt="Auto Verifi" width="320" height="64" style="display:block;height:64px;width:auto;max-width:340px;" />
                     <p style="margin:8px 0 0;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.85);">Past &nbsp;|&nbsp; Present &nbsp;|&nbsp; Future</p>
                   </td>
                   <td align="right" valign="top" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:rgba(255,255,255,0.9);line-height:1.6;">
                     Generated<br />${escapeHtml(generatedOn)}<br />
-                    <span style="font-weight:600;opacity:0.85;">${escapeHtml(company.website)}</span>
+                    <span style="font-weight:600;color:rgba(255,255,255,0.88);">${escapeHtml(company.website)}</span>
                   </td>
                 </tr>
               </table>
@@ -163,8 +194,7 @@ export function buildPurchaseConfirmationEmailHtml(
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td style="padding:24px 0 8px;">
-                    <p style="margin:0;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#64748b;">Vehicle history report</p>
-                    <h1 style="margin:6px 0 0;font-size:24px;line-height:1.25;color:${BRAND_NAVY};font-weight:800;">Auto Verifi Report &amp; PPSR Certificate</h1>
+                    <h1 style="margin:0;font-size:24px;line-height:1.25;color:${BRAND_NAVY};font-weight:800;">${escapeHtml(reportHeading)}</h1>
                   </td>
                 </tr>
               </table>
@@ -172,13 +202,12 @@ export function buildPurchaseConfirmationEmailHtml(
           </tr>
           <tr>
             <td style="background:#ffffff;padding:0 32px 28px;border-left:1px solid #dbeafe;border-right:1px solid #dbeafe;">
-              <p style="margin:0 0 14px;font-size:16px;line-height:1.6;color:${BRAND_NAVY};">Dear ${escapeHtml(greetingName(ctx.customerName))},</p>
               <p style="margin:0 0 14px;font-size:15px;line-height:1.65;color:#334155;">
                 Thank you for choosing <strong style="color:${BRAND_BLUE};">Auto Verifi</strong>.
-                Your report for <strong>${escapeHtml(vehicleLabel)}</strong> is ready — the PDF report and tax invoice are attached to this email.
+                Your <strong>${escapeHtml(reportHeading)}</strong> for <strong>${escapeHtml(vehicleLabel)}</strong> is ready — your PDF report and tax invoice are attached.
               </p>
               <p style="margin:0 0 22px;font-size:15px;line-height:1.65;color:#334155;">
-                Open your interactive report online anytime, or download the PDF again using the buttons below.
+                View the full interactive report online or download the PDF again using the buttons below.
               </p>
               <table role="presentation" cellpadding="0" cellspacing="0">
                 <tr>
@@ -242,13 +271,13 @@ export function buildPurchaseConfirmationEmailHtml(
           </tr>
           <tr>
             <td style="background:${BRAND_NAVY};padding:26px 32px;border-radius:0 0 14px 14px;border:1px solid ${BRAND_NAVY};">
-              <img src="${escapeHtml(logoFooterUrl)}" alt="Auto Verifi" width="180" height="40" style="display:block;height:40px;width:auto;max-width:200px;" />
+              <img src="${escapeHtml(logoFooterUrl)}" alt="Auto Verifi" width="300" height="64" style="display:block;height:64px;width:auto;max-width:320px;" />
               <p style="margin:16px 0 12px;font-size:11px;line-height:1.65;color:#94a3b8;">
                 This report is compiled from third-party data sources and is provided for information only.
                 It is not personal financial, legal or tax advice. You should make your own enquiries before purchasing a vehicle.
               </p>
-              <p style="margin:0;font-size:12px;line-height:1.75;color:#94a3b8;">
-                ${footerLines.join("<br />")}
+              <p style="margin:0;font-size:12px;line-height:1.75;color:#cbd5e1;">
+                ${footerContactHtml}
               </p>
             </td>
           </tr>

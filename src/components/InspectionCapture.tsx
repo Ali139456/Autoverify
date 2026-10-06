@@ -13,6 +13,7 @@ import {
   getInspectionAngleHint,
   INSPECTION_ANGLES,
 } from "@/lib/inspection-angles";
+import { readCaptureGeolocation } from "@/lib/capture-geolocation";
 import { prepareInspectionPhoto } from "@/lib/prepare-inspection-photo";
 
 type UploadedPhoto = {
@@ -109,19 +110,6 @@ export function InspectionCapture({
     return () => document.removeEventListener("visibilitychange", onVisible);
   }, [fetchPhotosFromServer]);
 
-  function findNextStepIndex(
-    fromIndex: number,
-    uploaded: Set<string>,
-  ): number {
-    for (let i = fromIndex + 1; i < INSPECTION_ANGLES.length; i++) {
-      if (!uploaded.has(INSPECTION_ANGLES[i].id)) return i;
-    }
-    for (let i = 0; i <= fromIndex; i++) {
-      if (!uploaded.has(INSPECTION_ANGLES[i].id)) return i;
-    }
-    return fromIndex;
-  }
-
   async function uploadPhoto(file: File) {
     setUploading(true);
     setError(null);
@@ -130,10 +118,20 @@ export function InspectionCapture({
     const capturedAngleId = currentAngle.id;
 
     try {
-      const prepared = await prepareInspectionPhoto(file, capturedAngleId);
+      const capturedAt = new Date().toISOString();
+      const [prepared, geo] = await Promise.all([
+        prepareInspectionPhoto(file, capturedAngleId),
+        readCaptureGeolocation(),
+      ]);
       const form = new FormData();
       form.append("angle", capturedAngleId);
       form.append("photo", prepared, prepared.name);
+      form.append("capturedAt", capturedAt);
+      if (geo) {
+        form.append("latitude", String(geo.latitude));
+        form.append("longitude", String(geo.longitude));
+        form.append("locationAccuracyM", String(geo.locationAccuracyM));
+      }
 
       const res = await fetch(`/api/inspections/${token}/photos`, {
         method: "POST",
@@ -158,8 +156,9 @@ export function InspectionCapture({
       const finalPhotos = synced ?? optimistic;
       if (synced) setPhotos(synced);
 
-      const uploaded = new Set(finalPhotos.map((photo) => photo.angle));
-      setStepIndex(findNextStepIndex(capturedStep, uploaded));
+      setStepIndex(
+        Math.min(capturedStep + 1, INSPECTION_ANGLES.length - 1),
+      );
     } catch (err) {
       setError(inspectionErrorMessage(err, "Upload failed."));
     } finally {
@@ -286,6 +285,10 @@ export function InspectionCapture({
             {uploadedAngles.has(currentAngle.id)
               ? "Photo uploaded for this angle."
               : "Use your phone camera to capture this angle clearly."}
+          </p>
+          <p className="mt-2 max-w-sm text-[11px] leading-relaxed text-slate-500">
+            Each photo is time-stamped on your Insights+ report. Allow location
+            access when prompted so we can record where the inspection was taken.
           </p>
 
           <input

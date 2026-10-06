@@ -1,7 +1,5 @@
 import { MANUFACTURERS_WARRANTY_NOTICE } from "@/lib/report-design";
 
-const BRAND_ORANGE = "#E87722";
-
 export function ReportManufacturersWarrantyNotice() {
   return (
     <section
@@ -10,12 +8,11 @@ export function ReportManufacturersWarrantyNotice() {
     >
       <h2
         id="manufacturers-warranty-heading"
-        className="text-sm font-bold"
-        style={{ color: BRAND_ORANGE }}
+        className="text-xs font-bold uppercase tracking-wide text-slate-900"
       >
-        Manufacturers Warranty Remaining
+        Manufacturer&apos;s warranty remaining
       </h2>
-      <p className="mt-2 text-sm leading-relaxed text-slate-600">
+      <p className="mt-2 text-sm font-medium leading-relaxed text-[#E87722]">
         {MANUFACTURERS_WARRANTY_NOTICE}
       </p>
     </section>

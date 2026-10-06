@@ -183,9 +183,9 @@ export function HomePage() {
 
       <section
         id="comparison"
-        className="relative scroll-mt-24 overflow-hidden border-t border-slate-200 bg-white py-12 dark:border-white/10 dark:bg-ink-950 sm:py-16 lg:py-20"
+        className="relative scroll-mt-24 overflow-x-clip border-t border-slate-200 bg-white py-12 dark:border-white/10 dark:bg-ink-950 sm:py-16 lg:py-20"
       >
-        <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="relative mx-auto w-full min-w-0 max-w-6xl px-4 sm:px-6">
           <Reveal className="mx-auto max-w-2xl text-center">
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl lg:text-4xl">
               The Auto Verifi <span className="text-accent-500">Advantage</span>

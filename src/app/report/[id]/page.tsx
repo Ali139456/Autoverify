@@ -18,6 +18,8 @@ import { getBaseUrl } from "@/lib/stripe";
 import { PresentAndFutureValueReportPage } from "@/components/report/PresentAndFutureValueReportPage";
 import { ReportLegalFooter } from "@/components/report/ReportLegalFooter";
 import { countVehicleReportPages } from "@/lib/report-page-count";
+import { hasVehicleSpecContent } from "@/lib/vehicle-spec-sheet";
+import { VehicleSpecReportPage } from "@/components/report/VehicleSpecReportPage";
 import { buildCheckSearchUrl } from "@/lib/vehicle-identifier";
 
 export const metadata: Metadata = {
@@ -43,9 +45,11 @@ export default async function ReportPage({
   const tier = resolveReportTier(report.tier);
   const includesDamage = hasDamageAnalysis(tier);
   const hasPpsrAppendix = hasPpsrCertificate(report);
+  const hasVehicleSpecSheet = hasVehicleSpecContent(report.vehicleSpec);
   const pageCount = countVehicleReportPages(
     includesDamage,
     hasPpsrAppendix,
+    hasVehicleSpecSheet,
   );
   let reportPage = 1;
 
@@ -97,6 +101,15 @@ export default async function ReportPage({
         {includesDamage ? (
           <div className="report-page-break report-valuations-page-break">
             <PresentAndFutureValueReportPage
+              report={report}
+              pageLabel={`${reportPage++} / ${pageCount}`}
+            />
+          </div>
+        ) : null}
+
+        {hasVehicleSpecSheet ? (
+          <div className="report-page-break">
+            <VehicleSpecReportPage
               report={report}
               pageLabel={`${reportPage++} / ${pageCount}`}
             />

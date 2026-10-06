@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     marginBottom: 28,
   },
-  logo: { width: 156, height: 28, objectFit: "contain" },
+  logo: { width: 260, height: 48, objectFit: "contain" },
   tagline: {
     marginTop: 6,
     fontSize: 6.5,
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     borderTopColor: BORDER,
     paddingTop: 10,
   },
-  footerLogo: { width: 88, height: 18, objectFit: "contain" },
+  footerLogo: { width: 220, height: 40, objectFit: "contain" },
   footerMeta: { fontSize: 8, color: GREY },
 });
 

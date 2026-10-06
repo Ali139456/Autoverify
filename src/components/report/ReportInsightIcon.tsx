@@ -8,7 +8,7 @@ export function SpecIcon({
   index: number;
   className?: string;
 }) {
-  const name = SPEC_ICON_NAMES[index] ?? "car";
+  const name = SPEC_ICON_NAMES[index % SPEC_ICON_NAMES.length] ?? "car";
   return <ReportIcon name={name} className={className} />;
 }
 

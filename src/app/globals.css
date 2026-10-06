@@ -411,12 +411,8 @@ html.dark body {
   }
 
   /* Pin footer + logo to bottom of each logical printed page */
-  #report-print-area .report-shell:not(.report-shell-ppsr):not(.report-shell-spec) {
+  #report-print-area .report-shell:not(.report-shell-ppsr) {
     min-height: 281mm !important;
-  }
-
-  #report-print-area .report-shell-spec {
-    min-height: auto !important;
   }
 
   #report-print-area > .report-page-break:last-child,
@@ -478,9 +474,13 @@ html.dark body {
   .report-legal-footer {
     break-inside: avoid;
     page-break-inside: avoid;
-    break-before: avoid;
-    page-break-before: avoid;
-    display: none !important;
+    break-before: page;
+    page-break-before: always;
+    display: block !important;
+    margin-top: 0 !important;
+    border-radius: 12px !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 
   .report-shell-footer p {
@@ -749,8 +749,21 @@ html.dark body {
   }
 
 
-  .report-supplementary h3 {
+  .report-supplementary h3,
+  .report-valuation-supplements h3,
+  .report-status-list h2 {
     font-size: 9px !important;
+    color: #0f172a !important;
+  }
+
+  .report-manufacturers-warranty h2 {
+    color: #0f172a !important;
+    font-size: 9px !important;
+  }
+
+  .report-manufacturers-warranty p {
+    color: #e87722 !important;
+    font-size: 8px !important;
   }
 
   .report-valuation-grid {

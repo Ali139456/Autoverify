@@ -33,10 +33,15 @@ const OFFICE_ADDRESS = "Level 35, 100 Barangaroo Avenue, Sydney NSW 2000";
 
 export function Footer() {
   return (
-    <footer className="av-site-footer relative mt-auto overflow-hidden border-t border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-ink-950">
-      <div className="pointer-events-none absolute -top-32 left-1/2 h-[300px] w-[700px] -translate-x-1/2 rounded-full bg-accent-600/10 blur-[120px]" />
+    <footer className="av-site-footer relative mt-auto w-full min-w-0 border-t border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-ink-950">
+      <div
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+        aria-hidden
+      >
+        <div className="absolute -top-32 left-1/2 h-[300px] w-[min(700px,100vw)] -translate-x-1/2 rounded-full bg-accent-600/10 blur-[120px]" />
+      </div>
 
-      <div className="relative mx-auto max-w-6xl px-4 pt-12 sm:px-6 sm:pt-16">
+      <div className="relative mx-auto w-full min-w-0 max-w-6xl px-5 pt-12 sm:px-6 sm:pt-16">
         <div className="flex flex-col items-center gap-5 rounded-3xl border border-accent-500/25 bg-gradient-to-r from-blue-50 via-white to-white p-6 text-center dark:from-accent-700/25 dark:via-ink-800 dark:to-ink-800 sm:gap-6 sm:p-8 md:flex-row md:justify-between md:text-left lg:p-10">
           <div>
             <h2 className="text-xl font-extrabold text-slate-900 dark:text-white sm:text-2xl lg:text-3xl">
@@ -59,7 +64,7 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-12">
+      <div className="relative mx-auto grid w-full min-w-0 max-w-6xl gap-10 px-5 py-14 sm:px-6 md:grid-cols-12">
         <div className="md:col-span-5">
           <Logo height={52} variant="auto" />
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-600 dark:text-slate-400">
@@ -75,16 +80,16 @@ export function Footer() {
           </h3>
           <ul className="mt-4 space-y-2.5 text-sm">
             {QUICK_LINKS.map((l) => (
-              <li key={l.href + l.label}>
+              <li key={l.href + l.label} className="min-w-0">
                 <Link
                   href={l.href}
-                  className="group inline-flex items-center gap-2 text-slate-600 transition-colors hover:text-accent-600 dark:text-slate-400 dark:hover:text-accent-400"
+                  className="group flex min-w-0 items-center gap-2.5 text-slate-600 transition-colors hover:text-accent-600 dark:text-slate-400 dark:hover:text-accent-400"
                 >
                   <ArrowRight
                     className="h-3.5 w-3.5 shrink-0 text-slate-400 transition-colors group-hover:text-accent-600 dark:text-white dark:group-hover:text-accent-400"
                     aria-hidden
                   />
-                  {l.label}
+                  <span className="min-w-0">{l.label}</span>
                 </Link>
               </li>
             ))}
@@ -97,9 +102,12 @@ export function Footer() {
           </h3>
           <ul className="mt-4 space-y-2.5 text-sm text-slate-600 dark:text-slate-400">
             {CHECKS.map((c) => (
-              <li key={c} className="flex items-start gap-2">
-                <BadgeCheck className="mt-0.5 h-4 w-4 shrink-0 text-accent-500" aria-hidden />
-                {c}
+              <li key={c} className="flex min-w-0 items-start gap-2.5">
+                <BadgeCheck
+                  className="mt-0.5 h-4 w-4 shrink-0 text-accent-500"
+                  aria-hidden
+                />
+                <span className="min-w-0 text-pretty leading-snug">{c}</span>
               </li>
             ))}
           </ul>
@@ -114,7 +122,7 @@ export function Footer() {
       </div>
 
       <div className="relative border-t border-slate-200 dark:border-white/10">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-6 text-xs text-slate-500 sm:flex-row sm:px-6">
+        <div className="mx-auto flex w-full min-w-0 max-w-6xl flex-col items-center justify-between gap-4 px-5 py-6 text-xs text-slate-500 sm:flex-row sm:px-6">
           <div className="flex flex-col items-center gap-2 sm:items-start">
             <p>© {new Date().getFullYear()} Auto Verifi. All rights reserved.</p>
             <p className="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-400">

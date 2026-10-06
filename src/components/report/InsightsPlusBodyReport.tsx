@@ -8,6 +8,10 @@ import type { DamageAnalysis, InspectionPhoto, VehicleReport } from "@/lib/types
 import { InspectionStarter } from "@/components/InspectionStarter";
 import { DamageUpload } from "@/components/DamageUpload";
 import { ReportShell } from "./ReportShell";
+import {
+  InspectionPhotoEvidenceCaption,
+  InspectionPhotoEvidenceOverlay,
+} from "./InspectionPhotoEvidence";
 
 function PhotoTile({
   photo,
@@ -17,6 +21,7 @@ function PhotoTile({
   caption?: string;
 }) {
   const url = getInspectionPhotoUrl(photo);
+  const isFrontRego = photo.angle === "front";
 
   return (
     <figure className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
@@ -33,9 +38,16 @@ function PhotoTile({
             <Camera className="h-8 w-8" aria-hidden />
           </div>
         )}
+        {url ? <InspectionPhotoEvidenceOverlay photo={photo} /> : null}
       </div>
       <figcaption className="border-t border-slate-200 px-3 py-2">
-        <p className="text-xs font-bold text-slate-700">{photo.label}</p>
+        <p className="text-xs font-bold text-slate-700">
+          {photo.label}
+          {isFrontRego ? (
+            <span className="ml-1 font-normal text-slate-500">(registration visible)</span>
+          ) : null}
+        </p>
+        <InspectionPhotoEvidenceCaption photo={photo} />
         {caption ? (
           <p className="mt-0.5 text-[11px] text-red-600">{caption}</p>
         ) : null}
@@ -117,9 +129,14 @@ export function InsightsPlusBodyReport({
         )}
 
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">
+          <h3 className="text-xs font-bold uppercase tracking-[0.16em] text-slate-900">
             Walkaround photos
           </h3>
+          <p className="mt-2 text-xs leading-relaxed text-slate-500">
+            Photos are captured on the owner&apos;s device with a time and location
+            stamp when location access is granted. The front image should show the
+            registration plate for identification.
+          </p>
           {walkaroundPhotos.length > 0 ? (
             <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {walkaroundPhotos.map((photo) => (
@@ -140,7 +157,7 @@ export function InsightsPlusBodyReport({
 
         {damage && damage.findings.length > 0 && (
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">
+            <h3 className="text-xs font-bold uppercase tracking-[0.16em] text-slate-900">
               Detected damage
             </h3>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">

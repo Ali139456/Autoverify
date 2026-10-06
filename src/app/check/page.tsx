@@ -96,9 +96,9 @@ export default async function CheckPage({
   const checkoutState = parsed.kind === "rego" ? state : validState ? state : "NSW";
 
   return (
-    <div className={`relative overflow-hidden ${pageShellClass}`}>
-      <div className="pointer-events-none absolute -top-32 left-1/2 h-[400px] w-[800px] -translate-x-1/2 rounded-full bg-accent-600/10 blur-[130px]" />
-      <div className="relative mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
+    <div className={`relative w-full min-w-0 overflow-x-clip ${pageShellClass}`}>
+      <div className="pointer-events-none absolute -top-32 left-1/2 h-[400px] w-[800px] max-w-[100vw] -translate-x-1/2 rounded-full bg-accent-600/10 blur-[130px]" />
+      <div className="relative mx-auto w-full min-w-0 max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
         {cancelled && (
           <div className="mb-6 rounded-xl border border-accent-500/40 bg-accent-50 p-4 text-sm text-accent-700 dark:bg-accent-500/10 dark:text-accent-300">
             Payment was cancelled. Your report is still one click away below.
@@ -144,7 +144,7 @@ export default async function CheckPage({
           </dl>
         </div>
 
-        <div className="mt-10">
+        <div className="mt-10 w-full min-w-0">
           <CheckPageCheckout
             identifier={checkoutIdentifier}
             state={checkoutState}
