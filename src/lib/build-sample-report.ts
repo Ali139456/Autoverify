@@ -86,14 +86,14 @@ function buildMercedesSampleCore() {
     make: "Mercedes-Benz",
     model: "C-Class",
     variant: "C300",
-    series: "2022 Series",
-    year: 2022,
+    series: "W206",
+    year: 2023,
     bodyType: "Sedan",
     fuelType: "Petrol",
     transmission: "Automatic",
     engine: "2.0L 4cyl Turbo",
     colour: "Black",
-    odometer: 57873,
+    odometer: 101800,
     odometerSource: "Provided at purchase (sample report).",
     ancapRating: null,
     warrantyRemaining: null,
@@ -181,9 +181,17 @@ function buildMercedesSampleCore() {
     ],
   });
   vehicleSpec.factoryFeatures = [
-    { code: "sample", label: "Apple CarPlay / Android Auto" },
-    { code: "sample", label: "Adaptive cruise control" },
-    { code: "sample", label: "Blind spot assist" },
+    { code: "16U", label: "APPLE CARPLAY SMARTPHONE INTEGRATION" },
+    { code: "17U", label: "ANDROID AUTO SMARTPHONE INTEGRATION" },
+    { code: "235", label: "Conti tires for taxi" },
+    { code: "249", label: "automatically dipping inside rear view mirror" },
+    { code: "255", label: "auto pilot system" },
+    { code: "500", label: "outside rear view mirror, folding" },
+    { code: "587", label: "code 581 and 583" },
+    { code: "608", label: "AUTOMATIC HIGH BEAM CONTROL (IHC)" },
+    { code: "840", label: "glass shaded" },
+    { code: "889", label: "keyless go" },
+    { code: "893", label: "KEYLESS-START" },
   ];
 
   return { vehicle, registration, valuation, market, futureValue, ai, vehicleSpec };

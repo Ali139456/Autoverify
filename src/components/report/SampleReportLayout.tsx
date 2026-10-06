@@ -10,8 +10,6 @@ import { PpsrCertificateReportPage } from "@/components/report/PpsrCertificateRe
 
 import { ReportLegalFooter } from "@/components/report/ReportLegalFooter";
 
-import { VehicleSpecReportPage } from "@/components/report/VehicleSpecReportPage";
-
 import { hasPpsrCertificate } from "@/lib/ppsr-certificate";
 
 import {
@@ -26,8 +24,6 @@ import { countVehicleReportPages } from "@/lib/report-page-count";
 
 import { hasDamageAnalysis } from "@/lib/pricing";
 
-import { hasVehicleSpecContent } from "@/lib/vehicle-spec-sheet";
-
 import type { ReportTier } from "@/lib/types";
 
 
@@ -38,15 +34,11 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
 
   const includesDamage = hasDamageAnalysis(tier);
 
-  const hasSpecAppendix = hasVehicleSpecContent(report.vehicleSpec);
-
   const hasPpsrAppendix = hasPpsrCertificate(report);
 
   const pageCount = countVehicleReportPages(
 
     includesDamage,
-
-    hasSpecAppendix,
 
     hasPpsrAppendix,
 
@@ -113,24 +105,6 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
           <div className="report-page-break report-valuations-page-break">
 
             <PresentAndFutureValueReportPage
-
-              report={report}
-
-              pageLabel={`${reportPage++} / ${pageCount}`}
-
-            />
-
-          </div>
-
-        ) : null}
-
-
-
-        {hasSpecAppendix ? (
-
-          <div className="report-page-break">
-
-            <VehicleSpecReportPage
 
               report={report}
 

@@ -42,6 +42,8 @@ import { ReportShell } from "./ReportShell";
 import { ReportManufacturersWarrantyNotice } from "./ReportManufacturersWarrantyNotice";
 import { ReportValuationSupplements } from "./ReportValuationSupplements";
 import { VehicleHeroImage } from "./VehicleHeroImage";
+import { VehicleSpecReportSection } from "./VehicleSpecReportSection";
+import { hasVehicleSpecContent } from "@/lib/vehicle-spec-sheet";
 
 
 
@@ -148,8 +150,7 @@ export function CarInsightsReport({
 
 
   const specs = buildReportOverviewSpecs(vehicle, report);
-
-
+  const showFullVehicleSpec = hasVehicleSpecContent(report.vehicleSpec);
 
   const vehicleTitle =
 
@@ -197,8 +198,11 @@ export function CarInsightsReport({
 
         </div>
 
+        {showFullVehicleSpec ? (
+          <VehicleSpecReportSection report={report} />
+        ) : null}
 
-
+        {!showFullVehicleSpec ? (
         <div className="report-spec-bar grid grid-cols-2 divide-x divide-y divide-slate-200 rounded-xl border border-slate-200 bg-slate-50 sm:grid-cols-4">
 
           {specs.map(({ label, value }, i) => (
@@ -242,8 +246,7 @@ export function CarInsightsReport({
           ))}
 
         </div>
-
-
+        ) : null}
 
         <div className="report-status-panel overflow-visible rounded-2xl border border-slate-200 bg-slate-100">
 

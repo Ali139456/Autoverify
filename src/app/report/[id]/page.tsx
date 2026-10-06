@@ -5,9 +5,7 @@ import { Lock } from "lucide-react";
 import { CarInsightsReport } from "@/components/report/CarInsightsReport";
 import { InsightsPlusBodyReport } from "@/components/report/InsightsPlusBodyReport";
 import { PpsrCertificateReportPage } from "@/components/report/PpsrCertificateReportPage";
-import { VehicleSpecReportPage } from "@/components/report/VehicleSpecReportPage";
 import { hasPpsrCertificate } from "@/lib/ppsr-certificate";
-import { hasVehicleSpecContent } from "@/lib/vehicle-spec-sheet";
 import { ReportPrintActions } from "@/components/report/ReportPrintActions";
 import { getReport } from "@/lib/store";
 import { hasDamageAnalysis, resolveReportTier } from "@/lib/pricing";
@@ -35,11 +33,9 @@ export default async function ReportPage({
   const { vehicle } = report;
   const tier = resolveReportTier(report.tier);
   const includesDamage = hasDamageAnalysis(tier);
-  const hasSpecAppendix = hasVehicleSpecContent(report.vehicleSpec);
   const hasPpsrAppendix = hasPpsrCertificate(report);
   const pageCount = countVehicleReportPages(
     includesDamage,
-    hasSpecAppendix,
     hasPpsrAppendix,
   );
   let reportPage = 1;
@@ -92,15 +88,6 @@ export default async function ReportPage({
         {includesDamage ? (
           <div className="report-page-break report-valuations-page-break">
             <PresentAndFutureValueReportPage
-              report={report}
-              pageLabel={`${reportPage++} / ${pageCount}`}
-            />
-          </div>
-        ) : null}
-
-        {hasSpecAppendix ? (
-          <div className="report-page-break">
-            <VehicleSpecReportPage
               report={report}
               pageLabel={`${reportPage++} / ${pageCount}`}
             />

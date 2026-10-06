@@ -382,9 +382,9 @@ function countVehicleSpecPdfPages(
   sheet: NonNullable<VehicleReport["vehicleSpec"]>,
 ): number {
   const featureCount = sheet.factoryFeatures.length;
-  if (featureCount <= SPEC_FEATURES_FIRST_PAGE) return 1;
+  if (featureCount <= SPEC_FEATURES_FIRST_PAGE) return 0;
   const remainder = featureCount - SPEC_FEATURES_FIRST_PAGE;
-  return 1 + Math.ceil(remainder / SPEC_FEATURES_CONTINUATION);
+  return Math.ceil(remainder / SPEC_FEATURES_CONTINUATION);
 }
 
 function chunkFactoryFeatures<T>(items: T[], size: number): T[][] {
@@ -824,9 +824,13 @@ function CarInsightsOverviewPage({
   pageLabel: string;
 }) {
   const { vehicle } = report;
+  const sheet = report.vehicleSpec;
+  const showFullVehicleSpec = hasVehicleSpecContent(sheet);
   const specs = buildReportOverviewSpecs(vehicle, report);
   const statusChecks = buildStatusChecks(report);
   const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
+  const specTitle =
+    `${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.variant}`.trim();
 
   return (
     <Page size="A4" style={styles.page}>
@@ -838,24 +842,62 @@ function CarInsightsOverviewPage({
           A comprehensive summary of your vehicle&apos;s history, status and key insights.
         </Text>
 
-        <View style={styles.specBar}>
-          {specs.map((s, i) => (
-            <View key={s.label} style={styles.specItem}>
-              <View style={styles.specLabelRow}>
-                <PdfSpecIcon index={i} />
-                <Text style={styles.specLabel}>{s.label}</Text>
+        {!showFullVehicleSpec ? (
+          <View style={styles.specBar}>
+            {specs.map((s, i) => (
+              <View key={s.label} style={styles.specItem}>
+                <View style={styles.specLabelRow}>
+                  <PdfSpecIcon index={i} />
+                  <Text style={styles.specLabel}>{s.label}</Text>
+                </View>
+                <Text
+                  style={[
+                    styles.specValue,
+                    s.label === "VIN" ? { fontSize: 6.5, lineHeight: 1.35 } : {},
+                  ]}
+                >
+                  {s.value}
+                </Text>
               </View>
-              <Text
-                style={[
-                  styles.specValue,
-                  s.label === "VIN" ? { fontSize: 6.5, lineHeight: 1.35 } : {},
-                ]}
-              >
-                {s.value}
-              </Text>
+            ))}
+          </View>
+        ) : null}
+
+        {showFullVehicleSpec && sheet ? (
+          <View style={{ marginTop: 8 }}>
+            <Text style={[styles.sectionTitle, { fontSize: 7.5, color: GREY }]}>
+              Vehicle data &amp; factory equipment
+            </Text>
+            <Text style={[styles.vehicleName, { fontSize: 11, marginTop: 2 }]}>
+              {specTitle}
+            </Text>
+            <Text style={{ fontSize: 6.5, color: GREY, marginTop: 2 }}>
+              Captured {formatReportDate(sheet.capturedAt)} from registration and build
+              data sources.
+            </Text>
+            <View style={[styles.section, { flexDirection: "row", marginTop: 6 }]}>
+              <View style={{ width: "58%", marginRight: 12 }}>
+                <Text style={styles.sectionTitle}>Vehicle data</Text>
+                {sheet.dataRows.map((row) => (
+                  <View key={row.label} style={styles.specSheetRow}>
+                    <View style={styles.specSheetLabelCell}>
+                      <Text style={styles.specSheetLabel}>{row.label}</Text>
+                    </View>
+                    <View style={styles.specSheetValueCell}>
+                      <Text style={styles.specSheetValue}>{row.value}</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+              <View style={{ width: "40%" }}>
+                <Text style={styles.sectionTitle}>Factory features &amp; options</Text>
+                <FactoryFeatureLines
+                  features={sheet.factoryFeatures.slice(0, SPEC_FEATURES_FIRST_PAGE)}
+                />
+              </View>
             </View>
-          ))}
-        </View>
+          </View>
+        ) : null}
 
         <View style={styles.statusPanel}>
           <View style={styles.statusLeft}>
@@ -1044,52 +1086,16 @@ function VehicleSpecPages({
   const sheet = report.vehicleSpec;
   if (!sheet || !hasVehicleSpecContent(sheet)) return null;
 
-  const { vehicle } = report;
-  const vehicleTitle =
-    `${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.variant}`.trim();
   const reportReference = formatReportReference(report.vehicle);
-  const firstFeatures = sheet.factoryFeatures.slice(0, SPEC_FEATURES_FIRST_PAGE);
   const continuationChunks = chunkFactoryFeatures(
     sheet.factoryFeatures.slice(SPEC_FEATURES_FIRST_PAGE),
     SPEC_FEATURES_CONTINUATION,
   );
 
+  if (continuationChunks.length === 0) return null;
+
   return (
     <>
-      <Page size="A4" style={styles.page}>
-        <ReportHeader report={report} />
-        <View style={styles.body}>
-          <Text style={styles.title}>Vehicle Data &amp; Factory Equipment</Text>
-          <Text style={styles.vehicleName}>{vehicleTitle}</Text>
-          <Text style={styles.subtitle}>
-            Full specification and build options (as returned from data providers).
-          </Text>
-
-          <View style={[styles.section, { flexDirection: "row" }]}>
-            <View style={{ width: "58%", marginRight: 12 }}>
-              <Text style={styles.sectionTitle}>Vehicle data</Text>
-              {sheet.dataRows.map((row) => (
-                <View key={row.label} style={styles.specSheetRow}>
-                  <View style={styles.specSheetLabelCell}>
-                    <Text style={styles.specSheetLabel}>{row.label}</Text>
-                  </View>
-                  <View style={styles.specSheetValueCell}>
-                    <Text style={styles.specSheetValue}>{row.value}</Text>
-                  </View>
-                </View>
-              ))}
-            </View>
-            <View style={{ width: "40%" }}>
-              <Text style={styles.sectionTitle}>Factory features &amp; options</Text>
-              <FactoryFeatureLines features={firstFeatures} />
-            </View>
-          </View>
-        </View>
-        <ReportFooter
-          pageLabel={pageLabels[0] ?? ""}
-          reportReference={reportReference}
-        />
-      </Page>
       {continuationChunks.map((chunk, index) => (
         <Page key={`spec-cont-${index}`} size="A4" style={styles.page}>
           <ReportHeader report={report} />
@@ -1101,7 +1107,7 @@ function VehicleSpecPages({
             <FactoryFeatureLines features={chunk} />
           </View>
           <ReportFooter
-            pageLabel={pageLabels[index + 1] ?? pageLabels[0] ?? ""}
+            pageLabel={pageLabels[index] ?? ""}
             reportReference={reportReference}
           />
         </Page>
@@ -1286,14 +1292,14 @@ export function ReportPdf({
   return (
     <Document title={`Auto Verifi Report ${report.id}`}>
       <CarInsightsOverviewPage report={report} pageLabel={overviewLabel} />
+      {includeSpec && report.vehicleSpec ? (
+        <VehicleSpecPages report={report} pageLabels={specPageLabels} />
+      ) : null}
       <CarInsightsInsightsAndDetailsPage
         report={report}
         pageLabel={insightsLabel}
         showUpgrade={!isPlus}
       />
-      {includeSpec && report.vehicleSpec ? (
-        <VehicleSpecPages report={report} pageLabels={specPageLabels} />
-      ) : null}
       {isPlus ? (
         <InsightsPlusPage
           report={report}
