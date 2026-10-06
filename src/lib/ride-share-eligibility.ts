@@ -116,7 +116,7 @@ export const RIDE_SHARE_ELIGIBILITY_ROWS: RideShareEligibilityRow[] = [
     uberX:
       "Taxi/ex-taxi, government, ex-driving-school, branded or rebuilt vehicles",
     didi:
-      "Ex-taxi under NSW-specific requirements; DiDi's general rules also exclude taxi, government, branded and rebuilt vehicles",
+      "DiDi's general rules also exclude taxi, government, branded and rebuilt vehicles",
   },
   {
     requirement: "Final eligibility",
