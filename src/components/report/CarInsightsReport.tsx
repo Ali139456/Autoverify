@@ -21,8 +21,6 @@ import {
   buildStatusChecks,
   formatReportReference,
 
-  futureValueConfidenceLabel,
-
   getFutureValueAtYears,
 
   resolveFutureValue,
@@ -350,7 +348,7 @@ export function CarInsightsReport({
 
             <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">
 
-              Present value — market valuation ({valuation.confidence} confidence)
+              Present value — market valuation
 
             </h3>
 
@@ -392,13 +390,7 @@ export function CarInsightsReport({
 
           </div>
 
-          <ReportValuationSupplements report={report} />
-          </>
-        ) : null}
-
-
-
-        {showFutureValue && !deferValuations ? (
+          {showFutureValue ? (
 
           <div className="report-supplementary report-future-section rounded-xl border border-slate-200 bg-slate-50 p-5">
 
@@ -406,7 +398,7 @@ export function CarInsightsReport({
 
               <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">
 
-                Future value forecast ({futureValueConfidenceLabel(futureValue)} confidence)
+                Future value forecast
 
               </h3>
 
@@ -462,6 +454,10 @@ export function CarInsightsReport({
 
           </div>
 
+        ) : null}
+
+          <ReportValuationSupplements report={report} />
+          </>
         ) : null}
 
 

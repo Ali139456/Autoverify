@@ -28,7 +28,6 @@ import {
   MANUFACTURERS_WARRANTY_NOTICE,
   formatReportDate,
   formatReportReference,
-  futureValueConfidenceLabel,
   getFutureValueAtYears,
   getInspectionPhotoUrl,
   resolveDamageFindingImageUrl,
@@ -922,7 +921,7 @@ function CarInsightsInsightsAndDetailsPage({
 
         <View style={[styles.section, { marginTop: 10 }]}>
           <Text style={styles.sectionTitle}>
-            Present Value — Market Valuation ({valuation.confidence} confidence)
+            Present Value — Market Valuation
           </Text>
           <View style={styles.valRow}>
             {[
@@ -940,13 +939,11 @@ function CarInsightsInsightsAndDetailsPage({
           </View>
         </View>
 
-        <PdfValuationSupplements report={report} />
-
         {showFutureValue ? (
           <View style={[styles.section, { marginTop: 10 }]}>
-            <Text style={styles.sectionTitle}>
-              Future Value Forecast ({futureValueConfidenceLabel(futureValue)}{" "}
-              confidence · {futureValue.yearlyKms.toLocaleString()} km/yr)
+            <Text style={styles.sectionTitle}>Future Value Forecast</Text>
+            <Text style={{ fontSize: 7, color: GREY, marginTop: 2 }}>
+              Based on {futureValue.yearlyKms.toLocaleString()} km per year
             </Text>
             <View style={styles.valRow}>
               {futureHorizons.map(({ label, years }) => {
@@ -968,6 +965,8 @@ function CarInsightsInsightsAndDetailsPage({
             </View>
           </View>
         ) : null}
+
+        <PdfValuationSupplements report={report} />
 
         {showUpgrade ? (
           <View style={[styles.upgradeBox, { marginTop: 10 }]} wrap={false}>
