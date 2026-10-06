@@ -1,4 +1,5 @@
 import { getCompanyDetails, formatCompanyFooterLines } from "./company";
+import { PRE_PURCHASE_INSPECTIONS_HREF } from "./inspection-menu";
 import { formatReportReference } from "./report-design";
 import { formatTierPrice, getReportTierConfig, resolveReportTier } from "./pricing";
 import type { VehicleReport } from "./types";
@@ -74,7 +75,7 @@ export function buildPurchaseConfirmationEmailHtml(
     ? `Purchase amount: ${amountLabel} (${rrpLabel}).`
     : `Purchase amount: ${amountLabel}.`;
 
-  const inspectionsUrl = `${baseUrl.replace(/\/$/, "")}/vehicleinspections`;
+  const inspectionsUrl = `${baseUrl.replace(/\/$/, "")}${PRE_PURCHASE_INSPECTIONS_HREF}`;
   const privacyUrl = `${baseUrl.replace(/\/$/, "")}/privacy`;
   const termsUrl = `${baseUrl.replace(/\/$/, "")}/terms`;
 

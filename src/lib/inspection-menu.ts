@@ -1,3 +1,6 @@
+/** Pre-purchase bookings — vehicle inspections landing (contact form). */
+export const PRE_PURCHASE_INSPECTIONS_HREF = "/vehicleinspections#contact";
+
 export type InspectionMenuItem =
   | {
       label: string;
@@ -10,7 +13,10 @@ export type InspectionMenuItem =
     };
 
 export const INSPECTION_MENU_ITEMS: InspectionMenuItem[] = [
-  { label: "Pre Purchase Inspections", status: "coming_soon" },
+  {
+    label: "Pre Purchase Inspections",
+    href: PRE_PURCHASE_INSPECTIONS_HREF,
+  },
   { label: "EV Battery Health Checks", status: "coming_soon" },
   { label: "Lender Asset Verification", status: "coming_soon" },
   { label: "Ride Share Inspections", status: "coming_soon" },
