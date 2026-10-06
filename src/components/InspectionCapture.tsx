@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Camera,
   CheckCircle2,
@@ -74,9 +74,40 @@ export function InspectionCapture({
     () => new Set(photos.map((photo) => photo.angle)),
     [photos],
   );
-  const completedCount = INSPECTION_ANGLES.filter((angle) =>
-    uploadedAngles.has(angle.id),
-  ).length;
+  const completedCount = uploadedAngles.size;
+
+  const fetchPhotosFromServer = useCallback(async (): Promise<
+    UploadedPhoto[] | null
+  > => {
+    const res = await fetch(`/api/inspections/${token}`);
+    if (!res.ok) return null;
+    try {
+      const data = await readJsonResponse<{ photos?: UploadedPhoto[] }>(
+        res,
+        "Could not refresh photo list.",
+      );
+      return Array.isArray(data.photos) ? data.photos : null;
+    } catch {
+      return null;
+    }
+  }, [token]);
+
+  useEffect(() => {
+    void fetchPhotosFromServer().then((synced) => {
+      if (synced?.length) setPhotos(synced);
+    });
+  }, [fetchPhotosFromServer]);
+
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState !== "visible") return;
+      void fetchPhotosFromServer().then((synced) => {
+        if (synced) setPhotos(synced);
+      });
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [fetchPhotosFromServer]);
 
   function findNextStepIndex(
     fromIndex: number,
@@ -89,20 +120,6 @@ export function InspectionCapture({
       if (!uploaded.has(INSPECTION_ANGLES[i].id)) return i;
     }
     return fromIndex;
-  }
-
-  async function fetchPhotosFromServer(): Promise<UploadedPhoto[] | null> {
-    const res = await fetch(`/api/inspections/${token}`);
-    if (!res.ok) return null;
-    try {
-      const data = await readJsonResponse<{ photos?: UploadedPhoto[] }>(
-        res,
-        "Could not refresh photo list.",
-      );
-      return Array.isArray(data.photos) ? data.photos : null;
-    } catch {
-      return null;
-    }
   }
 
   async function uploadPhoto(file: File) {
@@ -156,6 +173,13 @@ export function InspectionCapture({
     setError(null);
 
     try {
+      const synced = await fetchPhotosFromServer();
+      const latest = synced ?? photos;
+      if (synced) setPhotos(synced);
+      if (latest.length === 0) {
+        throw new Error("Upload at least one photo before submitting.");
+      }
+
       const res = await fetch(`/api/inspections/${token}/complete`, {
         method: "POST",
       });
@@ -267,7 +291,7 @@ export function InspectionCapture({
           <input
             ref={inputRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
             capture="environment"
             className="hidden"
             onChange={(event) => {
@@ -296,18 +320,22 @@ export function InspectionCapture({
         </div>
 
         <ul className="mt-5 grid grid-cols-2 gap-2 text-xs text-slate-400">
-          {INSPECTION_ANGLES.map((angle) => (
-            <li
-              key={angle.id}
-              className={`rounded-lg px-3 py-2 ${
-                uploadedAngles.has(angle.id)
-                  ? "border border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
-                  : angle.id === currentAngle.id
-                    ? "border border-accent-500/30 bg-accent-500/10 text-accent-200"
-                    : "border border-white/5 bg-white/[0.03]"
-              }`}
-            >
-              {angle.label}
+          {INSPECTION_ANGLES.map((angle, index) => (
+            <li key={angle.id}>
+              <button
+                type="button"
+                disabled={uploading}
+                onClick={() => setStepIndex(index)}
+                className={`w-full rounded-lg px-3 py-2 text-left transition disabled:opacity-50 ${
+                  uploadedAngles.has(angle.id)
+                    ? "border border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                    : angle.id === currentAngle.id
+                      ? "border border-accent-500/30 bg-accent-500/10 text-accent-200"
+                      : "border border-white/5 bg-white/[0.03]"
+                }`}
+              >
+                {angle.label}
+              </button>
             </li>
           ))}
         </ul>
@@ -322,11 +350,16 @@ export function InspectionCapture({
         </div>
       )}
 
+      <p className="mt-4 text-center text-xs text-slate-500">
+        You can submit once at least one photo has uploaded. If one angle fails,
+        skip it and submit the rest.
+      </p>
+
       <button
         type="button"
         onClick={() => void submitInspection()}
         disabled={submitting || completedCount === 0}
-        className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent-600 to-accent-500 px-5 py-3.5 text-sm font-bold text-white transition hover:from-accent-500 hover:to-accent-400 disabled:opacity-50"
+        className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent-600 to-accent-500 px-5 py-3.5 text-sm font-bold text-white transition hover:from-accent-500 hover:to-accent-400 disabled:opacity-50"
       >
         {submitting ? (
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
