@@ -67,7 +67,12 @@ export function buildPurchaseConfirmationEmailHtml(
   const currency = (ctx.currency ?? "aud").toLowerCase();
   const amountCents = ctx.amountPaidCents ?? tierConfig.priceCents;
   const amountLabel = formatMoney(amountCents, currency);
-  const tierPriceLabel = formatTierPrice(tier);
+  const rrpCents = tierConfig.priceCents;
+  const isPromoOrFree = amountCents < rrpCents;
+  const rrpLabel = `${formatTierPrice(tier)} RRP`;
+  const purchaseAmountLine = isPromoOrFree
+    ? `Purchase amount: ${amountLabel} (${rrpLabel}).`
+    : `Purchase amount: ${amountLabel}.`;
 
   const inspectionsUrl = `${baseUrl.replace(/\/$/, "")}/vehicleinspections`;
   const privacyUrl = `${baseUrl.replace(/\/$/, "")}/privacy`;
@@ -99,14 +104,16 @@ export function buildPurchaseConfirmationEmailHtml(
     )
     .join("");
 
+  const purchaseAmountParagraph = `<p style="margin:14px 0 0;font-size:13px;color:#334155;line-height:1.55;">
+        ${escapeHtml(purchaseAmountLine)}
+      </p>`;
+
   const invoiceLinkBlock = ctx.invoiceHostedUrl
     ? `<p style="margin:14px 0 0;font-size:13px;color:#334155;line-height:1.55;">
         Your official tax invoice PDF is attached. You can also
         <a href="${escapeHtml(ctx.invoiceHostedUrl)}" style="color:${BRAND_BLUE};font-weight:700;text-decoration:none;">view your invoice online</a>.
-      </p>`
-    : `<p style="margin:14px 0 0;font-size:13px;color:#334155;line-height:1.55;">
-        Purchase amount: ${escapeHtml(amountLabel)} (${escapeHtml(tierPriceLabel)}).
-      </p>`;
+      </p>${isPromoOrFree ? purchaseAmountParagraph : ""}`
+    : purchaseAmountParagraph;
 
   const nextStepRow = (
     title: string,
