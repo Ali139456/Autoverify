@@ -8,7 +8,7 @@ export const INSPECTION_ANGLES = [
   { id: "rear", label: "Rear" },
   { id: "rear_left", label: "Rear left" },
   { id: "left_side", label: "Left side" },
-  { id: "dashboard", label: "Interior Dash/ Odometer cluster" },
+  { id: "dashboard", label: "Dash cluster with engine running" },
   { id: "interior", label: "Interior" },
   { id: "wheel_right_front", label: "Right front wheel" },
   { id: "wheel_right_rear", label: "Right rear wheel" },
@@ -38,6 +38,9 @@ export function getInspectionAngleLabel(id: string): string {
 }
 
 export function getInspectionAngleHint(id: string): string | undefined {
+  if (id === "dashboard") {
+    return "Ignition on — odometer and warning lights visible.";
+  }
   if (id === "vin_plate") {
     return "Usually located inside the driver door.";
   }
