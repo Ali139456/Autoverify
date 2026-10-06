@@ -28,9 +28,11 @@ const buyReportClass =
 function InspectionMenuItems({
   onNavigate,
   compact = false,
+  dark = false,
 }: {
   onNavigate?: () => void;
   compact?: boolean;
+  dark?: boolean;
 }) {
   return (
     <>
@@ -40,17 +42,21 @@ function InspectionMenuItems({
             <div
               key={item.label}
               className={`flex items-center justify-between gap-3 ${
-                compact
-                  ? "rounded-xl px-4 py-3 text-sm font-medium text-slate-800"
-                  : "px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200"
+                compact && dark
+                  ? "rounded-lg px-3 py-2.5 text-sm font-medium text-slate-400"
+                  : compact
+                    ? "rounded-xl px-4 py-3 text-sm font-medium text-slate-800"
+                    : "px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200"
               }`}
             >
               <span>{item.label}</span>
               <span
                 className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
-                  compact
-                    ? "bg-slate-100 text-slate-600"
-                    : "bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-slate-400"
+                  compact && dark
+                    ? "border border-white/10 bg-white/5 text-slate-500"
+                    : compact
+                      ? "bg-slate-100 text-slate-600"
+                      : "bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-slate-400"
                 }`}
               >
                 Coming soon
@@ -67,9 +73,11 @@ function InspectionMenuItems({
             rel={item.external ? "noopener noreferrer" : undefined}
             onClick={onNavigate}
             className={`block transition ${
-              compact
-                ? "rounded-xl px-4 py-3 text-sm font-medium text-slate-800 hover:bg-slate-50 hover:text-slate-950"
-                : "px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-white/5 dark:hover:text-white"
+              compact && dark
+                ? "rounded-lg px-3 py-2.5 text-sm font-semibold text-slate-200 hover:bg-white/5 hover:text-white"
+                : compact
+                  ? "rounded-xl px-4 py-3 text-sm font-medium text-slate-800 hover:bg-slate-50 hover:text-slate-950"
+                  : "px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-white/5 dark:hover:text-white"
             }`}
           >
             {item.label}
@@ -79,6 +87,9 @@ function InspectionMenuItems({
     </>
   );
 }
+
+const mobileNavLinkClass =
+  "group flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-[15px] font-semibold tracking-tight text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition hover:border-[#0073E3]/45 hover:bg-[#0073E3]/12 hover:text-white active:scale-[0.99]";
 
 function InspectionsDropdown({ onNavigate }: { onNavigate?: () => void }) {
   const [open, setOpen] = useState(false);
@@ -142,6 +153,15 @@ function HeaderMobileMenu({
   const [open, setOpen] = useState(false);
   const [mobileInspectionsOpen, setMobileInspectionsOpen] = useState(false);
 
+  useEffect(() => {
+    if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open]);
+
   return (
     <>
       <button
@@ -158,16 +178,32 @@ function HeaderMobileMenu({
       </button>
 
       {open && (
-        <div className="fixed inset-x-3 top-[5.75rem] z-[60] mx-auto max-w-6xl rounded-2xl border border-slate-200 bg-white p-3 text-slate-900 shadow-[0_20px_60px_rgba(15,23,42,0.12)] sm:top-[6rem] sm:inset-x-6 md:hidden dark:bg-white dark:text-slate-900">
-          <nav className="flex flex-col gap-1">
+        <div
+          className="fixed inset-x-0 bottom-0 top-[5.75rem] z-[60] flex min-h-0 flex-col bg-gradient-to-b from-ink-950 via-ink-950 to-[#060b14] md:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Main menu"
+        >
+          <div
+            className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(ellipse_at_top,rgba(0,115,227,0.22),transparent_70%)]"
+            aria-hidden
+          />
+          <nav className="relative flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-4 pb-4 pt-5">
+            <p className="px-1 text-[10px] font-bold uppercase tracking-[0.22em] text-[#0073E3]">
+              Navigate
+            </p>
             {links.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
                 onClick={() => setOpen(false)}
-                className="rounded-xl px-4 py-3 text-base font-medium text-slate-700 transition hover:bg-slate-50 hover:text-slate-900"
+                className={mobileNavLinkClass}
               >
                 {l.label}
+                <ArrowRight
+                  className="h-4 w-4 shrink-0 text-[#0073E3] opacity-0 transition group-hover:translate-x-0.5 group-hover:opacity-100"
+                  aria-hidden
+                />
               </Link>
             ))}
 
@@ -176,20 +212,25 @@ function HeaderMobileMenu({
                 <button
                   type="button"
                   onClick={() => setMobileInspectionsOpen((value) => !value)}
-                  className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-base font-medium text-slate-800 transition hover:bg-slate-50 hover:text-slate-950"
+                  className={`${mobileNavLinkClass} w-full ${
+                    mobileInspectionsOpen
+                      ? "border-[#0073E3]/50 bg-[#0073E3]/15 text-white"
+                      : ""
+                  }`}
                 >
                   Inspections
                   <ChevronDown
-                    className={`h-4 w-4 transition-transform ${
+                    className={`h-4 w-4 shrink-0 text-[#0073E3] transition-transform ${
                       mobileInspectionsOpen ? "rotate-180" : ""
                     }`}
                     aria-hidden
                   />
                 </button>
                 {mobileInspectionsOpen && (
-                  <div className="mt-1 border-t border-slate-200 pt-1">
+                  <div className="mt-2 space-y-0.5 rounded-xl border border-white/10 bg-black/25 py-2 pl-3 pr-2 backdrop-blur-sm">
                     <InspectionMenuItems
                       compact
+                      dark
                       onNavigate={() => {
                         setOpen(false);
                         setMobileInspectionsOpen(false);
@@ -200,24 +241,32 @@ function HeaderMobileMenu({
               </div>
             )}
           </nav>
-          {isInspectionPage ? (
-            <Link
-              href="#contact"
-              onClick={() => setOpen(false)}
-              className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-accent-500 px-5 py-3.5 font-bold text-white hover:bg-accent-600"
-            >
-              Request an inspection
-              <ArrowRight className="h-4 w-4" aria-hidden />
-            </Link>
-          ) : (
-            <HomeCheckLink
-              onClick={() => setOpen(false)}
-              className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-accent-500 px-5 py-3.5 font-bold text-white hover:bg-accent-600"
-            >
-              Buy Report
-              <ArrowRight className="h-4 w-4" aria-hidden />
-            </HomeCheckLink>
-          )}
+          <div className="relative shrink-0 border-t border-white/10 bg-ink-950/90 px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-md">
+            {isInspectionPage ? (
+              <Link
+                href="#contact"
+                onClick={() => setOpen(false)}
+                className="btn-shine group flex items-center justify-center gap-2 rounded-full bg-[#0073E3] px-5 py-3.5 text-sm font-bold text-white shadow-[0_12px_40px_rgba(0,115,227,0.35)] transition hover:bg-[#0062c2]"
+              >
+                Request an inspection
+                <ArrowRight
+                  className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                  aria-hidden
+                />
+              </Link>
+            ) : (
+              <HomeCheckLink
+                onClick={() => setOpen(false)}
+                className="btn-shine group flex items-center justify-center gap-2 rounded-full bg-[#0073E3] px-5 py-3.5 text-sm font-bold text-white shadow-[0_12px_40px_rgba(0,115,227,0.35)] transition hover:bg-[#0062c2]"
+              >
+                Buy Report
+                <ArrowRight
+                  className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                  aria-hidden
+                />
+              </HomeCheckLink>
+            )}
+          </div>
         </div>
       )}
     </>

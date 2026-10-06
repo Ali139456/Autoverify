@@ -95,11 +95,11 @@ export function RegoSearchForm({
         </div>
       ) : null}
       <div className={`relative w-full ${shellClass}`}>
-        <div className="mb-1 flex gap-2 px-1 text-left">
+        <div className="mb-1 flex gap-2 text-left">
           <span className={`${labelClass} min-w-0 flex-1`}>
             Registration Plate or VIN
           </span>
-          <span className={`${labelClass} w-[5.75rem] shrink-0`}>
+          <span className={`${labelClass} w-[5.75rem] shrink-0 text-left`}>
             State{vinMode ? " (optional)" : ""}
           </span>
         </div>
@@ -122,7 +122,7 @@ export function RegoSearchForm({
               value={state}
               onChange={(e) => setState(e.target.value)}
               aria-label="State of registration"
-              className={`${fieldClass} cursor-pointer appearance-none pl-2 pr-7 text-center text-sm font-bold sm:pl-3 sm:pr-8 sm:text-base`}
+              className={`${fieldClass} cursor-pointer appearance-none pl-3 pr-8 text-left text-sm font-bold sm:text-base`}
             >
               {STATES.map((s) => (
                 <option key={s} value={s}>
@@ -130,17 +130,17 @@ export function RegoSearchForm({
                 </option>
               ))}
             </select>
-            <span className="pointer-events-none absolute right-2 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5">
+            <span className="pointer-events-none absolute right-1.5 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5">
               <ChevronDown className="h-3 w-3 text-accent-500 dark:text-accent-400" aria-hidden />
             </span>
           </div>
         </div>
 
-        <div className="mx-auto mt-2.5 flex w-full flex-col gap-2 sm:max-w-md sm:flex-row lg:mx-0">
+        <div className="mx-auto mt-2.5 grid w-full grid-cols-2 gap-2 lg:mx-0">
           <button
             type="submit"
             disabled={loading}
-            className="btn-shine group flex h-10 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-[#0073E3] px-4 text-sm font-bold text-white transition hover:bg-[#0062c2] disabled:opacity-60"
+            className="btn-shine group flex h-10 min-w-0 items-center justify-center gap-1 rounded-lg bg-[#0073E3] px-2.5 text-xs font-bold text-white transition hover:bg-[#0062c2] disabled:opacity-60 sm:gap-1.5 sm:px-4 sm:text-sm"
           >
             {loading ? "Searching…" : "Buy Report"}
             <ArrowRight
@@ -153,7 +153,7 @@ export function RegoSearchForm({
           ) : (
             <Link
               href="/sample-report"
-              className="pointer-events-none flex h-10 flex-1 items-center justify-center rounded-lg border-2 border-[#0073E3]/40 px-4 text-sm font-bold text-[#0073E3]/40"
+              className="pointer-events-none flex h-10 min-w-0 items-center justify-center rounded-lg border-2 border-[#0073E3]/40 px-2.5 text-xs font-bold text-[#0073E3]/40 sm:px-4 sm:text-sm"
               tabIndex={-1}
               aria-hidden
             >

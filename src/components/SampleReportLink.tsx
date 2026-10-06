@@ -27,7 +27,7 @@ export function SampleReportLink({
         href={href}
         target={external ? "_blank" : undefined}
         rel={external ? "noopener noreferrer" : undefined}
-        className={`group flex h-10 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border-2 border-[#0073E3] bg-transparent px-4 text-sm font-bold text-[#0073E3] transition hover:bg-[#0073E3]/10 sm:flex-1 ${className}`}
+        className={`group flex h-10 min-w-0 items-center justify-center gap-1 whitespace-nowrap rounded-lg border-2 border-[#0073E3] bg-transparent px-2.5 text-xs font-bold text-[#0073E3] transition hover:bg-[#0073E3]/10 sm:gap-1.5 sm:px-4 sm:text-sm ${className}`}
       >
         {label}
         <ArrowRight
