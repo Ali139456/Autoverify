@@ -376,18 +376,20 @@ html.dark body {
     margin-top: 0 !important;
   }
 
-  /* One logical report page ≥ one A4 content area (297mm − 8mm @page margins × 2) */
-  #report-print-area > .report-page-break:not(:has(> .report-shell-ppsr)),
+  /* Printable area: A4 297mm − 8mm @page margins × 2 = 281mm */
+  #report-print-area > .report-page-break:not(:has(> .report-shell-ppsr)) {
+    display: block !important;
+    height: 281mm !important;
+    min-height: 281mm !important;
+    box-sizing: border-box !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
   #report-print-area > .report-print-page-first {
     display: block !important;
     min-height: 281mm !important;
     box-sizing: border-box !important;
-  }
-
-  #report-print-area > .report-page-break:not(:has(> .report-shell-ppsr)) > .report-shell,
-  #report-print-area > .report-print-page-first > .report-shell {
-    width: 100% !important;
-    min-height: 281mm !important;
   }
 
   #report-print-area.space-y-6 > * {
@@ -399,17 +401,32 @@ html.dark body {
     border: 1px solid #e2e8f0 !important;
     border-radius: 12px !important;
     margin: 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
+    width: 100% !important;
     overflow: visible !important;
     break-inside: avoid;
     page-break-inside: avoid;
     box-sizing: border-box !important;
   }
 
+  /* Grid pins footer row to the bottom of the 281mm frame (Chrome print) */
   #report-print-area .report-shell:not(.report-shell-ppsr) {
-    position: relative !important;
+    display: grid !important;
+    grid-template-rows: auto 1fr auto !important;
+    align-content: stretch !important;
     min-height: 281mm !important;
+    height: 100% !important;
+  }
+
+  #report-print-area > .report-page-break:not(:has(> .report-shell-ppsr)) > .report-shell {
+    height: 281mm !important;
+    min-height: 281mm !important;
+    max-height: 281mm !important;
+  }
+
+  #report-print-area > .report-print-page-first > .report-shell {
+    min-height: 281mm !important;
+    height: auto !important;
+    max-height: none !important;
   }
 
   /* PPSR appendix: natural height (certificate may span its own sheet) */
@@ -438,7 +455,7 @@ html.dark body {
   .report-shell-header {
     break-inside: avoid;
     break-after: avoid;
-    flex-shrink: 0 !important;
+    grid-row: 1 !important;
     background-color: #ffffff !important;
     color: #0f172a !important;
     border-bottom: 2px solid #0073e3 !important;
@@ -465,11 +482,11 @@ html.dark body {
   }
 
   .report-shell-body {
-    flex: 1 1 auto !important;
-    flex-grow: 1 !important;
+    grid-row: 2 !important;
     min-height: 0 !important;
+    align-self: stretch !important;
     overflow: visible !important;
-    padding: 12px 18px 16mm !important;
+    padding: 12px 18px 8px !important;
   }
 
   #report-print-area .report-shell-ppsr .report-shell-body {
@@ -480,24 +497,13 @@ html.dark body {
   .report-shell-footer {
     break-inside: avoid;
     page-break-inside: avoid;
-    position: absolute !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    z-index: 2 !important;
-    flex-shrink: 0 !important;
+    grid-row: 3 !important;
+    align-self: end !important;
+    position: static !important;
     margin-top: 0 !important;
     padding: 8px 18px !important;
     border-top: 1px solid #e2e8f0 !important;
     background-color: #ffffff !important;
-  }
-
-  #report-print-area .report-shell-ppsr .report-shell-footer {
-    position: relative !important;
-    bottom: auto !important;
-    left: auto !important;
-    right: auto !important;
-    margin-top: auto !important;
   }
 
   .report-shell-footer img {

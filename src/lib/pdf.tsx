@@ -78,12 +78,11 @@ const styles = StyleSheet.create({
   },
   pageFrame: {
     height: PDF_A4_HEIGHT,
+    minHeight: PDF_A4_HEIGHT,
     flexDirection: "column",
-    justifyContent: "space-between",
   },
   pageContent: {
-    flexGrow: 1,
-    flexShrink: 1,
+    flex: 1,
   },
   header: {
     backgroundColor: "#ffffff",
@@ -532,7 +531,7 @@ function PdfPageShell({
           <ReportHeader report={report} />
           {children}
         </View>
-        <View style={styles.footerBar} fixed>
+        <View style={styles.footerBar}>
           <Image src={LOGO_BLUE} style={styles.footerLogo} />
           <Text style={styles.footerText}>
             {reportReference} · Autoverifi.com.au | {pageLabel}
