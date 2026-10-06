@@ -4,6 +4,7 @@ import { getReport, updateReport } from "@/lib/store";
 import {
   createInspection,
   getInspectionByReportId,
+  getInspectionOwnerUrl,
   isInspectionExpired,
   updateInspection,
 } from "@/lib/inspections";
@@ -61,13 +62,25 @@ export async function POST(req: NextRequest) {
     }
 
     let inspection = await getInspectionByReportId(reportId);
-    if (!inspection || isInspectionExpired(inspection)) {
+    const createdNewInspection =
+      !inspection || isInspectionExpired(inspection);
+    if (createdNewInspection) {
       inspection = await createInspection({ reportId, phone: ownerPhone });
     }
+    if (!inspection) {
+      return NextResponse.json(
+        { error: "Could not create or load inspection session." },
+        { status: 500 },
+      );
+    }
 
-    const internalInspectUrl = `${getBaseUrl()}/inspect/${inspection.accessToken}`;
+    const baseUrl = getBaseUrl();
+    const internalInspectUrl = getInspectionOwnerUrl(
+      { accessToken: inspection.accessToken, ravinInviteUrl: null },
+      baseUrl,
+    );
 
-    let inspectUrl = inspection.ravinInviteUrl ?? internalInspectUrl;
+    let inspectUrl = getInspectionOwnerUrl(inspection, baseUrl);
     let provider: "ravin" | "internal" = inspection.ravinInviteUrl ? "ravin" : "internal";
     let ravinInviteUrl: string | null = inspection.ravinInviteUrl;
     let ravinWarning: string | null = null;
@@ -104,7 +117,7 @@ export async function POST(req: NextRequest) {
     let smsSent = false;
     let smsError: string | null = null;
 
-    if (isSmsConfigured()) {
+    if (isSmsConfigured() && createdNewInspection) {
       try {
         const vehicleLabel = `${report.vehicle.year} ${report.vehicle.make} ${report.vehicle.model}`;
         await sendInspectionLinkSms({

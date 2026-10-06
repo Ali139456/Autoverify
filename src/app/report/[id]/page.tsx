@@ -9,7 +9,12 @@ import { hasPpsrCertificate } from "@/lib/ppsr-certificate";
 import { ReportPrintActions } from "@/components/report/ReportPrintActions";
 import { getReport } from "@/lib/store";
 import { hasDamageAnalysis, resolveReportTier } from "@/lib/pricing";
-import { getInspectionByReportId } from "@/lib/inspections";
+import {
+  getInspectionByReportId,
+  getInspectionOwnerUrl,
+  isInspectionExpired,
+} from "@/lib/inspections";
+import { getBaseUrl } from "@/lib/stripe";
 import { PresentAndFutureValueReportPage } from "@/components/report/PresentAndFutureValueReportPage";
 import { ReportLegalFooter } from "@/components/report/ReportLegalFooter";
 import { countVehicleReportPages } from "@/lib/report-page-count";
@@ -29,6 +34,10 @@ export default async function ReportPage({
   const report = await getReport(id);
   if (!report) notFound();
   const inspection = await getInspectionByReportId(id);
+  const inspectUrlForOwner =
+    inspection && !isInspectionExpired(inspection)
+      ? getInspectionOwnerUrl(inspection, getBaseUrl())
+      : null;
 
   const { vehicle } = report;
   const tier = resolveReportTier(report.tier);
@@ -99,7 +108,7 @@ export default async function ReportPage({
             <InsightsPlusBodyReport
               report={report}
               photos={inspection?.photos ?? []}
-              inspectUrl={inspection?.ravinInviteUrl}
+              inspectUrl={inspectUrlForOwner}
               showActions
               pageLabel={`${reportPage++} / ${pageCount}`}
             />

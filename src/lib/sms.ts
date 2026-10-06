@@ -1,5 +1,20 @@
 import { normalizeAuMobile } from "./phone";
 
+function formatSmsFailureMessage(raw: string, status: number): string {
+  const normalized = raw.trim();
+  if (
+    status >= 500 ||
+    /internal server error/i.test(normalized) ||
+    normalized.length === 0
+  ) {
+    return "SMS could not be sent (Twilio error). Use the QR code to open the inspection link on the owner's phone.";
+  }
+  if (/unable to create record|not a valid phone number|invalid 'to'/i.test(normalized)) {
+    return "SMS could not be sent — check the owner mobile number. You can still use the QR code.";
+  }
+  return normalized.length > 160 ? `${normalized.slice(0, 157)}…` : normalized;
+}
+
 export function isSmsConfigured(): boolean {
   return Boolean(
     process.env.TWILIO_ACCOUNT_SID &&
@@ -52,9 +67,9 @@ export async function sendInspectionLinkSms(input: {
     | null;
 
   if (!response.ok) {
-    throw new Error(
-      payload?.message || payload?.error_message || `SMS failed (${response.status}).`,
-    );
+    const raw =
+      payload?.message || payload?.error_message || `SMS failed (${response.status}).`;
+    throw new Error(formatSmsFailureMessage(raw, response.status));
   }
 
   return { to };

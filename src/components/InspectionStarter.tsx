@@ -49,6 +49,8 @@ export function InspectionStarter({
       let data: {
         error?: string;
         inspectUrl?: string;
+        internalInspectUrl?: string;
+        provider?: "ravin" | "internal";
         smsSent?: boolean;
         smsError?: string | null;
         ravinWarning?: string | null;
@@ -67,6 +69,9 @@ export function InspectionStarter({
         throw new Error("Inspection link was not returned. Please try again.");
       }
       setInspectUrl(data.inspectUrl);
+      if (data.internalInspectUrl && data.provider === "internal") {
+        setInspectUrl(data.internalInspectUrl);
+      }
       setSmsSent(Boolean(data.smsSent));
       setSmsError(data.smsError ?? data.ravinWarning ?? null);
       if (openModal) setModalOpen(true);

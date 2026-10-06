@@ -56,6 +56,15 @@ export function isInspectionExpired(session: InspectionSession): boolean {
   return new Date(session.expiresAt).getTime() < Date.now();
 }
 
+/** Owner-facing link (Ravin invite when set, otherwise Auto Verifi mobile capture). */
+export function getInspectionOwnerUrl(
+  session: Pick<InspectionSession, "accessToken" | "ravinInviteUrl">,
+  baseUrl: string,
+): string {
+  const base = baseUrl.replace(/\/$/, "");
+  return session.ravinInviteUrl ?? `${base}/inspect/${session.accessToken}`;
+}
+
 export async function createInspection(input: {
   reportId: string;
   phone?: string;
