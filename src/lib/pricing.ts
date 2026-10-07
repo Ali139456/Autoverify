@@ -27,6 +27,16 @@ export const INSIGHTS_PLUS_PRICE_CENTS = Number(
   process.env.INSIGHTS_PLUS_PRICE_CENTS ?? 6500,
 );
 
+/**
+ * Price to upgrade an already-purchased Insights report to Insights+.
+ * Defaults to the difference between the two tiers; override with
+ * INSIGHTS_PLUS_UPGRADE_PRICE_CENTS.
+ */
+export const INSIGHTS_PLUS_UPGRADE_PRICE_CENTS = Number(
+  process.env.INSIGHTS_PLUS_UPGRADE_PRICE_CENTS ??
+    Math.max(0, INSIGHTS_PLUS_PRICE_CENTS - INSIGHTS_PRICE_CENTS),
+);
+
 const CURRENCY = (process.env.REPORT_CURRENCY ?? "aud").toUpperCase();
 
 export const REPORT_TIERS: Record<ReportTier, ReportTierConfig> = {

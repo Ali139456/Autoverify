@@ -1,12 +1,8 @@
-import Link from "next/link";
-
 import {
 
   AlertCircle,
 
   CheckCircle2,
-
-  ChevronRight,
 
   FileText,
 
@@ -29,11 +25,14 @@ import {
 
 } from "@/lib/report-design";
 
-import { hasDamageAnalysis, resolveReportTier } from "@/lib/pricing";
+import {
+  formatCents,
+  hasDamageAnalysis,
+  INSIGHTS_PLUS_UPGRADE_PRICE_CENTS,
+  resolveReportTier,
+} from "@/lib/pricing";
 
 import type { VehicleReport } from "@/lib/types";
-
-import { buildCheckSearchUrl } from "@/lib/vehicle-identifier";
 
 import { SpecIcon } from "./ReportInsightIcon";
 
@@ -43,6 +42,7 @@ import { ReportShell } from "./ReportShell";
 
 import { ReportManufacturersWarrantyNotice } from "./ReportManufacturersWarrantyNotice";
 import { ReportValuationSupplements } from "./ReportValuationSupplements";
+import { UpgradeToInsightsPlusButton } from "./UpgradeToInsightsPlusButton";
 import { VehicleHeroImage } from "./VehicleHeroImage";
 function StatusIcon({
 
@@ -497,19 +497,15 @@ export function CarInsightsReport({
 
             </div>
 
-            <Link
-
-              href={`${buildCheckSearchUrl(vehicle, { tier: "insights_plus" })}#booking-payment`}
-
-              className="report-no-print-link inline-flex shrink-0 items-center gap-2 rounded-full bg-[#0073E3] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#0062c2]"
-
-            >
-
-              View upgrade options
-
-              <ChevronRight className="h-4 w-4" aria-hidden />
-
-            </Link>
+            <UpgradeToInsightsPlusButton
+              reportId={report.id}
+              vehicleTitle={[vehicle.year, vehicle.make, vehicle.model]
+                .filter(Boolean)
+                .join(" ")}
+              upgradePriceLabel={formatCents(INSIGHTS_PLUS_UPGRADE_PRICE_CENTS)}
+              defaultCustomerPhone={report.customerPhone}
+              defaultOwnerPhone={report.ownerPhone}
+            />
 
           </div>
 

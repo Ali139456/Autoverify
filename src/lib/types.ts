@@ -196,6 +196,8 @@ export interface VehicleReport {
   advertisedPrice?: number | null;
   customerPhone?: string | null;
   ownerPhone?: string | null;
+  /** Set when this Insights+ report was created by upgrading a purchased Insights report. */
+  upgradedFromReportId?: string | null;
   stripeSessionId: string | null;
   vehicle: VehicleIdentity;
   registration: RegistrationInfo;
