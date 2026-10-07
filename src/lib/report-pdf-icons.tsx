@@ -239,7 +239,9 @@ export function PdfStatusBadge({ tone }: { tone: InsightStatus }) {
         ? "#ef4444"
         : tone === "info"
           ? "#0ea5e9"
-          : "#f59e0b";
+          : tone === "muted"
+            ? "#cbd5e1"
+            : "#f59e0b";
 
   return (
     <Svg width={10} height={10} viewBox="0 0 10 10">
@@ -255,7 +257,7 @@ export function PdfStatusBadge({ tone }: { tone: InsightStatus }) {
           strokeWidth={1.2}
           fill="none"
         />
-      ) : tone === "neutral" ? (
+      ) : tone === "neutral" || tone === "muted" ? (
         <Path d="M3 5h4" stroke="#ffffff" strokeWidth={1.2} />
       ) : (
         <Path d="M3 5.2l1.6 1.6L7.2 4" stroke="#ffffff" strokeWidth={1.1} fill="none" />
@@ -276,11 +278,11 @@ export function PdfCheckIcon({
   advisory?: boolean;
 }) {
   if (advisory && !issue) {
+    // Light grey circle with a dash: data not reported (neither pass nor fault).
     return (
       <Svg width={11} height={11} viewBox="0 0 11 11">
-        <Circle cx="5.5" cy="5.5" r="5.5" fill="#E87722" />
-        <Path d="M5.5 2.8v3.4" stroke="#ffffff" strokeWidth={1.2} fill="none" />
-        <Circle cx="5.5" cy="8" r="0.75" fill="#ffffff" />
+        <Circle cx="5.5" cy="5.5" r="5.5" fill="#cbd5e1" />
+        <Path d="M3.2 5.5h4.6" stroke="#ffffff" strokeWidth={1.2} fill="none" />
       </Svg>
     );
   }

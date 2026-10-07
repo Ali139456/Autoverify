@@ -10,7 +10,8 @@ import type {
   VehicleReport,
 } from "./types";
 
-export type InsightStatus = "clear" | "warn" | "info" | "neutral";
+/** `muted`: light grey, data not reported (neither pass nor fault). */
+export type InsightStatus = "clear" | "warn" | "info" | "neutral" | "muted";
 
 export type ReportInsightLineVariant =
   | "eligible"
@@ -249,11 +250,9 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
           id: "odometer",
           title: "Odometer history",
           status: ODOMETER_NO_HISTORY_LABEL,
-          tone: "neutral",
+          tone: "muted",
           detail: formatOdometerReading(vehicle)
-            ? `Current reading ${formatOdometerReading(vehicle)} — ${
-                vehicle.odometerSource ?? "supplied at checkout"
-              }`
+            ? `Self reported reading of ${formatOdometerReading(vehicle)} at purchase`
             : undefined,
         },
     {
@@ -416,6 +415,8 @@ export function insightToneClass(tone: InsightStatus): string {
       return "text-red-600";
     case "info":
       return "text-sky-600";
+    case "muted":
+      return "text-slate-400";
     default:
       return "text-amber-600";
   }

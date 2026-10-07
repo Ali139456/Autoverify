@@ -2,7 +2,7 @@
 
 
 
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, CircleMinus } from "lucide-react";
 import {
   ANCAP_SAFETY_RATINGS_URL,
   insightToneClass,
@@ -48,6 +48,15 @@ function InsightStatusBadge({ tone }: { tone: ReportInsight["tone"] }) {
 
     );
 
+  }
+
+  if (tone === "muted") {
+    return (
+      <CircleMinus
+        className="mt-px h-3.5 w-3.5 shrink-0 text-slate-400"
+        aria-hidden
+      />
+    );
   }
 
   if (tone === "warn") {
@@ -146,12 +155,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
               <InsightStatusBadge tone={insight.tone} />
               <div className="min-w-0">
                 <p
-                  className={`text-xs font-bold leading-snug break-words ${
-                    insight.id === "odometer" &&
-                    insight.status === "No odometer history reported"
-                      ? "text-[#E87722]"
-                      : insightToneClass(insight.tone)
-                  }`}
+                  className={`text-xs font-bold leading-snug break-words ${insightToneClass(insight.tone)}`}
                 >
                   {insight.status}
                 </p>

@@ -1,8 +1,8 @@
 import {
 
-  AlertCircle,
-
   CheckCircle2,
+
+  CircleMinus,
 
   FileText,
 
@@ -78,7 +78,7 @@ function StatusIcon({
 
   if (advisory) {
     return (
-      <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-[#E87722]" aria-hidden />
+      <CircleMinus className="mt-0.5 h-5 w-5 shrink-0 text-slate-300" aria-hidden />
     );
   }
 
@@ -283,7 +283,7 @@ export function CarInsightsReport({
 
                           : item.advisory
 
-                            ? "text-[#E87722]"
+                            ? "text-slate-400"
 
                           : item.muted
 

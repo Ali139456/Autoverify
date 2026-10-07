@@ -490,6 +490,7 @@ function toneStyle(tone: string) {
   if (tone === "clear") return styles.clear;
   if (tone === "warn") return styles.warn;
   if (tone === "info") return styles.info;
+  if (tone === "muted") return { color: "#94a3b8" };
   return styles.neutral;
 }
 
@@ -607,15 +608,7 @@ function PdfInsightCard({
               <View style={styles.insightStatusRow}>
                 <PdfStatusBadge tone={insight.tone} />
                 <View style={{ flex: 1, minWidth: 0 }}>
-                  <Text
-                    style={[
-                      styles.insightStatus,
-                      insight.id === "odometer" &&
-                      insight.status === "No odometer history reported"
-                        ? { color: RIDE_SHARE_ORANGE }
-                        : toneStyle(insight.tone),
-                    ]}
-                  >
+                  <Text style={[styles.insightStatus, toneStyle(insight.tone)]}>
                     {insight.status}
                   </Text>
                   {insight.statusSubtext && !footnote ? (
@@ -1037,7 +1030,7 @@ function CarInsightsOverviewPage({
                     color: item.issue
                       ? "#dc2626"
                       : item.advisory
-                        ? RIDE_SHARE_ORANGE
+                        ? "#94a3b8"
                         : item.muted
                           ? "#94a3b8"
                           : styles.statusText.color,
