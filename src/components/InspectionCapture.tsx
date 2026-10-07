@@ -14,6 +14,7 @@ import {
   INSPECTION_ANGLES,
 } from "@/lib/inspection-angles";
 import { readCaptureGeolocation } from "@/lib/capture-geolocation";
+import { mergeInspectionPhotosByAngle } from "@/lib/merge-inspection-photos";
 import { prepareInspectionPhoto } from "@/lib/prepare-inspection-photo";
 
 type UploadedPhoto = {
@@ -62,6 +63,7 @@ export function InspectionCapture({
   initialPhotos?: UploadedPhoto[];
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const uploadingRef = useRef(false);
   const [photos, setPhotos] = useState<UploadedPhoto[]>(initialPhotos);
   const [stepIndex, setStepIndex] = useState(0);
   const [uploading, setUploading] = useState(false);
@@ -93,25 +95,28 @@ export function InspectionCapture({
     }
   }, [token]);
 
+  const applyServerPhotos = useCallback((synced: UploadedPhoto[] | null) => {
+    if (!synced) return;
+    setPhotos((prev) => mergeInspectionPhotosByAngle(prev, synced));
+  }, []);
+
   useEffect(() => {
-    void fetchPhotosFromServer().then((synced) => {
-      if (synced?.length) setPhotos(synced);
-    });
-  }, [fetchPhotosFromServer]);
+    void fetchPhotosFromServer().then(applyServerPhotos);
+  }, [fetchPhotosFromServer, applyServerPhotos]);
 
   useEffect(() => {
     const onVisible = () => {
       if (document.visibilityState !== "visible") return;
-      void fetchPhotosFromServer().then((synced) => {
-        if (synced) setPhotos(synced);
-      });
+      if (uploadingRef.current) return;
+      void fetchPhotosFromServer().then(applyServerPhotos);
     };
     document.addEventListener("visibilitychange", onVisible);
     return () => document.removeEventListener("visibilitychange", onVisible);
-  }, [fetchPhotosFromServer]);
+  }, [fetchPhotosFromServer, applyServerPhotos]);
 
   async function uploadPhoto(file: File) {
     setUploading(true);
+    uploadingRef.current = true;
     setError(null);
 
     const capturedStep = stepIndex;
@@ -146,22 +151,22 @@ export function InspectionCapture({
         throw new Error("Upload did not confirm. Please try again.");
       }
 
-      const optimistic = [
-        ...photos.filter((photo) => photo.angle !== capturedAngleId),
-        data.photo!,
-      ];
-      setPhotos(optimistic);
-
       const synced = await fetchPhotosFromServer();
-      const finalPhotos = synced ?? optimistic;
-      if (synced) setPhotos(synced);
+      let merged: UploadedPhoto[] = [];
+      setPhotos((prev) => {
+        merged = mergeInspectionPhotosByAngle(prev, [data.photo!], synced ?? []);
+        return merged;
+      });
 
-      setStepIndex(
-        Math.min(capturedStep + 1, INSPECTION_ANGLES.length - 1),
-      );
+      if (merged.some((photo) => photo.angle === capturedAngleId)) {
+        setStepIndex(
+          Math.min(capturedStep + 1, INSPECTION_ANGLES.length - 1),
+        );
+      }
     } catch (err) {
       setError(inspectionErrorMessage(err, "Upload failed."));
     } finally {
+      uploadingRef.current = false;
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
     }
@@ -173,8 +178,13 @@ export function InspectionCapture({
 
     try {
       const synced = await fetchPhotosFromServer();
-      const latest = synced ?? photos;
-      if (synced) setPhotos(synced);
+      let latest = photos;
+      if (synced) {
+        setPhotos((prev) => {
+          latest = mergeInspectionPhotosByAngle(prev, synced);
+          return latest;
+        });
+      }
       if (latest.length === 0) {
         throw new Error("Upload at least one photo before submitting.");
       }

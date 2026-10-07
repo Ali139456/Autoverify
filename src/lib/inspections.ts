@@ -8,6 +8,7 @@ import {
 } from "./inspection-angles";
 import { createServerClient } from "./supabase/server";
 import { isSupabaseServerConfigured } from "./supabase/server";
+import { mergeInspectionPhotosByAngle } from "./merge-inspection-photos";
 import { InspectionPhoto, InspectionSession, InspectionStatus } from "./types";
 
 type InspectionRow = {
@@ -249,19 +250,30 @@ export async function uploadInspectionPhoto(input: {
     locationAccuracyM: input.locationAccuracyM ?? null,
   };
 
-  const fresh = await getInspectionById(input.inspection.id);
-  if (!fresh) {
-    throw new Error("Inspection session not found.");
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const fresh = await getInspectionById(input.inspection.id);
+    if (!fresh) {
+      throw new Error("Inspection session not found.");
+    }
+    const photos = mergeInspectionPhotosByAngle(fresh.photos, [photo]);
+
+    const { data, error } = await supabase
+      .from("inspections")
+      .update({
+        photos,
+        status: "in_progress",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", input.inspection.id)
+      .eq("updated_at", fresh.updatedAt)
+      .select("id")
+      .maybeSingle();
+
+    if (error) throw new Error(error.message);
+    if (data) return photo;
   }
-  const existing = fresh.photos.filter((item) => item.angle !== input.angle);
-  const photos = [...existing, photo];
 
-  await updateInspection(input.inspection.id, {
-    status: "in_progress",
-    photos,
-  });
-
-  return photo;
+  throw new Error("Could not save photo metadata. Please try again.");
 }
 
 export async function downloadInspectionPhotos(

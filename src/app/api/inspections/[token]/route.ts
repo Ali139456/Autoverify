@@ -23,13 +23,20 @@ export async function GET(
 
   const progress = getInspectionProgress(inspection.photos);
 
-  return NextResponse.json({
-    inspectionId: inspection.id,
-    reportId: inspection.reportId,
-    status: inspection.status,
-    photos: inspection.photos,
-    progress,
-    angles: INSPECTION_ANGLES,
-    expiresAt: inspection.expiresAt,
-  });
+  return NextResponse.json(
+    {
+      inspectionId: inspection.id,
+      reportId: inspection.reportId,
+      status: inspection.status,
+      photos: inspection.photos,
+      progress,
+      angles: INSPECTION_ANGLES,
+      expiresAt: inspection.expiresAt,
+    },
+    {
+      headers: {
+        "Cache-Control": "private, no-store, max-age=0",
+      },
+    },
+  );
 }
