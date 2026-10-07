@@ -1,5 +1,5 @@
 import { DamageAnalysis } from "./types";
-import { analyzeDamage } from "./ravin";
+import { analyzeDamage, isRavinLiveAccount } from "./ravin";
 import { parseRavinWebhookPayload } from "./ravin-webhook";
 
 const RAVIN_S3_UPLOAD_URL =
@@ -13,12 +13,24 @@ export function isRavinS3Configured(): boolean {
   );
 }
 
+/**
+ * - `s3`: photos pushed to Ravin's S3 ingest; results arrive via webhook.
+ * - `pending`: live Ravin account but no S3 ingest credentials yet — photos are
+ *   kept on the report and analysis is added when Ravin delivers a webhook.
+ * - `demo`: no Ravin account configured; deterministic demo findings returned.
+ */
+export type RavinSubmissionMode = "s3" | "pending" | "demo";
+
 export async function submitInspectionToRavin(input: {
   reportId: string;
   inspectionId: string;
   vin?: string | null;
   photos: { name: string; data: Buffer; contentType: string; angle: string }[];
-}): Promise<{ mode: "s3" | "demo"; ravinInspectionId: string | null }> {
+}): Promise<{
+  mode: RavinSubmissionMode;
+  ravinInspectionId: string | null;
+  damage: DamageAnalysis | null;
+}> {
   if (isRavinS3Configured()) {
     const ravinInspectionId = `insp-${input.reportId.toLowerCase()}`;
     await uploadPhotosToRavinS3({
@@ -26,10 +38,14 @@ export async function submitInspectionToRavin(input: {
       vin: input.vin,
       photos: input.photos,
     });
-    return { mode: "s3", ravinInspectionId };
+    return { mode: "s3", ravinInspectionId, damage: null };
   }
 
-  await analyzeDamage(
+  if (isRavinLiveAccount()) {
+    return { mode: "pending", ravinInspectionId: input.reportId, damage: null };
+  }
+
+  const damage = await analyzeDamage(
     input.photos.map((photo) => ({
       name: photo.name,
       data: photo.data,
@@ -37,7 +53,7 @@ export async function submitInspectionToRavin(input: {
     })),
   );
 
-  return { mode: "demo", ravinInspectionId: input.inspectionId };
+  return { mode: "demo", ravinInspectionId: input.inspectionId, damage };
 }
 
 async function uploadPhotosToRavinS3(input: {

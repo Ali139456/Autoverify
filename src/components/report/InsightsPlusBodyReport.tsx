@@ -124,6 +124,12 @@ export function InsightsPlusBodyReport({
 
       {damage ? (
         <DamageSummary damage={damage} />
+      ) : walkaroundPhotos.length > 0 ? (
+        <p className="rounded-xl border border-dashed border-[#0073E3]/40 bg-[#0073E3]/5 px-4 py-6 text-sm text-slate-600">
+          {walkaroundPhotos.length} walkaround photo(s) received. AI damage
+          analysis is being processed and will appear here automatically once
+          complete.
+        </p>
       ) : (
         <p className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-500">
           Complete the guided mobile walkaround to populate AI damage analysis

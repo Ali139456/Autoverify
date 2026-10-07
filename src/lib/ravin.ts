@@ -1,82 +1,31 @@
 import { DamageAnalysis, DamageFinding } from "./types";
 
 const RAVIN_API_KEY = process.env.RAVIN_API_KEY;
-const RAVIN_BASE_URL = process.env.RAVIN_BASE_URL ?? "https://api.ravin.ai/v1";
 
 /**
- * Sends vehicle photos to Ravin.ai for AI damage detection.
- *
- * When RAVIN_API_KEY is configured, calls the real Ravin.ai inspection API.
- * Otherwise returns deterministic demo findings so the flow can be tested.
+ * True when a real Ravin account is configured (partner invites / webhooks).
+ * Ravin does not expose a synchronous image-analysis API: results arrive via
+ * webhook after photos are ingested (OTL walkaround or S3 upload), so demo
+ * findings must never be shown for a live account.
+ */
+export function isRavinLiveAccount(): boolean {
+  return Boolean(RAVIN_API_KEY);
+}
+
+export const RAVIN_DIRECT_ANALYSIS_UNAVAILABLE =
+  "Ravin AI analysis is delivered by webhook after Ravin processes the photos; direct image analysis is not available on this account.";
+
+/**
+ * Returns deterministic demo findings when no Ravin account is configured so the
+ * flow can be tested end to end. Throws for live accounts (see above).
  */
 export async function analyzeDamage(
   photos: { name: string; data: Buffer; contentType: string }[]
 ): Promise<DamageAnalysis> {
-  if (RAVIN_API_KEY) {
-    return analyzeViaRavin(photos);
+  if (isRavinLiveAccount()) {
+    throw new Error(RAVIN_DIRECT_ANALYSIS_UNAVAILABLE);
   }
   return buildDemoAnalysis(photos);
-}
-
-async function analyzeViaRavin(
-  photos: { name: string; data: Buffer; contentType: string }[]
-): Promise<DamageAnalysis> {
-  // 1. Create an inspection session
-  const sessionRes = await fetch(`${RAVIN_BASE_URL}/inspections`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${RAVIN_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ type: "damage_detection" }),
-  });
-  if (!sessionRes.ok) {
-    throw new Error(`Ravin.ai inspection creation failed (${sessionRes.status})`);
-  }
-  const session = await sessionRes.json();
-  const inspectionId = session.id ?? session.inspection_id;
-
-  // 2. Upload each photo
-  for (const photo of photos) {
-    const form = new FormData();
-    form.append(
-      "image",
-      new Blob([new Uint8Array(photo.data)], { type: photo.contentType }),
-      photo.name
-    );
-    await fetch(`${RAVIN_BASE_URL}/inspections/${inspectionId}/images`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${RAVIN_API_KEY}` },
-      body: form,
-    });
-  }
-
-  // 3. Retrieve results
-  const resultRes = await fetch(
-    `${RAVIN_BASE_URL}/inspections/${inspectionId}/results`,
-    { headers: { Authorization: `Bearer ${RAVIN_API_KEY}` } }
-  );
-  if (!resultRes.ok) {
-    throw new Error(`Ravin.ai results retrieval failed (${resultRes.status})`);
-  }
-  const result = await resultRes.json();
-
-  const findings: DamageFinding[] = (result.damages ?? []).map(
-    (d: Record<string, unknown>) => ({
-      panel: (d.panel as string) ?? "Unknown panel",
-      type: (d.type as string) ?? "Damage",
-      severity: (d.severity as DamageFinding["severity"]) ?? "Minor",
-      confidence: Number(d.confidence) || 0,
-      repairEstimate: Number(d.repair_estimate) || 0,
-    })
-  );
-
-  return {
-    analyzedPhotos: photos.length,
-    findings,
-    overallCondition: result.overall_condition ?? deriveCondition(findings),
-    totalRepairEstimate: findings.reduce((s, f) => s + f.repairEstimate, 0),
-  };
 }
 
 /* ----------------------- demo fallback ----------------------- */

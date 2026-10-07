@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MANUAL_DAMAGE_UPLOAD_MAX_PHOTOS } from "@/lib/inspection-angles";
-import { analyzeDamage } from "@/lib/ravin";
+import {
+  analyzeDamage,
+  isRavinLiveAccount,
+  RAVIN_DIRECT_ANALYSIS_UNAVAILABLE,
+} from "@/lib/ravin";
 import { getReport, updateReport } from "@/lib/store";
 
 const MAX_PHOTOS = MANUAL_DAMAGE_UPLOAD_MAX_PHOTOS;
@@ -19,6 +23,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "Report must be purchased before photo analysis." },
         { status: 403 }
+      );
+    }
+
+    if (isRavinLiveAccount()) {
+      return NextResponse.json(
+        {
+          error: `${RAVIN_DIRECT_ANALYSIS_UNAVAILABLE} Use the guided mobile inspection link instead.`,
+        },
+        { status: 503 },
       );
     }
 

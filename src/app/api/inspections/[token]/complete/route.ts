@@ -7,8 +7,7 @@ import {
   updateInspection,
 } from "@/lib/inspections";
 import { getReport, updateReport } from "@/lib/store";
-import { submitInspectionToRavin, isRavinS3Configured } from "@/lib/ravin-ingest";
-import { analyzeDamage } from "@/lib/ravin";
+import { submitInspectionToRavin } from "@/lib/ravin-ingest";
 
 export async function POST(
   _req: NextRequest,
@@ -54,27 +53,15 @@ export async function POST(
       photos: photoFiles,
     });
 
-    await updateInspection(inspection.id, {
-      status: "processing",
-      ravinInspectionId: submission.ravinInspectionId,
-    });
-
-    if (submission.mode === "demo" && !isRavinS3Configured()) {
-      const damage = await analyzeDamage(
-        photoFiles.map((photo) => ({
-          name: photo.name,
-          data: photo.data,
-          contentType: photo.contentType,
-        })),
-      );
-
+    if (submission.mode === "demo" && submission.damage) {
       await updateInspection(inspection.id, {
         status: "complete",
+        ravinInspectionId: submission.ravinInspectionId,
         completedAt: new Date().toISOString(),
       });
 
       await updateReport(inspection.reportId, {
-        damage,
+        damage: submission.damage,
         workflowStatus: "complete",
       });
 
@@ -83,9 +70,32 @@ export async function POST(
         mode: "demo",
         complete: true,
         missingAngles: progress.missing,
-        findings: damage.findings.length,
+        findings: submission.damage.findings.length,
       });
     }
+
+    if (submission.mode === "pending") {
+      // Photos are saved and visible on the report; keep the session open so the
+      // owner can add/retake angles until Ravin's webhook completes it.
+      await updateInspection(inspection.id, {
+        status: "uploaded",
+        ravinInspectionId: submission.ravinInspectionId,
+      });
+
+      return NextResponse.json({
+        ok: true,
+        mode: "pending",
+        complete: false,
+        missingAngles: progress.missing,
+        message:
+          "Photos saved to your Auto Verifi report. AI damage analysis will be added automatically once Ravin finishes processing.",
+      });
+    }
+
+    await updateInspection(inspection.id, {
+      status: "processing",
+      ravinInspectionId: submission.ravinInspectionId,
+    });
 
     return NextResponse.json({
       ok: true,
