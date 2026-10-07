@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight, ChevronDown, Menu, X } from "lucide-react";
-import { HomeCheckLink } from "@/components/HomeCheckLink";
+import { BuyReportModal } from "@/components/BuyReportModal";
 import { Logo } from "@/components/Logo";
 import { INSPECTION_MENU_ITEMS } from "@/lib/inspection-menu";
 
@@ -146,9 +146,11 @@ function InspectionsDropdown({ onNavigate }: { onNavigate?: () => void }) {
 function HeaderMobileMenu({
   isInspectionPage,
   links,
+  onBuyReport,
 }: {
   isInspectionPage: boolean;
   links: typeof MAIN_LINKS | typeof INSPECTION_PAGE_LINKS;
+  onBuyReport: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [mobileInspectionsOpen, setMobileInspectionsOpen] = useState(false);
@@ -255,16 +257,20 @@ function HeaderMobileMenu({
                 />
               </Link>
             ) : (
-              <HomeCheckLink
-                onClick={() => setOpen(false)}
-                className="btn-shine group flex items-center justify-center gap-2 rounded-full bg-[#0073E3] px-5 py-3.5 text-sm font-bold text-white shadow-[0_12px_40px_rgba(0,115,227,0.35)] transition hover:bg-[#0062c2]"
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  onBuyReport();
+                }}
+                className="btn-shine group flex w-full items-center justify-center gap-2 rounded-full bg-[#0073E3] px-5 py-3.5 text-sm font-bold text-white shadow-[0_12px_40px_rgba(0,115,227,0.35)] transition hover:bg-[#0062c2]"
               >
                 Buy Report
                 <ArrowRight
                   className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
                   aria-hidden
                 />
-              </HomeCheckLink>
+              </button>
             )}
           </div>
         </div>
@@ -275,6 +281,7 @@ function HeaderMobileMenu({
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
+  const [buyReportOpen, setBuyReportOpen] = useState(false);
   const pathname = usePathname();
   const isInspectionPage = pathname.startsWith("/vehicleinspections");
   const links = isInspectionPage ? INSPECTION_PAGE_LINKS : MAIN_LINKS;
@@ -327,22 +334,31 @@ export function Header() {
               />
             </Link>
           ) : (
-            <HomeCheckLink className={buyReportClass}>
+            <button
+              type="button"
+              onClick={() => setBuyReportOpen(true)}
+              className={buyReportClass}
+            >
               Buy Report
               <ArrowRight
                 className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
                 aria-hidden
               />
-            </HomeCheckLink>
+            </button>
           )}
 
           <HeaderMobileMenu
             key={pathname}
             isInspectionPage={isInspectionPage}
             links={links}
+            onBuyReport={() => setBuyReportOpen(true)}
           />
         </div>
       </div>
+      <BuyReportModal
+        open={buyReportOpen}
+        onClose={() => setBuyReportOpen(false)}
+      />
     </header>
   );
 }

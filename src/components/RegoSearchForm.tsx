@@ -20,6 +20,7 @@ export function RegoSearchForm({
   defaultState = "NSW",
   compact = false,
   onDark = false,
+  inputId = VEHICLE_SEARCH_INPUT_ID,
 }: {
   defaultRego?: string;
   defaultVin?: string;
@@ -27,6 +28,8 @@ export function RegoSearchForm({
   compact?: boolean;
   /** Force dark styling when the form sits on a navy hero background. */
   onDark?: boolean;
+  /** Override the input id when more than one form is on the page (e.g. modal). */
+  inputId?: string;
 }) {
   const router = useRouter();
   const [query, setQuery] = useState(defaultVin || defaultRego);
@@ -107,7 +110,7 @@ export function RegoSearchForm({
         <div className="flex gap-2">
           <div className="relative min-w-0 flex-1">
             <input
-              id={VEHICLE_SEARCH_INPUT_ID}
+              id={inputId}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Rego or VIN"
