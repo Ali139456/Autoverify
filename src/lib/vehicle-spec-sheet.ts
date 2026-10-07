@@ -1,4 +1,9 @@
-import { formatExpiryDate } from "./report-design";
+import {
+  formatExpiryDate,
+  formatOdometerReading,
+  hasOdometerHistory,
+  ODOMETER_NO_HISTORY_LABEL,
+} from "./report-design";
 import type {
   RegistrationInfo,
   VehicleFactoryFeature,
@@ -132,10 +137,13 @@ export function buildVehicleSpecSheet(input: {
   pushRow(
     dataRows,
     "Odometer history",
-    vehicle.odometer
-      ? `${vehicle.odometer.toLocaleString("en-AU")} km`
-      : "No odometer history reported",
+    hasOdometerHistory(vehicle)
+      ? (formatOdometerReading(vehicle) ?? "Reported")
+      : ODOMETER_NO_HISTORY_LABEL,
   );
+  if (vehicle.odometer) {
+    pushRow(dataRows, "Odometer reading", formatOdometerReading(vehicle));
+  }
   pushRow(dataRows, "VIN", vehicle.vin);
   pushRow(dataRows, "Make", vehicle.make);
   pushRow(dataRows, "Model", vehicle.model);

@@ -261,11 +261,22 @@ export function PdfCheckIcon({
   ok,
   issue,
   muted,
+  advisory,
 }: {
   ok: boolean;
   issue?: boolean;
   muted?: boolean;
+  advisory?: boolean;
 }) {
+  if (advisory && !issue) {
+    return (
+      <Svg width={11} height={11} viewBox="0 0 11 11">
+        <Circle cx="5.5" cy="5.5" r="5.5" fill="#E87722" />
+        <Path d="M5.5 2.8v3.4" stroke="#ffffff" strokeWidth={1.2} fill="none" />
+        <Circle cx="5.5" cy="8" r="0.75" fill="#ffffff" />
+      </Svg>
+    );
+  }
   if (issue) {
     return (
       <Svg width={11} height={11} viewBox="0 0 11 11">

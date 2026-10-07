@@ -38,6 +38,7 @@ import {
   formatReportReference,
   getFutureValueAtYears,
   getInspectionPhotoUrl,
+  ODOMETER_NO_HISTORY_LABEL,
   resolveDamageFindingImageUrl,
   resolveFutureValue,
   type ReportInsight,
@@ -974,11 +975,22 @@ function CarInsightsOverviewPage({
             <Text style={styles.statusTitle}>Vehicle Status</Text>
             {statusChecks.map((item) => (
               <View key={item.label} style={styles.statusRow}>
-                <PdfCheckIcon ok={item.ok} issue={item.issue} muted={item.muted} />
+                <PdfCheckIcon
+                  ok={item.ok}
+                  issue={item.issue}
+                  muted={item.muted}
+                  advisory={item.advisory}
+                />
                 <Text
                   style={{
                     ...styles.statusText,
-                    color: item.issue ? "#dc2626" : item.muted ? "#94a3b8" : styles.statusText.color,
+                    color: item.issue
+                      ? "#dc2626"
+                      : item.advisory
+                        ? RIDE_SHARE_ORANGE
+                        : item.muted
+                          ? "#94a3b8"
+                          : styles.statusText.color,
                   }}
                 >
                   {item.label}
@@ -1222,7 +1234,16 @@ function VehicleSpecPages({
                   <Text style={styles.specSheetLabel}>{row.label}</Text>
                 </View>
                 <View style={styles.specSheetValueCell}>
-                  <Text style={styles.specSheetValue}>{row.value}</Text>
+                  <Text
+                    style={[
+                      styles.specSheetValue,
+                      row.value === ODOMETER_NO_HISTORY_LABEL
+                        ? { color: RIDE_SHARE_ORANGE, fontFamily: "Helvetica-Bold" }
+                        : {},
+                    ]}
+                  >
+                    {row.value}
+                  </Text>
                 </View>
               </View>
             ))}

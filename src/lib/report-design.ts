@@ -41,7 +41,20 @@ export type StatusCheck = {
   /** When true, show red X (issue detected). When false with ok false, show neutral grey. */
   issue?: boolean;
   muted?: boolean;
+  /** Orange advisory (e.g. data not reported) — neither a pass nor a fault. */
+  advisory?: boolean;
 };
+
+export const ODOMETER_NO_HISTORY_LABEL = "No odometer history reported";
+
+export function hasOdometerHistory(vehicle: VehicleReport["vehicle"]): boolean {
+  return Boolean(vehicle.odometerHistory && vehicle.odometerHistory.length > 0);
+}
+
+/** Latest reading from history when present, otherwise the supplied/estimated odometer. */
+export function formatOdometerReading(vehicle: VehicleReport["vehicle"]): string | null {
+  return vehicle.odometer ? `${vehicle.odometer.toLocaleString("en-AU")} km` : null;
+}
 
 const money = (n: number) => `$${n.toLocaleString("en-AU")}`;
 
@@ -183,12 +196,13 @@ export function buildStatusChecks(report: VehicleReport): StatusCheck[] {
         : "No stolen record",
       ok: !registration.stolen,
     },
-    {
-      label: vehicle.odometer
-        ? "Odometer reading consistent"
-        : "Odometer reading not available",
-      ok: Boolean(vehicle.odometer),
-    },
+    hasOdometerHistory(vehicle)
+      ? { label: "Odometer history consistent", ok: true }
+      : {
+          label: `Odometer history — ${ODOMETER_NO_HISTORY_LABEL}`,
+          ok: false,
+          advisory: true,
+        },
     {
       label: "Service history available at dealer",
       ok: false,
@@ -221,18 +235,25 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
       status: registration.writtenOff ? "Recorded" : "Clear",
       tone: registration.writtenOff ? "warn" : "clear",
     },
-    {
-      id: "odometer",
-      title: "Odometer history",
-      status: vehicle.odometer
-        ? `${vehicle.odometer.toLocaleString()} km`
-        : "No odometer history reported",
-      tone: vehicle.odometer ? "clear" : "neutral",
-      detail: vehicle.odometer
-        ? vehicle.odometerSource ??
-          "Estimated from vehicle age and market listing data when a live odometer reading is unavailable."
-        : undefined,
-    },
+    hasOdometerHistory(vehicle)
+      ? {
+          id: "odometer",
+          title: "Odometer history",
+          status: formatOdometerReading(vehicle) ?? "Reported",
+          tone: "clear",
+          detail: vehicle.odometerSource ?? undefined,
+        }
+      : {
+          id: "odometer",
+          title: "Odometer history",
+          status: ODOMETER_NO_HISTORY_LABEL,
+          tone: "neutral",
+          detail: formatOdometerReading(vehicle)
+            ? `Current reading ${formatOdometerReading(vehicle)} — ${
+                vehicle.odometerSource ?? "supplied at checkout"
+              }`
+            : undefined,
+        },
     {
       id: "ancap",
       title: "ANCAP Safety",

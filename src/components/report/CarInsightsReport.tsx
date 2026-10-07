@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import {
 
+  AlertCircle,
+
   CheckCircle2,
 
   ChevronRight,
@@ -50,6 +52,8 @@ function StatusIcon({
 
   muted,
 
+  advisory,
+
 }: {
 
   ok: boolean;
@@ -57,6 +61,8 @@ function StatusIcon({
   issue?: boolean;
 
   muted?: boolean;
+
+  advisory?: boolean;
 
 }) {
 
@@ -68,6 +74,12 @@ function StatusIcon({
 
     );
 
+  }
+
+  if (advisory) {
+    return (
+      <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-[#E87722]" aria-hidden />
+    );
   }
 
   if (muted) {
@@ -254,7 +266,12 @@ export function CarInsightsReport({
 
                   <li key={item.label} className="flex items-start gap-2">
 
-                    <StatusIcon ok={item.ok} issue={item.issue} muted={item.muted} />
+                    <StatusIcon
+                      ok={item.ok}
+                      issue={item.issue}
+                      muted={item.muted}
+                      advisory={item.advisory}
+                    />
 
                     <span
 
@@ -263,6 +280,10 @@ export function CarInsightsReport({
                         item.issue
 
                           ? "text-red-600"
+
+                          : item.advisory
+
+                            ? "text-[#E87722]"
 
                           : item.muted
 
