@@ -26,7 +26,10 @@ import {
   CAR_BUYING_CHECKLIST_TITLE,
 } from "./car-buying-checklist";
 import { isExteriorInspectionAngle } from "./inspection-angles";
-import { hasVehicleSpecContent } from "./vehicle-spec-sheet";
+import {
+  hasVehicleSpecContent,
+  visibleSpecDataRows,
+} from "./vehicle-spec-sheet";
 import {
   buildKeyInsights,
   ANCAP_SAFETY_RATINGS_URL,
@@ -38,7 +41,6 @@ import {
   formatReportReference,
   getFutureValueAtYears,
   getInspectionPhotoUrl,
-  ODOMETER_NO_HISTORY_LABEL,
   resolveDamageFindingImageUrl,
   resolveFutureValue,
   type ReportInsight,
@@ -1242,22 +1244,13 @@ function VehicleSpecPages({
 
           <View style={[styles.section, { marginTop: 10 }]}>
             <Text style={styles.sectionTitle}>Vehicle data</Text>
-            {sheet.dataRows.map((row) => (
+            {visibleSpecDataRows(sheet.dataRows).map((row) => (
               <View key={row.label} style={styles.specSheetRow}>
                 <View style={styles.specSheetLabelCell}>
                   <Text style={styles.specSheetLabel}>{row.label}</Text>
                 </View>
                 <View style={styles.specSheetValueCell}>
-                  <Text
-                    style={[
-                      styles.specSheetValue,
-                      row.value === ODOMETER_NO_HISTORY_LABEL
-                        ? { color: RIDE_SHARE_ORANGE, fontFamily: "Helvetica-Bold" }
-                        : {},
-                    ]}
-                  >
-                    {row.value}
-                  </Text>
+                  <Text style={styles.specSheetValue}>{row.value}</Text>
                 </View>
               </View>
             ))}

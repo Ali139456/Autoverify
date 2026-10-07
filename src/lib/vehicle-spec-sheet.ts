@@ -1,9 +1,4 @@
-import {
-  formatExpiryDate,
-  formatOdometerReading,
-  hasOdometerHistory,
-  ODOMETER_NO_HISTORY_LABEL,
-} from "./report-design";
+import { formatExpiryDate } from "./report-design";
 import type {
   RegistrationInfo,
   VehicleFactoryFeature,
@@ -113,6 +108,18 @@ function resolvePerformanceMetric(
   return findDetailedSpecValue(detailedSpecs, ...specNeedles);
 }
 
+/**
+ * Rows no longer shown in the vehicle data table. Older stored reports may
+ * still contain them, so renderers filter with `visibleSpecDataRows`.
+ */
+const HIDDEN_SPEC_ROW_LABELS = new Set(["Odometer history", "Odometer reading"]);
+
+export function visibleSpecDataRows(
+  rows: { label: string; value: string }[] | undefined,
+): { label: string; value: string }[] {
+  return (rows ?? []).filter((row) => !HIDDEN_SPEC_ROW_LABELS.has(row.label));
+}
+
 export function buildVehicleSpecSheet(input: {
   vehicle: VehicleIdentity;
   registration: RegistrationInfo;
@@ -134,16 +141,8 @@ export function buildVehicleSpecSheet(input: {
   if (vehicle.rego) {
     pushRow(dataRows, "Registration plate", `${vehicle.rego} (${vehicle.state})`);
   }
-  pushRow(
-    dataRows,
-    "Odometer history",
-    hasOdometerHistory(vehicle)
-      ? (formatOdometerReading(vehicle) ?? "Reported")
-      : ODOMETER_NO_HISTORY_LABEL,
-  );
-  if (vehicle.odometer) {
-    pushRow(dataRows, "Odometer reading", formatOdometerReading(vehicle));
-  }
+  // Odometer history / reading intentionally omitted from the vehicle data
+  // table (they are covered by the Key Insights odometer card).
   pushRow(dataRows, "VIN", vehicle.vin);
   pushRow(dataRows, "Make", vehicle.make);
   pushRow(dataRows, "Model", vehicle.model);

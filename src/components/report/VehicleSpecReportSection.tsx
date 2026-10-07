@@ -1,6 +1,9 @@
 import { formatReportDate } from "@/lib/report-design";
 import type { VehicleReport } from "@/lib/types";
-import { hasVehicleSpecContent } from "@/lib/vehicle-spec-sheet";
+import {
+  hasVehicleSpecContent,
+  visibleSpecDataRows,
+} from "@/lib/vehicle-spec-sheet";
 
 export type VehicleSpecSectionPart = "full" | "data" | "factory";
 
@@ -42,7 +45,7 @@ export function VehicleSpecReportSection({
                 Vehicle data
               </h3>
               <dl className="report-spec-data-table mt-3 overflow-hidden rounded-xl border border-slate-200">
-                {sheet!.dataRows.map((row) => (
+                {visibleSpecDataRows(sheet!.dataRows).map((row) => (
                   <div
                     key={row.label}
                     className="report-spec-data-row grid grid-cols-[minmax(0,42%)_1fr] border-t border-slate-200 text-sm first:border-t-0"
@@ -50,14 +53,7 @@ export function VehicleSpecReportSection({
                     <dt className="report-spec-data-label px-4 py-2.5 font-medium text-slate-600">
                       {row.label}
                     </dt>
-                    <dd
-                      className={`bg-white px-4 py-2.5 font-semibold ${
-                        row.label === "Odometer history" &&
-                        row.value === "No odometer history reported"
-                          ? "text-[#E87722]"
-                          : "text-slate-900"
-                      }`}
-                    >
+                    <dd className="bg-white px-4 py-2.5 font-semibold text-slate-900">
                       {row.value}
                     </dd>
                   </div>
