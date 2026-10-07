@@ -53,9 +53,9 @@ export function ReportValuationSupplements({
           </table>
         </div>
 
-        <p className="mt-4 text-[10px] font-bold uppercase tracking-wide text-slate-900">
+        <h3 className="mt-5 text-xs font-bold uppercase tracking-wide text-slate-900">
           Official P-plate vehicle/legal reference
-        </p>
+        </h3>
         <div className="mt-2 overflow-x-auto rounded-lg border border-slate-200 bg-white">
           <table className="min-w-[520px] w-full border-collapse text-left text-xs sm:text-sm">
             <thead>
@@ -64,7 +64,7 @@ export function ReportValuationSupplements({
                   State
                 </th>
                 <th className="px-3 py-2.5 font-bold uppercase tracking-wide text-slate-500 sm:px-4">
-                  Official P-plate vehicle/legal reference
+                  State link references
                 </th>
               </tr>
             </thead>

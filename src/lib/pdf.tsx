@@ -797,7 +797,7 @@ function PdfValuationSupplements({ report }: { report: VehicleReport }) {
         </View>
       </View>
 
-      <Text style={[styles.sectionTitle, { marginTop: 6, fontSize: 8 }]}>
+      <Text style={[styles.sectionTitle, { marginTop: 8, fontSize: 8 }]}>
         Official P-plate vehicle/legal reference
       </Text>
       <View
@@ -821,7 +821,7 @@ function PdfValuationSupplements({ report }: { report: VehicleReport }) {
             State
           </Text>
           <Text style={{ flex: 1, fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
-            Official P-plate vehicle/legal reference
+            State link references
           </Text>
         </View>
         {P_PLATE_REFERENCE_ROWS.map((row, index) => (
@@ -1196,12 +1196,6 @@ function VehicleSpecPages({
             Captured {formatReportDate(sheet.capturedAt)} from registration and build
             data sources.
           </Text>
-
-          <PdfVehicleHero
-            vehicle={vehicle}
-            vehicleTitle={specTitle}
-            layout="banner"
-          />
 
           <View style={[styles.section, { marginTop: 10 }]}>
             <Text style={styles.sectionTitle}>Vehicle data</Text>

@@ -1,7 +1,6 @@
 import { formatReportDate } from "@/lib/report-design";
 import type { VehicleReport } from "@/lib/types";
 import { hasVehicleSpecContent } from "@/lib/vehicle-spec-sheet";
-import { VehicleHeroImage } from "./VehicleHeroImage";
 
 export type VehicleSpecSectionPart = "full" | "data" | "factory";
 
@@ -35,15 +34,6 @@ export function VehicleSpecReportSection({
               Captured {formatReportDate(sheet!.capturedAt)} from registration and
               build data sources.
             </p>
-          </div>
-
-          <div className="report-spec-hero-main relative mt-5 flex h-[240px] items-center justify-center overflow-hidden rounded-xl bg-slate-950 sm:h-[280px]">
-            <VehicleHeroImage
-              vehicle={vehicle}
-              vehicleTitle={vehicleTitle}
-              className="relative h-full w-full pb-9"
-              imageClassName="mx-auto h-[calc(100%-0.25rem)] w-full max-w-full object-contain object-center"
-            />
           </div>
 
           <div className={part === "full" ? "mt-6 grid gap-8 lg:grid-cols-[1.2fr_1fr]" : "mt-6"}>
