@@ -49,11 +49,8 @@ import {
   PdfSpecIcon,
   PdfStatusBadge,
 } from "./report-pdf-icons";
-import { formatAbnDisplay, getCompanyDetails } from "./company";
 import { hasDamageAnalysis, resolveReportTier } from "./pricing";
 import {
-  REPORT_DISCLAIMER_CLOSING,
-  REPORT_DISCLAIMER_LEAD,
   REPORT_GENERAL_DISCLAIMER_PARAGRAPHS,
   REPORT_GENERAL_DISCLAIMER_TITLE,
   REPORT_TERMS_URL,
@@ -1615,101 +1612,6 @@ function InsightsPlusPage({
   );
 }
 
-function PdfReportDisclaimerPage({
-  report,
-  pageLabel,
-}: {
-  report: VehicleReport;
-  pageLabel: string;
-}) {
-  const company = getCompanyDetails();
-  const abn = formatAbnDisplay(company.abn);
-
-  return (
-    <Page size="A4" style={styles.page}>
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: "#ffffff",
-          paddingHorizontal: 36,
-          paddingVertical: 40,
-          justifyContent: "space-between",
-        }}
-      >
-        <View>
-          <View
-            style={{
-              borderBottomWidth: 2,
-              borderBottomColor: BLUE,
-              paddingBottom: 12,
-            }}
-          >
-            <Image
-              src={LOGO_BLUE}
-              style={{
-                width: REPORT_HEADER_LOGO_WIDTH,
-                height: REPORT_HEADER_LOGO_HEIGHT,
-                objectFit: "contain",
-              }}
-            />
-            <Text style={styles.headerTagline}>
-              Past | Present | Future Vehicle Insights
-            </Text>
-          </View>
-          <Text
-            style={{
-              marginTop: 22,
-              fontSize: 9,
-              lineHeight: 1.5,
-              color: "#475569",
-            }}
-          >
-            {REPORT_DISCLAIMER_LEAD}
-          </Text>
-          <Text
-            style={{
-              marginTop: 8,
-              fontSize: 9,
-              lineHeight: 1.5,
-              color: "#475569",
-            }}
-          >
-            {REPORT_DISCLAIMER_CLOSING}
-          </Text>
-          <Text
-            style={{
-              marginTop: 18,
-              fontSize: 9,
-              lineHeight: 1.55,
-              color: "#475569",
-            }}
-          >
-            {company.legalName}
-            {"\n"}
-            {abn ? `ABN ${abn}` : ""}
-            {abn ? "\n" : ""}
-            {company.address}
-            {"\n"}
-            {company.email}
-            {"\n"}
-            {company.website}
-          </Text>
-        </View>
-        <Text
-          style={{
-            fontSize: 7,
-            color: GREY,
-            textTransform: "uppercase",
-            textAlign: "right",
-          }}
-        >
-          {formatReportReference(report.vehicle)} · Autoverifi.com.au | {pageLabel}
-        </Text>
-      </View>
-    </Page>
-  );
-}
-
 export function ReportPdf({
   report,
   photos = [],
@@ -1729,8 +1631,7 @@ export function ReportPdf({
     specPageCount +
     (isPlus ? 1 : 0) + // Insights+ body condition
     1 + // Car buying checklist + general disclaimer
-    (includePpsrIntro ? 1 : 0) +
-    1;
+    (includePpsrIntro ? 1 : 0);
   let pageNumber = 1;
   const nextPageLabel = () => `${pageNumber++} / ${totalPages}`;
   const overviewLabel = nextPageLabel();
@@ -1764,10 +1665,6 @@ export function ReportPdf({
           pageLabel={`${pageNumber++} / ${totalPages}+`}
         />
       ) : null}
-      <PdfReportDisclaimerPage
-        report={report}
-        pageLabel={`${pageNumber} / ${totalPages}`}
-      />
     </Document>
   );
 }

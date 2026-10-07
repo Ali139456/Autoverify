@@ -16,7 +16,6 @@ import {
 } from "@/lib/inspections";
 import { getBaseUrl } from "@/lib/stripe";
 import { PresentAndFutureValueReportPage } from "@/components/report/PresentAndFutureValueReportPage";
-import { ReportLegalFooter } from "@/components/report/ReportLegalFooter";
 import { ReportGeneralDisclaimer } from "@/components/report/ReportGeneralDisclaimer";
 import { CarBuyingChecklistReportPage } from "@/components/report/CarBuyingChecklistReportPage";
 import { countVehicleReportPages } from "@/lib/report-page-count";
@@ -152,8 +151,6 @@ export default async function ReportPage({
             />
           </div>
         ) : null}
-
-        <ReportLegalFooter />
 
         <p className="report-no-print text-center text-xs leading-relaxed text-slate-500">
           Generated {new Date(report.createdAt).toLocaleString("en-AU")}.

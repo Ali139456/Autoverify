@@ -474,18 +474,6 @@ html.dark body {
     filter: none !important;
   }
 
-  .report-legal-footer {
-    break-inside: avoid;
-    page-break-inside: avoid;
-    break-before: page;
-    page-break-before: always;
-    display: block !important;
-    margin-top: 0 !important;
-    border-radius: 12px !important;
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
-  }
-
   .report-shell-footer p {
     font-size: 8px !important;
   }

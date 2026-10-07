@@ -8,7 +8,6 @@ import { ReportPrintActions } from "@/components/report/ReportPrintActions";
 
 import { PpsrCertificateReportPage } from "@/components/report/PpsrCertificateReportPage";
 
-import { ReportLegalFooter } from "@/components/report/ReportLegalFooter";
 import { ReportGeneralDisclaimer } from "@/components/report/ReportGeneralDisclaimer";
 import { CarBuyingChecklistReportPage } from "@/components/report/CarBuyingChecklistReportPage";
 
@@ -173,8 +172,6 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
         ) : null}
 
 
-
-        <ReportLegalFooter />
 
         <p className="report-no-print text-center text-xs leading-relaxed text-slate-500">
 
