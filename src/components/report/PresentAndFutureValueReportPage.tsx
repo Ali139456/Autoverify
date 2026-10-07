@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { VehicleReport } from "@/lib/types";
 import {
   getFutureValueAtYears,
@@ -10,9 +11,12 @@ import { ReportValuationSupplements } from "./ReportValuationSupplements";
 export function PresentAndFutureValueReportPage({
   report,
   pageLabel,
+  trailingContent,
 }: {
   report: VehicleReport;
   pageLabel: string;
+  /** Rendered at the end of the page body (e.g. the general disclaimer). */
+  trailingContent?: ReactNode;
 }) {
   const { valuation } = report;
   const futureValue = resolveFutureValue(report);
@@ -93,6 +97,7 @@ export function PresentAndFutureValueReportPage({
         </div>
 
         <ReportValuationSupplements report={report} />
+        {trailingContent}
       </div>
     </ReportShell>
   );

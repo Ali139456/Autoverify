@@ -212,6 +212,7 @@ export async function uploadInspectionPhoto(input: {
   latitude?: number | null;
   longitude?: number | null;
   locationAccuracyM?: number | null;
+  locationLabel?: string | null;
 }): Promise<InspectionPhoto> {
   if (!isValidInspectionAngleId(input.angle)) {
     throw new Error("Invalid photo angle.");
@@ -248,6 +249,7 @@ export async function uploadInspectionPhoto(input: {
     latitude: input.latitude ?? null,
     longitude: input.longitude ?? null,
     locationAccuracyM: input.locationAccuracyM ?? null,
+    locationLabel: input.locationLabel ?? null,
   };
 
   for (let attempt = 0; attempt < 6; attempt++) {

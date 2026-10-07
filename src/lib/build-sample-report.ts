@@ -78,6 +78,7 @@ export function buildSampleInspectionPhotos(): InspectionPhoto[] {
       latitude: -33.86882,
       longitude: 151.20929,
       locationAccuracyM: 12,
+      locationLabel: "25 Martin Place, Sydney NSW 2000, Australia",
     };
   });
 }

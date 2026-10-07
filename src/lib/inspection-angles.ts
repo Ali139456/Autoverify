@@ -32,6 +32,22 @@ export const INSPECTION_ANGLES = [
 
 export type InspectionAngleId = (typeof INSPECTION_ANGLES)[number]["id"];
 
+/** Exterior walk-around shots; everything else is grouped as "additional photos". */
+export const EXTERIOR_INSPECTION_ANGLE_IDS: readonly string[] = [
+  "front_left",
+  "front",
+  "front_right",
+  "right_side",
+  "rear_right",
+  "rear",
+  "rear_left",
+  "left_side",
+];
+
+export function isExteriorInspectionAngle(id: string): boolean {
+  return EXTERIOR_INSPECTION_ANGLE_IDS.includes(id);
+}
+
 export const INSPECTION_ANGLE_IDS = INSPECTION_ANGLES.map((angle) => angle.id);
 
 /** Still accepted on upload for older inspection links. */

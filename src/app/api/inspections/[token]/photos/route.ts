@@ -9,6 +9,7 @@ import {
   parseOptionalFloat,
   parseOptionalIsoTimestamp,
 } from "@/lib/inspection-photo-evidence";
+import { reverseGeocode } from "@/lib/reverse-geocode";
 
 export async function POST(
   req: NextRequest,
@@ -62,16 +63,26 @@ export async function POST(
   }
 
   try {
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const latitude = parseOptionalFloat(form.get("latitude"));
+    const longitude = parseOptionalFloat(form.get("longitude"));
+
+    const [buffer, locationLabel] = await Promise.all([
+      file.arrayBuffer().then((data) => Buffer.from(data)),
+      latitude != null && longitude != null
+        ? reverseGeocode(latitude, longitude)
+        : Promise.resolve<string | null>(null),
+    ]);
+
     const photo = await uploadInspectionPhoto({
       inspection,
       angle,
       buffer,
       contentType: file.type,
       capturedAt: parseOptionalIsoTimestamp(form.get("capturedAt")),
-      latitude: parseOptionalFloat(form.get("latitude")),
-      longitude: parseOptionalFloat(form.get("longitude")),
+      latitude,
+      longitude,
       locationAccuracyM: parseOptionalFloat(form.get("locationAccuracyM")),
+      locationLabel,
     });
 
     return NextResponse.json({ ok: true, photo });

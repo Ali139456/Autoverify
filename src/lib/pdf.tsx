@@ -19,7 +19,8 @@ import {
   isPPlateAdvisoryCopy,
   P_PLATE_REFERENCE_ROWS,
 } from "./p-plate-reference";
-import { formatInspectionPhotoEvidenceLine } from "./inspection-photo-evidence";
+import { formatInspectionPhotoEvidenceLines } from "./inspection-photo-evidence";
+import { isExteriorInspectionAngle } from "./inspection-angles";
 import { hasVehicleSpecContent } from "./vehicle-spec-sheet";
 import {
   buildKeyInsights,
@@ -47,6 +48,9 @@ import { hasDamageAnalysis, resolveReportTier } from "./pricing";
 import {
   REPORT_DISCLAIMER_CLOSING,
   REPORT_DISCLAIMER_LEAD,
+  REPORT_GENERAL_DISCLAIMER_PARAGRAPHS,
+  REPORT_GENERAL_DISCLAIMER_TITLE,
+  REPORT_TERMS_URL,
 } from "./report-disclaimer";
 import {
   REPORT_FOOTER_LOGO_HEIGHT,
@@ -386,30 +390,32 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   plusSub: { marginTop: 2, fontSize: 11, fontFamily: "Helvetica-Bold", color: BLUE },
-  photoGrid: { flexDirection: "row", flexWrap: "wrap", marginTop: 8 },
+  photoGrid: { flexDirection: "row", flexWrap: "wrap", marginTop: 6 },
   photoTile: {
-    width: "31%",
+    width: "23.5%",
     marginRight: "2%",
-    marginBottom: 8,
+    marginBottom: 6,
     borderWidth: 1,
     borderColor: "#e2e8f0",
-    borderRadius: 6,
+    borderRadius: 5,
     overflow: "hidden",
   },
-  photoImage: { width: "100%", height: 90, objectFit: "cover" },
+  photoImage: { width: "100%", height: 64, objectFit: "cover" },
   photoCaption: {
-    padding: 5,
-    fontSize: 7,
+    paddingHorizontal: 4,
+    paddingTop: 3,
+    paddingBottom: 1,
+    fontSize: 6.5,
     fontFamily: "Helvetica-Bold",
     borderTopWidth: 1,
     borderTopColor: "#e2e8f0",
   },
   photoEvidenceCaption: {
-    paddingHorizontal: 5,
-    paddingBottom: 4,
-    fontSize: 6,
+    paddingHorizontal: 4,
+    paddingBottom: 1,
+    fontSize: 5.5,
     color: GREY,
-    lineHeight: 1.35,
+    lineHeight: 1.3,
   },
   damageCard: {
     width: "48%",
@@ -1072,11 +1078,13 @@ function CarInsightsInsightsAndDetailsPage({
   pageLabel,
   showUpgrade,
   includeValuationSections = true,
+  trailing,
 }: {
   report: VehicleReport;
   pageLabel: string;
   showUpgrade: boolean;
   includeValuationSections?: boolean;
+  trailing?: React.ReactNode;
 }) {
   const { vehicle, market, valuation } = report;
   const insights = buildKeyInsights(report);
@@ -1130,6 +1138,7 @@ function CarInsightsInsightsAndDetailsPage({
             </View>
           ))}
         </View>
+        {trailing}
       </View>
     </PdfPageShell>
   );
@@ -1165,9 +1174,12 @@ function FactoryFeatureLines({
 function VehicleSpecPages({
   report,
   pageLabels,
+  trailing,
 }: {
   report: VehicleReport;
   pageLabels: string[];
+  /** Rendered at the end of the last spec page. */
+  trailing?: React.ReactNode;
 }) {
   const sheet = report.vehicleSpec;
   if (!sheet || !hasVehicleSpecContent(sheet)) return null;
@@ -1221,6 +1233,7 @@ function VehicleSpecPages({
               </Text>
             )}
           </View>
+          {continuationChunks.length === 0 ? trailing : null}
         </View>
       </PdfPageShell>
 
@@ -1236,6 +1249,7 @@ function VehicleSpecPages({
               Factory features &amp; options (continued)
             </Text>
             <FactoryFeatureLines features={chunk} />
+            {index === continuationChunks.length - 1 ? trailing : null}
           </View>
         </PdfPageShell>
       ))}
@@ -1286,17 +1300,115 @@ function PpsrCertificateIntroPage({
   );
 }
 
+function PdfGeneralDisclaimer() {
+  const [terms, ...rest] = REPORT_GENERAL_DISCLAIMER_PARAGRAPHS;
+  return (
+    <View
+      style={{
+        marginTop: 12,
+        paddingTop: 8,
+        borderTopWidth: 1,
+        borderTopColor: "#e2e8f0",
+      }}
+      wrap={false}
+    >
+      <Text
+        style={{
+          fontSize: 8,
+          fontFamily: "Helvetica-Bold",
+          color: "#0f172a",
+          textTransform: "uppercase",
+          letterSpacing: 0.6,
+        }}
+      >
+        {REPORT_GENERAL_DISCLAIMER_TITLE}
+      </Text>
+      <Text style={{ marginTop: 4, fontSize: 6.8, color: GREY, lineHeight: 1.4 }}>
+        {terms} (
+        <Link src={REPORT_TERMS_URL} style={{ color: BLUE }}>
+          {REPORT_TERMS_URL}
+        </Link>
+        ).
+      </Text>
+      {rest.map((paragraph) => (
+        <Text
+          key={paragraph}
+          style={{ marginTop: 3, fontSize: 6.8, color: GREY, lineHeight: 1.4 }}
+        >
+          {paragraph}
+        </Text>
+      ))}
+    </View>
+  );
+}
+
+function PdfPhotoGroup({
+  title,
+  photos,
+  note,
+}: {
+  title: string;
+  photos: InspectionPhoto[];
+  note?: string;
+}) {
+  if (photos.length === 0) return null;
+  return (
+    <View style={[styles.section, { marginTop: 10 }]}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      {note ? (
+        <Text style={[styles.para, { marginTop: 2, fontSize: 6.5 }]}>{note}</Text>
+      ) : null}
+      <View style={styles.photoGrid}>
+        {photos.map((photo) => {
+          const url = resolvePdfImageSrc(getInspectionPhotoUrl(photo));
+          const evidenceLines = formatInspectionPhotoEvidenceLines(photo);
+          const label =
+            photo.angle === "front" ? `${photo.label} (rego visible)` : photo.label;
+          return (
+            <View
+              key={`${photo.angle}-${photo.uploadedAt}`}
+              style={styles.photoTile}
+              wrap={false}
+            >
+              {url ? (
+                <Image src={url} style={styles.photoImage} />
+              ) : (
+                <View style={[styles.photoImage, { backgroundColor: LIGHT }]} />
+              )}
+              <Text style={styles.photoCaption}>{label}</Text>
+              {evidenceLines.map((line) => (
+                <Text key={line} style={styles.photoEvidenceCaption}>
+                  {line}
+                </Text>
+              ))}
+              <View style={{ height: 3 }} />
+            </View>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
 function InsightsPlusPage({
   report,
   photos,
   pageLabel,
+  trailing,
 }: {
   report: VehicleReport;
   photos: InspectionPhoto[];
   pageLabel: string;
+  trailing?: React.ReactNode;
 }) {
   const { vehicle, damage } = report;
   const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
+  const walkaroundPhotos = photos.filter((photo) =>
+    isExteriorInspectionAngle(photo.angle),
+  );
+  const additionalPhotos = photos.filter(
+    (photo) => !isExteriorInspectionAngle(photo.angle),
+  );
 
   return (
     <PdfPageShell report={report} pageLabel={pageLabel}>
@@ -1315,38 +1427,12 @@ function InsightsPlusPage({
           </Text>
         ) : null}
 
-        {photos.length > 0 && (
-          <View style={[styles.section, { marginTop: 12 }]}>
-            <Text style={styles.sectionTitle}>Walkaround Photos</Text>
-            <Text style={[styles.para, { marginTop: 4, fontSize: 7 }]}>
-              Time and GPS coordinates are recorded at capture when the owner allows
-              location access. The front photo should show the registration plate.
-            </Text>
-            <View style={styles.photoGrid}>
-              {photos.map((photo) => {
-                const url = resolvePdfImageSrc(getInspectionPhotoUrl(photo));
-                const evidence = formatInspectionPhotoEvidenceLine(photo);
-                const label =
-                  photo.angle === "front"
-                    ? `${photo.label} (registration visible)`
-                    : photo.label;
-                return (
-                  <View key={`${photo.angle}-${photo.uploadedAt}`} style={styles.photoTile}>
-                    {url ? (
-                      <Image src={url} style={styles.photoImage} />
-                    ) : (
-                      <View style={[styles.photoImage, { backgroundColor: LIGHT }]} />
-                    )}
-                    <Text style={styles.photoCaption}>{label}</Text>
-                    {evidence ? (
-                      <Text style={styles.photoEvidenceCaption}>{evidence}</Text>
-                    ) : null}
-                  </View>
-                );
-              })}
-            </View>
-          </View>
-        )}
+        <PdfPhotoGroup
+          title="Walkaround Photos"
+          photos={walkaroundPhotos}
+          note="Captured on the owner's device. Time and location are recorded beneath each photo when location access is granted; the front photo should show the registration plate."
+        />
+        <PdfPhotoGroup title="Additional Photos" photos={additionalPhotos} />
 
         {damage && damage.findings.length === 0 && photos.length > 0 ? (
           <Text style={[styles.para, { marginTop: 6, color: RIDE_SHARE_GREEN }]}>
@@ -1384,6 +1470,8 @@ function InsightsPlusPage({
             </View>
           </View>
         )}
+
+        {trailing}
       </View>
     </PdfPageShell>
   );
@@ -1502,6 +1590,10 @@ export function ReportPdf({
     nextPageLabel(),
   );
 
+  // General disclaimer closes the last content page, before any PPSR appendix.
+  const disclaimerOn = isPlus ? "plus" : includeSpec ? "spec" : "insights";
+  const generalDisclaimer = <PdfGeneralDisclaimer />;
+
   return (
     <Document title={`Auto Verifi Report ${report.id}`}>
       <CarInsightsOverviewPage report={report} pageLabel={overviewLabel} />
@@ -1510,6 +1602,7 @@ export function ReportPdf({
         pageLabel={insightsLabel}
         showUpgrade={!isPlus}
         includeValuationSections={!isPlus}
+        trailing={disclaimerOn === "insights" ? generalDisclaimer : undefined}
       />
       {isPlus && valuationsLabel ? (
         <PdfPresentFutureValuationPage
@@ -1518,13 +1611,18 @@ export function ReportPdf({
         />
       ) : null}
       {includeSpec && report.vehicleSpec ? (
-        <VehicleSpecPages report={report} pageLabels={specPageLabels} />
+        <VehicleSpecPages
+          report={report}
+          pageLabels={specPageLabels}
+          trailing={disclaimerOn === "spec" ? generalDisclaimer : undefined}
+        />
       ) : null}
       {isPlus ? (
         <InsightsPlusPage
           report={report}
           photos={photos}
           pageLabel={`${pageNumber++} / ${totalPages}`}
+          trailing={generalDisclaimer}
         />
       ) : null}
       {includePpsrIntro ? (

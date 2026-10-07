@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { formatReportReference } from "@/lib/report-design";
 import type { VehicleReport } from "@/lib/types";
 import { hasVehicleSpecContent } from "@/lib/vehicle-spec-sheet";
@@ -8,10 +9,13 @@ export function VehicleSpecReportPage({
   report,
   pageLabel,
   factoryPageLabel,
+  trailingContent,
 }: {
   report: VehicleReport;
   pageLabel: string;
   factoryPageLabel?: string;
+  /** Rendered at the end of the last spec page (e.g. the general disclaimer). */
+  trailingContent?: ReactNode;
 }) {
   const sheet = report.vehicleSpec;
   if (!hasVehicleSpecContent(sheet)) return null;
@@ -27,7 +31,10 @@ export function VehicleSpecReportPage({
   if (!hasFactory || !factoryPageLabel) {
     return (
       <ReportShell {...shellProps} pageLabel={pageLabel}>
-        <VehicleSpecReportSection report={report} part="full" />
+        <div className="space-y-6">
+          <VehicleSpecReportSection report={report} part="full" />
+          {trailingContent}
+        </div>
       </ReportShell>
     );
   }
@@ -39,7 +46,10 @@ export function VehicleSpecReportPage({
       </ReportShell>
       <div className="report-page-break report-spec-continued">
         <ReportShell {...shellProps} pageLabel={factoryPageLabel}>
-          <VehicleSpecReportSection report={report} part="factory" />
+          <div className="space-y-6">
+            <VehicleSpecReportSection report={report} part="factory" />
+            {trailingContent}
+          </div>
         </ReportShell>
       </div>
     </>

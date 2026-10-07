@@ -17,6 +17,7 @@ import {
 import { getBaseUrl } from "@/lib/stripe";
 import { PresentAndFutureValueReportPage } from "@/components/report/PresentAndFutureValueReportPage";
 import { ReportLegalFooter } from "@/components/report/ReportLegalFooter";
+import { ReportGeneralDisclaimer } from "@/components/report/ReportGeneralDisclaimer";
 import { countVehicleReportPages } from "@/lib/report-page-count";
 import { hasVehicleSpecContent } from "@/lib/vehicle-spec-sheet";
 import { VehicleSpecReportPage } from "@/components/report/VehicleSpecReportPage";
@@ -55,6 +56,14 @@ export default async function ReportPage({
     hasFactoryFeatures,
   );
   let reportPage = 1;
+
+  // General disclaimer sits at the end of the last content page, before PPSR.
+  const disclaimerOn = includesDamage
+    ? "insightsPlus"
+    : hasVehicleSpecSheet
+      ? "spec"
+      : "valuations";
+  const disclaimer = <ReportGeneralDisclaimer />;
 
   if (report.status !== "paid") {
     return (
@@ -105,6 +114,7 @@ export default async function ReportPage({
           <PresentAndFutureValueReportPage
             report={report}
             pageLabel={`${reportPage++} / ${pageCount}`}
+            trailingContent={disclaimerOn === "valuations" ? disclaimer : undefined}
           />
         </div>
 
@@ -118,6 +128,7 @@ export default async function ReportPage({
                   ? `${reportPage++} / ${pageCount}`
                   : undefined
               }
+              trailingContent={disclaimerOn === "spec" ? disclaimer : undefined}
             />
           </div>
         ) : null}
@@ -130,6 +141,7 @@ export default async function ReportPage({
               inspectUrl={inspectUrlForOwner}
               showActions
               pageLabel={`${reportPage++} / ${pageCount}`}
+              trailingContent={disclaimer}
             />
           </div>
         )}

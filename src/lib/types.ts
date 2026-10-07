@@ -156,6 +156,8 @@ export interface InspectionPhoto {
   latitude?: number | null;
   longitude?: number | null;
   locationAccuracyM?: number | null;
+  /** Reverse-geocoded place (street/suburb, state, postcode, country) when available. */
+  locationLabel?: string | null;
   /** Ravin Inspector Lite source URL when photos arrive via webhook. */
   externalUrl?: string;
 }

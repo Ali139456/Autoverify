@@ -32,15 +32,24 @@ export function formatInspectionPhotoCoordinates(photo: InspectionPhoto): string
   return `${lat}, ${lng}${accuracy}`;
 }
 
-/** Single line for report overlays and PDF captions. */
-export function formatInspectionPhotoEvidenceLine(photo: InspectionPhoto): string | null {
-  const when = formatInspectionPhotoTimestamp(resolveInspectionPhotoCapturedAt(photo));
-  const where = formatInspectionPhotoCoordinates(photo);
+/** Human-readable place (reverse-geocoded) with coordinates as a fallback. */
+export function formatInspectionPhotoLocation(photo: InspectionPhoto): string | null {
+  const label = photo.locationLabel?.trim();
+  if (label) return label;
+  return formatInspectionPhotoCoordinates(photo);
+}
 
-  if (when && where) return `${when} · ${where}`;
-  if (when) return when;
-  if (where) return where;
-  return null;
+/** Caption lines shown beneath a photo: [timestamp, location]. */
+export function formatInspectionPhotoEvidenceLines(photo: InspectionPhoto): string[] {
+  const when = formatInspectionPhotoTimestamp(resolveInspectionPhotoCapturedAt(photo));
+  const where = formatInspectionPhotoLocation(photo);
+  return [when, where].filter((line): line is string => Boolean(line));
+}
+
+/** Single line for compact captions. */
+export function formatInspectionPhotoEvidenceLine(photo: InspectionPhoto): string | null {
+  const lines = formatInspectionPhotoEvidenceLines(photo);
+  return lines.length > 0 ? lines.join(" · ") : null;
 }
 
 export function parseOptionalFloat(value: FormDataEntryValue | null): number | null {

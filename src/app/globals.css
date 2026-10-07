@@ -380,7 +380,12 @@ html.dark body {
     margin-top: 0 !important;
   }
 
-  /* Simple print flow: one section per break, natural height, no clipping */
+  /*
+   * Print flow: one section per break. Each shell is at least one printable
+   * A4 page tall (297mm − 2×8mm @page margin, minus a little for borders) so the
+   * footer sits at the very bottom of the sheet; longer sections grow and flow
+   * onto the next sheet instead of clipping.
+   */
   .report-shell {
     box-shadow: none !important;
     border: 1px solid #e2e8f0 !important;
@@ -390,7 +395,7 @@ html.dark body {
     display: flex !important;
     flex-direction: column !important;
     height: auto !important;
-    min-height: 0 !important;
+    min-height: 279.5mm !important;
     max-height: none !important;
     overflow: visible !important;
     break-inside: auto !important;
@@ -457,7 +462,7 @@ html.dark body {
     page-break-before: avoid !important;
     position: static !important;
     flex-shrink: 0 !important;
-    margin-top: 0 !important;
+    margin-top: auto !important;
     padding: 8px 18px !important;
     border-top: 1px solid #e2e8f0 !important;
     background-color: #ffffff !important;
@@ -491,9 +496,24 @@ html.dark body {
   }
 
   .report-spec-factory-list li,
-  .report-inspection-photos figure {
+  .report-inspection-photos figure,
+  .report-damage-card,
+  .report-general-disclaimer {
     break-inside: avoid;
     page-break-inside: avoid;
+  }
+
+  .report-photo-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+  }
+
+  .report-photo-tile figcaption p {
+    font-size: 7.5px !important;
+  }
+
+  .report-general-disclaimer p {
+    font-size: 8px !important;
   }
 
   .report-print-page-first {
