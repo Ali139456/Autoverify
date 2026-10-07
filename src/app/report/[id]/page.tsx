@@ -130,7 +130,6 @@ export default async function ReportPage({
               inspectUrl={inspectUrlForOwner}
               showActions
               pageLabel={`${reportPage++} / ${pageCount}`}
-              photosPageLabel={`${reportPage++} / ${pageCount}`}
             />
           </div>
         )}

@@ -8,7 +8,7 @@ export function countVehicleReportPages(
   pages += 1; // Present/future value + valuation supplements
   if (hasVehicleSpecSheet) pages += 1;
   if (hasVehicleSpecSheet && hasFactoryFeatures) pages += 1; // Factory list (continued)
-  if (includesDamage) pages += 2; // Insights+ intro + photos/damage
+  if (includesDamage) pages += 1; // Insights+ body condition + photos/damage
   if (hasPpsrAppendix) pages += 1;
   return pages;
 }

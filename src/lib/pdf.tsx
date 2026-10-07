@@ -1308,23 +1308,15 @@ function InsightsPlusPage({
           <Text style={styles.plusSub}>AI-Powered Image Analysis</Text>
         </View>
 
-        {damage ? (
-          <View style={[styles.section, { marginTop: 12 }]}>
-            <Text style={styles.para}>
-              Overall condition: {damage.overallCondition} · {damage.analyzedPhotos}{" "}
-              photo(s) analyzed
-              {damage.findings.length === 0 ? " · No visible damage detected" : ""}
-            </Text>
-          </View>
-        ) : (
+        {!damage && photos.length === 0 ? (
           <Text style={[styles.para, { marginTop: 12 }]}>
             Guided walkaround photos and AI damage analysis will appear here once the
             mobile inspection is completed.
           </Text>
-        )}
+        ) : null}
 
         {photos.length > 0 && (
-          <View style={styles.section}>
+          <View style={[styles.section, { marginTop: 12 }]}>
             <Text style={styles.sectionTitle}>Walkaround Photos</Text>
             <Text style={[styles.para, { marginTop: 4, fontSize: 7 }]}>
               Time and GPS coordinates are recorded at capture when the owner allows
@@ -1355,6 +1347,12 @@ function InsightsPlusPage({
             </View>
           </View>
         )}
+
+        {damage && damage.findings.length === 0 && photos.length > 0 ? (
+          <Text style={[styles.para, { marginTop: 6, color: RIDE_SHARE_GREEN }]}>
+            No visible damage detected in the AI analysis.
+          </Text>
+        ) : null}
 
         {damage && damage.findings.length > 0 && (
           <View style={styles.section}>

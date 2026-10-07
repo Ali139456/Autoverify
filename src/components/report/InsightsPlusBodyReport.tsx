@@ -4,7 +4,7 @@ import {
   formatReportReference,
   resolveDamageFindingImageUrl,
 } from "@/lib/report-design";
-import type { DamageAnalysis, InspectionPhoto, VehicleReport } from "@/lib/types";
+import type { InspectionPhoto, VehicleReport } from "@/lib/types";
 import { InspectionStarter } from "@/components/InspectionStarter";
 import { DamageUpload } from "@/components/DamageUpload";
 import { ReportShell } from "./ReportShell";
@@ -62,15 +62,12 @@ export function InsightsPlusBodyReport({
   inspectUrl,
   showActions = false,
   pageLabel = "2 / 2",
-  photosPageLabel,
 }: {
   report: VehicleReport;
   photos: InspectionPhoto[];
   inspectUrl?: string | null;
   showActions?: boolean;
   pageLabel?: string;
-  /** When set, walkaround photos + damage render on a new page with this label. */
-  photosPageLabel?: string;
 }) {
   const { vehicle, damage } = report;
   const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
@@ -81,7 +78,6 @@ export function InsightsPlusBodyReport({
   });
 
   const walkaroundPhotos = photos.length > 0 ? photos : [];
-  const splitPhotosPage = Boolean(photosPageLabel?.trim());
   const shellProps = {
     reportId: report.id,
     generatedAt: report.createdAt,
@@ -122,9 +118,7 @@ export function InsightsPlusBodyReport({
         </div>
       )}
 
-      {damage ? (
-        <DamageSummary damage={damage} />
-      ) : walkaroundPhotos.length > 0 ? (
+      {damage ? null : walkaroundPhotos.length > 0 ? (
         <p className="rounded-xl border border-dashed border-[#0073E3]/40 bg-[#0073E3]/5 px-4 py-6 text-sm text-slate-600">
           {walkaroundPhotos.length} walkaround photo(s) received. AI damage
           analysis is being processed and will appear here automatically once
@@ -167,6 +161,13 @@ export function InsightsPlusBodyReport({
             <p className="mt-3 text-sm text-slate-500">No walkaround photos yet.</p>
           )}
         </div>
+
+        {damage && damage.findings.length === 0 && walkaroundPhotos.length > 0 ? (
+          <p className="inline-flex items-center gap-2 text-sm font-medium text-emerald-600">
+            <CheckCircle2 className="h-4 w-4" aria-hidden />
+            No visible damage detected in the AI analysis.
+          </p>
+        ) : null}
 
         {damage && damage.findings.length > 0 && (
           <div>
@@ -222,46 +223,12 @@ export function InsightsPlusBodyReport({
     </>
   );
 
-  if (!splitPhotosPage) {
-    return (
-      <ReportShell {...shellProps} pageLabel={pageLabel}>
-        <div className="space-y-8">
-          {introBlock}
-          {photosBlock}
-        </div>
-      </ReportShell>
-    );
-  }
-
   return (
-    <>
-      <ReportShell {...shellProps} pageLabel={pageLabel}>
-        <div className="space-y-8">{introBlock}</div>
-      </ReportShell>
-      <div className="report-page-break report-inspection-continued">
-        <ReportShell {...shellProps} pageLabel={photosPageLabel!}>
-          <div className="space-y-8">{photosBlock}</div>
-        </ReportShell>
+    <ReportShell {...shellProps} pageLabel={pageLabel}>
+      <div className="space-y-6">
+        {introBlock}
+        {photosBlock}
       </div>
-    </>
-  );
-}
-
-function DamageSummary({ damage }: { damage: DamageAnalysis }) {
-  return (
-    <div className="flex flex-wrap items-center gap-4 rounded-xl border border-slate-200 bg-slate-50 p-5">
-      <span className="inline-flex items-center gap-2 rounded-full bg-[#0073E3]/10 px-4 py-1.5 text-sm font-bold text-[#0073E3]">
-        Overall condition: {damage.overallCondition}
-      </span>
-      <span className="text-sm text-slate-600">
-        {damage.analyzedPhotos} photo(s) analyzed
-      </span>
-      {damage.findings.length === 0 ? (
-        <span className="inline-flex items-center gap-2 text-sm font-medium text-emerald-600">
-          <CheckCircle2 className="h-4 w-4" aria-hidden />
-          No visible damage detected
-        </span>
-      ) : null}
-    </div>
+    </ReportShell>
   );
 }

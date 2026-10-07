@@ -138,7 +138,6 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
               showActions={false}
 
               pageLabel={`${reportPage++} / ${pageCount}`}
-              photosPageLabel={`${reportPage++} / ${pageCount}`}
 
             />
 
