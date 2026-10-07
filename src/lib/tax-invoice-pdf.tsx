@@ -1,6 +1,5 @@
 /* eslint-disable jsx-a11y/alt-text -- @react-pdf/renderer Image has no alt prop */
 import React from "react";
-import path from "path";
 import {
   Document,
   Image,
@@ -12,11 +11,13 @@ import {
 import { getCompanyDetails } from "./company";
 import { getReportTierConfig, resolveReportTier } from "./pricing";
 import {
+  REPORT_LOGO_PNG_PATH,
   TAX_INVOICE_FOOTER_LOGO_HEIGHT,
   TAX_INVOICE_FOOTER_LOGO_WIDTH,
   TAX_INVOICE_HEADER_LOGO_HEIGHT,
   TAX_INVOICE_HEADER_LOGO_WIDTH,
 } from "./report-logo-size";
+import { publicPdfImage } from "./pdf-local-image";
 import { formatReportReference } from "./report-design";
 import type { VehicleReport } from "./types";
 
@@ -25,7 +26,7 @@ const NAVY = "#0f172a";
 const GREY = "#64748b";
 const BORDER = "#e2e8f0";
 const HEADER_BG = "#f1f5f9";
-const LOGO = path.join(process.cwd(), "public/logo/logo-blue-on-white.png");
+const LOGO = publicPdfImage(REPORT_LOGO_PNG_PATH);
 
 export type TaxInvoicePdfProps = {
   report: VehicleReport;
@@ -85,6 +86,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-start",
     marginBottom: 28,
+    paddingBottom: 14,
+    borderBottomWidth: 2,
+    borderBottomColor: BLUE,
   },
   logo: {
     width: TAX_INVOICE_HEADER_LOGO_WIDTH,

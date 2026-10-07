@@ -4,8 +4,8 @@ import {
   PURCHASE_EMAIL_FOOTER_LOGO_WIDTH,
   PURCHASE_EMAIL_HEADER_LOGO_HEIGHT,
   PURCHASE_EMAIL_HEADER_LOGO_WIDTH,
+  REPORT_LOGO_PNG_PATH,
 } from "./report-logo-size";
-import { PRE_PURCHASE_INSPECTIONS_HREF } from "./inspection-menu";
 import { hasPpsrCertificate } from "./ppsr-certificate";
 import { formatReportReference } from "./report-design";
 import {
@@ -71,10 +71,10 @@ function buildEmailFooterContactHtml(
   }
   lines.push(escapeHtml(company.address));
   lines.push(
-    `<a href="mailto:${escapeHtml(company.email)}" style="color:#cbd5e1;text-decoration:none;">${escapeHtml(company.email)}</a>`,
+    `<a href="mailto:${escapeHtml(company.email)}" style="color:#475569;text-decoration:none;">${escapeHtml(company.email)}</a>`,
   );
   lines.push(
-    `<a href="${escapeHtml(company.websiteUrl)}" style="color:#cbd5e1;text-decoration:none;">${escapeHtml(company.website)}</a>`,
+    `<a href="${escapeHtml(company.websiteUrl)}" style="color:#475569;text-decoration:none;">${escapeHtml(company.website)}</a>`,
   );
   return lines.join("<br />");
 }
@@ -99,9 +99,9 @@ export function buildPurchaseConfirmationEmailHtml(
   const reportHeading = purchaseEmailReportHeading(tier, includePpsr);
   const footerContactHtml = buildEmailFooterContactHtml(company);
 
-  const logoBase = `${baseUrl.replace(/\/$/, "")}/logo`;
-  const logoHeaderUrl = `${logoBase}/logo-inverse.png`;
-  const logoFooterUrl = `${logoBase}/logo-inverse.png`;
+  const logoUrl = `${baseUrl.replace(/\/$/, "")}${REPORT_LOGO_PNG_PATH}`;
+  const logoHeaderUrl = logoUrl;
+  const logoFooterUrl = logoUrl;
 
   const currency = (ctx.currency ?? "aud").toLowerCase();
   const amountCents = ctx.amountPaidCents ?? tierConfig.priceCents;
@@ -113,7 +113,6 @@ export function buildPurchaseConfirmationEmailHtml(
     ? `Purchase amount: ${amountLabel} (${rrpLabel}).`
     : `Purchase amount: ${amountLabel}.`;
 
-  const inspectionsUrl = `${baseUrl.replace(/\/$/, "")}${PRE_PURCHASE_INSPECTIONS_HREF}`;
   const privacyUrl = `${baseUrl.replace(/\/$/, "")}/privacy`;
   const termsUrl = `${baseUrl.replace(/\/$/, "")}/terms`;
 
@@ -156,14 +155,19 @@ export function buildPurchaseConfirmationEmailHtml(
 
   const nextStepRow = (
     title: string,
-    href: string,
+    href: string | null,
     desc: string,
     last = false,
   ) => `
     <tr>
       <td style="padding:14px 16px;${last ? "" : "border-bottom:1px solid #e2e8f0;"}">
-        <a href="${escapeHtml(href)}" style="font-size:14px;font-weight:700;color:${BRAND_BLUE};text-decoration:none;">${escapeHtml(title)}</a>
+        <span style="font-size:14px;font-weight:700;color:${BRAND_NAVY};">${escapeHtml(title)}</span>
         <p style="margin:5px 0 0;font-size:13px;line-height:1.5;color:#64748b;">${escapeHtml(desc)}</p>
+        ${
+          href
+            ? `<p style="margin:6px 0 0;font-size:13px;"><a href="${escapeHtml(href)}" style="font-weight:700;color:${BRAND_BLUE};text-decoration:underline;">${escapeHtml(href.replace(/^https?:\/\//, ""))}</a></p>`
+            : ""
+        }
       </td>
     </tr>`;
 
@@ -181,16 +185,16 @@ export function buildPurchaseConfirmationEmailHtml(
       <td align="center">
         <table role="presentation" cellpadding="0" cellspacing="0" width="620" style="max-width:620px;width:100%;border-collapse:separate;border-spacing:0;">
           <tr>
-            <td style="background:linear-gradient(135deg, ${BRAND_BLUE} 0%, #005bb5 100%);padding:26px 32px 22px;border-radius:14px 14px 0 0;">
+            <td style="background:#ffffff;padding:26px 32px 18px;border-radius:14px 14px 0 0;border:1px solid #dbeafe;border-bottom:3px solid ${BRAND_BLUE};">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td>
                     <img src="${escapeHtml(logoHeaderUrl)}" alt="Auto Verifi" width="${PURCHASE_EMAIL_HEADER_LOGO_WIDTH}" height="${PURCHASE_EMAIL_HEADER_LOGO_HEIGHT}" style="display:block;border:0;outline:none;text-decoration:none;height:${PURCHASE_EMAIL_HEADER_LOGO_HEIGHT}px!important;width:auto!important;max-width:${PURCHASE_EMAIL_HEADER_LOGO_WIDTH}px!important;-ms-interpolation-mode:bicubic;" />
-                    <p style="margin:8px 0 0;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.85);">Past &nbsp;|&nbsp; Present &nbsp;|&nbsp; Future</p>
+                    <p style="margin:10px 0 0;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:${BRAND_BLUE};">Past &nbsp;|&nbsp; Present &nbsp;|&nbsp; Future Vehicle Insights</p>
                   </td>
-                  <td align="right" valign="top" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:rgba(255,255,255,0.9);line-height:1.6;">
+                  <td align="right" valign="top" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#64748b;line-height:1.6;">
                     Generated<br />${escapeHtml(generatedOn)}<br />
-                    <span style="font-weight:600;color:rgba(255,255,255,0.88);">${escapeHtml(company.website)}</span>
+                    <span style="font-weight:600;color:${BRAND_BLUE};">${escapeHtml(company.website)}</span>
                   </td>
                 </tr>
               </table>
@@ -258,18 +262,18 @@ export function buildPurchaseConfirmationEmailHtml(
               <h2 style="margin:0 0 14px;font-size:16px;font-weight:800;color:${BRAND_NAVY};">Next steps to purchase</h2>
               <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;">
                 ${nextStepRow(
-                  "Pre-Purchase inspection",
-                  inspectionsUrl,
-                  "Book a professional inspection through Auto Verifi before you buy.",
+                  "Pre-purchase inspection",
+                  null,
+                  "Book a professional inspection before you buy (use Google to research a credible mobile pre-purchase inspections provider).",
                 )}
                 ${nextStepRow(
                   "Payment escrow",
-                  "https://veme.me",
+                  "https://www.veme.me",
                   "Secure your payment with an independent escrow service.",
                 )}
                 ${nextStepRow(
                   "Registration and transport",
-                  "https://nexttransport.com.au",
+                  "https://www.intraffic.com.au",
                   "Arrange registration transfers and vehicle transport.",
                   true,
                 )}
@@ -277,13 +281,20 @@ export function buildPurchaseConfirmationEmailHtml(
             </td>
           </tr>
           <tr>
-            <td style="background:${BRAND_NAVY};padding:26px 32px;border-radius:0 0 14px 14px;border:1px solid ${BRAND_NAVY};">
-              <img src="${escapeHtml(logoFooterUrl)}" alt="Auto Verifi" width="${PURCHASE_EMAIL_FOOTER_LOGO_WIDTH}" height="${PURCHASE_EMAIL_FOOTER_LOGO_HEIGHT}" style="display:block;border:0;outline:none;text-decoration:none;height:${PURCHASE_EMAIL_FOOTER_LOGO_HEIGHT}px!important;width:auto!important;max-width:${PURCHASE_EMAIL_FOOTER_LOGO_WIDTH}px!important;-ms-interpolation-mode:bicubic;" />
-              <p style="margin:16px 0 12px;font-size:11px;line-height:1.65;color:#94a3b8;">
+            <td style="background:#ffffff;padding:26px 32px;border-radius:0 0 14px 14px;border:1px solid #dbeafe;border-top:0;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="padding-bottom:12px;border-bottom:2px solid ${BRAND_BLUE};">
+                    <img src="${escapeHtml(logoFooterUrl)}" alt="Auto Verifi" width="${PURCHASE_EMAIL_FOOTER_LOGO_WIDTH}" height="${PURCHASE_EMAIL_FOOTER_LOGO_HEIGHT}" style="display:block;border:0;outline:none;text-decoration:none;height:${PURCHASE_EMAIL_FOOTER_LOGO_HEIGHT}px!important;width:auto!important;max-width:${PURCHASE_EMAIL_FOOTER_LOGO_WIDTH}px!important;-ms-interpolation-mode:bicubic;" />
+                    <p style="margin:8px 0 0;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:${BRAND_BLUE};">Past &nbsp;|&nbsp; Present &nbsp;|&nbsp; Future Vehicle Insights</p>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin:16px 0 12px;font-size:11px;line-height:1.65;color:#64748b;">
                 This report is compiled from third-party data sources and is provided for information only.
                 It is not personal financial, legal or tax advice. You should make your own enquiries before purchasing a vehicle.
               </p>
-              <p style="margin:0;font-size:12px;line-height:1.75;color:#cbd5e1;">
+              <p style="margin:0;font-size:12px;line-height:1.75;color:#475569;">
                 ${footerContactHtml}
               </p>
             </td>

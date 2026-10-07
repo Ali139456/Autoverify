@@ -5,6 +5,7 @@ import {
   formatReportReference,
   resolveFutureValue,
 } from "@/lib/report-design";
+import { ReportComparableVehicles } from "./ReportComparableVehicles";
 import { ReportShell } from "./ReportShell";
 import { ReportValuationSupplements } from "./ReportValuationSupplements";
 
@@ -97,6 +98,7 @@ export function PresentAndFutureValueReportPage({
         </div>
 
         <ReportValuationSupplements report={report} />
+        <ReportComparableVehicles report={report} />
         {trailingContent}
       </div>
     </ReportShell>

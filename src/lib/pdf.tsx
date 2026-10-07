@@ -63,7 +63,9 @@ import {
   REPORT_FOOTER_LOGO_WIDTH,
   REPORT_HEADER_LOGO_HEIGHT,
   REPORT_HEADER_LOGO_WIDTH,
+  REPORT_LOGO_PNG_PATH,
 } from "./report-logo-size";
+import { publicPdfImage } from "./pdf-local-image";
 import { VEHICLE_HERO_IMAGE_DISCLAIMER } from "./vehicle-hero-image";
 import { VehicleReport } from "./types";
 import type { InspectionPhoto } from "./types";
@@ -73,10 +75,11 @@ const GREY = "#64748b";
 const LIGHT = "#f8fafc";
 const SPEC_LABEL_BG = "#f1f5f9";
 const RIDE_SHARE_ORANGE = "#E87722";
-const LOGO_BLUE = path.join(process.cwd(), "public/logo/logo-blue-on-white.png");
-const LOGO_INVERSE = path.join(process.cwd(), "public/logo/logo-inverse.png");
+const LOGO_BLUE = publicPdfImage(REPORT_LOGO_PNG_PATH);
 
 const PDF_A4_HEIGHT = 841.89;
+/** Fixed height of the status + hero panel on page 1 (keeps yoga layout stable). */
+const STATUS_PANEL_HEIGHT = 150;
 
 const styles = StyleSheet.create({
   page: {
@@ -97,7 +100,7 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: "#ffffff",
     paddingHorizontal: 32,
-    paddingVertical: 18,
+    paddingVertical: 14,
     flexDirection: "row",
     justifyContent: "space-between",
     borderBottomWidth: 2,
@@ -124,7 +127,7 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     fontFamily: "Helvetica-Bold",
   },
-  body: { paddingHorizontal: 32, paddingTop: 22, paddingBottom: 56 },
+  body: { paddingHorizontal: 32, paddingTop: 18, paddingBottom: 24 },
   title: { fontSize: 18, fontFamily: "Helvetica-Bold", color: "#0f172a" },
   vehicleName: {
     marginTop: 6,
@@ -141,18 +144,21 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica-Bold",
   },
   specBar: {
-    marginTop: 14,
-    flexDirection: "row",
-    flexWrap: "wrap",
+    marginTop: 12,
     borderWidth: 1,
     borderColor: "#e2e8f0",
     borderRadius: 8,
     backgroundColor: LIGHT,
     overflow: "hidden",
   },
+  specRow: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderBottomColor: "#e2e8f0",
+  },
   specItem: {
     width: "25%",
-    paddingVertical: 8,
+    paddingVertical: 7,
     paddingHorizontal: 8,
     borderRightWidth: 1,
     borderRightColor: "#e2e8f0",
@@ -171,38 +177,37 @@ const styles = StyleSheet.create({
     color: "#0f172a",
   },
   statusPanel: {
-    marginTop: 14,
+    marginTop: 12,
     flexDirection: "row",
     borderWidth: 1,
     borderColor: "#e2e8f0",
     borderRadius: 8,
     overflow: "hidden",
-    minHeight: 168,
+    height: STATUS_PANEL_HEIGHT,
   },
   statusLeft: {
     width: "58%",
-    padding: 14,
+    padding: 12,
     borderRightWidth: 1,
     borderRightColor: "#e2e8f0",
   },
   statusImageWrap: {
     width: "42%",
+    height: STATUS_PANEL_HEIGHT - 2,
     position: "relative",
-    minHeight: 168,
     backgroundColor: "#020617",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
+    overflow: "hidden",
   },
-  statusImage: { width: "100%", height: "100%", objectFit: "cover" },
+  statusImage: {
+    width: "100%",
+    height: STATUS_PANEL_HEIGHT - 2,
+    objectFit: "cover",
+  },
   statusImageContain: {
-    width: "94%",
-    height: "88%",
+    width: "100%",
+    height: STATUS_PANEL_HEIGHT - 2,
     objectFit: "contain",
     objectPosition: "center",
-    backgroundColor: "#020617",
-    alignSelf: "center",
   },
   statusImageCaption: {
     position: "absolute",
@@ -268,18 +273,20 @@ const styles = StyleSheet.create({
   },
   insightGrid: {
     marginTop: 8,
+  },
+  insightRow: {
     flexDirection: "row",
-    flexWrap: "wrap",
+    alignItems: "stretch",
+    marginBottom: 6,
   },
   insightCard: {
-    width: "24%",
+    width: "24.25%",
     marginRight: "1%",
-    marginBottom: 8,
     borderWidth: 1,
     borderColor: "#e2e8f0",
     borderRadius: 6,
-    padding: 8,
-    minHeight: 64,
+    padding: 7,
+    minHeight: 58,
     backgroundColor: "#f1f5f9",
   },
   insightTop: {
@@ -296,26 +303,6 @@ const styles = StyleSheet.create({
   },
   insightStatusRow: { flexDirection: "row", alignItems: "flex-start", gap: 3 },
   insightStatus: { fontSize: 7.5, fontFamily: "Helvetica-Bold", lineHeight: 1.35 },
-  upgradeBox: {
-    marginTop: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#dbeafe",
-    backgroundColor: "#f0f7ff",
-    borderRadius: 8,
-    padding: 12,
-    gap: 10,
-  },
-  upgradeButton: {
-    backgroundColor: BLUE,
-    color: "#ffffff",
-    fontSize: 8,
-    fontFamily: "Helvetica-Bold",
-    borderRadius: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-  },
   clear: { color: "#15803d" },
   warn: { color: "#dc2626" },
   info: { color: "#0284c7" },
@@ -396,11 +383,11 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   plusSub: { marginTop: 2, fontSize: 11, fontFamily: "Helvetica-Bold", color: BLUE },
-  photoGrid: { flexDirection: "row", flexWrap: "wrap", marginTop: 6 },
+  photoGrid: { marginTop: 6 },
+  photoRow: { flexDirection: "row", alignItems: "stretch", marginBottom: 6 },
   photoTile: {
     width: "23.5%",
     marginRight: "2%",
-    marginBottom: 6,
     borderWidth: 1,
     borderColor: "#e2e8f0",
     borderRadius: 5,
@@ -454,7 +441,7 @@ const styles = StyleSheet.create({
 
 const money = (n: number) => `$${n.toLocaleString("en-AU")}`;
 
-const MAX_COMPARABLE_ROWS = 7;
+const MAX_COMPARABLE_ROWS = 5;
 
 /** Factory options below the full-width vehicle data table on spec page 1. */
 const SPEC_FEATURES_ON_FIRST_SPEC_PAGE = 28;
@@ -555,19 +542,41 @@ function PdfPageShell({
 }
 
 function PdfInsightGrid({ insights }: { insights: ReportInsight[] }) {
+  const rows = chunkFactoryFeatures(insights, 4);
   return (
     <View style={styles.insightGrid}>
-      {insights.map((insight) => {
-        const footnote = pdfInsightFootnote(insight);
-        return (
-          <View key={insight.id} style={styles.insightCard} wrap={false}>
+      {rows.map((row, rowIndex) => (
+        <View key={rowIndex} style={styles.insightRow} wrap={false}>
+          {row.map((insight, i) => (
+            <PdfInsightCard
+              key={insight.id}
+              insight={insight}
+              last={i === row.length - 1}
+            />
+          ))}
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function PdfInsightCard({
+  insight,
+  last,
+}: {
+  insight: ReportInsight;
+  last: boolean;
+}) {
+  const footnote = pdfInsightFootnote(insight);
+  return (
+          <View style={[styles.insightCard, last ? { marginRight: 0 } : {}]}>
             <View style={styles.insightTop}>
               <PdfInsightIcon insightId={insight.id} />
               <Text style={styles.insightTitle}>{insight.title}</Text>
             </View>
             <View style={styles.insightBottom}>
               {insight.lines?.length ? (
-                <View style={{ flex: 1, minWidth: 0 }}>
+                <View style={{ width: "100%" }}>
                   {insight.lines.map((line) => (
                     <Text
                       key={line.text}
@@ -656,9 +665,6 @@ function PdfInsightGrid({ insights }: { insights: ReportInsight[] }) {
               )}
             </View>
           </View>
-        );
-      })}
-    </View>
   );
 }
 
@@ -703,7 +709,8 @@ function PdfVehicleHero({
       ) : (
         <View
           style={{
-            flex: 1,
+            width: "100%",
+            height: layout === "banner" ? 108 : STATUS_PANEL_HEIGHT - 2,
             backgroundColor: "#0f172a",
             justifyContent: "center",
             alignItems: "center",
@@ -716,6 +723,66 @@ function PdfVehicleHero({
           </Text>
         </View>
       )}
+    </View>
+  );
+}
+
+type OverviewSpec = ReturnType<typeof buildReportOverviewSpecs>[number];
+
+/** Overview spec bar laid out as explicit 4-slot rows (VIN spans two slots). */
+function buildOverviewSpecRows(specs: OverviewSpec[]): OverviewSpec[][] {
+  const rows: OverviewSpec[][] = [];
+  let current: OverviewSpec[] = [];
+  let used = 0;
+  for (const spec of specs) {
+    const span = spec.label === "VIN" ? 2 : 1;
+    if (used + span > 4) {
+      rows.push(current);
+      current = [];
+      used = 0;
+    }
+    current.push(spec);
+    used += span;
+  }
+  if (current.length) rows.push(current);
+  return rows;
+}
+
+function PdfOverviewSpecBar({ specs }: { specs: OverviewSpec[] }) {
+  const rows = buildOverviewSpecRows(specs);
+  let index = 0;
+  return (
+    <View style={styles.specBar}>
+      {rows.map((row, rowIndex) => (
+        <View
+          key={rowIndex}
+          style={[
+            styles.specRow,
+            rowIndex === rows.length - 1 ? { borderBottomWidth: 0 } : {},
+          ]}
+        >
+          {row.map((s, i) => {
+            const iconIndex = index++;
+            const isVin = s.label === "VIN";
+            return (
+              <View
+                key={s.label}
+                style={[
+                  styles.specItem,
+                  isVin ? { width: "50%" } : {},
+                  i === row.length - 1 ? { borderRightWidth: 0 } : {},
+                ]}
+              >
+                <View style={styles.specLabelRow}>
+                  <PdfSpecIcon index={iconIndex} />
+                  <Text style={styles.specLabel}>{s.label}</Text>
+                </View>
+                <Text style={styles.specValue}>{s.value}</Text>
+              </View>
+            );
+          })}
+        </View>
+      ))}
     </View>
   );
 }
@@ -940,6 +1007,7 @@ function CarInsightsOverviewPage({
   const { vehicle } = report;
   const specs = buildReportOverviewSpecs(vehicle, report);
   const statusChecks = buildStatusChecks(report);
+  const insights = buildKeyInsights(report);
   const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
 
   return (
@@ -951,24 +1019,7 @@ function CarInsightsOverviewPage({
           A comprehensive summary of your vehicle&apos;s history, status and key insights.
         </Text>
 
-        <View style={styles.specBar}>
-          {specs.map((s, i) => (
-            <View key={s.label} style={styles.specItem}>
-              <View style={styles.specLabelRow}>
-                <PdfSpecIcon index={i} />
-                <Text style={styles.specLabel}>{s.label}</Text>
-              </View>
-              <Text
-                style={[
-                  styles.specValue,
-                  s.label === "VIN" ? { fontSize: 6.5, lineHeight: 1.35 } : {},
-                ]}
-              >
-                {s.value}
-              </Text>
-            </View>
-          ))}
-        </View>
+        <PdfOverviewSpecBar specs={specs} />
 
         <View style={styles.statusPanel}>
           <View style={styles.statusLeft}>
@@ -1001,6 +1052,11 @@ function CarInsightsOverviewPage({
           <PdfVehicleHero vehicle={vehicle} vehicleTitle={vehicleTitle} />
         </View>
 
+        <View style={{ marginTop: 14 }}>
+          <Text style={styles.sectionLabel}>Key Insights</Text>
+        </View>
+        <PdfInsightGrid insights={insights} />
+        <PdfManufacturersWarrantyNotice />
       </View>
     </PdfPageShell>
   );
@@ -1074,88 +1130,49 @@ function PdfPresentAndFutureValuations({
   );
 }
 
-function PdfPresentFutureValuationPage({
-  report,
-  pageLabel,
-}: {
-  report: VehicleReport;
-  pageLabel: string;
-}) {
+function PdfComparableVehiclesTable({ report }: { report: VehicleReport }) {
+  const listings = report.market.comparableListings.slice(0, MAX_COMPARABLE_ROWS);
+  if (listings.length === 0) return null;
   return (
-    <PdfPageShell report={report} pageLabel={pageLabel}>
-      <View style={styles.body}>
-        <PdfPresentAndFutureValuations report={report} showFutureValue />
+    <View style={[styles.section, { marginTop: 10 }]} wrap={false}>
+      <Text style={styles.sectionTitle}>Comparable Vehicles For Sale</Text>
+      <View style={styles.tableHead}>
+        <Text style={{ width: "42%" }}>Vehicle</Text>
+        <Text style={{ width: "15%" }}>Price</Text>
+        <Text style={{ width: "18%" }}>Odometer</Text>
+        <Text style={{ width: "15%" }}>Location</Text>
+        <Text style={{ width: "10%" }}>Listed</Text>
       </View>
-    </PdfPageShell>
+      {listings.map((l, i) => (
+        <View key={i} style={styles.tableRow}>
+          <Text style={{ width: "42%" }}>{l.title}</Text>
+          <Text style={{ width: "15%" }}>{money(l.price)}</Text>
+          <Text style={{ width: "18%" }}>{l.odometer.toLocaleString()} km</Text>
+          <Text style={{ width: "15%" }}>{l.location}</Text>
+          <Text style={{ width: "10%" }}>{l.daysListed}d</Text>
+        </View>
+      ))}
+    </View>
   );
 }
 
-function CarInsightsInsightsAndDetailsPage({
+/** Page 2 — present (+ future for Insights+) valuations, P-plate, ride share, comparables. */
+function PdfValuationsPage({
   report,
   pageLabel,
-  showUpgrade,
-  includeValuationSections = true,
-  trailing,
 }: {
   report: VehicleReport;
   pageLabel: string;
-  showUpgrade: boolean;
-  includeValuationSections?: boolean;
-  trailing?: React.ReactNode;
 }) {
-  const { vehicle, market, valuation } = report;
-  const insights = buildKeyInsights(report);
-  const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
   const showFutureValue = hasDamageAnalysis(resolveReportTier(report.tier));
-
   return (
     <PdfPageShell report={report} pageLabel={pageLabel}>
       <View style={styles.body}>
-        <View style={{ marginTop: 4 }}>
-          <Text style={styles.sectionLabel}>Key Insights</Text>
-        </View>
-        <Text style={[styles.subtitle, { marginTop: 4 }]}>Key insights — {vehicleTitle}</Text>
-        <PdfInsightGrid insights={insights} />
-        <PdfManufacturersWarrantyNotice />
-
-        {includeValuationSections ? (
-          <PdfPresentAndFutureValuations
-            report={report}
-            showFutureValue={showFutureValue}
-          />
-        ) : null}
-
-        {showUpgrade ? (
-          <View style={[styles.upgradeBox, { marginTop: 10 }]} wrap={false}>
-            <PdfInsightIcon insightId="ppsr" size={16} />
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 8.5, fontFamily: "Helvetica-Bold", color: "#0f172a" }}>
-                Upgrade to Auto Verifi Insights+ for AI powered condition scan.
-              </Text>
-            </View>
-          </View>
-        ) : null}
-
-        <View style={[styles.section, { marginTop: 10 }]}>
-          <Text style={styles.sectionTitle}>Comparable Vehicles For Sale</Text>
-          <View style={styles.tableHead}>
-            <Text style={{ width: "42%" }}>Vehicle</Text>
-            <Text style={{ width: "15%" }}>Price</Text>
-            <Text style={{ width: "18%" }}>Odometer</Text>
-            <Text style={{ width: "15%" }}>Location</Text>
-            <Text style={{ width: "10%" }}>Listed</Text>
-          </View>
-          {market.comparableListings.slice(0, MAX_COMPARABLE_ROWS).map((l, i) => (
-            <View key={i} style={styles.tableRow}>
-              <Text style={{ width: "42%" }}>{l.title}</Text>
-              <Text style={{ width: "15%" }}>{money(l.price)}</Text>
-              <Text style={{ width: "18%" }}>{l.odometer.toLocaleString()} km</Text>
-              <Text style={{ width: "15%" }}>{l.location}</Text>
-              <Text style={{ width: "10%" }}>{l.daysListed}d</Text>
-            </View>
-          ))}
-        </View>
-        {trailing}
+        <PdfPresentAndFutureValuations
+          report={report}
+          showFutureValue={showFutureValue}
+        />
+        <PdfComparableVehiclesTable report={report} />
       </View>
     </PdfPageShell>
   );
@@ -1271,7 +1288,7 @@ function VehicleSpecPages({
         >
           <View style={styles.body}>
             <Text style={styles.title}>Vehicle Data &amp; Factory Equipment</Text>
-            <Text style={styles.subtitle}>
+            <Text style={[styles.sectionTitle, { marginTop: 12 }]}>
               Factory features &amp; options (continued)
             </Text>
             <FactoryFeatureLines features={chunk} />
@@ -1454,32 +1471,40 @@ function PdfPhotoGroup({
         <Text style={[styles.para, { marginTop: 2, fontSize: 6.5 }]}>{note}</Text>
       ) : null}
       <View style={styles.photoGrid}>
-        {photos.map((photo) => {
-          const url = resolvePdfImageSrc(getInspectionPhotoUrl(photo));
-          const evidenceLines = formatInspectionPhotoEvidenceLines(photo);
-          const label =
-            photo.angle === "front" ? `${photo.label} (rego visible)` : photo.label;
-          return (
-            <View
-              key={`${photo.angle}-${photo.uploadedAt}`}
-              style={styles.photoTile}
-              wrap={false}
-            >
-              {url ? (
-                <Image src={url} style={styles.photoImage} />
-              ) : (
-                <View style={[styles.photoImage, { backgroundColor: LIGHT }]} />
-              )}
-              <Text style={styles.photoCaption}>{label}</Text>
-              {evidenceLines.map((line) => (
-                <Text key={line} style={styles.photoEvidenceCaption}>
-                  {line}
-                </Text>
-              ))}
-              <View style={{ height: 3 }} />
-            </View>
-          );
-        })}
+        {chunkFactoryFeatures(photos, 4).map((row, rowIndex) => (
+          <View key={rowIndex} style={styles.photoRow} wrap={false}>
+            {row.map((photo, i) => {
+              const url = resolvePdfImageSrc(getInspectionPhotoUrl(photo));
+              const evidenceLines = formatInspectionPhotoEvidenceLines(photo);
+              const label =
+                photo.angle === "front"
+                  ? `${photo.label} (rego visible)`
+                  : photo.label;
+              return (
+                <View
+                  key={`${photo.angle}-${photo.uploadedAt}`}
+                  style={[
+                    styles.photoTile,
+                    i === row.length - 1 ? { marginRight: 0 } : {},
+                  ]}
+                >
+                  {url ? (
+                    <Image src={url} style={styles.photoImage} />
+                  ) : (
+                    <View style={[styles.photoImage, { backgroundColor: LIGHT }]} />
+                  )}
+                  <Text style={styles.photoCaption}>{label}</Text>
+                  {evidenceLines.map((line) => (
+                    <Text key={line} style={styles.photoEvidenceCaption}>
+                      {line}
+                    </Text>
+                  ))}
+                  <View style={{ height: 3 }} />
+                </View>
+              );
+            })}
+          </View>
+        ))}
       </View>
     </View>
   );
@@ -1538,31 +1563,49 @@ function InsightsPlusPage({
         {damage && damage.findings.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Detected Damage</Text>
-            <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-              {damage.findings.map((f, i) => {
-                const damageImageUrl = resolvePdfImageSrc(
-                  resolveDamageFindingImageUrl(f, photos),
-                );
-                return (
-                  <View key={i} style={styles.damageCard}>
-                    {damageImageUrl ? (
-                      <Image src={damageImageUrl} style={styles.photoImage} />
-                    ) : null}
-                    <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 8.5 }}>
-                      {f.panel}
-                    </Text>
-                    <Text style={{ marginTop: 2, fontSize: 8, color: "#dc2626" }}>
-                      {f.type} · {f.severity}
-                    </Text>
-                    {f.description ? (
-                      <Text style={{ marginTop: 2, fontSize: 7.5, color: GREY }}>
-                        {f.description}
+            {chunkFactoryFeatures(damage.findings, 2).map((row, rowIndex) => (
+              <View
+                key={rowIndex}
+                style={{ flexDirection: "row", alignItems: "stretch" }}
+                wrap={false}
+              >
+                {row.map((f, i) => {
+                  const damageImageUrl = resolvePdfImageSrc(
+                    resolveDamageFindingImageUrl(f, photos),
+                  );
+                  return (
+                    <View
+                      key={`${rowIndex}-${i}`}
+                      style={[
+                        styles.damageCard,
+                        i === row.length - 1 ? { marginRight: 0 } : {},
+                      ]}
+                    >
+                      {damageImageUrl ? (
+                        <Image src={damageImageUrl} style={styles.photoImage} />
+                      ) : null}
+                      <Text
+                        style={{
+                          marginTop: 4,
+                          fontFamily: "Helvetica-Bold",
+                          fontSize: 8.5,
+                        }}
+                      >
+                        {f.panel}
                       </Text>
-                    ) : null}
-                  </View>
-                );
-              })}
-            </View>
+                      <Text style={{ marginTop: 2, fontSize: 8, color: "#dc2626" }}>
+                        {f.type} · {f.severity}
+                      </Text>
+                      {f.description ? (
+                        <Text style={{ marginTop: 2, fontSize: 7.5, color: GREY }}>
+                          {f.description}
+                        </Text>
+                      ) : null}
+                    </View>
+                  );
+                })}
+              </View>
+            ))}
           </View>
         )}
 
@@ -1587,27 +1630,38 @@ function PdfReportDisclaimerPage({
       <View
         style={{
           flex: 1,
-          backgroundColor: "#0f172a",
+          backgroundColor: "#ffffff",
           paddingHorizontal: 36,
           paddingVertical: 40,
           justifyContent: "space-between",
         }}
       >
         <View>
-          <Image
-            src={LOGO_INVERSE}
+          <View
             style={{
-              width: REPORT_HEADER_LOGO_WIDTH,
-              height: REPORT_HEADER_LOGO_HEIGHT,
-              objectFit: "contain",
+              borderBottomWidth: 2,
+              borderBottomColor: BLUE,
+              paddingBottom: 12,
             }}
-          />
+          >
+            <Image
+              src={LOGO_BLUE}
+              style={{
+                width: REPORT_HEADER_LOGO_WIDTH,
+                height: REPORT_HEADER_LOGO_HEIGHT,
+                objectFit: "contain",
+              }}
+            />
+            <Text style={styles.headerTagline}>
+              Past | Present | Future Vehicle Insights
+            </Text>
+          </View>
           <Text
             style={{
               marginTop: 22,
               fontSize: 9,
               lineHeight: 1.5,
-              color: "#94a3b8",
+              color: "#475569",
             }}
           >
             {REPORT_DISCLAIMER_LEAD}
@@ -1617,7 +1671,7 @@ function PdfReportDisclaimerPage({
               marginTop: 8,
               fontSize: 9,
               lineHeight: 1.5,
-              color: "#94a3b8",
+              color: "#475569",
             }}
           >
             {REPORT_DISCLAIMER_CLOSING}
@@ -1627,7 +1681,7 @@ function PdfReportDisclaimerPage({
               marginTop: 18,
               fontSize: 9,
               lineHeight: 1.55,
-              color: "#94a3b8",
+              color: "#475569",
             }}
           >
             {company.legalName}
@@ -1671,17 +1725,16 @@ export function ReportPdf({
       : 0;
   const includePpsrIntro = hasPpsrCertificate(report);
   const totalPages =
-    2 +
+    2 + // Overview + valuations (mirrors web report pages 1–2)
     specPageCount +
-    (isPlus ? 2 : 0) +
+    (isPlus ? 1 : 0) + // Insights+ body condition
     1 + // Car buying checklist + general disclaimer
     (includePpsrIntro ? 1 : 0) +
     1;
   let pageNumber = 1;
   const nextPageLabel = () => `${pageNumber++} / ${totalPages}`;
   const overviewLabel = nextPageLabel();
-  const insightsLabel = nextPageLabel();
-  const valuationsLabel = isPlus ? nextPageLabel() : null;
+  const valuationsLabel = nextPageLabel();
   const specPageLabels = Array.from({ length: specPageCount }, () =>
     nextPageLabel(),
   );
@@ -1689,18 +1742,7 @@ export function ReportPdf({
   return (
     <Document title={`Auto Verifi Report ${report.id}`}>
       <CarInsightsOverviewPage report={report} pageLabel={overviewLabel} />
-      <CarInsightsInsightsAndDetailsPage
-        report={report}
-        pageLabel={insightsLabel}
-        showUpgrade={!isPlus}
-        includeValuationSections={!isPlus}
-      />
-      {isPlus && valuationsLabel ? (
-        <PdfPresentFutureValuationPage
-          report={report}
-          pageLabel={valuationsLabel}
-        />
-      ) : null}
+      <PdfValuationsPage report={report} pageLabel={valuationsLabel} />
       {includeSpec && report.vehicleSpec ? (
         <VehicleSpecPages report={report} pageLabels={specPageLabels} />
       ) : null}
