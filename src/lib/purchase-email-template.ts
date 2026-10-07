@@ -5,6 +5,7 @@ import {
   PURCHASE_EMAIL_HEADER_LOGO_HEIGHT,
   PURCHASE_EMAIL_HEADER_LOGO_WIDTH,
   REPORT_LOGO_PNG_PATH,
+  REPORT_LOGO_OBJECT_POSITION,
 } from "./report-logo-size";
 import { hasPpsrCertificate } from "./ppsr-certificate";
 import { formatReportReference } from "./report-design";
@@ -188,9 +189,9 @@ export function buildPurchaseConfirmationEmailHtml(
             <td style="background:#ffffff;padding:26px 32px 18px;border-radius:14px 14px 0 0;border:1px solid #dbeafe;border-bottom:3px solid ${BRAND_BLUE};">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                  <td>
-                    <img src="${escapeHtml(logoHeaderUrl)}" alt="Auto Verifi" width="${PURCHASE_EMAIL_HEADER_LOGO_WIDTH}" height="${PURCHASE_EMAIL_HEADER_LOGO_HEIGHT}" style="display:block;border:0;outline:none;text-decoration:none;height:${PURCHASE_EMAIL_HEADER_LOGO_HEIGHT}px!important;width:auto!important;max-width:${PURCHASE_EMAIL_HEADER_LOGO_WIDTH}px!important;-ms-interpolation-mode:bicubic;" />
-                    <p style="margin:10px 0 0;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:${BRAND_BLUE};">Past &nbsp;|&nbsp; Present &nbsp;|&nbsp; Future Vehicle Insights</p>
+                  <td align="left" style="text-align:left;vertical-align:top;">
+                    <img src="${escapeHtml(logoHeaderUrl)}" alt="Auto Verifi" width="${PURCHASE_EMAIL_HEADER_LOGO_WIDTH}" height="${PURCHASE_EMAIL_HEADER_LOGO_HEIGHT}" style="display:block;margin:0;border:0;outline:none;text-decoration:none;height:${PURCHASE_EMAIL_HEADER_LOGO_HEIGHT}px!important;width:auto!important;max-width:${PURCHASE_EMAIL_HEADER_LOGO_WIDTH}px!important;object-fit:contain;object-position:${REPORT_LOGO_OBJECT_POSITION};-ms-interpolation-mode:bicubic;" />
+                    <p style="margin:10px 0 0;padding:0;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:${BRAND_BLUE};text-align:left;">Past &nbsp;|&nbsp; Present &nbsp;|&nbsp; Future Vehicle Insights</p>
                   </td>
                   <td align="right" valign="top" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#64748b;line-height:1.6;">
                     Generated<br />${escapeHtml(generatedOn)}<br />
@@ -284,9 +285,9 @@ export function buildPurchaseConfirmationEmailHtml(
             <td style="background:#ffffff;padding:26px 32px;border-radius:0 0 14px 14px;border:1px solid #dbeafe;border-top:0;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                  <td style="padding-bottom:12px;border-bottom:2px solid ${BRAND_BLUE};">
-                    <img src="${escapeHtml(logoFooterUrl)}" alt="Auto Verifi" width="${PURCHASE_EMAIL_FOOTER_LOGO_WIDTH}" height="${PURCHASE_EMAIL_FOOTER_LOGO_HEIGHT}" style="display:block;border:0;outline:none;text-decoration:none;height:${PURCHASE_EMAIL_FOOTER_LOGO_HEIGHT}px!important;width:auto!important;max-width:${PURCHASE_EMAIL_FOOTER_LOGO_WIDTH}px!important;-ms-interpolation-mode:bicubic;" />
-                    <p style="margin:8px 0 0;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:${BRAND_BLUE};">Past &nbsp;|&nbsp; Present &nbsp;|&nbsp; Future Vehicle Insights</p>
+                  <td align="left" style="padding-bottom:12px;border-bottom:2px solid ${BRAND_BLUE};text-align:left;">
+                    <img src="${escapeHtml(logoFooterUrl)}" alt="Auto Verifi" width="${PURCHASE_EMAIL_FOOTER_LOGO_WIDTH}" height="${PURCHASE_EMAIL_FOOTER_LOGO_HEIGHT}" style="display:block;margin:0;border:0;outline:none;text-decoration:none;height:${PURCHASE_EMAIL_FOOTER_LOGO_HEIGHT}px!important;width:auto!important;max-width:${PURCHASE_EMAIL_FOOTER_LOGO_WIDTH}px!important;object-fit:contain;object-position:${REPORT_LOGO_OBJECT_POSITION};-ms-interpolation-mode:bicubic;" />
+                    <p style="margin:8px 0 0;padding:0;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:${BRAND_BLUE};text-align:left;">Past &nbsp;|&nbsp; Present &nbsp;|&nbsp; Future Vehicle Insights</p>
                   </td>
                 </tr>
               </table>

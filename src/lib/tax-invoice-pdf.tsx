@@ -16,6 +16,7 @@ import {
   TAX_INVOICE_FOOTER_LOGO_WIDTH,
   TAX_INVOICE_HEADER_LOGO_HEIGHT,
   TAX_INVOICE_HEADER_LOGO_WIDTH,
+  REPORT_LOGO_OBJECT_POSITION,
 } from "./report-logo-size";
 import { publicPdfImage } from "./pdf-local-image";
 import { formatReportReference } from "./report-design";
@@ -94,6 +95,8 @@ const styles = StyleSheet.create({
     width: TAX_INVOICE_HEADER_LOGO_WIDTH,
     height: TAX_INVOICE_HEADER_LOGO_HEIGHT,
     objectFit: "contain",
+    objectPosition: REPORT_LOGO_OBJECT_POSITION,
+    alignSelf: "flex-start",
   },
   tagline: {
     marginTop: 8,
@@ -221,6 +224,8 @@ const styles = StyleSheet.create({
     width: TAX_INVOICE_FOOTER_LOGO_WIDTH,
     height: TAX_INVOICE_FOOTER_LOGO_HEIGHT,
     objectFit: "contain",
+    objectPosition: REPORT_LOGO_OBJECT_POSITION,
+    alignSelf: "flex-start",
   },
   footerMeta: { fontSize: 8, color: GREY },
 });
@@ -271,7 +276,7 @@ export function TaxInvoicePdf({
     <Document title={`Tax Invoice ${invoiceNumber}`}>
       <Page size="A4" style={styles.page}>
         <View style={styles.topRow}>
-          <View>
+          <View style={{ alignItems: "flex-start" }}>
             <Image src={LOGO} style={styles.logo} />
             <Text style={styles.tagline}>
               Past | Present | Future Vehicle Insights

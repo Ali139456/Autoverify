@@ -38,3 +38,6 @@ export const TAX_INVOICE_FOOTER_LOGO_HEIGHT = 20;
 
 export const TAX_INVOICE_HEADER_LOGO_WIDTH = PURCHASE_EMAIL_HEADER_LOGO_WIDTH;
 export const TAX_INVOICE_FOOTER_LOGO_WIDTH = PURCHASE_EMAIL_FOOTER_LOGO_WIDTH;
+
+/** Pin PNG lockups to the left edge so the tagline aligns with “Past” below. */
+export const REPORT_LOGO_OBJECT_POSITION = "left center" as const;

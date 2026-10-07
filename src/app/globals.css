@@ -440,6 +440,9 @@ html.dark body {
   .report-shell-header img {
     height: 42px !important;
     width: auto !important;
+    max-width: 100% !important;
+    object-fit: contain !important;
+    object-position: left center !important;
     filter: none !important;
   }
 
@@ -482,6 +485,9 @@ html.dark body {
   .report-shell-footer img {
     height: 32px !important;
     width: auto !important;
+    max-width: 100% !important;
+    object-fit: contain !important;
+    object-position: left center !important;
     filter: none !important;
   }
 

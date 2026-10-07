@@ -22,9 +22,9 @@ export function ReportShell({
     >
       <header className="report-shell-header border-b-2 border-[#0073E3] bg-white px-6 py-5 sm:px-8">
         <div className="flex items-start justify-between gap-6">
-          <div>
+          <div className="flex min-w-0 flex-col items-start">
             <Logo height={52} linked={false} variant="onLight" />
-            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0073E3]">
+            <p className="mt-1 w-full text-left text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0073E3]">
               Past | Present | Future Vehicle Insights
             </p>
           </div>

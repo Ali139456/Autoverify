@@ -62,6 +62,7 @@ import {
   REPORT_FOOTER_LOGO_WIDTH,
   REPORT_HEADER_LOGO_HEIGHT,
   REPORT_HEADER_LOGO_WIDTH,
+  REPORT_LOGO_OBJECT_POSITION,
   REPORT_LOGO_PNG_PATH,
 } from "./report-logo-size";
 import { publicPdfImage } from "./pdf-local-image";
@@ -109,6 +110,8 @@ const styles = StyleSheet.create({
     width: REPORT_HEADER_LOGO_WIDTH,
     height: REPORT_HEADER_LOGO_HEIGHT,
     objectFit: "contain",
+    objectPosition: REPORT_LOGO_OBJECT_POSITION,
+    alignSelf: "flex-start",
   },
   headerTagline: {
     color: BLUE,
@@ -434,6 +437,8 @@ const styles = StyleSheet.create({
     width: REPORT_FOOTER_LOGO_WIDTH,
     height: REPORT_FOOTER_LOGO_HEIGHT,
     objectFit: "contain",
+    objectPosition: REPORT_LOGO_OBJECT_POSITION,
+    alignSelf: "flex-start",
   },
   footerText: { fontSize: 7, color: GREY, textTransform: "uppercase" },
 });
@@ -498,7 +503,7 @@ function ReportHeader({ report }: { report: VehicleReport }) {
   const reportReference = formatReportReference(report.vehicle);
   return (
     <View style={styles.header}>
-      <View>
+      <View style={{ alignItems: "flex-start" }}>
         <Image src={LOGO_BLUE} style={styles.logoHeader} />
         <Text style={styles.headerTagline}>
           Past | Present | Future Vehicle Insights
