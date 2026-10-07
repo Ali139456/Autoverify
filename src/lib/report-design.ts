@@ -189,12 +189,14 @@ export function buildStatusChecks(report: VehicleReport): StatusCheck[] {
         ? "Write-off history recorded"
         : "No write-off history",
       ok: !registration.writtenOff,
+      issue: registration.writtenOff,
     },
     {
       label: registration.stolen
         ? "Stolen record found"
         : "No stolen record",
       ok: !registration.stolen,
+      issue: registration.stolen,
     },
     hasOdometerHistory(vehicle)
       ? { label: "Odometer history consistent", ok: true }

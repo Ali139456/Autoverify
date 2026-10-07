@@ -54,7 +54,12 @@ function InsightStatusBadge({ tone }: { tone: ReportInsight["tone"] }) {
 
     return (
 
-      <span className="inline-block h-2 w-2 shrink-0 rounded-full bg-red-500" aria-hidden />
+      <span
+        className="inline-flex h-3 w-3 shrink-0 items-center justify-center rounded-full bg-red-500 text-[8px] font-black leading-none text-white"
+        aria-hidden
+      >
+        ×
+      </span>
 
     );
 
