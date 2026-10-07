@@ -10,6 +10,7 @@ import { PpsrCertificateReportPage } from "@/components/report/PpsrCertificateRe
 
 import { ReportLegalFooter } from "@/components/report/ReportLegalFooter";
 import { ReportGeneralDisclaimer } from "@/components/report/ReportGeneralDisclaimer";
+import { CarBuyingChecklistReportPage } from "@/components/report/CarBuyingChecklistReportPage";
 
 import { hasPpsrCertificate } from "@/lib/ppsr-certificate";
 
@@ -50,15 +51,6 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
   );
 
   let reportPage = 1;
-
-  // General disclaimer sits at the end of the last content page, before PPSR.
-  const disclaimerOn = includesDamage
-    ? "insightsPlus"
-    : hasVehicleSpecSheet
-      ? "spec"
-      : "valuations";
-  const disclaimer = <ReportGeneralDisclaimer />;
-
 
 
   return (
@@ -115,7 +107,6 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
           <PresentAndFutureValueReportPage
             report={report}
             pageLabel={`${reportPage++} / ${pageCount}`}
-            trailingContent={disclaimerOn === "valuations" ? disclaimer : undefined}
           />
         </div>
 
@@ -129,7 +120,6 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
                   ? `${reportPage++} / ${pageCount}`
                   : undefined
               }
-              trailingContent={disclaimerOn === "spec" ? disclaimer : undefined}
             />
           </div>
         ) : null}
@@ -149,13 +139,20 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
               showActions={false}
 
               pageLabel={`${reportPage++} / ${pageCount}`}
-              trailingContent={disclaimer}
 
             />
 
           </div>
 
         ) : null}
+
+        <div className="report-page-break">
+          <CarBuyingChecklistReportPage
+            report={report}
+            pageLabel={`${reportPage++} / ${pageCount}`}
+            trailingContent={<ReportGeneralDisclaimer />}
+          />
+        </div>
 
 
 

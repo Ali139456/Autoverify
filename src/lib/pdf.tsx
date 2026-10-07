@@ -20,6 +20,11 @@ import {
   P_PLATE_REFERENCE_ROWS,
 } from "./p-plate-reference";
 import { formatInspectionPhotoEvidenceLines } from "./inspection-photo-evidence";
+import {
+  CAR_BUYING_CHECKLIST_INTRO,
+  CAR_BUYING_CHECKLIST_ITEMS,
+  CAR_BUYING_CHECKLIST_TITLE,
+} from "./car-buying-checklist";
 import { isExteriorInspectionAngle } from "./inspection-angles";
 import { hasVehicleSpecContent } from "./vehicle-spec-sheet";
 import {
@@ -1257,6 +1262,75 @@ function VehicleSpecPages({
   );
 }
 
+function CarBuyingChecklistPage({
+  report,
+  pageLabel,
+  trailing,
+}: {
+  report: VehicleReport;
+  pageLabel: string;
+  trailing?: React.ReactNode;
+}) {
+  return (
+    <PdfPageShell report={report} pageLabel={pageLabel}>
+      <View style={styles.body}>
+        <Text style={[styles.title, { color: BLUE }]}>{CAR_BUYING_CHECKLIST_TITLE}</Text>
+        <Text style={[styles.para, { marginTop: 8 }]}>{CAR_BUYING_CHECKLIST_INTRO}</Text>
+
+        <View style={{ marginTop: 12 }}>
+          {CAR_BUYING_CHECKLIST_ITEMS.map((item, index) => (
+            <View
+              key={item.title}
+              style={{
+                flexDirection: "row",
+                marginBottom: 8,
+                padding: 10,
+                backgroundColor: LIGHT,
+                borderRadius: 8,
+                borderWidth: 1,
+                borderColor: "#e2e8f0",
+              }}
+              wrap={false}
+            >
+              <View
+                style={{
+                  width: 18,
+                  height: 18,
+                  borderRadius: 9,
+                  backgroundColor: BLUE,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginRight: 10,
+                }}
+              >
+                <Text style={{ color: "#ffffff", fontSize: 8.5, fontFamily: "Helvetica-Bold" }}>
+                  {index + 1}
+                </Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 9, fontFamily: "Helvetica-Bold", color: "#0f172a" }}>
+                  {item.title}
+                </Text>
+                <Text style={[styles.para, { marginTop: 3 }]}>{item.body}</Text>
+                {item.href ? (
+                  <Link
+                    src={item.href}
+                    style={{ marginTop: 4, fontSize: 8, color: BLUE, fontFamily: "Helvetica-Bold" }}
+                  >
+                    {item.linkLabel ?? item.href}
+                  </Link>
+                ) : null}
+              </View>
+            </View>
+          ))}
+        </View>
+
+        {trailing}
+      </View>
+    </PdfPageShell>
+  );
+}
+
 function PpsrCertificateIntroPage({
   report,
   pageLabel,
@@ -1579,6 +1653,7 @@ export function ReportPdf({
     2 +
     specPageCount +
     (isPlus ? 2 : 0) +
+    1 + // Car buying checklist + general disclaimer
     (includePpsrIntro ? 1 : 0) +
     1;
   let pageNumber = 1;
@@ -1590,10 +1665,6 @@ export function ReportPdf({
     nextPageLabel(),
   );
 
-  // General disclaimer closes the last content page, before any PPSR appendix.
-  const disclaimerOn = isPlus ? "plus" : includeSpec ? "spec" : "insights";
-  const generalDisclaimer = <PdfGeneralDisclaimer />;
-
   return (
     <Document title={`Auto Verifi Report ${report.id}`}>
       <CarInsightsOverviewPage report={report} pageLabel={overviewLabel} />
@@ -1602,7 +1673,6 @@ export function ReportPdf({
         pageLabel={insightsLabel}
         showUpgrade={!isPlus}
         includeValuationSections={!isPlus}
-        trailing={disclaimerOn === "insights" ? generalDisclaimer : undefined}
       />
       {isPlus && valuationsLabel ? (
         <PdfPresentFutureValuationPage
@@ -1611,20 +1681,20 @@ export function ReportPdf({
         />
       ) : null}
       {includeSpec && report.vehicleSpec ? (
-        <VehicleSpecPages
-          report={report}
-          pageLabels={specPageLabels}
-          trailing={disclaimerOn === "spec" ? generalDisclaimer : undefined}
-        />
+        <VehicleSpecPages report={report} pageLabels={specPageLabels} />
       ) : null}
       {isPlus ? (
         <InsightsPlusPage
           report={report}
           photos={photos}
           pageLabel={`${pageNumber++} / ${totalPages}`}
-          trailing={generalDisclaimer}
         />
       ) : null}
+      <CarBuyingChecklistPage
+        report={report}
+        pageLabel={`${pageNumber++} / ${totalPages}`}
+        trailing={<PdfGeneralDisclaimer />}
+      />
       {includePpsrIntro ? (
         <PpsrCertificateIntroPage
           report={report}
