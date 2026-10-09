@@ -82,6 +82,7 @@ async function replaceProductPrice(
 
   await stripe.products.update(product.id, {
     default_price: newPrice.id,
+    description: "",
   });
 
   for (const price of existing.data) {

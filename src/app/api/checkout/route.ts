@@ -4,7 +4,6 @@ import {
   getReportTierConfig,
   hasDamageAnalysis,
   parseReportTier,
-  tierStripeDescription,
 } from "@/lib/pricing";
 import { applyPercentDiscount, lookupPromoCode } from "@/lib/promo-codes";
 import { sendPurchaseConfirmationEmail } from "@/lib/email";
@@ -21,39 +20,19 @@ import { parseVehicleIdentifier } from "@/lib/vehicle-identifier";
 
 const STATES: AustralianState[] = ["ACT", "NSW", "NT", "QLD", "SA", "TAS", "VIC", "WA"];
 
-function buildStripeLineItem(
-  tier: ReportTier,
-  unitAmountCents: number,
-  listPriceCents: number,
-) {
-  const config = getReportTierConfig(tier);
-  if (
-    config.stripePriceId &&
-    unitAmountCents === listPriceCents
-  ) {
-    return {
-      price: config.stripePriceId,
-      quantity: 1,
-    };
-  }
-
+function buildStripeLineItem(tier: ReportTier, unitAmountCents: number) {
   const productName =
     tier === "insights_plus"
-      ? "Auto Verifi Insights+ Report"
-      : "Auto Verifi Insights Report";
-  const productData: {
-    name: string;
-    description?: string;
-  } = { name: productName };
-  if (tier === "insights_plus") {
-    productData.description = tierStripeDescription(tier);
-  }
+      ? "Auto Verifi Insights+"
+      : "Auto Verifi Insights";
 
   return {
     price_data: {
       currency: REPORT_CURRENCY,
       unit_amount: unitAmountCents,
-      product_data: productData,
+      product_data: {
+        name: productName,
+      },
     },
     quantity: 1,
   };
@@ -196,7 +175,7 @@ export async function POST(req: NextRequest) {
       mode: "payment",
       payment_method_types: ["card"],
       line_items: [
-        buildStripeLineItem(tier, unitAmountCents, tierConfig.priceCents),
+        buildStripeLineItem(tier, unitAmountCents),
       ],
       allow_promotion_codes: !promo,
       metadata: {

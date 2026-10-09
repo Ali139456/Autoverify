@@ -4,7 +4,6 @@ import { normalizeAuMobile } from "@/lib/phone";
 import {
   INSIGHTS_PLUS_UPGRADE_PRICE_CENTS,
   resolveReportTier,
-  tierStripeDescription,
 } from "@/lib/pricing";
 import { applyPercentDiscount, lookupPromoCode } from "@/lib/promo-codes";
 import { generateReportId, getReport, saveReport } from "@/lib/store";
@@ -128,8 +127,7 @@ export async function POST(req: NextRequest) {
             currency: REPORT_CURRENCY,
             unit_amount: unitAmountCents,
             product_data: {
-              name: "Upgrade to Auto Verifi Insights+ Report",
-              description: tierStripeDescription("insights_plus"),
+              name: "Upgrade to Auto Verifi Insights+",
             },
           },
           quantity: 1,

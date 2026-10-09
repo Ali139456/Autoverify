@@ -70,10 +70,6 @@ export const REPORT_TIERS: Record<ReportTier, ReportTierConfig> = {
   },
 };
 
-export function tierStripeDescription(tier: ReportTier): string {
-  return getReportTierConfig(tier).highlights.join(" • ");
-}
-
 export const REPORT_TIER_ORDER: ReportTier[] = ["insights", "insights_plus"];
 
 export function parseReportTier(value: unknown): ReportTier {
