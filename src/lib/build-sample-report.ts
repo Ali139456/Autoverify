@@ -100,6 +100,11 @@ function buildMercedesSampleCore() {
     colour: "Black",
     odometer: 51890,
     odometerSource: "Self reported at purchase (sample report).",
+    odometerHistory: [
+      { date: "2024-06-12", odometer: 38200, source: "Dealer listing" },
+      { date: "2025-01-08", odometer: 44100, source: "Private listing" },
+      { date: "2025-09-20", odometer: 49850, source: "Dealer listing" },
+    ],
     ancapRating: null,
     warrantyRemaining: null,
     pPlateLegal: "Check state restrictions for P plate drivers",

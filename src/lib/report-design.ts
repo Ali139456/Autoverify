@@ -57,6 +57,37 @@ export function formatOdometerReading(vehicle: VehicleReport["vehicle"]): string
   return vehicle.odometer ? `${vehicle.odometer.toLocaleString("en-AU")} km` : null;
 }
 
+const ODOMETER_HISTORY_DETAIL =
+  "Historical readings from listing records. Listing site names are not disclosed.";
+
+export function buildOdometerHistoryInsight(
+  vehicle: VehicleReport["vehicle"],
+): Pick<ReportInsight, "status" | "statusSubtext" | "detail" | "tone"> {
+  const history = vehicle.odometerHistory ?? [];
+  if (history.length === 0) {
+    return {
+      status: ODOMETER_NO_HISTORY_LABEL,
+      tone: "muted",
+      detail: formatOdometerReading(vehicle)
+        ? `Self reported reading of ${formatOdometerReading(vehicle)} at purchase`
+        : undefined,
+    };
+  }
+
+  const latest = history[history.length - 1]!;
+  const countLabel = `${history.length} historical reading${history.length === 1 ? "" : "s"} on record`;
+  const purchaseReading = formatOdometerReading(vehicle);
+
+  return {
+    status: `${latest.odometer.toLocaleString("en-AU")} km latest recorded`,
+    statusSubtext: countLabel,
+    tone: "clear",
+    detail: purchaseReading
+      ? `${ODOMETER_HISTORY_DETAIL} Purchase reading: ${purchaseReading}.`
+      : ODOMETER_HISTORY_DETAIL,
+  };
+}
+
 const money = (n: number) => `$${n.toLocaleString("en-AU")}`;
 
 export const ANCAP_SAFETY_RATINGS_URL = "https://www.ancap.com.au/safety-ratings";
@@ -243,23 +274,11 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
       status: registration.writtenOff ? "Recorded" : "Clear",
       tone: registration.writtenOff ? "warn" : "clear",
     },
-    hasOdometerHistory(vehicle)
-      ? {
-          id: "odometer",
-          title: "Odometer history",
-          status: formatOdometerReading(vehicle) ?? "Reported",
-          tone: "clear",
-          detail: vehicle.odometerSource ?? undefined,
-        }
-      : {
-          id: "odometer",
-          title: "Odometer history",
-          status: ODOMETER_NO_HISTORY_LABEL,
-          tone: "muted",
-          detail: formatOdometerReading(vehicle)
-            ? `Self reported reading of ${formatOdometerReading(vehicle)} at purchase`
-            : undefined,
-        },
+    {
+      id: "odometer",
+      title: "Odometer history",
+      ...buildOdometerHistoryInsight(vehicle),
+    },
     {
       id: "ancap",
       title: "ANCAP Safety",

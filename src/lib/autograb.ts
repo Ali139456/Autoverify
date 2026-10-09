@@ -20,6 +20,7 @@ import {
   VEHICLE_HERO_IMAGE_DISCLAIMER,
 } from "./vehicle-hero-image";
 import type { VehicleSpecSheet } from "./types";
+import { mapSourcingHistoryPayload } from "./sourcing-odometer-history";
 
 const AUTOGRAB_API_KEY = process.env.AUTOGRAB_API_KEY;
 const AUTOGRAB_BASE_URL =
@@ -235,6 +236,8 @@ async function lookupViaAutograb(
     vehicleSpec,
   };
 
+  await attachSourcingOdometerHistory(vehicle, options.preview);
+
   result.ai = computeAiInsights(
     result.vehicle,
     result.valuation,
@@ -355,12 +358,43 @@ async function lookupViaVin(
     vehicleSpec,
   };
 
+  await attachSourcingOdometerHistory(vehicle, options.preview);
+
   result.ai = computeAiInsights(
     result.vehicle,
     result.valuation,
     result.registration,
   );
   return result;
+}
+
+async function fetchSourcingOdometerHistory(
+  vin: string,
+): Promise<VehicleIdentity["odometerHistory"]> {
+  const normalized = vin.trim();
+  if (!normalized) return null;
+
+  const res = await autograbGet(
+    `/sourcing/history?region=au&vin=${encodeURIComponent(normalized)}`,
+  );
+  if (!res.ok) return null;
+
+  const data = (await res.json()) as JsonRecord;
+  if (data.success === false) return null;
+
+  const mapped = mapSourcingHistoryPayload(data);
+  return mapped.length > 0 ? mapped : null;
+}
+
+async function attachSourcingOdometerHistory(
+  vehicle: VehicleIdentity,
+  preview?: boolean,
+): Promise<void> {
+  if (preview || !vehicle.vin?.trim()) return;
+  const history = await fetchSourcingOdometerHistory(vehicle.vin);
+  if (history?.length) {
+    vehicle.odometerHistory = history;
+  }
 }
 
 function parseAutograbDate(value: unknown): string | null {

@@ -29,6 +29,7 @@ export interface VehicleIdentity {
    * Historical odometer readings from registration/inspection records, when a data
    * source supplies them. Empty/undefined → "No odometer history reported".
    */
+  /** Listing-based readings; `source` is a generic label — never a marketplace name. */
   odometerHistory?: { date: string; odometer: number; source?: string | null }[] | null;
   ancapRating?: string | null;
   warrantyRemaining?: string | null;
