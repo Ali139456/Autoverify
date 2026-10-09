@@ -318,6 +318,25 @@ html.dark body {
   -webkit-print-color-adjust: exact;
 }
 
+/** Section titles on report page 2 — matches tagline / brand blue (#0073E3). */
+.report-section-heading {
+  border-bottom: 2px solid #0073e3;
+  padding-bottom: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  color: #0073e3;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.report-table-row-shaded {
+  background-color: #eff6ff;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
 .report-ppsr-viewer {
   line-height: 0;
 }
@@ -673,8 +692,11 @@ html.dark body {
     font-size: 14px !important;
   }
 
-  .report-shell-valuations .report-supplementary h3 {
+  .report-shell-valuations .report-supplementary h3,
+  .report-shell-valuations .report-section-heading {
     font-size: 10px !important;
+    color: #0073e3 !important;
+    border-bottom-color: #0073e3 !important;
   }
 
   /* Valuations page: compact the P-plate / ride-share / comparables tables so the

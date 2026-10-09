@@ -75,6 +75,7 @@ const BLUE = "#0073E3";
 const GREY = "#64748b";
 const LIGHT = "#f8fafc";
 const SPEC_LABEL_BG = "#f1f5f9";
+const TABLE_ROW_SHADE = "#eff6ff";
 const RIDE_SHARE_ORANGE = "#E87722";
 const LOGO_BLUE = publicPdfImage(REPORT_LOGO_PNG_PATH);
 
@@ -326,26 +327,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 9,
     fontFamily: "Helvetica-Bold",
-    color: "#0f172a",
+    color: BLUE,
     borderBottomWidth: 1.5,
     borderBottomColor: BLUE,
     paddingBottom: 3,
     marginBottom: 8,
-  },
-  tableHead: {
-    flexDirection: "row",
-    backgroundColor: "#0f172a",
-    color: "#ffffff",
-    padding: 5,
-    fontFamily: "Helvetica-Bold",
-    fontSize: 7.5,
-  },
-  tableRow: {
-    flexDirection: "row",
-    padding: 5,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-    fontSize: 7.5,
   },
   para: { lineHeight: 1.45, color: "#334155", fontSize: 8.5 },
   specSheetRow: {
@@ -1131,6 +1117,7 @@ function PdfPresentAndFutureValuations({
         </View>
       ) : null}
 
+      <PdfComparableVehiclesTable report={report} />
       <PdfValuationSupplements report={report} />
     </>
   );
@@ -1140,24 +1127,88 @@ function PdfComparableVehiclesTable({ report }: { report: VehicleReport }) {
   const listings = report.market.comparableListings.slice(0, MAX_COMPARABLE_ROWS);
   if (listings.length === 0) return null;
   return (
-    <View style={[styles.section, { marginTop: 10 }]} wrap={false}>
-      <Text style={styles.sectionTitle}>Comparable Vehicles For Sale</Text>
-      <View style={styles.tableHead}>
-        <Text style={{ width: "42%" }}>Vehicle</Text>
-        <Text style={{ width: "15%" }}>Price</Text>
-        <Text style={{ width: "18%" }}>Odometer</Text>
-        <Text style={{ width: "15%" }}>Location</Text>
-        <Text style={{ width: "10%" }}>Listed</Text>
-      </View>
-      {listings.map((l, i) => (
-        <View key={i} style={styles.tableRow}>
-          <Text style={{ width: "42%" }}>{l.title}</Text>
-          <Text style={{ width: "15%" }}>{money(l.price)}</Text>
-          <Text style={{ width: "18%" }}>{l.odometer.toLocaleString()} km</Text>
-          <Text style={{ width: "15%" }}>{l.location}</Text>
-          <Text style={{ width: "10%" }}>{l.daysListed}d</Text>
+    <View style={{ marginTop: 8 }} wrap={false}>
+      <Text style={[styles.sectionTitle, { fontSize: 8 }]}>
+        Comparable vehicles for sale
+      </Text>
+      <View
+        style={{
+          marginTop: 4,
+          borderWidth: 1,
+          borderColor: "#e2e8f0",
+          borderRadius: 6,
+        }}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            backgroundColor: LIGHT,
+            borderBottomWidth: 1,
+            borderBottomColor: "#e2e8f0",
+            padding: 4,
+          }}
+        >
+          <Text style={{ width: "38%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
+            Vehicle
+          </Text>
+          <Text style={{ width: "14%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
+            Price
+          </Text>
+          <Text style={{ width: "16%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
+            Odometer
+          </Text>
+          <Text style={{ width: "22%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
+            Location
+          </Text>
+          <Text style={{ width: "10%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
+            Listed
+          </Text>
         </View>
-      ))}
+        {listings.map((listing, index) => (
+          <View
+            key={`${listing.title}-${index}`}
+            style={{
+              flexDirection: "row",
+              borderTopWidth: index === 0 ? 0 : 1,
+              borderTopColor: "#e2e8f0",
+              backgroundColor: index % 2 === 1 ? TABLE_ROW_SHADE : "#ffffff",
+              alignItems: "flex-start",
+            }}
+          >
+            <Text
+              style={{
+                width: "38%",
+                fontSize: 6.5,
+                padding: 4,
+                fontFamily: "Helvetica-Bold",
+                color: "#0f172a",
+              }}
+            >
+              {listing.title}
+            </Text>
+            <Text
+              style={{
+                width: "14%",
+                fontSize: 6.5,
+                padding: 4,
+                fontFamily: "Helvetica-Bold",
+                color: BLUE,
+              }}
+            >
+              {money(listing.price)}
+            </Text>
+            <Text style={{ width: "16%", fontSize: 6.5, padding: 4, color: "#334155" }}>
+              {listing.odometer.toLocaleString()} km
+            </Text>
+            <Text style={{ width: "22%", fontSize: 6.5, padding: 4, color: "#334155" }}>
+              {listing.location}
+            </Text>
+            <Text style={{ width: "10%", fontSize: 6.5, padding: 4, color: "#334155" }}>
+              {listing.daysListed}d
+            </Text>
+          </View>
+        ))}
+      </View>
     </View>
   );
 }
@@ -1178,7 +1229,6 @@ function PdfValuationsPage({
           report={report}
           showFutureValue={showFutureValue}
         />
-        <PdfComparableVehiclesTable report={report} />
       </View>
     </PdfPageShell>
   );

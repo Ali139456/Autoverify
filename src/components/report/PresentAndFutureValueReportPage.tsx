@@ -38,7 +38,7 @@ export function PresentAndFutureValueReportPage({
     >
       <div className="report-body space-y-6">
         <div className="report-supplementary report-present-value rounded-xl border border-slate-200 bg-slate-50 p-5">
-          <h3 className="text-xs font-bold uppercase tracking-wide text-slate-900">
+          <h3 className="report-section-heading">
             Present value — market valuation
           </h3>
           <div className="report-valuation-grid mt-3 grid gap-3 sm:grid-cols-3">
@@ -63,7 +63,7 @@ export function PresentAndFutureValueReportPage({
 
         <div className="report-supplementary report-future-section rounded-xl border border-slate-200 bg-slate-50 p-5">
           <div className="flex flex-wrap items-end justify-between gap-2">
-            <h3 className="text-xs font-bold uppercase tracking-wide text-slate-900">
+            <h3 className="report-section-heading">
               Future value forecast
             </h3>
             <p className="text-[10px] font-semibold uppercase tracking-wide text-[#0073E3]">
@@ -97,8 +97,8 @@ export function PresentAndFutureValueReportPage({
           </p>
         </div>
 
-        <ReportValuationSupplements report={report} />
         <ReportComparableVehicles report={report} />
+        <ReportValuationSupplements report={report} />
         {trailingContent}
       </div>
     </ReportShell>
