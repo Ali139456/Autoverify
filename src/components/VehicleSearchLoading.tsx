@@ -1,4 +1,5 @@
-const ICON_SRC = "/logo/icon.png";
+/** Viewfinder mark only (no AUTO VERIFI wordmark). */
+const ICON_SRC = "/logo/auto-verifi-mark.svg";
 
 function SearchSpinnerRing({ compact }: { compact?: boolean }) {
   return (
@@ -25,8 +26,8 @@ function SearchSpinnerRing({ compact }: { compact?: boolean }) {
         height={compact ? 20 : 28}
         className={
           compact
-            ? "absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 object-contain"
-            : "absolute left-1/2 top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 object-contain sm:h-7 sm:w-7"
+            ? "absolute left-1/2 top-1/2 h-[18px] w-[18px] -translate-x-1/2 -translate-y-1/2 object-contain"
+            : "absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 object-contain sm:h-6 sm:w-6"
         }
       />
     </div>
