@@ -52,7 +52,7 @@ export function ReportValuationSupplements({
         </div>
 
         <h3 className="report-section-heading mt-5">
-          Official P-plate vehicle/legal reference
+          P-plate vehicle/legal reference
         </h3>
         <div className="mt-2 overflow-x-auto rounded-lg border border-slate-200 bg-white">
           <table className="min-w-[520px] w-full border-collapse text-left text-xs sm:text-sm">

@@ -869,7 +869,7 @@ function PdfValuationSupplements({ report }: { report: VehicleReport }) {
       </View>
 
       <Text style={[styles.sectionTitle, { marginTop: 8, fontSize: 8 }]}>
-        Official P-plate vehicle/legal reference
+        P-plate vehicle/legal reference
       </Text>
       <View
         style={{
