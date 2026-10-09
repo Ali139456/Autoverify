@@ -32,7 +32,7 @@ const AUTOGRAB_BASE_URL =
  */
 const REGISTRATION_FEATURES =
   process.env.AUTOGRAB_REGISTRATION_FEATURES?.trim() ||
-  "build_data,performance_info,writeoff_info,registration_status";
+  "build_data,performance_info,writeoff_info";
 
 type PpsrCertificateSummary = {
   regoExpiry: string | null;
