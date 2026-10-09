@@ -57,33 +57,44 @@ export function formatOdometerReading(vehicle: VehicleReport["vehicle"]): string
   return vehicle.odometer ? `${vehicle.odometer.toLocaleString("en-AU")} km` : null;
 }
 
-const ODOMETER_HISTORY_DETAIL =
-  "Historical readings from listing records. Listing site names are not disclosed.";
+const ODOMETER_HISTORY_DETAIL = "Historical readings from listing records.";
+
+function readingAtPurchaseOfReportDetail(
+  vehicle: VehicleReport["vehicle"],
+): string | undefined {
+  if (vehicle.odometer == null || !Number.isFinite(vehicle.odometer)) {
+    return undefined;
+  }
+  return `Reading at purchase of this report ${vehicle.odometer.toLocaleString("en-AU")}kms.`;
+}
 
 export function buildOdometerHistoryInsight(
   vehicle: VehicleReport["vehicle"],
 ): Pick<ReportInsight, "status" | "statusSubtext" | "detail" | "tone"> {
   const history = vehicle.odometerHistory ?? [];
   if (history.length === 0) {
+    const purchaseDetail = readingAtPurchaseOfReportDetail(vehicle);
     return {
       status: ODOMETER_NO_HISTORY_LABEL,
       tone: "muted",
-      detail: formatOdometerReading(vehicle)
-        ? `Self reported reading of ${formatOdometerReading(vehicle)} at purchase`
-        : undefined,
+      detail:
+        purchaseDetail ??
+        (formatOdometerReading(vehicle)
+          ? `Self reported reading of ${formatOdometerReading(vehicle)} at purchase`
+          : undefined),
     };
   }
 
   const latest = history[history.length - 1]!;
   const countLabel = `${history.length} historical reading${history.length === 1 ? "" : "s"} on record`;
-  const purchaseReading = formatOdometerReading(vehicle);
+  const purchaseDetail = readingAtPurchaseOfReportDetail(vehicle);
 
   return {
     status: `${latest.odometer.toLocaleString("en-AU")} km latest recorded`,
     statusSubtext: countLabel,
     tone: "clear",
-    detail: purchaseReading
-      ? `${ODOMETER_HISTORY_DETAIL} Purchase reading: ${purchaseReading}.`
+    detail: purchaseDetail
+      ? `${ODOMETER_HISTORY_DETAIL} ${purchaseDetail}`
       : ODOMETER_HISTORY_DETAIL,
   };
 }
