@@ -31,7 +31,7 @@ const AUTOGRAB_BASE_URL =
  */
 const REGISTRATION_FEATURES =
   process.env.AUTOGRAB_REGISTRATION_FEATURES?.trim() ||
-  "build_data,performance_info,writeoff_info";
+  "build_data,performance_info,writeoff_info,registration_status";
 
 type PpsrCertificateSummary = {
   regoExpiry: string | null;
@@ -214,6 +214,7 @@ async function lookupViaAutograb(
     writeoff: writeoffFromFeatures,
     ppsr,
     vehicleFound: true,
+    registrationPayload: registrationData,
   });
 
   const vehicleSpec = buildVehicleSpecSheet({
@@ -333,6 +334,7 @@ async function lookupViaVin(
     writeoff: writeoffFromFeatures,
     ppsr,
     vehicleFound: true,
+    registrationPayload: vinData,
   });
 
   const vehicleSpec = buildVehicleSpecSheet({
@@ -365,11 +367,57 @@ function parseAutograbDate(value: unknown): string | null {
   if (value === null || value === undefined || value === "") return null;
   const trimmed = String(value).trim();
   if (/^\d{4}-\d{2}-\d{2}/.test(trimmed)) return trimmed.slice(0, 10);
+  const dmy = trimmed.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+  if (dmy) {
+    const day = dmy[1].padStart(2, "0");
+    const month = dmy[2].padStart(2, "0");
+    return `${dmy[3]}-${month}-${day}`;
+  }
   const parsed = Date.parse(trimmed);
   if (!Number.isNaN(parsed)) {
     return new Date(parsed).toISOString().slice(0, 10);
   }
   return trimmed;
+}
+
+/** Expiry from rego/VIN lookup payload or `/status` response. */
+function expiryFromRegistrationPayload(
+  data: JsonRecord | null | undefined,
+): string | null {
+  if (!data) return null;
+  for (const key of [
+    "registration_expiry",
+    "rego_expiry",
+    "expiry_date",
+  ] as const) {
+    const parsed = parseAutograbDate(data[key]);
+    if (parsed) return parsed;
+  }
+  const nested = data.registration_status;
+  if (nested && typeof nested === "object") {
+    const record = nested as JsonRecord;
+    return (
+      parseAutograbDate(record.expiry_date) ??
+      parseAutograbDate(record.registration_expiry)
+    );
+  }
+  return null;
+}
+
+function registrationStatusFromPayload(
+  data: JsonRecord | null | undefined,
+): RegistrationInfo["status"] | null {
+  if (!data) return null;
+  const nested = data.registration_status;
+  if (nested && typeof nested === "object") {
+    const status = stringFromRecord((nested as JsonRecord).status);
+    if (status) return mapRegistrationStatus(status);
+  }
+  const topLevel = stringFromRecord(data.registration_status);
+  if (topLevel && !topLevel.includes("{")) {
+    return mapRegistrationStatus(topLevel);
+  }
+  return null;
 }
 
 function parseWriteoffFromRegistrationData(
@@ -414,12 +462,16 @@ function mergeRegistrationInfo({
   writeoff,
   ppsr,
   vehicleFound,
+  registrationPayload,
 }: {
   status: RegistrationInfo | null;
   writeoff: Partial<RegistrationInfo> | null;
   ppsr: PpsrCertificateSummary | null;
   vehicleFound: boolean;
+  registrationPayload?: JsonRecord | null;
 }): RegistrationInfo {
+  const payloadExpiry = expiryFromRegistrationPayload(registrationPayload);
+  const payloadStatus = registrationStatusFromPayload(registrationPayload);
   const financeOwing =
     ppsr?.hasSecuredParties ??
     status?.financeOwing ??
@@ -443,9 +495,11 @@ function mergeRegistrationInfo({
 
   return {
     status:
-      status?.status ?? (vehicleFound ? "Registered" : "Unregistered"),
+      status?.status ??
+      payloadStatus ??
+      (vehicleFound ? "Registered" : "Unregistered"),
     expiryDate:
-      status?.expiryDate ?? ppsr?.regoExpiry ?? null,
+      status?.expiryDate ?? ppsr?.regoExpiry ?? payloadExpiry ?? null,
     stolen,
     writtenOff,
     writeOffDetails,
@@ -738,7 +792,7 @@ async function fetchRegistrationStatus(
 
   return {
     status: mapRegistrationStatus(String(data.registration_status ?? "")),
-    expiryDate: parseAutograbDate(data.registration_expiry),
+    expiryDate: expiryFromRegistrationPayload(data),
     stolen,
     writtenOff,
     writeOffDetails: writtenOff
