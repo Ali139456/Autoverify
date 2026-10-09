@@ -33,7 +33,10 @@ export type TaxInvoicePdfProps = {
   report: VehicleReport;
   invoiceNumber: string;
   invoiceDate: Date;
+  /** List price (inc. GST) before discount. */
+  listPriceCents: number;
   amountPaidCents: number;
+  promoCode?: string | null;
   currency?: string;
 };
 
@@ -257,7 +260,9 @@ export function TaxInvoicePdf({
   report,
   invoiceNumber,
   invoiceDate,
+  listPriceCents,
   amountPaidCents,
+  promoCode,
   currency = "aud",
 }: TaxInvoicePdfProps) {
   const company = getCompanyDetails();
@@ -269,8 +274,17 @@ export function TaxInvoicePdf({
     : "—";
   const vinLine = report.vehicle.vin?.trim() || "—";
   const reportGenerated = formatLongAuDate(new Date(report.createdAt));
-  const { exGstCents, gstCents } = splitGstInclusive(amountPaidCents);
+  const listExGst = splitGstInclusive(listPriceCents).exGstCents;
+  const discountCents = Math.max(0, listPriceCents - amountPaidCents);
+  const discountExGst =
+    discountCents > 0
+      ? listExGst - splitGstInclusive(amountPaidCents).exGstCents
+      : 0;
+  const { gstCents } = splitGstInclusive(amountPaidCents);
   const lineLabel = amountLineLabel(tierConfig.name);
+  const discountLabel = promoCode?.trim()
+    ? `Promotion discount (${promoCode.trim().toUpperCase()})`
+    : "Promotion discount";
 
   return (
     <Document title={`Tax Invoice ${invoiceNumber}`}>
@@ -336,9 +350,17 @@ export function TaxInvoicePdf({
           <View style={styles.amountRow}>
             <Text style={styles.colDesc}>{lineLabel}</Text>
             <Text style={styles.colAmt}>
-              {formatMoney(exGstCents, currency)}
+              {formatMoney(listExGst, currency)}
             </Text>
           </View>
+          {discountCents > 0 ? (
+            <View style={styles.amountRow}>
+              <Text style={styles.colDesc}>{discountLabel}</Text>
+              <Text style={styles.colAmt}>
+                {formatMoney(-discountExGst, currency)}
+              </Text>
+            </View>
+          ) : null}
           <View style={styles.amountRow}>
             <Text style={styles.colDesc}>GST (10%)</Text>
             <Text style={styles.colAmt}>{formatMoney(gstCents, currency)}</Text>

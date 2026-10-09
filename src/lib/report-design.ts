@@ -132,6 +132,12 @@ export function formatExpiryDate(iso: string): string {
 
 export { resolveVehicleDoorAndSeatCounts } from "./vehicle-door-seats";
 
+function formatRegistrationPlateOverview(vehicle: VehicleIdentity): string {
+  const rego = vehicle.rego?.trim();
+  if (!rego) return "—";
+  return rego.toUpperCase();
+}
+
 export function buildReportOverviewSpecs(
   vehicle: VehicleIdentity,
   report?: Pick<VehicleReport, "vehicleSpec">,
@@ -143,6 +149,10 @@ export function buildReportOverviewSpecs(
     { label: "Badge", value: vehicle.variant || "—" },
     { label: "Year", value: String(vehicle.year) },
     { label: "VIN", value: vehicle.vin || "—" },
+    {
+      label: "Registration plate",
+      value: formatRegistrationPlateOverview(vehicle),
+    },
     {
       label: "Odometer",
       value: vehicle.odometer ? `${vehicle.odometer.toLocaleString()} km` : "—",

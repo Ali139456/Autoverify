@@ -311,6 +311,11 @@ html.dark body {
   width: 100%;
 }
 
+.report-spec-data-table-wrap {
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
 .report-spec-data-label {
   background-color: #f1f5f9;
   border-right: 1px solid #e2e8f0;
@@ -349,17 +354,13 @@ html.dark body {
   overflow: hidden;
 }
 
-.report-hero-image:not(.report-hero-image--letterbox) img {
+.report-hero-image img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center center;
-}
-
-.report-hero-image--letterbox img {
-  image-rendering: auto;
 }
 
 .report-ppsr-viewer {
@@ -622,22 +623,6 @@ html.dark body {
     font-size: 14px !important;
   }
 
-  .report-shell-insights-page1 .report-hero-image {
-    position: relative !important;
-    min-height: 38mm !important;
-    max-height: 40mm !important;
-    overflow: hidden !important;
-  }
-
-  .report-shell-insights-page1 .report-hero-image img {
-    width: 100% !important;
-    max-width: none !important;
-    height: 100% !important;
-    max-height: none !important;
-    object-fit: cover !important;
-    object-position: center center !important;
-  }
-
   .report-shell-insights-page1 .report-body.space-y-8 > * + * {
     margin-top: 8px !important;
   }
@@ -656,14 +641,19 @@ html.dark body {
 
   .report-shell-insights-page1 .report-hero-image {
     position: relative !important;
-    min-height: 34mm !important;
-    height: 34mm !important;
-    max-height: 34mm !important;
+    min-height: 48mm !important;
+    height: 48mm !important;
+    max-height: 48mm !important;
+    overflow: hidden !important;
   }
 
   .report-shell-insights-page1 .report-hero-image img {
     position: absolute !important;
     inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center center !important;
   }
 
   .report-shell-insights-page1 .report-manufacturers-warranty {
@@ -865,7 +855,7 @@ html.dark body {
   }
 
   .report-spec-bar {
-    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
     padding: 0 !important;
   }
 
@@ -898,7 +888,22 @@ html.dark body {
   .report-status-grid {
     display: grid !important;
     grid-template-columns: 1fr 34% !important;
+    grid-template-rows: auto !important;
     align-items: stretch !important;
+  }
+
+  /* Web mobile puts hero first via order-*; print always matches PDF (status | photo). */
+  .report-status-grid .report-status-list {
+    order: 0 !important;
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+
+  .report-status-grid .report-hero-image {
+    order: 0 !important;
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    aspect-ratio: auto !important;
   }
 
   .report-status-list {
@@ -1181,6 +1186,13 @@ html.dark body {
     height: 262mm !important;
     min-height: 0 !important;
     border: none !important;
+  }
+
+  .report-spec-data-table-wrap {
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    background-color: #ffffff !important;
   }
 
   .report-spec-data-label {

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { VehicleSearchLoading } from "@/components/VehicleSearchLoading";
 import { Search, X } from "lucide-react";
 import { RegoSearchForm } from "@/components/RegoSearchForm";
 import { formatTierPrice } from "@/lib/pricing";
@@ -14,6 +15,8 @@ export function BuyReportModal({
   open: boolean;
   onClose: () => void;
 }) {
+  const [searching, setSearching] = useState(false);
+
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (event: KeyboardEvent) => {
@@ -48,10 +51,20 @@ export function BuyReportModal({
         className="relative w-full max-w-md rounded-3xl border border-white/10 bg-ink-950 p-6 text-left shadow-2xl sm:p-8"
         onClick={(event) => event.stopPropagation()}
       >
+        {searching ? (
+          <div
+            className="absolute inset-0 z-20 flex items-center justify-center rounded-3xl bg-ink-950"
+            role="status"
+            aria-live="polite"
+          >
+            <VehicleSearchLoading embedded onDark />
+          </div>
+        ) : null}
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition hover:bg-white/10 hover:text-white"
+          disabled={searching}
+          className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition hover:bg-white/10 hover:text-white disabled:pointer-events-none disabled:opacity-40"
           aria-label="Close"
         >
           <X className="h-5 w-5" aria-hidden />
@@ -72,7 +85,12 @@ export function BuyReportModal({
         </p>
 
         <div className="mt-5">
-          <RegoSearchForm compact onDark inputId={BUY_REPORT_MODAL_INPUT_ID} />
+          <RegoSearchForm
+            compact
+            onDark
+            inputId={BUY_REPORT_MODAL_INPUT_ID}
+            onLoadingChange={setSearching}
+          />
         </div>
       </div>
     </div>

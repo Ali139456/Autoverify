@@ -12,7 +12,10 @@ import {
   cleanVehicleIdentifier,
   parseVehicleIdentifier,
 } from "./vehicle-identifier";
-import { buildVehicleSpecSheet } from "./vehicle-spec-sheet";
+import {
+  buildVehicleSpecSheet,
+  resolveVehicleEngineLabel,
+} from "./vehicle-spec-sheet";
 import {
   buildStockHeroDisclaimer,
   coloursRoughlyMatch,
@@ -801,6 +804,7 @@ async function enrichVehicleFromAutograb(
   applyAutograbFeatureData(vehicle, registrationData, vehicleRecord);
   const specs = await fetchDetailedSpecs(vehicleId);
   applyDetailedSpecs(vehicle, specs);
+  vehicle.engine = resolveVehicleEngineLabel(vehicle, vehicleRecord, specs);
   return specs;
 }
 
@@ -1121,6 +1125,92 @@ function pickListingHeroImage(
   return market.coverImageUrl;
 }
 
+const AU_MARKET_STATES = new Set([
+  "ACT",
+  "NSW",
+  "NT",
+  "QLD",
+  "SA",
+  "TAS",
+  "VIC",
+  "WA",
+]);
+
+function normalizeMarketLeadState(raw: unknown): string {
+  const state = stringFromRecord(raw)?.toUpperCase().trim() ?? "";
+  if (!state || state === "AU" || state === "AUSTRALIA") return "";
+  if (AU_MARKET_STATES.has(state)) return state;
+  return "";
+}
+
+/** Same listing often appears twice (e.g. Carsales + dealer feed) with/without state. */
+function comparableListingDedupeKey(item: JsonRecord): string {
+  const listingUrl = stringFromRecord(item.listing_url) ?? "";
+  const catalogId = listingUrl.match(/(?:OAG|SSE)-AD-\d+/i)?.[0]?.toUpperCase();
+  if (catalogId) return catalogId;
+
+  const price = Number(item.price) || 0;
+  const odometer = Number(item.kms ?? item.odometer) || 0;
+  const leadId = stringFromRecord(item.id);
+  if (leadId) return `lead:${leadId}`;
+  return `pk:${price}:${odometer}`;
+}
+
+function mapMarketLeadToListing(
+  item: JsonRecord,
+  vehicle: VehicleIdentity,
+): MarketListing {
+  const year = Number(item.year) || vehicle.year;
+  const title = `${year} ${vehicle.make} ${vehicle.model} ${vehicle.variant}`.trim();
+  const daysListedRaw =
+    item.days_listed ??
+    item.days_on_market ??
+    item.days_on_site ??
+    item.listing_age_days;
+  const daysListed = Number(daysListedRaw);
+  const state = normalizeMarketLeadState(item.state);
+  return {
+    title,
+    price: Number(item.price) || 0,
+    odometer: Number(item.kms ?? item.odometer) || 0,
+    location: state || "—",
+    daysListed:
+      Number.isFinite(daysListed) && daysListed > 0
+        ? Math.round(daysListed)
+        : 0,
+  };
+}
+
+function dedupeComparableListings(
+  leads: unknown[],
+  vehicle: VehicleIdentity,
+  limit = 5,
+): MarketListing[] {
+  const byKey = new Map<string, MarketListing>();
+
+  for (const lead of leads) {
+    if (!lead || typeof lead !== "object") continue;
+    const item = lead as JsonRecord;
+    const listing = mapMarketLeadToListing(item, vehicle);
+    if (!listing.price && !listing.odometer) continue;
+
+    const key = comparableListingDedupeKey(item);
+    const existing = byKey.get(key);
+    if (!existing) {
+      byKey.set(key, listing);
+      continue;
+    }
+    const existingHasState =
+      existing.location !== "—" && existing.location.length > 0;
+    const nextHasState = listing.location !== "—" && listing.location.length > 0;
+    if (!existingHasState && nextHasState) {
+      byKey.set(key, listing);
+    }
+  }
+
+  return [...byKey.values()].slice(0, limit);
+}
+
 async function fetchMarketOverlay(
   vehicleId: string,
   vehicle: VehicleIdentity,
@@ -1132,28 +1222,7 @@ async function fetchMarketOverlay(
 
   const data = (await res.json()) as JsonRecord;
   const leads = Array.isArray(data.leads) ? data.leads : [];
-  const listings: MarketListing[] = leads.slice(0, 5).map((lead) => {
-    const item = lead as JsonRecord;
-    const year = Number(item.year) || vehicle.year;
-    const title = `${year} ${vehicle.make} ${vehicle.model} ${vehicle.variant}`.trim();
-
-    const daysListedRaw =
-      item.days_listed ??
-      item.days_on_market ??
-      item.days_on_site ??
-      item.listing_age_days;
-    const daysListed = Number(daysListedRaw);
-    return {
-      title,
-      price: Number(item.price) || 0,
-      odometer: Number(item.kms ?? item.odometer) || 0,
-      location: String(item.state ?? "AU"),
-      daysListed:
-        Number.isFinite(daysListed) && daysListed > 0
-          ? Math.round(daysListed)
-          : 0,
-    };
-  });
+  const listings = dedupeComparableListings(leads, vehicle, 5);
 
   const avgPrice = Number(data.avg_price) || 0;
   if (!avgPrice && listings.length === 0) return null;

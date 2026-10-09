@@ -333,6 +333,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   para: { lineHeight: 1.45, color: "#334155", fontSize: 8.5 },
+  specSheetTableWrap: {
+    marginTop: 6,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    borderRadius: 6,
+    overflow: "hidden",
+  },
   specSheetRow: {
     flexDirection: "row",
     borderBottomWidth: 1,
@@ -702,11 +709,6 @@ function PdfVehicleHero({
   layout?: "panel" | "banner";
 }) {
   const heroSrc = resolvePdfImageSrc(vehicle.heroImageUrl);
-  const letterboxHero =
-    vehicle.heroImageKind === "stock" ||
-    vehicle.heroImageKind === "generated" ||
-    Boolean(vehicle.heroImageUrl?.includes("/sample/"));
-
   const wrapStyle =
     layout === "banner" ? styles.specHeroBanner : styles.statusImageWrap;
 
@@ -719,10 +721,7 @@ function PdfVehicleHero({
             style={
               layout === "banner"
                 ? styles.specHeroBannerImage
-                : {
-                    ...styles.statusImage,
-                    objectFit: letterboxHero ? "contain" : "cover",
-                  }
+                : styles.statusImage
             }
           />
           <Text style={styles.statusImageCaption}>
@@ -752,22 +751,12 @@ function PdfVehicleHero({
 
 type OverviewSpec = ReturnType<typeof buildReportOverviewSpecs>[number];
 
-/** Overview spec bar laid out as explicit 4-slot rows (VIN spans two slots). */
+/** Overview spec bar laid out as explicit 4-column rows. */
 function buildOverviewSpecRows(specs: OverviewSpec[]): OverviewSpec[][] {
   const rows: OverviewSpec[][] = [];
-  let current: OverviewSpec[] = [];
-  let used = 0;
-  for (const spec of specs) {
-    const span = spec.label === "VIN" ? 2 : 1;
-    if (used + span > 4) {
-      rows.push(current);
-      current = [];
-      used = 0;
-    }
-    current.push(spec);
-    used += span;
+  for (let i = 0; i < specs.length; i += 4) {
+    rows.push(specs.slice(i, i + 4));
   }
-  if (current.length) rows.push(current);
   return rows;
 }
 
@@ -792,7 +781,6 @@ function PdfOverviewSpecBar({ specs }: { specs: OverviewSpec[] }) {
                 key={s.label}
                 style={[
                   styles.specItem,
-                  isVin ? { width: "50%" } : {},
                   i === row.length - 1 ? { borderRightWidth: 0 } : {},
                 ]}
               >
@@ -800,7 +788,15 @@ function PdfOverviewSpecBar({ specs }: { specs: OverviewSpec[] }) {
                   <PdfSpecIcon index={iconIndex} />
                   <Text style={styles.specLabel}>{s.label}</Text>
                 </View>
-                <Text style={styles.specValue}>{s.value}</Text>
+                <Text
+                  style={
+                    isVin
+                      ? [styles.specValue, { fontFamily: "Courier" }]
+                      : styles.specValue
+                  }
+                >
+                  {s.value}
+                </Text>
               </View>
             );
           })}
@@ -1341,36 +1337,45 @@ function VehicleSpecPages({
 
           <View style={[styles.section, { marginTop: 10 }]}>
             <Text style={styles.sectionTitle}>Vehicle data</Text>
-            {visibleSpecDataRows(sheet.dataRows).map((row) => {
-              const powerRow = isPowerToWeightSpecRow(row.label);
-              return (
-                <View key={row.label} style={styles.specSheetRow}>
-                  <View style={styles.specSheetLabelCell}>
-                    <Text
-                      style={[
-                        styles.specSheetLabel,
-                        powerRow
-                          ? { color: BLUE, fontFamily: "Helvetica-Bold" }
-                          : {},
-                      ]}
-                    >
-                      {row.label}
-                      {powerRow ? "*" : ""}
-                    </Text>
+            <View style={styles.specSheetTableWrap}>
+              {visibleSpecDataRows(sheet.dataRows).map((row, rowIndex, rows) => {
+                const powerRow = isPowerToWeightSpecRow(row.label);
+                const isLast = rowIndex === rows.length - 1;
+                return (
+                  <View
+                    key={row.label}
+                    style={[
+                      styles.specSheetRow,
+                      isLast ? { borderBottomWidth: 0 } : {},
+                    ]}
+                  >
+                    <View style={styles.specSheetLabelCell}>
+                      <Text
+                        style={[
+                          styles.specSheetLabel,
+                          powerRow
+                            ? { color: BLUE, fontFamily: "Helvetica-Bold" }
+                            : {},
+                        ]}
+                      >
+                        {row.label}
+                        {powerRow ? "*" : ""}
+                      </Text>
+                    </View>
+                    <View style={styles.specSheetValueCell}>
+                      <Text
+                        style={[
+                          styles.specSheetValue,
+                          powerRow ? { color: BLUE } : {},
+                        ]}
+                      >
+                        {row.value}
+                      </Text>
+                    </View>
                   </View>
-                  <View style={styles.specSheetValueCell}>
-                    <Text
-                      style={[
-                        styles.specSheetValue,
-                        powerRow ? { color: BLUE } : {},
-                      ]}
-                    >
-                      {row.value}
-                    </Text>
-                  </View>
-                </View>
-              );
-            })}
+                );
+              })}
+            </View>
             {shouldShowPowerToWeightFootnote(sheet.dataRows) ? (
               <Text
                 style={{

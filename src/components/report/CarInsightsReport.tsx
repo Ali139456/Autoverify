@@ -202,7 +202,7 @@ export function CarInsightsReport({
 
               key={label}
 
-              className={`min-w-0 px-4 py-3 first:pl-4 ${label === "VIN" ? "col-span-2 sm:col-span-2" : ""}`}
+              className="min-w-0 px-4 py-3 first:pl-4"
 
             >
 
@@ -240,9 +240,9 @@ export function CarInsightsReport({
 
         <div className="report-status-panel overflow-visible rounded-2xl border border-slate-200 bg-slate-100">
 
-          <div className="report-status-grid grid items-start overflow-hidden rounded-2xl lg:grid-cols-[1fr_minmax(280px,38%)]">
+          <div className="report-status-grid grid items-stretch overflow-hidden rounded-2xl lg:grid-cols-[1fr_minmax(300px,40%)]">
 
-            <div className="report-status-list border-b border-slate-200 p-6 sm:p-8 lg:border-b-0 lg:border-r">
+            <div className="report-status-list order-2 border-b border-slate-200 p-6 sm:p-8 lg:order-1 lg:border-b-0 lg:border-r">
 
               <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-slate-900">
 
@@ -303,7 +303,7 @@ export function CarInsightsReport({
 
               vehicleTitle={vehicleTitle}
 
-              className="report-hero-image relative h-full min-h-[200px] w-full bg-slate-950 sm:min-h-[220px] lg:min-h-0 lg:max-h-[min(100%,300px)]"
+              className="report-hero-image relative order-1 aspect-[16/10] min-h-[220px] w-full bg-[#020617] sm:min-h-[240px] lg:order-2 lg:aspect-auto lg:min-h-[280px] lg:h-auto"
 
             />
 

@@ -108,7 +108,9 @@ export async function POST(req: NextRequest) {
           emailContext: {
             reportUrl: `${baseUrl}/report/${reportId}`,
             pdfUrl: `${baseUrl}/api/report/${reportId}/pdf`,
-            amountPaidCents: 0,
+            amountPaidCents: unitAmountCents,
+            listPriceCents,
+            promoCode: promo?.code ?? null,
             currency: REPORT_CURRENCY,
             paidAt: new Date(),
           },

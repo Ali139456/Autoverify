@@ -28,6 +28,9 @@ export type PurchaseEmailContext = {
   invoicePdfUrl?: string | null;
   invoiceNumber?: string | null;
   amountPaidCents?: number | null;
+  /** Tier list price (inc. GST) before promo — for tax invoice line items. */
+  listPriceCents?: number | null;
+  promoCode?: string | null;
   currency?: string | null;
   paidAt?: Date;
 };

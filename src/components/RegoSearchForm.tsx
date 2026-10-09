@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight, ChevronDown } from "lucide-react";
@@ -21,6 +21,7 @@ export function RegoSearchForm({
   compact = false,
   onDark = false,
   inputId = VEHICLE_SEARCH_INPUT_ID,
+  onLoadingChange,
 }: {
   defaultRego?: string;
   defaultVin?: string;
@@ -30,6 +31,8 @@ export function RegoSearchForm({
   onDark?: boolean;
   /** Override the input id when more than one form is on the page (e.g. modal). */
   inputId?: string;
+  /** Parent renders a full-panel overlay (e.g. buy modal). */
+  onLoadingChange?: (loading: boolean) => void;
 }) {
   const router = useRouter();
   const [query, setQuery] = useState(defaultVin || defaultRego);
@@ -37,6 +40,11 @@ export function RegoSearchForm({
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const vinMode = isVin(query);
+  const externalLoadingOverlay = Boolean(onLoadingChange);
+
+  useEffect(() => {
+    onLoadingChange?.(loading);
+  }, [loading, onLoadingChange]);
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -88,9 +96,9 @@ export function RegoSearchForm({
 
   return (
     <form onSubmit={onSubmit} className="relative w-full">
-      {loading ? (
+      {loading && !externalLoadingOverlay ? (
         <div
-          className={`absolute inset-0 z-20 flex min-h-[11rem] w-full items-center justify-center rounded-2xl ${
+          className={`absolute inset-0 z-20 flex min-h-[12rem] w-full items-center justify-center rounded-2xl ${
             onDark
               ? "bg-ink-950 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]"
               : "bg-white dark:bg-ink-950"

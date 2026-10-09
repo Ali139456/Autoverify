@@ -16,7 +16,8 @@ export async function generateTaxInvoicePdfBuffer(
 ): Promise<Buffer> {
   const tier = resolveReportTier(report.tier);
   const tierConfig = getReportTierConfig(tier);
-  const amountPaidCents = ctx.amountPaidCents ?? tierConfig.priceCents;
+  const listPriceCents = ctx.listPriceCents ?? tierConfig.priceCents;
+  const amountPaidCents = ctx.amountPaidCents ?? listPriceCents;
   const invoiceNumber =
     ctx.invoiceNumber?.trim() || defaultInvoiceNumber(report);
   const invoiceDate = ctx.paidAt ?? new Date(report.createdAt);
@@ -27,7 +28,9 @@ export async function generateTaxInvoicePdfBuffer(
       report,
       invoiceNumber,
       invoiceDate,
+      listPriceCents,
       amountPaidCents,
+      promoCode: ctx.promoCode ?? null,
       currency,
     }) as ReactElement<DocumentProps>,
   );

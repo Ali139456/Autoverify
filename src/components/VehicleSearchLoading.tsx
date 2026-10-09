@@ -54,22 +54,38 @@ export function VehicleSearchLoading({
       aria-live="polite"
       aria-busy="true"
     >
-      <div className="flex w-full max-w-[12rem] flex-col items-center justify-center">
+      <div
+        className={
+          embedded
+            ? "flex w-full max-w-xs flex-col items-center justify-center px-2"
+            : "flex w-full max-w-sm flex-col items-center justify-center"
+        }
+      >
         <p
           className={
             embedded
               ? onDark
-                ? "w-full text-center text-base font-bold tracking-tight text-white"
-                : "w-full text-center text-base font-bold tracking-tight text-slate-900 dark:text-white"
+                ? "w-full text-center text-lg font-bold tracking-tight text-white sm:text-xl"
+                : "w-full text-center text-lg font-bold tracking-tight text-slate-900 dark:text-white sm:text-xl"
               : "w-full text-center text-lg font-bold tracking-tight text-slate-900 dark:text-white sm:text-xl"
           }
         >
           Searching
         </p>
-        <div className={embedded ? "mt-4" : "mt-6"}>
+        <div className={embedded ? "mt-5" : "mt-6"}>
           <SearchSpinnerRing compact={embedded} />
         </div>
-        <p className="sr-only">Looking up your vehicle registration or VIN.</p>
+        <p
+          className={
+            embedded
+              ? onDark
+                ? "mt-4 max-w-[16rem] text-center text-sm leading-snug text-slate-400"
+                : "mt-4 max-w-[16rem] text-center text-sm leading-snug text-slate-500 dark:text-slate-400"
+              : "sr-only"
+          }
+        >
+          Looking up your vehicle registration or VIN.
+        </p>
       </div>
     </div>
   );

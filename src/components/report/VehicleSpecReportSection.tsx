@@ -44,10 +44,9 @@ export function VehicleSpecReportSection({
 
           <div className={part === "full" ? "mt-6 grid gap-8 lg:grid-cols-[1.2fr_1fr]" : "mt-6"}>
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-wide text-slate-900">
-                Vehicle data
-              </h3>
-              <dl className="report-spec-data-table mt-3 overflow-hidden rounded-xl border border-slate-200">
+              <h3 className="report-section-heading">Vehicle data</h3>
+              <div className="report-spec-data-table-wrap mt-3 overflow-hidden rounded-lg border border-slate-200 bg-white">
+              <dl className="report-spec-data-table m-0">
                 {visibleSpecDataRows(sheet!.dataRows).map((row) => {
                   const powerRow = isPowerToWeightSpecRow(row.label);
                   return (
@@ -74,6 +73,7 @@ export function VehicleSpecReportSection({
                   );
                 })}
               </dl>
+              </div>
               {shouldShowPowerToWeightFootnote(sheet!.dataRows) ? (
                 <p className="mt-2 text-[11px] leading-relaxed text-[#0073E3]">
                   {P_PLATE_POWER_TO_WEIGHT_FOOTNOTE}
@@ -112,9 +112,7 @@ function FactoryFeaturesBlock({
 }) {
   return (
     <>
-      <h3 className="text-xs font-bold uppercase tracking-wide text-slate-900">
-        Factory features &amp; options
-      </h3>
+      <h3 className="report-section-heading">Factory features &amp; options</h3>
       {sheet.factoryFeatures.length > 0 ? (
         <ul className="report-spec-factory-list mt-3 space-y-2 rounded-xl border border-slate-200 p-4">
           {sheet.factoryFeatures.map((feature) => (

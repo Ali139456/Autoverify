@@ -49,6 +49,44 @@ function findDetailedSpecValue(
   return null;
 }
 
+const GENERIC_ENGINE_LABELS = new Set([
+  "hybrid",
+  "piston",
+  "electric",
+  "diesel",
+  "petrol",
+  "unknown",
+  "engine",
+]);
+
+function isGenericEngineLabel(text: string | null | undefined): boolean {
+  if (!text?.trim()) return true;
+  const normalized = text.trim().toLowerCase();
+  if (GENERIC_ENGINE_LABELS.has(normalized)) return true;
+  return normalized.split(/\s+/).length === 1 && GENERIC_ENGINE_LABELS.has(normalized);
+}
+
+function formatCapacityFromCc(raw: unknown): string | null {
+  const cc = Number(raw);
+  if (!Number.isFinite(cc) || cc <= 0) return null;
+  if (cc >= 1000) {
+    const litres = cc / 1000;
+    const rounded =
+      Math.abs(litres - Math.round(litres * 10) / 10) < 0.01
+        ? litres.toFixed(1).replace(/\.0$/, "")
+        : litres.toFixed(1);
+    return `${rounded}L`;
+  }
+  return `${Math.round(cc)}cc`;
+}
+
+function formatCylinderCount(raw: unknown): string | null {
+  const count = Number(raw);
+  if (!Number.isFinite(count) || count <= 0) return null;
+  if (count === 1) return "1 cylinder";
+  return `${Math.round(count)} cylinders`;
+}
+
 function resolveEngineSize(
   vehicle: VehicleIdentity,
   vehicleRecord: JsonRecord,
@@ -58,6 +96,7 @@ function resolveEngineSize(
     stringOrNull(vehicleRecord.engine_size) ??
     stringOrNull(vehicleRecord.engine_capacity) ??
     stringOrNull(vehicleRecord.engine_capacity_litres) ??
+    formatCapacityFromCc(vehicleRecord.capacity_cc) ??
     findDetailedSpecValue(
       detailedSpecs,
       "engine size",
@@ -71,22 +110,52 @@ function resolveEngineSize(
   );
 }
 
+/** Human-readable engine line when catalogue only returns "Hybrid" etc. */
+export function resolveVehicleEngineLabel(
+  vehicle: VehicleIdentity,
+  vehicleRecord: JsonRecord,
+  detailedSpecs: JsonRecord[] | null = null,
+): string {
+  const catalogue = stringOrNull(vehicle.engine) ?? stringOrNull(vehicleRecord.engine);
+  if (catalogue && !isGenericEngineLabel(catalogue)) return catalogue;
+
+  const parts: string[] = [];
+  const size = resolveEngineSize(vehicle, vehicleRecord, detailedSpecs);
+  if (size) parts.push(size);
+  const cylinders = formatCylinderCount(vehicleRecord.num_cylinders);
+  if (cylinders) parts.push(cylinders);
+
+  const engineType = stringOrNull(vehicleRecord.engine_type);
+  if (engineType && !isGenericEngineLabel(engineType)) {
+    parts.push(engineType);
+  } else if (engineType?.toLowerCase() === "hybrid" && parts.length > 0) {
+    const fuel = (vehicle.fuelType ?? "").toLowerCase();
+    if (!fuel.includes("hybrid")) parts.push("Hybrid");
+  }
+
+  if (parts.length > 0) return parts.join(" · ");
+  return catalogue ?? engineType ?? "—";
+}
+
 function resolveCylindersRotors(
   vehicleRecord: JsonRecord,
   detailedSpecs: JsonRecord[] | null,
 ): string | null {
-  const engineType = stringOrNull(vehicleRecord.engine_type);
-  if (engineType) return engineType;
-
   const fromSpec = findDetailedSpecValue(
     detailedSpecs,
     "cylinders/rotors",
     "cylinders / rotors",
   );
-  if (fromSpec) return fromSpec;
+  if (fromSpec && !isGenericEngineLabel(fromSpec)) return fromSpec;
 
   const cylinderSpec = findDetailedSpecValue(detailedSpecs, "cylinder", "rotor");
-  if (cylinderSpec) return cylinderSpec;
+  if (cylinderSpec && !isGenericEngineLabel(cylinderSpec)) return cylinderSpec;
+
+  const cylinders = formatCylinderCount(vehicleRecord.num_cylinders);
+  if (cylinders) return cylinders;
+
+  const engineType = stringOrNull(vehicleRecord.engine_type);
+  if (engineType && !isGenericEngineLabel(engineType)) return engineType;
 
   const n = vehicleRecord.num_cylinders;
   if (n !== null && n !== undefined && n !== "") return String(n);
@@ -174,7 +243,11 @@ export function buildVehicleSpecSheet(input: {
     findDetailedSpecValue(detailedSpecs, "fuel type", "fuel") ?? vehicle.fuelType;
   pushRow(dataRows, "Fuel type", fuelType);
   pushRow(dataRows, "Transmission", vehicle.transmission);
-  pushRow(dataRows, "Engine", vehicle.engine);
+  pushRow(
+    dataRows,
+    "Engine",
+    resolveVehicleEngineLabel(vehicle, vehicleRecord, detailedSpecs),
+  );
 
   pushRow(
     dataRows,
