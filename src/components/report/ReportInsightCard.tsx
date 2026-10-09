@@ -5,6 +5,7 @@
 import { CheckCircle2, CircleMinus } from "lucide-react";
 import {
   ANCAP_SAFETY_RATINGS_URL,
+  VEHICLE_RECALLS_GOV_AU_URL,
   insightToneClass,
   type ReportInsight,
   type ReportInsightLineVariant,
@@ -159,7 +160,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                 >
                   {insight.status}
                 </p>
-                {insight.statusSubtext && !insight.detail ? (
+                {insight.statusSubtext ? (
                   <p
                     className={`mt-1 text-[11px] leading-snug break-words ${
                       insight.id === "registration" || insight.id === "market"
@@ -168,6 +169,19 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                     }`}
                   >
                     {insight.statusSubtext}
+                  </p>
+                ) : null}
+                {insight.id === "recall" && insight.status === "Clear" ? (
+                  <p className="mt-1 min-w-0 text-[11px] leading-relaxed break-words text-slate-600">
+                    Check for recall updates on{" "}
+                    <a
+                      href={VEHICLE_RECALLS_GOV_AU_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold text-[#0073E3] underline underline-offset-2 [overflow-wrap:anywhere]"
+                    >
+                      www.vehiclerecalls.gov.au
+                    </a>
                   </p>
                 ) : null}
               </div>

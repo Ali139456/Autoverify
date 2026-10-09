@@ -76,20 +76,10 @@ function StatusIcon({
 
   }
 
-  if (advisory) {
+  if (advisory || muted) {
     return (
       <CircleMinus className="mt-0.5 h-5 w-5 shrink-0 text-slate-300" aria-hidden />
     );
-  }
-
-  if (muted) {
-
-    return (
-
-      <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-slate-300" aria-hidden />
-
-    );
-
   }
 
   return (

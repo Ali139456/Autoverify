@@ -579,14 +579,18 @@ html.dark body {
   }
 
   .report-shell-insights-page1 .report-hero-image {
+    position: relative !important;
     min-height: 38mm !important;
     max-height: 40mm !important;
     overflow: hidden !important;
   }
 
   .report-shell-insights-page1 .report-hero-image img {
-    max-height: 36mm !important;
-    object-fit: contain !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: 100% !important;
+    max-height: none !important;
+    object-fit: cover !important;
     object-position: center center !important;
   }
 
@@ -607,12 +611,15 @@ html.dark body {
   }
 
   .report-shell-insights-page1 .report-hero-image {
+    position: relative !important;
     min-height: 34mm !important;
-    max-height: 36mm !important;
+    height: 34mm !important;
+    max-height: 34mm !important;
   }
 
   .report-shell-insights-page1 .report-hero-image img {
-    max-height: 32mm !important;
+    position: absolute !important;
+    inset: 0 !important;
   }
 
   .report-shell-insights-page1 .report-manufacturers-warranty {
@@ -883,23 +890,21 @@ html.dark body {
 
   .report-hero-image {
     position: relative !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
     min-height: 52mm !important;
-    height: auto !important;
-    max-height: none !important;
+    height: 52mm !important;
+    max-height: 52mm !important;
     overflow: hidden !important;
     background-color: #020617 !important;
   }
 
   .report-hero-image img {
-    position: static !important;
-    width: auto !important;
-    max-width: 96% !important;
-    max-height: 48mm !important;
-    height: auto !important;
-    object-fit: contain !important;
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: 100% !important;
+    max-height: none !important;
+    object-fit: cover !important;
     object-position: center center !important;
   }
 

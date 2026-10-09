@@ -61,6 +61,8 @@ const money = (n: number) => `$${n.toLocaleString("en-AU")}`;
 
 export const ANCAP_SAFETY_RATINGS_URL = "https://www.ancap.com.au/safety-ratings";
 
+export const VEHICLE_RECALLS_GOV_AU_URL = "https://www.vehiclerecalls.gov.au";
+
 export const MANUFACTURERS_WARRANTY_NOTICE =
   "Contact Authorised Dealer/service centre and quote VIN to confirm remaining Manufacturer's warranty.";
 

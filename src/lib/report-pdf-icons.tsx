@@ -277,7 +277,7 @@ export function PdfCheckIcon({
   muted?: boolean;
   advisory?: boolean;
 }) {
-  if (advisory && !issue) {
+  if ((advisory || muted) && !issue) {
     // Light grey circle with a dash: data not reported (neither pass nor fault).
     return (
       <Svg width={11} height={11} viewBox="0 0 11 11">

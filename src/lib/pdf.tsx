@@ -33,6 +33,7 @@ import {
 import {
   buildKeyInsights,
   ANCAP_SAFETY_RATINGS_URL,
+  VEHICLE_RECALLS_GOV_AU_URL,
   buildReportOverviewSpecs,
   buildStatusChecks,
   formatPPlateStatus,
@@ -239,9 +240,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   specHeroBannerImage: {
-    width: "98%",
+    width: "100%",
     height: 108,
-    objectFit: "contain",
+    objectFit: "cover",
     objectPosition: "center",
     backgroundColor: "#020617",
   },
@@ -616,7 +617,7 @@ function PdfInsightCard({
                   <Text style={[styles.insightStatus, toneStyle(insight.tone)]}>
                     {insight.status}
                   </Text>
-                  {insight.statusSubtext && !footnote ? (
+                  {insight.statusSubtext ? (
                     <Text
                       style={[
                         styles.insightStatus,
@@ -627,6 +628,22 @@ function PdfInsightCard({
                       ]}
                     >
                       {insight.statusSubtext}
+                    </Text>
+                  ) : null}
+                  {insight.id === "recall" && insight.status === "Clear" ? (
+                    <Text
+                      style={{
+                        marginTop: 2,
+                        fontSize: 6.5,
+                        color: GREY,
+                        fontFamily: "Helvetica",
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      Check for recall updates on{" "}
+                      <Link src={VEHICLE_RECALLS_GOV_AU_URL}>
+                        www.vehiclerecalls.gov.au
+                      </Link>
                     </Text>
                   ) : null}
                   {insight.id === "ancap" && insight.status === "Not available" ? (
@@ -675,10 +692,6 @@ function PdfVehicleHero({
   layout?: "panel" | "banner";
 }) {
   const heroSrc = resolvePdfImageSrc(vehicle.heroImageUrl);
-  const useContain =
-    vehicle.heroImageKind === "stock" ||
-    vehicle.heroImageKind === "generated" ||
-    Boolean(vehicle.heroImageUrl?.includes("/sample/"));
 
   const wrapStyle =
     layout === "banner" ? styles.specHeroBanner : styles.statusImageWrap;
@@ -691,12 +704,8 @@ function PdfVehicleHero({
             src={heroSrc}
             style={
               layout === "banner"
-                ? useContain
-                  ? styles.specHeroBannerImage
-                  : styles.statusImage
-                : useContain
-                  ? styles.statusImageContain
-                  : styles.statusImage
+                ? styles.specHeroBannerImage
+                : styles.statusImage
             }
           />
           <Text style={styles.statusImageCaption}>
