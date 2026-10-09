@@ -1,8 +1,8 @@
 /**
- * Aspect ratio of `public/logo/logo-blue.png` (2363×515, tightly cropped).
+ * Aspect ratio of `public/logo/logo-blue.png` (2363×380, from `auto-verifi-accent.svg`).
  * Used for PDF + email where the SVG lockup can't be embedded.
  */
-export const REPORT_LOGO_ASPECT_RATIO = 2363 / 515;
+export const REPORT_LOGO_ASPECT_RATIO = 2363 / 380;
 
 /** Public path of the colour logo used in PDFs and emails. */
 export const REPORT_LOGO_PNG_PATH = "/logo/logo-blue.png";
