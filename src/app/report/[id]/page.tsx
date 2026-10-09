@@ -84,12 +84,7 @@ export default async function ReportPage({
   return (
     <div className="report-view min-h-screen bg-slate-100 py-8 sm:py-12">
       <div id="report-print-area" className="mx-auto max-w-5xl space-y-6 px-4 sm:px-6">
-        <div className="report-no-print flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-slate-900">
-              Past | Present | Future Vehicle Insights
-            </h1>
-          </div>
+        <div className="report-no-print flex justify-end">
           <ReportPrintActions />
         </div>
 

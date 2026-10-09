@@ -68,17 +68,7 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
 
 
 
-        <div className="report-no-print flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-
-          <div>
-
-            <h1 className="text-xl font-bold text-slate-900">
-
-              Past | Present | Future Vehicle Insights
-
-            </h1>
-
-          </div>
+        <div className="report-no-print flex justify-end">
 
           <ReportPrintActions />
 
