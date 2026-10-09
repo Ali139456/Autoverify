@@ -98,7 +98,7 @@ function buildMercedesSampleCore() {
     transmission: "Automatic",
     engine: "2.0L 4cyl Turbo",
     colour: "Black",
-    odometer: 101890,
+    odometer: 51890,
     odometerSource: "Self reported at purchase (sample report).",
     ancapRating: null,
     warrantyRemaining: null,
