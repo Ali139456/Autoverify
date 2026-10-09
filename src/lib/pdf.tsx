@@ -35,6 +35,7 @@ import {
 } from "./vehicle-spec-sheet";
 import {
   buildKeyInsights,
+  comparableListingsShowDaysListed,
   ANCAP_SAFETY_RATINGS_URL,
   ODOMETER_HISTORY_LISTING_LINE,
   VEHICLE_RECALLS_GOV_AU_URL,
@@ -469,6 +470,7 @@ function resolvePdfImageSrc(url: string | null | undefined): string | null {
 }
 
 function pdfInsightFootnote(insight: ReportInsight): string | undefined {
+  if (insight.id === "registration") return undefined;
   const detail = insight.detail?.trim();
   if (!detail) return undefined;
   const sub = insight.statusSubtext?.trim();
@@ -614,6 +616,17 @@ function PdfInsightCard({
                       {insight.statusSubtext}
                     </Text>
                   ) : null}
+                  {insight.id === "registration" && insight.detail ? (
+                    <Text
+                      style={[
+                        styles.insightStatus,
+                        toneStyle(insight.tone),
+                        { marginTop: 2, fontSize: 7 },
+                      ]}
+                    >
+                      {insight.detail}
+                    </Text>
+                  ) : null}
                   {insight.id === "odometer" && insight.tone === "clear" ? (
                     <Text
                       style={{
@@ -689,6 +702,10 @@ function PdfVehicleHero({
   layout?: "panel" | "banner";
 }) {
   const heroSrc = resolvePdfImageSrc(vehicle.heroImageUrl);
+  const letterboxHero =
+    vehicle.heroImageKind === "stock" ||
+    vehicle.heroImageKind === "generated" ||
+    Boolean(vehicle.heroImageUrl?.includes("/sample/"));
 
   const wrapStyle =
     layout === "banner" ? styles.specHeroBanner : styles.statusImageWrap;
@@ -702,7 +719,10 @@ function PdfVehicleHero({
             style={
               layout === "banner"
                 ? styles.specHeroBannerImage
-                : styles.statusImage
+                : {
+                    ...styles.statusImage,
+                    objectFit: letterboxHero ? "contain" : "cover",
+                  }
             }
           />
           <Text style={styles.statusImageCaption}>
@@ -1137,6 +1157,11 @@ function PdfPresentAndFutureValuations({
 function PdfComparableVehiclesTable({ report }: { report: VehicleReport }) {
   const listings = report.market.comparableListings.slice(0, MAX_COMPARABLE_ROWS);
   if (listings.length === 0) return null;
+  const showDaysListed = comparableListingsShowDaysListed(listings);
+  const colVehicle = showDaysListed ? "38%" : "42%";
+  const colPrice = showDaysListed ? "14%" : "16%";
+  const colOdometer = showDaysListed ? "16%" : "18%";
+  const colLocation = showDaysListed ? "22%" : "24%";
   return (
     <View style={{ marginTop: 8 }} wrap={false}>
       <Text style={[styles.sectionTitle, { fontSize: 8 }]}>
@@ -1159,21 +1184,23 @@ function PdfComparableVehiclesTable({ report }: { report: VehicleReport }) {
             padding: 4,
           }}
         >
-          <Text style={{ width: "38%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
+          <Text style={{ width: colVehicle, fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
             Vehicle
           </Text>
-          <Text style={{ width: "14%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
+          <Text style={{ width: colPrice, fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
             Price
           </Text>
-          <Text style={{ width: "16%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
+          <Text style={{ width: colOdometer, fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
             Odometer
           </Text>
-          <Text style={{ width: "22%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
+          <Text style={{ width: colLocation, fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
             Location
           </Text>
-          <Text style={{ width: "10%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
-            Listed
-          </Text>
+          {showDaysListed ? (
+            <Text style={{ width: "10%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
+              Listed
+            </Text>
+          ) : null}
         </View>
         {listings.map((listing, index) => (
           <View
@@ -1188,7 +1215,7 @@ function PdfComparableVehiclesTable({ report }: { report: VehicleReport }) {
           >
             <Text
               style={{
-                width: "38%",
+                width: colVehicle,
                 fontSize: 6.5,
                 padding: 4,
                 fontFamily: "Helvetica-Bold",
@@ -1199,7 +1226,7 @@ function PdfComparableVehiclesTable({ report }: { report: VehicleReport }) {
             </Text>
             <Text
               style={{
-                width: "14%",
+                width: colPrice,
                 fontSize: 6.5,
                 padding: 4,
                 fontFamily: "Helvetica-Bold",
@@ -1208,15 +1235,17 @@ function PdfComparableVehiclesTable({ report }: { report: VehicleReport }) {
             >
               {money(listing.price)}
             </Text>
-            <Text style={{ width: "16%", fontSize: 6.5, padding: 4, color: "#334155" }}>
+            <Text style={{ width: colOdometer, fontSize: 6.5, padding: 4, color: "#334155" }}>
               {listing.odometer.toLocaleString()} km
             </Text>
-            <Text style={{ width: "22%", fontSize: 6.5, padding: 4, color: "#334155" }}>
+            <Text style={{ width: colLocation, fontSize: 6.5, padding: 4, color: "#334155" }}>
               {listing.location}
             </Text>
-            <Text style={{ width: "10%", fontSize: 6.5, padding: 4, color: "#334155" }}>
-              {listing.daysListed}d
-            </Text>
+            {showDaysListed ? (
+              <Text style={{ width: "10%", fontSize: 6.5, padding: 4, color: "#334155" }}>
+                {listing.daysListed}d
+              </Text>
+            ) : null}
           </View>
         ))}
       </View>

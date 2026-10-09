@@ -87,6 +87,7 @@ function InsightStatusBadge({ tone }: { tone: ReportInsight["tone"] }) {
 
 
 function insightFootnote(insight: ReportInsight): string | undefined {
+  if (insight.id === "registration") return undefined;
   const detail = insight.detail?.trim();
   if (!detail) return undefined;
   const sub = insight.statusSubtext?.trim();
@@ -163,6 +164,13 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                     }`}
                   >
                     {insight.statusSubtext}
+                  </p>
+                ) : null}
+                {insight.id === "registration" && insight.detail ? (
+                  <p
+                    className={`mt-1 text-[11px] leading-snug break-words font-bold ${insightToneClass(insight.tone)}`}
+                  >
+                    {insight.detail}
                   </p>
                 ) : null}
                 {insight.id === "odometer" && insight.tone === "clear" ? (

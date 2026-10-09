@@ -22,6 +22,7 @@ import { countVehicleReportPages } from "@/lib/report-page-count";
 import { hasVehicleSpecContent } from "@/lib/vehicle-spec-sheet";
 import { VehicleSpecReportPage } from "@/components/report/VehicleSpecReportPage";
 import { buildCheckSearchUrl } from "@/lib/vehicle-identifier";
+import { refreshRegistrationIfMissing } from "@/lib/autograb";
 
 export const metadata: Metadata = {
   title: "Vehicle Report",
@@ -34,8 +35,16 @@ export default async function ReportPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const report = await getReport(id);
-  if (!report) notFound();
+  const stored = await getReport(id);
+  if (!stored) notFound();
+  const registration = await refreshRegistrationIfMissing(
+    stored.registration,
+    stored.vehicle,
+  );
+  const report =
+    registration === stored.registration
+      ? stored
+      : { ...stored, registration };
   const inspection = await getInspectionByReportId(id);
   const inspectUrlForOwner =
     inspection && !isInspectionExpired(inspection)

@@ -6,9 +6,17 @@ import type {
   FutureValueInfo,
   FutureValuePoint,
   InspectionPhoto,
+  MarketListing,
   VehicleIdentity,
   VehicleReport,
 } from "./types";
+
+/** Hide "Listed" when AutoGrab leads omit days on market (avoids a column of 0d). */
+export function comparableListingsShowDaysListed(
+  listings: Pick<MarketListing, "daysListed">[],
+): boolean {
+  return listings.some((entry) => entry.daysListed > 0);
+}
 
 /** `muted`: light grey, data not reported (neither pass nor fault). */
 export type InsightStatus = "clear" | "warn" | "info" | "neutral" | "muted";
@@ -303,9 +311,10 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
       title: "Registration",
       status:
         registration.status === "Registered" ? "Active" : registration.status,
-      statusSubtext: registration.expiryDate
-        ? `${vehicle.state} · Expiry ${formatExpiryDate(registration.expiryDate)}`
-        : vehicle.state,
+      statusSubtext: vehicle.state,
+      detail: registration.expiryDate
+        ? `Expiry ${formatExpiryDate(registration.expiryDate)}`
+        : undefined,
       tone: registration.status === "Registered" ? "clear" : "warn",
     },
     {

@@ -35,6 +35,8 @@ const REGISTRATION_FEATURES =
   "build_data,performance_info,writeoff_info";
 
 type PpsrCertificateSummary = {
+  rego: string | null;
+  regoState: AustralianState | null;
   regoExpiry: string | null;
   hasSecuredParties: boolean;
   hasStolenRecords: boolean;
@@ -327,13 +329,20 @@ async function lookupViaVin(
     fetchResidualValuation(vehicleId, vehicle).then((value) => value ?? null),
   ]);
 
+  applyPpsrPlateToVehicle(vehicle, ppsr);
+
+  const registrationStatus =
+    vehicle.rego?.trim() && vehicle.state
+      ? await fetchRegistrationStatus(vehicle.rego.trim(), vehicle.state)
+      : null;
+
   const demo = buildDemoResult(vin, state, { vin });
   const resolvedValuation = valuation ?? demo.valuation;
   const resolvedFutureValue =
     futureValue ?? buildEstimatedFutureValue(vehicle, resolvedValuation);
 
   const registration = mergeRegistrationInfo({
-    status: null,
+    status: registrationStatus,
     writeoff: writeoffFromFeatures,
     ppsr,
     vehicleFound: true,
@@ -406,6 +415,13 @@ function parseAutograbDate(value: unknown): string | null {
     const day = dmy[1].padStart(2, "0");
     const month = dmy[2].padStart(2, "0");
     return `${dmy[3]}-${month}-${day}`;
+  }
+  const dMonY = trimmed.match(/^(\d{1,2})\s+([A-Za-z]{3,})\s+(\d{4})$/);
+  if (dMonY) {
+    const parsed = Date.parse(`${dMonY[2]} ${dMonY[1]}, ${dMonY[3]}`);
+    if (!Number.isNaN(parsed)) {
+      return new Date(parsed).toISOString().slice(0, 10);
+    }
   }
   const parsed = Date.parse(trimmed);
   if (!Number.isNaN(parsed)) {
@@ -570,7 +586,22 @@ async function fetchPpsrLookup(input: {
   const certificate = data.certificate as JsonRecord | undefined;
   if (!certificate) return null;
 
+  const regoStateRaw = stringFromRecord(certificate.rego_state)?.toUpperCase();
+  const regoState =
+    regoStateRaw === "NSW" ||
+    regoStateRaw === "VIC" ||
+    regoStateRaw === "QLD" ||
+    regoStateRaw === "SA" ||
+    regoStateRaw === "WA" ||
+    regoStateRaw === "TAS" ||
+    regoStateRaw === "NT" ||
+    regoStateRaw === "ACT"
+      ? regoStateRaw
+      : null;
+
   return {
+    rego: stringFromRecord(certificate.rego)?.trim() || null,
+    regoState,
     regoExpiry: parseAutograbDate(certificate.rego_expiry),
     hasSecuredParties: Boolean(certificate.has_secured_parties),
     hasStolenRecords: Boolean(certificate.has_stolen_records),
@@ -799,6 +830,19 @@ function mapVehicleIdentity(
   };
 }
 
+function applyPpsrPlateToVehicle(
+  vehicle: VehicleIdentity,
+  ppsr: PpsrCertificateSummary | null,
+): void {
+  if (!ppsr?.rego?.trim()) return;
+  if (!vehicle.rego?.trim()) {
+    vehicle.rego = ppsr.rego.trim();
+  }
+  if (ppsr.regoState && !vehicle.state) {
+    vehicle.state = ppsr.regoState;
+  }
+}
+
 async function fetchRegistrationStatus(
   plate: string,
   state: AustralianState,
@@ -837,6 +881,29 @@ async function fetchRegistrationStatus(
     financeDetails: financeOwing
       ? "Security interest or finance record detected"
       : null,
+  };
+}
+
+/**
+ * Fills registration expiry (and status when missing) from AutoGrab `/status`
+ * for reports saved before expiry was captured, or when PPSR/status failed at purchase.
+ */
+export async function refreshRegistrationIfMissing(
+  registration: RegistrationInfo,
+  vehicle: VehicleIdentity,
+): Promise<RegistrationInfo> {
+  if (registration.expiryDate?.trim()) return registration;
+  const plate = vehicle.rego?.trim();
+  if (!plate || !vehicle.state) return registration;
+  if (!AUTOGRAB_API_KEY?.trim()) return registration;
+
+  const live = await fetchRegistrationStatus(plate, vehicle.state);
+  if (!live?.expiryDate) return registration;
+
+  return {
+    ...registration,
+    expiryDate: live.expiryDate,
+    status: registration.status ?? live.status,
   };
 }
 
@@ -1070,12 +1137,21 @@ async function fetchMarketOverlay(
     const year = Number(item.year) || vehicle.year;
     const title = `${year} ${vehicle.make} ${vehicle.model} ${vehicle.variant}`.trim();
 
+    const daysListedRaw =
+      item.days_listed ??
+      item.days_on_market ??
+      item.days_on_site ??
+      item.listing_age_days;
+    const daysListed = Number(daysListedRaw);
     return {
       title,
       price: Number(item.price) || 0,
       odometer: Number(item.kms ?? item.odometer) || 0,
       location: String(item.state ?? "AU"),
-      daysListed: Number(item.days_listed) || 0,
+      daysListed:
+        Number.isFinite(daysListed) && daysListed > 0
+          ? Math.round(daysListed)
+          : 0,
     };
   });
 
