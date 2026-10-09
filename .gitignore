@@ -37,6 +37,12 @@ yarn-error.log*
 # generated reports
 /data/
 
+# Ad-hoc local PDF/PNG exports (repo root only)
+/*.pdf
+/*.png
+!public/**/*.pdf
+!public/**/*.png
+
 # vercel
 .vercel
 

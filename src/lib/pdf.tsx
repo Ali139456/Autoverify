@@ -210,12 +210,6 @@ const styles = StyleSheet.create({
     height: STATUS_PANEL_HEIGHT - 2,
     objectFit: "cover",
   },
-  statusImageContain: {
-    width: "100%",
-    height: STATUS_PANEL_HEIGHT - 2,
-    objectFit: "contain",
-    objectPosition: "center",
-  },
   statusImageCaption: {
     position: "absolute",
     bottom: 0,
