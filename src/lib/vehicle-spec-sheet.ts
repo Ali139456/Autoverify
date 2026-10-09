@@ -112,7 +112,11 @@ function resolvePerformanceMetric(
  * Rows no longer shown in the vehicle data table. Older stored reports may
  * still contain them, so renderers filter with `visibleSpecDataRows`.
  */
-const HIDDEN_SPEC_ROW_LABELS = new Set(["Odometer history", "Odometer reading"]);
+const HIDDEN_SPEC_ROW_LABELS = new Set([
+  "Odometer history",
+  "Odometer reading",
+  "Build provider",
+]);
 
 export function visibleSpecDataRows(
   rows: { label: string; value: string }[] | undefined,
@@ -245,7 +249,6 @@ export function buildVehicleSpecSheet(input: {
 
   if (buildData) {
     pushRow(dataRows, "Build date", buildData.build_date);
-    pushRow(dataRows, "Build provider", buildData.provider);
     pushRow(dataRows, "Compliance date", buildData.compliance_date);
     pushRow(dataRows, "Engine number", buildData.engine_number);
     pushRow(dataRows, "Country of origin", buildData.country_of_origin);
