@@ -229,11 +229,8 @@ export function InspectionCapture({
   return (
     <div className="mx-auto min-h-[100dvh] max-w-lg bg-ink-950 px-4 py-6 text-white">
       <div className="mb-6">
-        <p className="text-xs font-bold uppercase tracking-[0.22em] text-accent-400">
-          Auto Verifi inspection
-        </p>
-        <h1 className="mt-2 text-2xl font-extrabold tracking-tight">
-          Guided photo capture
+        <h1 className="text-2xl font-extrabold tracking-tight">
+          Auto Verifi AI condition assessment
         </h1>
         <p className="mt-2 text-sm text-slate-400">
           Step {stepIndex + 1} of {INSPECTION_ANGLES.length} · {completedCount} uploaded
