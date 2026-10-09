@@ -36,9 +36,12 @@ function SearchSpinnerRing({ compact }: { compact?: boolean }) {
 
 export function VehicleSearchLoading({
   embedded = false,
+  onDark = false,
 }: {
   /** When true, omit outer min-height (used over the search form). */
   embedded?: boolean;
+  /** Match RegoSearchForm hero/modal dark styling. */
+  onDark?: boolean;
 }) {
   return (
     <div
@@ -55,7 +58,9 @@ export function VehicleSearchLoading({
         <p
           className={
             embedded
-              ? "w-full text-center text-base font-bold tracking-tight text-slate-900 dark:text-white"
+              ? onDark
+                ? "w-full text-center text-base font-bold tracking-tight text-white"
+                : "w-full text-center text-base font-bold tracking-tight text-slate-900 dark:text-white"
               : "w-full text-center text-lg font-bold tracking-tight text-slate-900 dark:text-white sm:text-xl"
           }
         >

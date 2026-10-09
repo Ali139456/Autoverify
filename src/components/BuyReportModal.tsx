@@ -38,14 +38,14 @@ export function BuyReportModal({
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/80 px-4 py-6 backdrop-blur-sm"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/92 px-4 py-6 backdrop-blur-md"
       role="dialog"
       aria-modal="true"
       aria-labelledby="buy-report-modal-title"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-md rounded-3xl border border-white/10 bg-ink-900 p-6 text-left shadow-2xl sm:p-8"
+        className="relative w-full max-w-md rounded-3xl border border-white/10 bg-ink-950 p-6 text-left shadow-2xl sm:p-8"
         onClick={(event) => event.stopPropagation()}
       >
         <button

@@ -90,11 +90,13 @@ export function RegoSearchForm({
     <form onSubmit={onSubmit} className="relative w-full">
       {loading ? (
         <div
-          className={`absolute inset-0 z-20 flex w-full items-center justify-center rounded-2xl ${
-            onDark ? "bg-ink-950/95" : "bg-white/95 dark:bg-ink-950/95"
+          className={`absolute inset-0 z-20 flex min-h-[11rem] w-full items-center justify-center rounded-2xl ${
+            onDark
+              ? "bg-ink-950 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]"
+              : "bg-white dark:bg-ink-950"
           }`}
         >
-          <VehicleSearchLoading embedded />
+          <VehicleSearchLoading embedded onDark={onDark} />
         </div>
       ) : null}
       <div className={`relative w-full ${shellClass}`}>
