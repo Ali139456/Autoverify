@@ -594,7 +594,7 @@ function PdfInsightCard({
                         lineHeight: 1.35,
                       }}
                     >
-                      {line.variant === "action" ? `✓ ${line.text}` : line.text}
+                      {line.text}
                     </Text>
                   ))}
                   {insight.detail ? (

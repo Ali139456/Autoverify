@@ -2,7 +2,7 @@
 
 
 
-import { CheckCircle2, CircleMinus } from "lucide-react";
+import { CircleMinus } from "lucide-react";
 import {
   ANCAP_SAFETY_RATINGS_URL,
   VEHICLE_RECALLS_GOV_AU_URL,
@@ -19,7 +19,7 @@ function rideShareLineClass(variant: ReportInsightLineVariant): string {
     case "eligible":
       return "text-xs font-bold leading-snug text-emerald-600";
     case "action":
-      return "text-xs font-bold leading-snug";
+      return "text-xs font-bold leading-snug text-left";
     case "ineligible":
       return "text-xs font-bold leading-snug text-amber-600";
     default:
@@ -123,27 +123,20 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
       <div className="mt-3">
 
         {insight.lines?.length ? (
-          <div className="space-y-1">
-            {insight.lines.map((line) =>
-              line.variant === "action" ? (
-                <p
-                  key={line.text}
-                  className={`flex flex-wrap items-center gap-1.5 ${rideShareLineClass(line.variant)}`}
-                  style={{ color: RIDE_SHARE_ORANGE }}
-                >
-                  <CheckCircle2
-                    className="h-3.5 w-3.5 shrink-0"
-                    style={{ color: RIDE_SHARE_ORANGE }}
-                    aria-hidden
-                  />
-                  {line.text}
-                </p>
-              ) : (
-                <p key={line.text} className={rideShareLineClass(line.variant)}>
-                  {line.text}
-                </p>
-              ),
-            )}
+          <div className="space-y-1 text-left">
+            {insight.lines.map((line) => (
+              <p
+                key={line.text}
+                className={rideShareLineClass(line.variant)}
+                style={
+                  line.variant === "action"
+                    ? { color: RIDE_SHARE_ORANGE }
+                    : undefined
+                }
+              >
+                {line.text}
+              </p>
+            ))}
             {insight.detail ? (
               <p className="pt-0.5 text-[11px] font-medium text-slate-500">
                 {insight.detail}

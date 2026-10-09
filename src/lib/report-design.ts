@@ -157,8 +157,8 @@ function buildRideShareKeyInsight(report: VehicleReport): ReportInsight {
         { text: "Doors — eligible", variant: "eligible" },
         { text: "Passenger capacity — eligible", variant: "eligible" },
         { text: "Check remaining requirements", variant: "action" },
+        { text: "Refer table below.", variant: "action" },
       ],
-      detail: "Refer table below.",
     };
   }
 
@@ -171,8 +171,11 @@ function buildRideShareKeyInsight(report: VehicleReport): ReportInsight {
       quickLine("Age", check.ageEligible),
       quickLine("Doors", check.doorsEligible),
       quickLine("Passenger capacity", check.passengersEligible),
+      {
+        text: "See the ride share requirements table below.",
+        variant: "action",
+      },
     ],
-    detail: "See the ride share requirements table below.",
   };
 }
 
