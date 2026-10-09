@@ -120,6 +120,23 @@ export function visibleSpecDataRows(
   return (rows ?? []).filter((row) => !HIDDEN_SPEC_ROW_LABELS.has(row.label));
 }
 
+export const SPEC_POWER_TO_WEIGHT_LABEL = "Power to weight";
+
+export const P_PLATE_POWER_TO_WEIGHT_FOOTNOTE =
+  "*Provisional driver restrictions on vehicle power above 130kW/tonne in NSW, VIC, QLD and SA. Check P Plate vehicle legal reference links above.";
+
+export function isPowerToWeightSpecRow(label: string): boolean {
+  return label.trim().toLowerCase() === SPEC_POWER_TO_WEIGHT_LABEL.toLowerCase();
+}
+
+export function shouldShowPowerToWeightFootnote(
+  rows: { label: string; value: string }[] | undefined,
+): boolean {
+  return visibleSpecDataRows(rows).some((row) =>
+    isPowerToWeightSpecRow(row.label),
+  );
+}
+
 export function buildVehicleSpecSheet(input: {
   vehicle: VehicleIdentity;
   registration: RegistrationInfo;

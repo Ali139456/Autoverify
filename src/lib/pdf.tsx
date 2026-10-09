@@ -29,6 +29,9 @@ import { isExteriorInspectionAngle } from "./inspection-angles";
 import {
   hasVehicleSpecContent,
   visibleSpecDataRows,
+  isPowerToWeightSpecRow,
+  P_PLATE_POWER_TO_WEIGHT_FOOTNOTE,
+  shouldShowPowerToWeightFootnote,
 } from "./vehicle-spec-sheet";
 import {
   buildKeyInsights,
@@ -1301,16 +1304,49 @@ function VehicleSpecPages({
 
           <View style={[styles.section, { marginTop: 10 }]}>
             <Text style={styles.sectionTitle}>Vehicle data</Text>
-            {visibleSpecDataRows(sheet.dataRows).map((row) => (
-              <View key={row.label} style={styles.specSheetRow}>
-                <View style={styles.specSheetLabelCell}>
-                  <Text style={styles.specSheetLabel}>{row.label}</Text>
+            {visibleSpecDataRows(sheet.dataRows).map((row) => {
+              const powerRow = isPowerToWeightSpecRow(row.label);
+              return (
+                <View key={row.label} style={styles.specSheetRow}>
+                  <View style={styles.specSheetLabelCell}>
+                    <Text
+                      style={[
+                        styles.specSheetLabel,
+                        powerRow
+                          ? { color: BLUE, fontFamily: "Helvetica-Bold" }
+                          : {},
+                      ]}
+                    >
+                      {row.label}
+                      {powerRow ? "*" : ""}
+                    </Text>
+                  </View>
+                  <View style={styles.specSheetValueCell}>
+                    <Text
+                      style={[
+                        styles.specSheetValue,
+                        powerRow ? { color: BLUE } : {},
+                      ]}
+                    >
+                      {row.value}
+                    </Text>
+                  </View>
                 </View>
-                <View style={styles.specSheetValueCell}>
-                  <Text style={styles.specSheetValue}>{row.value}</Text>
-                </View>
-              </View>
-            ))}
+              );
+            })}
+            {shouldShowPowerToWeightFootnote(sheet.dataRows) ? (
+              <Text
+                style={{
+                  marginTop: 4,
+                  fontSize: 6.5,
+                  lineHeight: 1.4,
+                  color: BLUE,
+                  fontFamily: "Helvetica",
+                }}
+              >
+                {P_PLATE_POWER_TO_WEIGHT_FOOTNOTE}
+              </Text>
+            ) : null}
           </View>
 
           <View style={[styles.section, { marginTop: 10 }]}>

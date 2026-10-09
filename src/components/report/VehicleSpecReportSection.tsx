@@ -2,6 +2,9 @@ import { formatReportDate } from "@/lib/report-design";
 import type { VehicleReport } from "@/lib/types";
 import {
   hasVehicleSpecContent,
+  isPowerToWeightSpecRow,
+  P_PLATE_POWER_TO_WEIGHT_FOOTNOTE,
+  shouldShowPowerToWeightFootnote,
   visibleSpecDataRows,
 } from "@/lib/vehicle-spec-sheet";
 
@@ -45,20 +48,37 @@ export function VehicleSpecReportSection({
                 Vehicle data
               </h3>
               <dl className="report-spec-data-table mt-3 overflow-hidden rounded-xl border border-slate-200">
-                {visibleSpecDataRows(sheet!.dataRows).map((row) => (
-                  <div
-                    key={row.label}
-                    className="report-spec-data-row grid grid-cols-[minmax(0,42%)_1fr] border-t border-slate-200 text-sm first:border-t-0"
-                  >
-                    <dt className="report-spec-data-label px-4 py-2.5 font-medium text-slate-600">
-                      {row.label}
-                    </dt>
-                    <dd className="bg-white px-4 py-2.5 font-semibold text-slate-900">
-                      {row.value}
-                    </dd>
-                  </div>
-                ))}
+                {visibleSpecDataRows(sheet!.dataRows).map((row) => {
+                  const powerRow = isPowerToWeightSpecRow(row.label);
+                  return (
+                    <div
+                      key={row.label}
+                      className="report-spec-data-row grid grid-cols-[minmax(0,42%)_1fr] border-t border-slate-200 text-sm first:border-t-0"
+                    >
+                      <dt
+                        className={`report-spec-data-label px-4 py-2.5 font-medium ${
+                          powerRow ? "font-semibold text-[#0073E3]" : "text-slate-600"
+                        }`}
+                      >
+                        {row.label}
+                        {powerRow ? "*" : ""}
+                      </dt>
+                      <dd
+                        className={`bg-white px-4 py-2.5 font-semibold ${
+                          powerRow ? "text-[#0073E3]" : "text-slate-900"
+                        }`}
+                      >
+                        {row.value}
+                      </dd>
+                    </div>
+                  );
+                })}
               </dl>
+              {shouldShowPowerToWeightFootnote(sheet!.dataRows) ? (
+                <p className="mt-2 text-[11px] leading-relaxed text-[#0073E3]">
+                  {P_PLATE_POWER_TO_WEIGHT_FOOTNOTE}
+                </p>
+              ) : null}
             </div>
 
             {part === "full" ? (
