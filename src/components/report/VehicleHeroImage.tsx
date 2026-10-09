@@ -15,8 +15,12 @@ export function VehicleHeroImage({
   const disclaimer =
     vehicle.heroImageDisclaimer ?? VEHICLE_HERO_IMAGE_DISCLAIMER;
   const defaultImgClass =
-    "absolute inset-0 h-full w-full object-cover object-center";
+    "absolute inset-0 h-full w-full min-h-full min-w-full object-cover object-center";
   const imgClass = imageClassName ?? defaultImgClass;
+  const cropLetterbox =
+    vehicle.heroImageKind === "stock" ||
+    vehicle.heroImageKind === "generated" ||
+    Boolean(vehicle.heroImageUrl?.includes("/sample/"));
 
   return (
     <div className={`${className} overflow-hidden`}>
@@ -27,6 +31,14 @@ export function VehicleHeroImage({
             src={vehicle.heroImageUrl}
             alt={`${vehicleTitle} reference photo`}
             className={imgClass}
+            style={
+              cropLetterbox
+                ? {
+                    transform: "scale(1.1)",
+                    transformOrigin: "center center",
+                  }
+                : undefined
+            }
           />
           <p className="absolute bottom-0 left-0 right-0 z-10 bg-black/55 px-3 py-1.5 text-[10px] leading-snug text-white">
             *{disclaimer}
