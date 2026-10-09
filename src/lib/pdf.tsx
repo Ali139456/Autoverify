@@ -36,6 +36,7 @@ import {
 import {
   buildKeyInsights,
   ANCAP_SAFETY_RATINGS_URL,
+  ODOMETER_HISTORY_LISTING_LINE,
   VEHICLE_RECALLS_GOV_AU_URL,
   buildReportOverviewSpecs,
   buildStatusChecks,
@@ -611,6 +612,19 @@ function PdfInsightCard({
                       ]}
                     >
                       {insight.statusSubtext}
+                    </Text>
+                  ) : null}
+                  {insight.id === "odometer" && insight.tone === "clear" ? (
+                    <Text
+                      style={{
+                        marginTop: 2,
+                        fontSize: 6.5,
+                        color: GREY,
+                        fontFamily: "Helvetica",
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      {ODOMETER_HISTORY_LISTING_LINE}
                     </Text>
                   ) : null}
                   {insight.id === "recall" && insight.status === "Clear" ? (

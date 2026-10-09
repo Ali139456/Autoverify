@@ -57,7 +57,8 @@ export function formatOdometerReading(vehicle: VehicleReport["vehicle"]): string
   return vehicle.odometer ? `${vehicle.odometer.toLocaleString("en-AU")} km` : null;
 }
 
-const ODOMETER_HISTORY_DETAIL = "Historical readings from listing records.";
+export const ODOMETER_HISTORY_LISTING_LINE =
+  "Historical readings from listing records.";
 
 function readingAtPurchaseOfReportDetail(
   vehicle: VehicleReport["vehicle"],
@@ -93,9 +94,7 @@ export function buildOdometerHistoryInsight(
     status: `${latest.odometer.toLocaleString("en-AU")} km latest recorded`,
     statusSubtext: countLabel,
     tone: "clear",
-    detail: purchaseDetail
-      ? `${ODOMETER_HISTORY_DETAIL} ${purchaseDetail}`
-      : ODOMETER_HISTORY_DETAIL,
+    detail: purchaseDetail,
   };
 }
 

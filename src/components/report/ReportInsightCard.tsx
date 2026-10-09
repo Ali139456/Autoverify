@@ -5,6 +5,7 @@
 import { CircleMinus } from "lucide-react";
 import {
   ANCAP_SAFETY_RATINGS_URL,
+  ODOMETER_HISTORY_LISTING_LINE,
   VEHICLE_RECALLS_GOV_AU_URL,
   insightToneClass,
   type ReportInsight,
@@ -162,6 +163,11 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                     }`}
                   >
                     {insight.statusSubtext}
+                  </p>
+                ) : null}
+                {insight.id === "odometer" && insight.tone === "clear" ? (
+                  <p className="mt-1 text-[11px] leading-snug break-words font-medium text-slate-500">
+                    {ODOMETER_HISTORY_LISTING_LINE}
                   </p>
                 ) : null}
                 {insight.id === "recall" && insight.status === "Clear" ? (
