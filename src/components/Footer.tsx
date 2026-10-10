@@ -68,9 +68,8 @@ export function Footer() {
         <div className="md:col-span-5">
           <Logo height={52} variant="auto" />
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-            We combine official history records, live market data, future
-            predicted value and AI powered condition assessment so you can buy
-            your next car with confidence.
+            Past, Present and Future insights to buy your next car with
+            confidence.
           </p>
         </div>
 

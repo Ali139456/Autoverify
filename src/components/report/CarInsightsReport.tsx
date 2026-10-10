@@ -21,6 +21,8 @@ import {
 
   getFutureValueAtYears,
 
+  futureValueForecastNote,
+
   resolveFutureValue,
 
 } from "@/lib/report-design";
@@ -29,6 +31,7 @@ import {
   formatCents,
   hasDamageAnalysis,
   INSIGHTS_PLUS_UPGRADE_PRICE_CENTS,
+  getVehicleReportMainTitle,
   resolveReportTier,
 } from "@/lib/pricing";
 
@@ -176,7 +179,7 @@ export function CarInsightsReport({
 
           <h1 className="report-main-title text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
 
-            Auto Verifi – Vehicle Insights Report
+            {getVehicleReportMainTitle(report.tier)}
 
           </h1>
 
@@ -404,6 +407,10 @@ export function CarInsightsReport({
               </p>
 
             </div>
+
+            <p className="mt-2 text-xs leading-relaxed text-slate-600">
+              {futureValueForecastNote(report)}
+            </p>
 
             <div className="report-future-grid mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
 

@@ -55,6 +55,17 @@ function inspectionErrorMessage(err: unknown, fallback: string): string {
   return err.message;
 }
 
+/** Next capture step after a successful upload (first missing angle ahead, then wrap). */
+function findNextStepIndex(uploaded: Set<string>, fromStep: number): number {
+  for (let i = fromStep + 1; i < INSPECTION_ANGLES.length; i++) {
+    if (!uploaded.has(INSPECTION_ANGLES[i].id)) return i;
+  }
+  for (let i = 0; i < fromStep; i++) {
+    if (!uploaded.has(INSPECTION_ANGLES[i].id)) return i;
+  }
+  return Math.min(fromStep + 1, INSPECTION_ANGLES.length - 1);
+}
+
 export function InspectionCapture({
   token,
   initialPhotos = [],
@@ -63,6 +74,7 @@ export function InspectionCapture({
   initialPhotos?: UploadedPhoto[];
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const submitBarRef = useRef<HTMLDivElement>(null);
   const uploadingRef = useRef(false);
   const [photos, setPhotos] = useState<UploadedPhoto[]>(initialPhotos);
   const [stepIndex, setStepIndex] = useState(0);
@@ -78,6 +90,7 @@ export function InspectionCapture({
     [photos],
   );
   const completedCount = uploadedAngles.size;
+  const allPhotosComplete = completedCount >= INSPECTION_ANGLES.length;
 
   const fetchPhotosFromServer = useCallback(async (): Promise<
     UploadedPhoto[] | null
@@ -113,6 +126,19 @@ export function InspectionCapture({
     document.addEventListener("visibilitychange", onVisible);
     return () => document.removeEventListener("visibilitychange", onVisible);
   }, [fetchPhotosFromServer, applyServerPhotos]);
+
+  useEffect(() => {
+    if (allPhotosComplete) return;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [stepIndex, allPhotosComplete]);
+
+  useEffect(() => {
+    if (!allPhotosComplete) return;
+    const frame = requestAnimationFrame(() => {
+      submitBarRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [allPhotosComplete]);
 
   async function uploadPhoto(file: File) {
     setUploading(true);
@@ -158,11 +184,9 @@ export function InspectionCapture({
         return merged;
       });
 
-      if (merged.some((photo) => photo.angle === capturedAngleId)) {
-        setStepIndex(
-          Math.min(capturedStep + 1, INSPECTION_ANGLES.length - 1),
-        );
-      }
+      const uploaded = new Set(merged.map((photo) => photo.angle));
+      uploaded.add(capturedAngleId);
+      setStepIndex(findNextStepIndex(uploaded, capturedStep));
     } catch (err) {
       setError(inspectionErrorMessage(err, "Upload failed."));
     } finally {
@@ -206,7 +230,7 @@ export function InspectionCapture({
       } else {
         setDoneMessage(
           data.message ??
-            "Photos sent to Ravin for analysis. Your report will update automatically when processing finishes.",
+            "Photos saved to your Auto Verifi report. AI damage analysis will be added automatically once condition assessment is complete.",
         );
       }
     } catch (err) {
@@ -227,7 +251,13 @@ export function InspectionCapture({
   }
 
   return (
-    <div className="mx-auto min-h-[100dvh] max-w-lg bg-ink-950 px-4 py-6 text-white">
+    <div
+      className={`inspect-capture-page mx-auto min-h-[100dvh] max-w-lg bg-ink-950 px-4 py-6 pt-[max(1.5rem,env(safe-area-inset-top))] text-white ${
+        allPhotosComplete
+          ? "pb-[calc(7.5rem+env(safe-area-inset-bottom))]"
+          : "pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+      }`}
+    >
       <div className="mb-6">
         <h1 className="text-2xl font-extrabold tracking-tight">
           Auto Verifi AI condition assessment
@@ -360,24 +390,52 @@ export function InspectionCapture({
         </div>
       )}
 
-      <p className="mt-4 text-center text-xs text-slate-500">
-        You can submit once at least one photo has uploaded. If one angle fails,
-        skip it and submit the rest.
-      </p>
+      {!allPhotosComplete ? (
+        <p className="mt-4 text-center text-xs text-slate-500">
+          You can submit once at least one photo has uploaded. If one angle fails,
+          skip it and submit the rest.
+        </p>
+      ) : null}
 
-      <button
-        type="button"
-        onClick={() => void submitInspection()}
-        disabled={submitting || completedCount === 0}
-        className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent-600 to-accent-500 px-5 py-3.5 text-sm font-bold text-white transition hover:from-accent-500 hover:to-accent-400 disabled:opacity-50"
-      >
-        {submitting ? (
-          <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-        ) : (
-          <Sparkles className="h-4 w-4" aria-hidden />
-        )}
-        {submitting ? "Submitting to Ravin…" : "Submit inspection"}
-      </button>
+      {!allPhotosComplete ? (
+        <button
+          type="button"
+          onClick={() => void submitInspection()}
+          disabled={submitting || completedCount === 0}
+          className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent-600 to-accent-500 px-5 py-3.5 text-sm font-bold text-white transition hover:from-accent-500 hover:to-accent-400 disabled:opacity-50"
+        >
+          {submitting ? (
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+          ) : (
+            <Sparkles className="h-4 w-4" aria-hidden />
+          )}
+          {submitting ? "Submitting AI condition images…" : "Submit inspection"}
+        </button>
+      ) : null}
+
+      {allPhotosComplete ? (
+        <div
+          ref={submitBarRef}
+          className="fixed inset-x-0 bottom-0 z-30 border-t border-white/10 bg-ink-950/95 px-4 py-4 backdrop-blur-md pb-[max(1rem,env(safe-area-inset-bottom))]"
+        >
+          <p className="mb-2 text-center text-xs font-medium text-emerald-400">
+            All {INSPECTION_ANGLES.length} photos uploaded — submit to finish.
+          </p>
+          <button
+            type="button"
+            onClick={() => void submitInspection()}
+            disabled={submitting}
+            className="inline-flex w-full max-w-lg mx-auto items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent-600 to-accent-500 px-5 py-4 text-base font-bold text-white shadow-lg shadow-accent-900/40 transition hover:from-accent-500 hover:to-accent-400 disabled:opacity-50"
+          >
+            {submitting ? (
+              <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+            ) : (
+              <Sparkles className="h-5 w-5" aria-hidden />
+            )}
+            {submitting ? "Submitting AI condition images…" : "Submit inspection"}
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }

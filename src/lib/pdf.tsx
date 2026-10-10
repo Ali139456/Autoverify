@@ -46,6 +46,7 @@ import {
   formatReportDate,
   formatReportReference,
   getFutureValueAtYears,
+  futureValueForecastNote,
   getInspectionPhotoUrl,
   resolveDamageFindingImageUrl,
   resolveFutureValue,
@@ -57,7 +58,11 @@ import {
   PdfSpecIcon,
   PdfStatusBadge,
 } from "./report-pdf-icons";
-import { hasDamageAnalysis, resolveReportTier } from "./pricing";
+import {
+  getVehicleReportMainTitle,
+  hasDamageAnalysis,
+  resolveReportTier,
+} from "./pricing";
 import {
   REPORT_GENERAL_DISCLAIMER_PARAGRAPHS,
   REPORT_GENERAL_DISCLAIMER_TITLE,
@@ -211,6 +216,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: STATUS_PANEL_HEIGHT - 2,
     objectFit: "cover",
+    objectPosition: "center",
   },
   statusImageCaption: {
     position: "absolute",
@@ -1032,7 +1038,7 @@ function CarInsightsOverviewPage({
   return (
     <PdfPageShell report={report} pageLabel={pageLabel}>
       <View style={styles.body}>
-        <Text style={styles.title}>Auto Verifi – Vehicle Insights Report</Text>
+        <Text style={styles.title}>{getVehicleReportMainTitle(report.tier)}</Text>
         <Text style={styles.vehicleName}>{vehicleTitle}</Text>
         <Text style={styles.subtitle}>
           A comprehensive summary of your vehicle&apos;s history, status and key insights.
@@ -1122,6 +1128,9 @@ function PdfPresentAndFutureValuations({
           <Text style={styles.sectionTitle}>Future Value Forecast</Text>
           <Text style={{ fontSize: 7, color: GREY, marginTop: 2 }}>
             Based on {futureValue.yearlyKms.toLocaleString()} km per year
+          </Text>
+          <Text style={{ fontSize: 7, color: GREY, marginTop: 4, lineHeight: 1.35 }}>
+            {futureValueForecastNote(report)}
           </Text>
           <View style={styles.valRow}>
             {futureHorizons.map(({ label, years }) => {

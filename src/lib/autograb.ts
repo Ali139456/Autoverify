@@ -75,6 +75,8 @@ export type VehicleLookupOptions = {
   preview?: boolean;
   /** Customer-supplied odometer (km) used for valuation at checkout. */
   customerOdometer?: number | null;
+  /** Advertised / listing price (AUD) — sent as AutoGrab `rrp_overwrite` on residual valuations. */
+  listingPrice?: number | null;
 };
 
 export async function lookupVehicle(
@@ -205,7 +207,7 @@ async function lookupViaAutograb(
     options.preview
       ? Promise.resolve(null)
       : fetchPpsrLookup({ vin: vehicle.vin, rego: plate, state }),
-    fetchResidualValuation(vehicleId, vehicle).then(
+    fetchResidualValuation(vehicleId, vehicle, options.listingPrice).then(
       (value) => value ?? null,
     ),
   ]);
@@ -213,7 +215,8 @@ async function lookupViaAutograb(
   const demo = buildDemoResult(rego, state);
   const resolvedValuation = valuation ?? demo.valuation;
   const resolvedFutureValue =
-    futureValue ?? buildEstimatedFutureValue(vehicle, resolvedValuation);
+    futureValue ??
+    buildEstimatedFutureValue(vehicle, resolvedValuation, options.listingPrice);
 
   const registration = mergeRegistrationInfo({
     status: registrationStatus,
@@ -329,7 +332,9 @@ async function lookupViaVin(
     options.preview
       ? Promise.resolve(null)
       : fetchPpsrLookup({ vin, rego: vehicle.rego || undefined, state }),
-    fetchResidualValuation(vehicleId, vehicle).then((value) => value ?? null),
+    fetchResidualValuation(vehicleId, vehicle, options.listingPrice).then(
+      (value) => value ?? null,
+    ),
   ]);
 
   applyPpsrPlateToVehicle(vehicle, ppsr);
@@ -342,7 +347,8 @@ async function lookupViaVin(
   const demo = buildDemoResult(vin, state, { vin });
   const resolvedValuation = valuation ?? demo.valuation;
   const resolvedFutureValue =
-    futureValue ?? buildEstimatedFutureValue(vehicle, resolvedValuation);
+    futureValue ??
+    buildEstimatedFutureValue(vehicle, resolvedValuation, options.listingPrice);
 
   const registration = mergeRegistrationInfo({
     status: registrationStatus,
@@ -970,6 +976,7 @@ function estimateYearlyKms(vehicle: VehicleIdentity): number {
 async function fetchResidualValuation(
   vehicleId: string,
   vehicle: VehicleIdentity,
+  listingPrice?: number | null,
 ): Promise<FutureValueInfo | null> {
   const initialKms = vehicle.odometer ?? estimateKmsFromYear(vehicle.year);
   const yearlyKms = estimateYearlyKms(vehicle);
@@ -980,6 +987,13 @@ async function fetchResidualValuation(
     initial_kms: initialKms,
     yearly_kms: yearlyKms,
   };
+  if (
+    listingPrice != null &&
+    Number.isFinite(listingPrice) &&
+    listingPrice > 0
+  ) {
+    body.rrp_overwrite = Math.round(listingPrice);
+  }
   if (vehicle.colour) {
     body.color = vehicle.colour;
   }
@@ -1015,10 +1029,15 @@ async function fetchResidualValuation(
 export function buildEstimatedFutureValue(
   vehicle: VehicleIdentity,
   valuation: ValuationInfo,
+  listingPrice?: number | null,
 ): FutureValueInfo {
-  const currentValue = Math.round(
+  const marketMid = Math.round(
     (valuation.privateLow + valuation.privateHigh) / 2,
   );
+  const currentValue =
+    listingPrice != null && Number.isFinite(listingPrice) && listingPrice > 0
+      ? Math.round(listingPrice)
+      : marketMid;
   const initialKms = vehicle.odometer ?? estimateKmsFromYear(vehicle.year);
   const yearlyKms = estimateYearlyKms(vehicle);
   const horizonYears = [0, 1, 2, 3, 5];

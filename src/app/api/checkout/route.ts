@@ -106,6 +106,11 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    const listingPrice =
+      Number.isFinite(advertisedPrice) && advertisedPrice > 0
+        ? advertisedPrice
+        : null;
+
     const lookup = await lookupVehicle(
       parsed.value,
       parsed.kind === "rego" ? state : STATES.includes(state) ? state : undefined,
@@ -114,6 +119,7 @@ export async function POST(req: NextRequest) {
           Number.isFinite(customerOdometer) && customerOdometer > 0
             ? customerOdometer
             : null,
+        listingPrice,
       },
     );
     const reportId = generateReportId();

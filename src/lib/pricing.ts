@@ -52,7 +52,7 @@ export const REPORT_TIERS: Record<ReportTier, ReportTierConfig> = {
       "Safety Recall Data",
       "ANCAP Safety rating",
       "Odometer check",
-      "Professional PDF report",
+      "Model, variant, series and full vehicle specs",
     ],
   },
   insights_plus: {
@@ -112,4 +112,10 @@ export function hasDamageAnalysis(tier: ReportTier | undefined): boolean {
 
 export function resolveReportTier(tier: ReportTier | undefined): ReportTier {
   return tier ?? "insights_plus";
+}
+
+export function getVehicleReportMainTitle(tier: ReportTier | undefined): string {
+  return resolveReportTier(tier) === "insights_plus"
+    ? "Auto Verifi – Vehicle Insights+ Report"
+    : "Auto Verifi – Vehicle Insights Report";
 }

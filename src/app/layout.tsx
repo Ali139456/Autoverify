@@ -56,10 +56,6 @@ export const metadata: Metadata = {
     images: ["/logo/logo-blue-on-white.png"],
   },
   robots: { index: true, follow: true },
-  icons: {
-    icon: "/logo/icon.png",
-    apple: "/logo/icon.png",
-  },
 };
 
 export default async function RootLayout({

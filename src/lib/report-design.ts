@@ -171,11 +171,103 @@ export function formatPPlateStatus(vehicle: VehicleIdentity): string {
   return "Check state restrictions for P plate drivers";
 }
 
-export function resolveFutureValue(report: VehicleReport): FutureValueInfo {
-  if (report.futureValue?.predictions?.length) {
-    return report.futureValue;
+/** Re-anchors the full forecast curve to the customer's listing / sale price. */
+function anchorFutureValueToListingPrice(
+  future: FutureValueInfo,
+  listingPrice: number,
+  fallbackOdometer: number,
+): FutureValueInfo {
+  const price = Math.round(listingPrice);
+  const predictions = [...future.predictions].sort(
+    (a, b) => a.yearsAhead - b.yearsAhead,
+  );
+
+  if (!predictions.length) {
+    return {
+      ...future,
+      predictions: [
+        {
+          yearsAhead: 0,
+          odometer: Math.round(fallbackOdometer),
+          value: price,
+          confidence: 0.75,
+        },
+      ],
+    };
   }
-  return buildEstimatedFutureValue(report.vehicle, report.valuation);
+
+  const basePoint =
+    predictions.find((point) => point.yearsAhead === 0) ?? predictions[0];
+  const baseValue = basePoint.value;
+
+  if (!Number.isFinite(baseValue) || baseValue <= 0) {
+    const today: FutureValuePoint = {
+      yearsAhead: 0,
+      odometer: Math.round(basePoint.odometer ?? fallbackOdometer),
+      value: price,
+      confidence: basePoint.confidence ?? 0.75,
+    };
+    const index = predictions.findIndex((point) => point.yearsAhead === 0);
+    if (index >= 0) {
+      predictions[index] = today;
+    } else {
+      predictions.unshift(today);
+    }
+    return { ...future, predictions };
+  }
+
+  const scale = price / baseValue;
+  const rescaled = predictions.map((point) => ({
+    ...point,
+    value: Math.max(1, Math.round(point.value * scale)),
+  }));
+
+  const todayIndex = rescaled.findIndex((point) => point.yearsAhead === 0);
+  if (todayIndex >= 0) {
+    rescaled[todayIndex] = { ...rescaled[todayIndex], value: price };
+  } else {
+    rescaled.unshift({
+      yearsAhead: 0,
+      odometer: Math.round(basePoint.odometer ?? fallbackOdometer),
+      value: price,
+      confidence: basePoint.confidence ?? 0.75,
+    });
+    rescaled.sort((a, b) => a.yearsAhead - b.yearsAhead);
+  }
+
+  return { ...future, predictions: rescaled };
+}
+
+export function futureValueForecastNote(report: VehicleReport): string {
+  const listing = report.advertisedPrice;
+  if (listing != null && Number.isFinite(listing) && listing > 0) {
+    return `Forecast anchored to your listing price of $${Math.round(listing).toLocaleString("en-AU")}. Future years follow the same depreciation curve from that starting point.`;
+  }
+  return "This forecast uses predicted market value. If you have not purchased yet, compare it to the advertised listing price — enter that price when you order your report to anchor the forecast to what you expect to pay.";
+}
+
+export function resolveFutureValue(report: VehicleReport): FutureValueInfo {
+  const advertised = report.advertisedPrice;
+  const initialKms =
+    report.vehicle.odometer ??
+    Math.max(new Date().getFullYear() - report.vehicle.year, 1) * 12000;
+
+  let future: FutureValueInfo;
+  if (report.futureValue?.predictions?.length) {
+    future = report.futureValue;
+  } else {
+    future = buildEstimatedFutureValue(
+      report.vehicle,
+      report.valuation,
+      advertised,
+    );
+  }
+
+  if (advertised != null && Number.isFinite(advertised) && advertised > 0) {
+    future = anchorFutureValueToListingPrice(future, advertised, initialKms);
+  }
+
+  return future;
 }
 
 export function getFutureValueAtYears(

@@ -2,6 +2,10 @@ import {
   buildEstimatedFutureValue,
   computeAiInsights,
 } from "./autograb";
+import {
+  EXTERIOR_INSPECTION_ANGLE_IDS,
+  getInspectionAngleLabel,
+} from "./inspection-angles";
 import { buildVehicleSpecSheet } from "./vehicle-spec-sheet";
 import type {
   DamageAnalysis,
@@ -23,22 +27,35 @@ function sampleAssetUrl(file: string): string {
   return samplePublicUrl(`/sample/${file}`);
 }
 
-/** Black Mercedes-Benz C-Class walkaround (Unsplash, sample only) for Insights+. */
-const SAMPLE_WALKAROUND = [
-  { angle: "front", label: "Front", file: "front.jpg" },
-  { angle: "front_right", label: "Front right", file: "front-right.jpg" },
-  { angle: "front_left", label: "Front left", file: "front-left.jpg" },
-  { angle: "rear", label: "Rear", file: "rear.jpg" },
-  { angle: "rear_right", label: "Rear right", file: "rear-right.jpg" },
-  { angle: "rear_left", label: "Rear left", file: "rear-left.jpg" },
-  { angle: "wheels", label: "Tyres / wheels", file: "wheels.jpg" },
-  { angle: "interior_front", label: "Interior front", file: "interior-front.jpg" },
-  { angle: "interior_rear", label: "Interior rear", file: "interior-rear.jpg" },
-  { angle: "odometer", label: "Odometer", file: "odometer.jpg" },
+/**
+ * Black Mercedes-Benz C-Class (W205) demo walkaround — file per inspection angle.
+ * Assets under `public/sample/walkaround/` (Unsplash, see README).
+ */
+const SAMPLE_WALKAROUND_FILES: Record<string, string> = {
+  front_left: "front-left.jpg",
+  front: "front.jpg",
+  front_right: "front-right.jpg",
+  right_side: "right-side.jpg",
+  rear_right: "rear-right.jpg",
+  rear: "rear.jpg",
+  rear_left: "rear-left.jpg",
+  left_side: "left-side.jpg",
+  wheel_right_front: "wheels.jpg",
+  interior_driver_front: "interior-front.jpg",
+  interior_passenger_rear: "interior-rear.jpg",
+  dashboard: "odometer.jpg",
+};
+
+const SAMPLE_WALKAROUND_ANGLES = [
+  ...EXTERIOR_INSPECTION_ANGLE_IDS,
+  "wheel_right_front",
+  "interior_driver_front",
+  "interior_passenger_rear",
+  "dashboard",
 ] as const;
 
 const SAMPLE_DAMAGE: DamageAnalysis = {
-  analyzedPhotos: SAMPLE_WALKAROUND.length,
+  analyzedPhotos: SAMPLE_WALKAROUND_ANGLES.length,
   overallCondition: "Good",
   totalRepairEstimate: 920,
   findings: [
@@ -66,11 +83,12 @@ const SAMPLE_DAMAGE: DamageAnalysis = {
 const SAMPLE_PHOTO_TIMESTAMP = "2026-01-15T10:30:00.000Z";
 
 export function buildSampleInspectionPhotos(): InspectionPhoto[] {
-  return SAMPLE_WALKAROUND.map((item) => {
-    const url = sampleWalkaroundUrl(item.file);
+  return SAMPLE_WALKAROUND_ANGLES.map((angle) => {
+    const file = SAMPLE_WALKAROUND_FILES[angle] ?? "front-left.jpg";
+    const url = sampleWalkaroundUrl(file);
     return {
-      angle: item.angle,
-      label: item.label,
+      angle,
+      label: getInspectionAngleLabel(angle),
       storagePath: url,
       externalUrl: url,
       uploadedAt: SAMPLE_PHOTO_TIMESTAMP,
@@ -192,14 +210,28 @@ function buildMercedesSampleCore() {
     vehicleRecord: {
       num_doors: 4,
       num_seats: 5,
+      num_gears: 9,
       engine_size: "2.0L",
       engine_type: "T4",
-      performance_info: { power_kw: 190, torque_nm: 400 },
+      battery_kwh: 0.96,
+      performance_info: {
+        power_kw: 190,
+        torque_nm: 400,
+        weight_tonnes: 1.74,
+        power_to_weight_ratio: 109,
+      },
     },
-    registrationData: {},
+    registrationData: {
+      build_data: {
+        build_date: "2021-11-18",
+      },
+    },
     detailedSpecs: [
       { description: "Body", value: "Sedan" },
-      { description: "Fuel type", value: "Premium unleaded / electric (mild hybrid)" },
+      {
+        description: "Fuel type",
+        value: "Premium unleaded / electric (mild hybrid)",
+      },
       { description: "Transmission", value: "Automatic" },
     ],
   });
@@ -215,7 +247,10 @@ function buildMercedesSampleCore() {
     { code: "243", label: "ACTIVE STEERING ASSIST" },
     { code: "249", label: "AUTOMATICALLY DIMMING INSIDE REAR VIEW MIRROR" },
     { code: "255", label: "DRIVING ASSISTANCE PACKAGE" },
-    { code: "275", label: "MEMORY PACKAGE (DRIVER SEAT, STEERING COLUMN, MIRRORS)" },
+    {
+      code: "275",
+      label: "MEMORY PACKAGE (DRIVER SEAT, STEERING COLUMN, MIRRORS)",
+    },
     { code: "293", label: "SIDEBAGS IN THE REAR" },
     { code: "294", label: "KNEEBAG" },
     { code: "321", label: "AMG LINE EXTERIOR" },

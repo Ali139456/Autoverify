@@ -323,6 +323,25 @@ html.dark body {
   -webkit-print-color-adjust: exact;
 }
 
+.report-spec-power-row,
+.report-spec-power-footnote {
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+/* Mobile inspection link — edge-to-edge, safe areas, less browser chrome clash */
+.inspect-capture-shell {
+  min-height: 100dvh;
+  min-height: 100svh;
+  background-color: #020617;
+}
+
+@supports (-webkit-touch-callout: none) {
+  .inspect-capture-page {
+    min-height: -webkit-fill-available;
+  }
+}
+
 /** Section titles on report page 2 — matches tagline / brand blue (#0073E3). */
 .report-section-heading {
   border-bottom: 2px solid #0073e3;

@@ -3,6 +3,7 @@ import type { VehicleReport } from "@/lib/types";
 import {
   getFutureValueAtYears,
   formatReportReference,
+  futureValueForecastNote,
   resolveFutureValue,
 } from "@/lib/report-design";
 import { ReportComparableVehicles } from "./ReportComparableVehicles";
@@ -70,6 +71,9 @@ export function PresentAndFutureValueReportPage({
               Based on {futureValue.yearlyKms.toLocaleString()} km per year
             </p>
           </div>
+          <p className="mt-2 text-xs leading-relaxed text-slate-600">
+            {futureValueForecastNote(report)}
+          </p>
           <div className="report-future-grid mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {futureHorizons.map(({ label, years }) => {
               const point = getFutureValueAtYears(futureValue, years);

@@ -1,15 +1,9 @@
-import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { InspectionCapture } from "@/components/InspectionCapture";
 import {
   getInspectionByToken,
   isInspectionExpired,
 } from "@/lib/inspections";
-
-export const metadata: Metadata = {
-  title: "Vehicle Inspection",
-  robots: { index: false, follow: false },
-};
 
 export default async function InspectPage({
   params,

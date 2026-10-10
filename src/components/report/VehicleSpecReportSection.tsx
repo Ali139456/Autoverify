@@ -56,7 +56,9 @@ export function VehicleSpecReportSection({
                     >
                       <dt
                         className={`report-spec-data-label px-4 py-2.5 font-medium ${
-                          powerRow ? "font-semibold text-[#0073E3]" : "text-slate-600"
+                          powerRow
+                            ? "report-spec-power-row font-semibold text-[#0073E3]"
+                            : "text-slate-600"
                         }`}
                       >
                         {row.label}
@@ -64,7 +66,9 @@ export function VehicleSpecReportSection({
                       </dt>
                       <dd
                         className={`bg-white px-4 py-2.5 font-semibold ${
-                          powerRow ? "text-[#0073E3]" : "text-slate-900"
+                          powerRow
+                            ? "report-spec-power-row text-[#0073E3]"
+                            : "text-slate-900"
                         }`}
                       >
                         {row.value}
@@ -75,7 +79,7 @@ export function VehicleSpecReportSection({
               </dl>
               </div>
               {shouldShowPowerToWeightFootnote(sheet!.dataRows) ? (
-                <p className="mt-2 text-[11px] leading-relaxed text-[#0073E3]">
+                <p className="report-spec-power-footnote mt-2 text-[11px] leading-relaxed text-[#0073E3]">
                   {P_PLATE_POWER_TO_WEIGHT_FOOTNOTE}
                 </p>
               ) : null}

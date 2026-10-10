@@ -88,7 +88,7 @@ export async function POST(
         complete: false,
         missingAngles: progress.missing,
         message:
-          "Photos saved to your Auto Verifi report. AI damage analysis will be added automatically once Ravin finishes processing.",
+          "Photos saved to your Auto Verifi report. AI damage analysis will be added automatically once condition assessment is complete.",
       });
     }
 
@@ -103,7 +103,7 @@ export async function POST(
       complete: false,
       missingAngles: progress.missing,
       message:
-        "Photos submitted to Ravin. Your report will update automatically when analysis completes.",
+        "Photos saved to your Auto Verifi report. AI damage analysis will be added automatically once condition assessment is complete.",
     });
   } catch (err) {
     await updateInspection(inspection.id, { status: "failed" });
