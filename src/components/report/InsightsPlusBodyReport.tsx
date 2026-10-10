@@ -24,13 +24,13 @@ function PhotoTile({
 
   return (
     <figure className="report-photo-tile overflow-hidden rounded-lg border border-slate-200 bg-white">
-      <div className="relative aspect-[4/3] bg-slate-100">
+      <div className="relative aspect-[4/3] bg-[#020617]">
         {url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={url}
             alt={photo.label}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-contain object-center"
           />
         ) : (
           <div className="flex h-full items-center justify-center text-slate-400">

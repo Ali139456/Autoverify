@@ -78,6 +78,9 @@ export function formatOdometerReading(vehicle: VehicleReport["vehicle"]): string
 export const ODOMETER_HISTORY_LISTING_LINE =
   "Historical readings from listing records.";
 
+export const ODOMETER_HISTORY_CONSISTENT_STATUS =
+  "Odometer history consistent with reading reported at purchase";
+
 export function formatOdometerHistoryEntry(entry: {
   date: string;
   odometer: number;
@@ -89,7 +92,7 @@ export function formatOdometerHistoryEntry(entry: {
   return source ? `${date} — ${km} · ${source}` : `${date} — ${km}`;
 }
 
-function readingAtPurchaseOfReportDetail(
+export function readingAtPurchaseOfReportDetail(
   vehicle: VehicleReport["vehicle"],
 ): string | undefined {
   if (vehicle.odometer == null || !Number.isFinite(vehicle.odometer)) {
@@ -118,17 +121,14 @@ export function buildOdometerHistoryInsight(
     };
   }
 
-  const latest = history[history.length - 1]!;
-  const countLabel = `${history.length} historical reading${history.length === 1 ? "" : "s"} on record.`;
-  const purchaseDetail = readingAtPurchaseOfReportDetail(vehicle);
-
   return {
-    status: `${latest.odometer.toLocaleString("en-AU")} km latest recorded`,
-    statusSubtext: countLabel,
+    status: ODOMETER_HISTORY_CONSISTENT_STATUS,
     tone: "clear",
-    detail: purchaseDetail,
-    listItems: history.map((entry) => formatOdometerHistoryEntry(entry)),
   };
+}
+
+export function odometerHistoryCountLabel(count: number): string {
+  return `${count} historical reading${count === 1 ? "" : "s"} on record.`;
 }
 
 const money = (n: number) => `$${n.toLocaleString("en-AU")}`;

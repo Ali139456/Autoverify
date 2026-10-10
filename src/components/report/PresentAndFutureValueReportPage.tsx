@@ -9,6 +9,7 @@ import {
   resolveValuation,
 } from "@/lib/report-design";
 import { ReportComparableVehicles } from "./ReportComparableVehicles";
+import { ReportOdometerHistoryTable } from "./ReportOdometerHistoryTable";
 import { ReportShell } from "./ReportShell";
 import { ReportValuationSupplements } from "./ReportValuationSupplements";
 
@@ -109,6 +110,7 @@ export function PresentAndFutureValueReportPage({
           </p>
         </div>
 
+        <ReportOdometerHistoryTable report={report} />
         <ReportComparableVehicles report={report} />
         <ReportValuationSupplements report={report} />
         {trailingContent}

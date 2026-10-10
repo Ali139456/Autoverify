@@ -1,4 +1,5 @@
 import { comparableListingsShowDaysListed } from "@/lib/report-design";
+import { isSampleReportId } from "@/lib/ppsr-certificate";
 import type { VehicleReport } from "@/lib/types";
 
 
@@ -21,7 +22,9 @@ export function ReportComparableVehicles({ report }: { report: VehicleReport }) 
 
   if (listings.length === 0) return null;
 
-  const showDaysListed = comparableListingsShowDaysListed(listings);
+  const showDaysListed =
+    !isSampleReportId(report.id) &&
+    comparableListingsShowDaysListed(listings);
 
   return (
 

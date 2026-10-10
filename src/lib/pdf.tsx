@@ -37,7 +37,11 @@ import {
   buildKeyInsights,
   comparableListingsShowDaysListed,
   ANCAP_SAFETY_RATINGS_URL,
+  formatExpiryDate,
+  hasOdometerHistory,
   ODOMETER_HISTORY_LISTING_LINE,
+  odometerHistoryCountLabel,
+  readingAtPurchaseOfReportDetail,
   VEHICLE_RECALLS_GOV_AU_URL,
   buildReportOverviewSpecs,
   buildStatusChecks,
@@ -396,7 +400,13 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     overflow: "hidden",
   },
-  photoImage: { width: "100%", height: 64, objectFit: "cover" },
+  photoImage: {
+    width: "100%",
+    height: 64,
+    objectFit: "contain",
+    objectPosition: "center",
+    backgroundColor: "#020617",
+  },
   photoCaption: {
     paddingHorizontal: 4,
     paddingTop: 3,
@@ -631,7 +641,7 @@ function PdfInsightCard({
                       {insight.statusSubtext}
                     </Text>
                   ) : null}
-                  {insight.listItems?.length ? (
+                  {insight.listItems?.length && insight.id !== "odometer" ? (
                     <View style={{ marginTop: 3 }}>
                       {insight.listItems.map((item) => (
                         <Text
@@ -658,19 +668,6 @@ function PdfInsightCard({
                       ]}
                     >
                       {insight.detail}
-                    </Text>
-                  ) : null}
-                  {insight.id === "odometer" && insight.tone === "clear" ? (
-                    <Text
-                      style={{
-                        marginTop: 2,
-                        fontSize: 6.5,
-                        color: GREY,
-                        fontFamily: "Helvetica",
-                        lineHeight: 1.35,
-                      }}
-                    >
-                      {ODOMETER_HISTORY_LISTING_LINE}
                     </Text>
                   ) : null}
                   {insight.id === "recall" && insight.status === "Clear" ? (
@@ -1179,16 +1176,125 @@ function PdfPresentAndFutureValuations({
         </View>
       ) : null}
 
+      <PdfOdometerHistoryTable report={report} />
       <PdfComparableVehiclesTable report={report} />
       <PdfValuationSupplements report={report} />
     </>
   );
 }
 
+function PdfOdometerHistoryTable({ report }: { report: VehicleReport }) {
+  const history = report.vehicle.odometerHistory ?? [];
+  if (!hasOdometerHistory(report.vehicle)) return null;
+  const purchaseLine = readingAtPurchaseOfReportDetail(report.vehicle);
+
+  return (
+    <View style={{ marginTop: 8 }} wrap={false}>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "flex-end",
+        }}
+      >
+        <Text style={[styles.sectionTitle, { fontSize: 8, flex: 1 }]}>
+          Odometer history
+        </Text>
+        <Text
+          style={{
+            fontSize: 6.5,
+            fontFamily: "Helvetica-Bold",
+            color: BLUE,
+            textTransform: "uppercase",
+            marginBottom: 2,
+          }}
+        >
+          {odometerHistoryCountLabel(history.length)}
+        </Text>
+      </View>
+      <View
+        style={{
+          marginTop: 4,
+          borderWidth: 1,
+          borderColor: "#e2e8f0",
+          borderRadius: 6,
+        }}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            backgroundColor: LIGHT,
+            borderBottomWidth: 1,
+            borderBottomColor: "#e2e8f0",
+            padding: 4,
+          }}
+        >
+          <Text style={{ width: "28%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
+            Date
+          </Text>
+          <Text style={{ width: "32%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
+            Odometer
+          </Text>
+          <Text style={{ width: "40%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
+            Source
+          </Text>
+        </View>
+        {history.map((entry, index) => (
+          <View
+            key={`${entry.date}-${entry.odometer}-${index}`}
+            style={{
+              flexDirection: "row",
+              borderTopWidth: index === 0 ? 0 : 1,
+              borderTopColor: "#e2e8f0",
+              backgroundColor: index % 2 === 1 ? TABLE_ROW_SHADE : "#ffffff",
+            }}
+          >
+            <Text
+              style={{
+                width: "28%",
+                fontSize: 6.5,
+                padding: 4,
+                fontFamily: "Helvetica-Bold",
+                color: "#0f172a",
+              }}
+            >
+              {formatExpiryDate(entry.date)}
+            </Text>
+            <Text
+              style={{
+                width: "32%",
+                fontSize: 6.5,
+                padding: 4,
+                fontFamily: "Helvetica-Bold",
+                color: BLUE,
+              }}
+            >
+              {entry.odometer.toLocaleString()} km
+            </Text>
+            <Text style={{ width: "40%", fontSize: 6.5, padding: 4, color: "#334155" }}>
+              {entry.source?.trim() || "—"}
+            </Text>
+          </View>
+        ))}
+      </View>
+      <Text style={{ marginTop: 4, fontSize: 6.5, color: GREY, lineHeight: 1.35 }}>
+        {ODOMETER_HISTORY_LISTING_LINE}
+      </Text>
+      {purchaseLine ? (
+        <Text style={{ marginTop: 2, fontSize: 6.5, color: GREY, lineHeight: 1.35 }}>
+          {purchaseLine}
+        </Text>
+      ) : null}
+    </View>
+  );
+}
+
 function PdfComparableVehiclesTable({ report }: { report: VehicleReport }) {
   const listings = report.market.comparableListings.slice(0, MAX_COMPARABLE_ROWS);
   if (listings.length === 0) return null;
-  const showDaysListed = comparableListingsShowDaysListed(listings);
+  const showDaysListed =
+    !report.id.startsWith("SAMPLE-") &&
+    comparableListingsShowDaysListed(listings);
   const colVehicle = showDaysListed ? "38%" : "42%";
   const colPrice = showDaysListed ? "14%" : "16%";
   const colOdometer = showDaysListed ? "16%" : "18%";

@@ -378,7 +378,7 @@ html.dark body {
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center center;
 }
 
@@ -666,12 +666,20 @@ html.dark body {
     overflow: hidden !important;
   }
 
+  .report-shell-insights-page1 .report-hero-image {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
   .report-shell-insights-page1 .report-hero-image img {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
+    position: static !important;
+    display: block !important;
+    width: auto !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: 46mm !important;
+    object-fit: contain !important;
     object-position: center center !important;
   }
 
@@ -966,17 +974,32 @@ html.dark body {
     max-height: 52mm !important;
     overflow: hidden !important;
     background-color: #020617 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 
   .report-hero-image img {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    max-width: none !important;
-    height: 100% !important;
-    max-height: none !important;
-    object-fit: cover !important;
+    position: static !important;
+    display: block !important;
+    width: auto !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: 50mm !important;
+    object-fit: contain !important;
     object-position: center center !important;
+  }
+
+  .report-odometer-history,
+  .report-comparables {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .report-photo-tile img {
+    object-fit: contain !important;
+    object-position: center !important;
+    background-color: #020617 !important;
   }
 
   .report-insights-section {

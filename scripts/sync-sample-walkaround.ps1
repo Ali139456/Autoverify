@@ -22,7 +22,10 @@ $map = @{
   "rear-right.jpg"      = "image (4).png"
   "rear.jpg"            = "image (3).png"
   "rear-left.jpg"       = "image (5).png"
-  "wheels.jpg"          = "mercedes_front_left_wheel_small.jpg"
+  "wheel-right-front.jpg" = "image (6).png"
+  "wheel-right-rear.jpg"  = "image (8).png"
+  "wheel-left-front.jpg"  = "mercedes_front_left_wheel_small.jpg"
+  "wheel-left-rear.jpg"   = "image (7).png"
   "interior-front.jpg"  = "mercedes_driver_interior_under_500kb.jpg"
   "interior-rear.jpg"   = "mercedes_c300_rear_interior_under_500kb.jpg"
   "odometer.jpg"        = "image (12).png"
@@ -40,7 +43,7 @@ foreach ($dest in $map.Keys) {
   Write-Host "OK $dest"
 }
 
-$heroSrc = Join-Path $src "image (2).png"
+$heroSrc = Join-Path $src "image.png"
 if (Test-Path $heroSrc) {
   Copy-Item $heroSrc $hero -Force
   Write-Host "OK c300-hero.jpg"

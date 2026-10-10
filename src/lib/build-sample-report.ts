@@ -43,7 +43,10 @@ const SAMPLE_WALKAROUND_FILES: Record<string, string> = {
   rear: "rear.jpg",
   rear_left: "rear-left.jpg",
   left_side: "left-side.jpg",
-  wheel_right_front: "wheels.jpg",
+  wheel_right_front: "wheel-right-front.jpg",
+  wheel_right_rear: "wheel-right-rear.jpg",
+  wheel_left_front: "wheel-left-front.jpg",
+  wheel_left_rear: "wheel-left-rear.jpg",
   interior_driver_front: "interior-front.jpg",
   interior_passenger_rear: "interior-rear.jpg",
   dashboard: "odometer.jpg",
@@ -54,6 +57,9 @@ const SAMPLE_WALKAROUND_FILES: Record<string, string> = {
 const SAMPLE_WALKAROUND_ANGLES = [
   ...EXTERIOR_INSPECTION_ANGLE_IDS,
   "wheel_right_front",
+  "wheel_right_rear",
+  "wheel_left_rear",
+  "wheel_left_front",
   "interior_driver_front",
   "interior_passenger_rear",
   "dashboard",
@@ -89,13 +95,20 @@ const SAMPLE_DAMAGE: DamageAnalysis = {
 
 const SAMPLE_PHOTO_TIMESTAMP = "2026-01-15T10:30:00.000Z";
 
+const SAMPLE_WHEEL_LABELS: Partial<Record<string, string>> = {
+  wheel_right_front: "Wheels & Tyres - Front right",
+  wheel_right_rear: "Wheels & Tyres - Rear right",
+  wheel_left_rear: "Wheels & Tyres - Rear left",
+  wheel_left_front: "Wheels & Tyres - Front left",
+};
+
 export function buildSampleInspectionPhotos(): InspectionPhoto[] {
   return SAMPLE_WALKAROUND_ANGLES.map((angle) => {
     const file = SAMPLE_WALKAROUND_FILES[angle] ?? "front-left.jpg";
     const url = sampleWalkaroundUrl(file);
     return {
       angle,
-      label: getInspectionAngleLabel(angle),
+      label: SAMPLE_WHEEL_LABELS[angle] ?? getInspectionAngleLabel(angle),
       storagePath: url,
       externalUrl: url,
       uploadedAt: SAMPLE_PHOTO_TIMESTAMP,
@@ -135,7 +148,7 @@ function buildMercedesSampleCore() {
     pPlateLegal: "Check state restrictions for P plate drivers",
     doors: 4,
     seats: 5,
-    heroImageUrl: sampleAssetUrl("c300-hero.jpg"),
+    heroImageUrl: sampleWalkaroundUrl("front.jpg"),
     heroImageDisclaimer:
       "Illustrative sample image — 2022 Mercedes-Benz C-Class C300 (reference photos).",
     heroImageKind: "stock" as const,
