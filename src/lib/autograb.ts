@@ -1027,7 +1027,7 @@ export async function refreshRegistrationIfMissing(
   registration: RegistrationInfo,
   vehicle: VehicleIdentity,
 ): Promise<RegistrationInfo> {
-  let next = applyRegistrationExpiryInference(registration);
+  const next = applyRegistrationExpiryInference(registration);
   const plate = vehicle.rego?.trim();
   if (!plate || !vehicle.state) return next;
   if (!AUTOGRAB_API_KEY?.trim()) return next;
