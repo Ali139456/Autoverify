@@ -127,7 +127,11 @@ export function InsightsPlusBodyReport({
   };
 
   return (
-    <ReportShell {...shellProps} pageLabel={pageLabel}>
+    <ReportShell
+      {...shellProps}
+      pageLabel={pageLabel}
+      className="report-shell-insights-plus report-shell-flow"
+    >
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">

@@ -280,7 +280,8 @@ html.dark body {
   min-height: 1056px;
 }
 
-.report-shell-ppsr {
+.report-shell-ppsr,
+.report-shell-flow {
   min-height: auto;
 }
 
@@ -309,6 +310,18 @@ html.dark body {
 #report-print-area > .report-print-page-first > .report-shell {
   flex: 1 1 auto;
   width: 100%;
+}
+
+#report-print-area > .report-page-break:not(.report-page-flow),
+#report-print-area > .report-print-page-first {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 279.5mm;
+  box-sizing: border-box;
+}
+
+#report-print-area > .report-page-break.report-page-flow {
+  min-height: auto !important;
 }
 
 .report-spec-data-table-wrap {
@@ -478,9 +491,25 @@ html.dark body {
     box-sizing: border-box !important;
   }
 
+  .report-shell-flow,
+  #report-print-area .report-shell-ppsr {
+    min-height: auto !important;
+    height: auto !important;
+  }
+
   #report-print-area .report-shell-ppsr {
     break-inside: auto !important;
     page-break-inside: auto !important;
+  }
+
+  #report-print-area
+    > .report-page-break:not(.report-page-flow)
+    > .report-shell:not(.report-shell-flow),
+  #report-print-area
+    > .report-print-page-first
+    > .report-shell:not(.report-shell-flow) {
+    flex: 1 1 auto !important;
+    min-height: 100% !important;
   }
 
   #report-print-area > .report-page-break:last-child,
@@ -524,9 +553,18 @@ html.dark body {
   }
 
   .report-shell-body {
-    flex: 0 1 auto !important;
+    flex: 1 1 auto !important;
     overflow: visible !important;
     padding: 12px 18px 12px !important;
+  }
+
+  .report-shell-flow .report-shell-body,
+  .report-shell-ppsr .report-shell-body {
+    flex: 0 1 auto !important;
+  }
+
+  .report-shell-flow .report-shell-footer {
+    margin-top: 0 !important;
   }
 
   #report-print-area .report-shell-ppsr .report-shell-body {

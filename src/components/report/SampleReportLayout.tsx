@@ -100,7 +100,7 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
         </div>
 
         {hasVehicleSpecSheet ? (
-          <div className="report-page-break">
+          <div className="report-page-break report-page-flow">
             <VehicleSpecReportPage
               report={report}
               pageLabel={`${reportPage++} / ${pageCount}`}
@@ -117,7 +117,7 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
 
         {includesDamage ? (
 
-          <div className="report-page-break">
+          <div className="report-page-break report-page-flow">
 
             <InsightsPlusBodyReport
 

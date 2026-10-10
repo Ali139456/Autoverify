@@ -133,7 +133,7 @@ export default async function ReportPage({
         </div>
 
         {hasVehicleSpecSheet ? (
-          <div className="report-page-break">
+          <div className="report-page-break report-page-flow">
             <VehicleSpecReportPage
               report={report}
               pageLabel={`${reportPage++} / ${pageCount}`}
@@ -147,7 +147,7 @@ export default async function ReportPage({
         ) : null}
 
         {includesDamage && (
-          <div className="report-page-break">
+          <div className="report-page-break report-page-flow">
             <InsightsPlusBodyReport
               report={report}
               photos={inspection?.photos ?? []}

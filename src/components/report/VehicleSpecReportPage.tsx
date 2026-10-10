@@ -25,7 +25,7 @@ export function VehicleSpecReportPage({
     reportId: report.id,
     generatedAt: report.createdAt,
     reportReference: formatReportReference(report.vehicle),
-    className: "report-shell-spec",
+    className: "report-shell-spec report-shell-flow",
   };
 
   if (!hasFactory || !factoryPageLabel) {
