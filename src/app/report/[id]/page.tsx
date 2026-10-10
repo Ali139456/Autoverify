@@ -125,12 +125,12 @@ export default async function ReportPage({
           />
         </div>
 
-        <div className="report-page-break report-valuations-page-break">
-          <PresentAndFutureValueReportPage
-            report={report}
-            pageLabel={`${reportPage++} / ${pageCount}`}
-          />
-        </div>
+        <PresentAndFutureValueReportPage
+          report={report}
+          pageLabel={`${reportPage++} / ${pageCount}`}
+          pPlatePageLabel={`${reportPage++} / ${pageCount}`}
+          rideSharePageLabel={`${reportPage++} / ${pageCount}`}
+        />
 
         {hasVehicleSpecSheet ? (
           <div className="report-page-break report-page-flow">
