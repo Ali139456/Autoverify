@@ -444,7 +444,10 @@ function buildRideShareKeyInsight(report: VehicleReport): ReportInsight {
         { text: "Age — eligible", variant: "eligible" },
         { text: "Doors — eligible", variant: "eligible" },
         { text: "Passenger capacity — eligible", variant: "eligible" },
-        { text: "Check remaining requirements", variant: "action" },
+        {
+          text: "Check state-specific requirements",
+          variant: "action",
+        },
         { text: "Refer table below.", variant: "action" },
       ],
     };
@@ -460,7 +463,7 @@ function buildRideShareKeyInsight(report: VehicleReport): ReportInsight {
       quickLine("Doors", check.doorsCheck),
       quickLine("Passenger capacity", check.passengersCheck),
       {
-        text: "See the ride share requirements table below.",
+        text: "Check state-specific requirements",
         variant: "action",
       },
     ],
@@ -500,7 +503,7 @@ export function buildStatusChecks(report: VehicleReport): StatusCheck[] {
           advisory: true,
         },
     {
-      label: "Service history available at dealer",
+      label: "Service history — check with vehicle owner",
       ok: false,
       muted: true,
     },
@@ -577,9 +580,10 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
     {
       id: "service",
       title: "Service History",
-      status: "Available at dealer",
+      status: "Check with vehicle owner",
       tone: "neutral",
-      detail: "Contact the selling dealer for full service history records.",
+      detail:
+        "Contact the vehicle owner or selling dealer for service history records.",
     },
     {
       id: "future",
