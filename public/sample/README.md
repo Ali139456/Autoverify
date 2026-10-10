@@ -1,8 +1,16 @@
 # Sample walkaround photos
 
-`c300-hero.jpg` — black **Mercedes-Benz C-Class** full-car reference for the sample hero panel (AI-generated demo asset).
+`c300-hero.jpg` — black **Mercedes C300** (from repo `images/`, matches `front-left.jpg`).
 
-`walkaround/*.jpg` — one image per inspection angle for the sample **2022 Mercedes-Benz C-Class C300** Insights+ walkaround (black sedan, [Unsplash](https://unsplash.com/license) demo assets). `front-left.jpg` matches `c300-hero.jpg`; `front.jpg` is a front-on shot; `front-right.jpg` / `right-side.jpg` are side profiles; rear angles use the same vehicle from the rear three-quarter.
+`walkaround/*.jpg` — same **C300 photo set** as `autoverifi-app/images/` (Denise’s sample shoot: front / sides / rear / wheels / dash / interior). Re-sync after image updates:
+
+`powershell -File scripts/sync-sample-walkaround.ps1`
+
+`walkaround/keys.jpg`, `walkaround/service-record.jpg` — **# Keys** and last service invoice (sources: `image (13).png`, `image (11).png`).
+
+`damage/*.jpg` — AI damage evidence for the sample report (**front bumper** scuff, **rear left door** dent). Sources: `images/image (10).png`, `images/image (9).png`.
+
+Live Insights+ reports use owner-captured photos, not these files.
 
 # Sample PPSR certificate
 

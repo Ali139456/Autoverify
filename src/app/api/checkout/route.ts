@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { lookupVehicle } from "@/lib/autograb";
+import { resolveFutureValue } from "@/lib/report-design";
 import {
   getReportTierConfig,
   hasDamageAnalysis,
@@ -150,6 +151,7 @@ export async function POST(req: NextRequest) {
       vehicleSpec: lookup.vehicleSpec,
       damage: null,
     };
+    report.futureValue = resolveFutureValue(report);
 
     if (!isStripeConfigured()) {
       report.status = "paid";

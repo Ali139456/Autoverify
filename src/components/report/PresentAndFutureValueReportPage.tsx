@@ -4,7 +4,9 @@ import {
   getFutureValueAtYears,
   formatReportReference,
   futureValueForecastNote,
+  presentValuationNote,
   resolveFutureValue,
+  resolveValuation,
 } from "@/lib/report-design";
 import { ReportComparableVehicles } from "./ReportComparableVehicles";
 import { ReportShell } from "./ReportShell";
@@ -20,8 +22,9 @@ export function PresentAndFutureValueReportPage({
   /** Rendered at the end of the page body (e.g. the general disclaimer). */
   trailingContent?: ReactNode;
 }) {
-  const { valuation } = report;
+  const valuation = resolveValuation(report);
   const futureValue = resolveFutureValue(report);
+  const valuationNote = presentValuationNote(report);
   const futureHorizons = [
     { label: "Today", years: 0 },
     { label: "+1 year", years: 1 },
@@ -60,6 +63,11 @@ export function PresentAndFutureValueReportPage({
               </div>
             ))}
           </div>
+          {valuationNote ? (
+            <p className="mt-3 text-xs leading-relaxed text-slate-600">
+              {valuationNote}
+            </p>
+          ) : null}
         </div>
 
         <div className="report-supplementary report-future-section rounded-xl border border-slate-200 bg-slate-50 p-5">

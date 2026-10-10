@@ -1,12 +1,20 @@
 import { buildEstimatedFutureValue } from "./autograb";
 import { hasDamageAnalysis, resolveReportTier } from "./pricing";
-import { evaluateRideShareQuickEligibility } from "./ride-share-eligibility";
+import {
+  evaluateRideShareQuickEligibility,
+  type RideShareQuickCheck,
+} from "./ride-share-eligibility";
+import {
+  applyRegistrationExpiryInference,
+  registrationDisplayStatus,
+} from "./registration-info";
 import { resolveVehicleDoorAndSeatCounts } from "./vehicle-door-seats";
 import type {
   FutureValueInfo,
   FutureValuePoint,
   InspectionPhoto,
   MarketListing,
+  ValuationInfo,
   VehicleIdentity,
   VehicleReport,
 } from "./types";
@@ -42,6 +50,8 @@ export type ReportInsight = {
   detail?: string;
   /** Multi-line body (e.g. ride share quick checks). Replaces default status row when set. */
   lines?: ReportInsightLine[];
+  /** Secondary list under status (e.g. dated odometer readings). */
+  listItems?: string[];
 };
 
 export type StatusCheck = {
@@ -68,6 +78,17 @@ export function formatOdometerReading(vehicle: VehicleReport["vehicle"]): string
 export const ODOMETER_HISTORY_LISTING_LINE =
   "Historical readings from listing records.";
 
+export function formatOdometerHistoryEntry(entry: {
+  date: string;
+  odometer: number;
+  source?: string | null;
+}): string {
+  const date = formatExpiryDate(entry.date);
+  const km = `${entry.odometer.toLocaleString("en-AU")} km`;
+  const source = entry.source?.trim();
+  return source ? `${date} — ${km} · ${source}` : `${date} — ${km}`;
+}
+
 function readingAtPurchaseOfReportDetail(
   vehicle: VehicleReport["vehicle"],
 ): string | undefined {
@@ -79,7 +100,10 @@ function readingAtPurchaseOfReportDetail(
 
 export function buildOdometerHistoryInsight(
   vehicle: VehicleReport["vehicle"],
-): Pick<ReportInsight, "status" | "statusSubtext" | "detail" | "tone"> {
+): Pick<
+  ReportInsight,
+  "status" | "statusSubtext" | "detail" | "tone" | "listItems"
+> {
   const history = vehicle.odometerHistory ?? [];
   if (history.length === 0) {
     const purchaseDetail = readingAtPurchaseOfReportDetail(vehicle);
@@ -95,7 +119,7 @@ export function buildOdometerHistoryInsight(
   }
 
   const latest = history[history.length - 1]!;
-  const countLabel = `${history.length} historical reading${history.length === 1 ? "" : "s"} on record`;
+  const countLabel = `${history.length} historical reading${history.length === 1 ? "" : "s"} on record.`;
   const purchaseDetail = readingAtPurchaseOfReportDetail(vehicle);
 
   return {
@@ -103,6 +127,7 @@ export function buildOdometerHistoryInsight(
     statusSubtext: countLabel,
     tone: "clear",
     detail: purchaseDetail,
+    listItems: history.map((entry) => formatOdometerHistoryEntry(entry)),
   };
 }
 
@@ -169,6 +194,99 @@ export function formatPPlateStatus(vehicle: VehicleIdentity): string {
   const raw = vehicle.pPlateLegal?.trim();
   if (raw) return raw;
   return "Check state restrictions for P plate drivers";
+}
+
+/** Sale / listing price from checkout (handles numeric strings in stored JSON). */
+export function resolveAdvertisedListingPrice(
+  report: Pick<VehicleReport, "advertisedPrice">,
+): number | null {
+  const raw: unknown = report.advertisedPrice;
+  if (raw == null || raw === "") return null;
+  const parsed =
+    typeof raw === "number" ? raw : Number(String(raw).replace(/[^\d.]/g, ""));
+  if (!Number.isFinite(parsed) || parsed <= 0) return null;
+  return Math.round(parsed);
+}
+
+function scaleValuationBands(
+  valuation: ValuationInfo,
+  anchorRetailMid: number,
+): ValuationInfo {
+  const retailMid = (valuation.retailLow + valuation.retailHigh) / 2;
+  if (!Number.isFinite(retailMid) || retailMid <= 0) return valuation;
+  const factor = anchorRetailMid / retailMid;
+  if (!Number.isFinite(factor) || Math.abs(factor - 1) < 0.04) {
+    return valuation;
+  }
+  const scale = (amount: number) => Math.round(amount * factor);
+  return {
+    retailLow: scale(valuation.retailLow),
+    retailHigh: scale(valuation.retailHigh),
+    tradeLow: scale(valuation.tradeLow),
+    tradeHigh: scale(valuation.tradeHigh),
+    privateLow: scale(valuation.privateLow),
+    privateHigh: scale(valuation.privateHigh),
+    confidence: valuation.confidence,
+  };
+}
+
+function marketComparableMidPrice(report: VehicleReport): number | null {
+  const listings = report.market?.comparableListings ?? [];
+  const prices = listings
+    .map((entry) => entry.price)
+    .filter((price) => Number.isFinite(price) && price > 0);
+  if (prices.length >= 3) {
+    const sorted = [...prices].sort((a, b) => a - b);
+    return sorted[Math.floor(sorted.length / 2)] ?? null;
+  }
+  const median = report.market?.medianPrice;
+  if (median != null && Number.isFinite(median) && median > 0) {
+    return Math.round(median);
+  }
+  const average = report.market?.averagePrice;
+  if (average != null && Number.isFinite(average) && average > 0) {
+    return Math.round(average);
+  }
+  return null;
+}
+
+/** Present-value bands for display — aligned to listing or live comparables when catalogue is low. */
+export function resolveValuation(report: VehicleReport): ValuationInfo {
+  const listing = resolveAdvertisedListingPrice(report);
+  if (listing != null) {
+    return scaleValuationBands(report.valuation, listing);
+  }
+
+  const marketMid = marketComparableMidPrice(report);
+  if (marketMid != null) {
+    const retailMid =
+      (report.valuation.retailLow + report.valuation.retailHigh) / 2;
+    if (retailMid > 0 && marketMid / retailMid >= 1.2) {
+      return scaleValuationBands(report.valuation, marketMid);
+    }
+  }
+
+  return report.valuation;
+}
+
+export function presentValuationNote(report: VehicleReport): string | null {
+  const listing = resolveAdvertisedListingPrice(report);
+  if (listing != null) {
+    return `Valuation bands are aligned to your listing price of $${listing.toLocaleString("en-AU")}. Automated catalogue estimates can sit below live asking prices for some variants.`;
+  }
+
+  const resolved = resolveValuation(report);
+  const rawMid =
+    (report.valuation.retailLow + report.valuation.retailHigh) / 2;
+  const resolvedMid = (resolved.retailLow + resolved.retailHigh) / 2;
+  if (resolvedMid > rawMid * 1.15) {
+    const marketMid = marketComparableMidPrice(report);
+    if (marketMid != null) {
+      return `Valuation bands are aligned to comparable vehicles currently listed (around $${marketMid.toLocaleString("en-AU")}). The automated catalogue estimate was lower than live market for this model.`;
+    }
+  }
+
+  return null;
 }
 
 /** Re-anchors the full forecast curve to the customer's listing / sale price. */
@@ -239,15 +357,15 @@ function anchorFutureValueToListingPrice(
 }
 
 export function futureValueForecastNote(report: VehicleReport): string {
-  const listing = report.advertisedPrice;
-  if (listing != null && Number.isFinite(listing) && listing > 0) {
-    return `Forecast anchored to your listing price of $${Math.round(listing).toLocaleString("en-AU")}. Future years follow the same depreciation curve from that starting point.`;
+  const listing = resolveAdvertisedListingPrice(report);
+  if (listing != null) {
+    return `Forecast anchored to your listing price of $${listing.toLocaleString("en-AU")}. Future years follow the same depreciation curve from that starting point.`;
   }
   return "This forecast uses predicted market value. If you have not purchased yet, compare it to the advertised listing price — enter that price when you order your report to anchor the forecast to what you expect to pay.";
 }
 
 export function resolveFutureValue(report: VehicleReport): FutureValueInfo {
-  const advertised = report.advertisedPrice;
+  const listingPrice = resolveAdvertisedListingPrice(report);
   const initialKms =
     report.vehicle.odometer ??
     Math.max(new Date().getFullYear() - report.vehicle.year, 1) * 12000;
@@ -258,13 +376,24 @@ export function resolveFutureValue(report: VehicleReport): FutureValueInfo {
   } else {
     future = buildEstimatedFutureValue(
       report.vehicle,
-      report.valuation,
-      advertised,
+      resolveValuation(report),
+      listingPrice,
     );
   }
 
-  if (advertised != null && Number.isFinite(advertised) && advertised > 0) {
-    future = anchorFutureValueToListingPrice(future, advertised, initialKms);
+  if (listingPrice != null) {
+    future = anchorFutureValueToListingPrice(future, listingPrice, initialKms);
+  } else {
+    const marketMid = marketComparableMidPrice(report);
+    const today = getFutureValueAtYears(future, 0);
+    const todayValue = today?.value ?? 0;
+    if (
+      marketMid != null &&
+      todayValue > 0 &&
+      marketMid / todayValue >= 1.2
+    ) {
+      future = anchorFutureValueToListingPrice(future, marketMid, initialKms);
+    }
   }
 
   return future;
@@ -292,10 +421,18 @@ function buildRideShareKeyInsight(report: VehicleReport): ReportInsight {
     new Date(report.createdAt).getFullYear(),
   );
 
-  const quickLine = (label: string, eligible: boolean): ReportInsightLine => ({
-    text: eligible ? `${label} — eligible` : `${label} — check requirements`,
-    variant: eligible ? "eligible" : "ineligible",
-  });
+  const quickLine = (
+    label: string,
+    result: RideShareQuickCheck,
+  ): ReportInsightLine => {
+    if (result === "eligible") {
+      return { text: `${label} — eligible`, variant: "eligible" };
+    }
+    if (result === "ineligible") {
+      return { text: `${label} — ineligible`, variant: "ineligible" };
+    }
+    return { text: `${label} — check requirements`, variant: "action" };
+  };
 
   if (check.allEligible) {
     return {
@@ -319,9 +456,9 @@ function buildRideShareKeyInsight(report: VehicleReport): ReportInsight {
     status: "Quick checks not met",
     tone: "neutral",
     lines: [
-      quickLine("Age", check.ageEligible),
-      quickLine("Doors", check.doorsEligible),
-      quickLine("Passenger capacity", check.passengersEligible),
+      quickLine("Age", check.ageCheck),
+      quickLine("Doors", check.doorsCheck),
+      quickLine("Passenger capacity", check.passengersCheck),
       {
         text: "See the ride share requirements table below.",
         variant: "action",
@@ -371,7 +508,9 @@ export function buildStatusChecks(report: VehicleReport): StatusCheck[] {
 }
 
 export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
-  const { registration, valuation, vehicle, market } = report;
+  const { vehicle, market } = report;
+  const valuation = resolveValuation(report);
+  const registration = applyRegistrationExpiryInference(report.registration);
   const future = resolveFutureValue(report);
   const inThreeYears = getFutureValueAtYears(future, 3);
 
@@ -411,8 +550,7 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
     {
       id: "registration",
       title: "Registration",
-      status:
-        registration.status === "Registered" ? "Active" : registration.status,
+      status: registrationDisplayStatus(registration),
       statusSubtext: vehicle.state,
       detail: registration.expiryDate
         ? `Expiry ${formatExpiryDate(registration.expiryDate)}`

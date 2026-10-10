@@ -148,7 +148,6 @@ export async function POST(req: NextRequest) {
       internalInspectUrl,
       ravinInviteUrl,
       provider,
-      ravinWarning,
       expiresAt: inspection.expiresAt,
       ownerPhone,
       customerPhone,

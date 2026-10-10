@@ -34,7 +34,7 @@ export function VehicleHeroImage({
 
     imageClassName ??
 
-    "absolute inset-0 h-full w-full object-cover object-center";
+    "absolute inset-0 h-full w-full object-contain object-center";
 
 
 

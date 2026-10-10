@@ -280,7 +280,18 @@ export function buildVehicleSpecSheet(input: {
     ),
   );
 
-  pushRow(dataRows, "Year of manufacture", vehicle.year ? String(vehicle.year) : null);
+  pushRow(
+    dataRows,
+    "Year of manufacture",
+    vehicle.year ? String(vehicle.year) : null,
+  );
+  pushRow(
+    dataRows,
+    "Build date",
+    buildData?.build_date
+      ? formatExpiryDate(String(buildData.build_date))
+      : null,
+  );
   pushRow(dataRows, "Colour", vehicle.colour);
   pushRow(
     dataRows,
@@ -321,8 +332,13 @@ export function buildVehicleSpecSheet(input: {
   }
 
   if (buildData) {
-    pushRow(dataRows, "Build date", buildData.build_date);
-    pushRow(dataRows, "Compliance date", buildData.compliance_date);
+    pushRow(
+      dataRows,
+      "Compliance date",
+      buildData.compliance_date
+        ? formatExpiryDate(String(buildData.compliance_date))
+        : null,
+    );
     pushRow(dataRows, "Engine number", buildData.engine_number);
     pushRow(dataRows, "Country of origin", buildData.country_of_origin);
   }

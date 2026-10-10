@@ -13,6 +13,7 @@ import {
   isStripeConfigured,
   REPORT_CURRENCY,
 } from "@/lib/stripe";
+import { resolveFutureValue } from "@/lib/report-design";
 import type { VehicleReport } from "@/lib/types";
 
 /**
@@ -90,6 +91,7 @@ export async function POST(req: NextRequest) {
       stripeSessionId: null,
       damage: null,
     };
+    report.futureValue = resolveFutureValue(report);
 
     const baseUrl = getBaseUrl();
     const customerEmail = source.customerEmail?.trim().toLowerCase() || "";

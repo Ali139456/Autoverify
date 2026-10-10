@@ -49,7 +49,9 @@ import {
   futureValueForecastNote,
   getInspectionPhotoUrl,
   resolveDamageFindingImageUrl,
+  presentValuationNote,
   resolveFutureValue,
+  resolveValuation,
   type ReportInsight,
 } from "./report-design";
 import {
@@ -215,7 +217,7 @@ const styles = StyleSheet.create({
   statusImage: {
     width: "100%",
     height: STATUS_PANEL_HEIGHT - 2,
-    objectFit: "cover",
+    objectFit: "contain",
     objectPosition: "center",
   },
   statusImageCaption: {
@@ -248,7 +250,7 @@ const styles = StyleSheet.create({
   specHeroBannerImage: {
     width: "100%",
     height: 108,
-    objectFit: "cover",
+    objectFit: "contain",
     objectPosition: "center",
     backgroundColor: "#020617",
   },
@@ -367,7 +369,7 @@ const styles = StyleSheet.create({
   },
   specSheetValue: {
     fontSize: 7.5,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Helvetica",
     color: "#0f172a",
   },
   featureItem: { fontSize: 7.5, color: "#334155", marginBottom: 3 },
@@ -628,6 +630,24 @@ function PdfInsightCard({
                     >
                       {insight.statusSubtext}
                     </Text>
+                  ) : null}
+                  {insight.listItems?.length ? (
+                    <View style={{ marginTop: 3 }}>
+                      {insight.listItems.map((item) => (
+                        <Text
+                          key={item}
+                          style={{
+                            fontSize: 6.5,
+                            color: GREY,
+                            fontFamily: "Helvetica",
+                            lineHeight: 1.45,
+                            marginTop: 1,
+                          }}
+                        >
+                          {item}
+                        </Text>
+                      ))}
+                    </View>
                   ) : null}
                   {insight.id === "registration" && insight.detail ? (
                     <Text
@@ -1094,8 +1114,9 @@ function PdfPresentAndFutureValuations({
   report: VehicleReport;
   showFutureValue: boolean;
 }) {
-  const { valuation } = report;
+  const valuation = resolveValuation(report);
   const futureValue = resolveFutureValue(report);
+  const valuationNote = presentValuationNote(report);
   const futureHorizons = [
     { label: "Today", years: 0 },
     { label: "+1 year", years: 1 },
@@ -1121,6 +1142,11 @@ function PdfPresentAndFutureValuations({
             </View>
           ))}
         </View>
+        {valuationNote ? (
+          <Text style={{ fontSize: 7, color: GREY, marginTop: 4, lineHeight: 1.35 }}>
+            {valuationNote}
+          </Text>
+        ) : null}
       </View>
 
       {showFutureValue ? (

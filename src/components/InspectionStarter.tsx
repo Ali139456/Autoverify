@@ -76,7 +76,7 @@ export function InspectionStarter({
         setInspectUrl(data.internalInspectUrl);
       }
       setSmsSent(Boolean(data.smsSent));
-      setSmsError(data.smsError ?? data.ravinWarning ?? null);
+      setSmsError(data.smsError ?? null);
       setSmsNotice(data.smsNotice ?? null);
       if (openModal) setModalOpen(true);
     } catch (err) {

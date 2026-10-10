@@ -19,11 +19,13 @@ import {
 import {
   buildStockHeroDisclaimer,
   coloursRoughlyMatch,
+  isLikelyLowResHeroUrl,
   normalizeColourForStockPhoto,
   VEHICLE_HERO_IMAGE_DISCLAIMER,
 } from "./vehicle-hero-image";
 import type { VehicleSpecSheet } from "./types";
 import { mapSourcingHistoryPayload } from "./sourcing-odometer-history";
+import { applyRegistrationExpiryInference } from "./registration-info";
 
 const AUTOGRAB_API_KEY = process.env.AUTOGRAB_API_KEY;
 const AUTOGRAB_BASE_URL =
@@ -439,26 +441,49 @@ function parseAutograbDate(value: unknown): string | null {
   return trimmed;
 }
 
+const REGISTRATION_EXPIRY_KEYS = [
+  "registration_expiry",
+  "registration_expiry_date",
+  "rego_expiry",
+  "rego_expiry_date",
+  "reg_expiry_date",
+  "expiry_date",
+  "plate_expiry",
+  "expiry",
+] as const;
+
+function scanRegistrationExpiryFromRecord(
+  record: JsonRecord | null | undefined,
+): string | null {
+  if (!record) return null;
+  for (const key of REGISTRATION_EXPIRY_KEYS) {
+    const parsed = parseAutograbDate(record[key]);
+    if (parsed) return parsed;
+  }
+  const nested = record.registration_status;
+  if (nested && typeof nested === "object") {
+    return scanRegistrationExpiryFromRecord(nested as JsonRecord);
+  }
+  return null;
+}
+
 /** Expiry from rego/VIN lookup payload or `/status` response. */
 function expiryFromRegistrationPayload(
   data: JsonRecord | null | undefined,
 ): string | null {
   if (!data) return null;
-  for (const key of [
-    "registration_expiry",
-    "rego_expiry",
-    "expiry_date",
+  const direct = scanRegistrationExpiryFromRecord(data);
+  if (direct) return direct;
+  for (const nestKey of [
+    "extended_data",
+    "additional_upstream_data",
+    "upstream_data",
   ] as const) {
-    const parsed = parseAutograbDate(data[key]);
-    if (parsed) return parsed;
-  }
-  const nested = data.registration_status;
-  if (nested && typeof nested === "object") {
-    const record = nested as JsonRecord;
-    return (
-      parseAutograbDate(record.expiry_date) ??
-      parseAutograbDate(record.registration_expiry)
-    );
+    const nested = data[nestKey];
+    if (nested && typeof nested === "object") {
+      const fromNested = scanRegistrationExpiryFromRecord(nested as JsonRecord);
+      if (fromNested) return fromNested;
+    }
   }
   return null;
 }
@@ -467,15 +492,25 @@ function registrationStatusFromPayload(
   data: JsonRecord | null | undefined,
 ): RegistrationInfo["status"] | null {
   if (!data) return null;
+  if (data.is_expired === true || data.registration_expired === true) {
+    return "Expired";
+  }
+  if (data.is_registered === false) {
+    return "Unregistered";
+  }
   const nested = data.registration_status;
   if (nested && typeof nested === "object") {
-    const status = stringFromRecord((nested as JsonRecord).status);
+    const record = nested as JsonRecord;
+    const status = stringFromRecord(record.status);
     if (status) return mapRegistrationStatus(status);
+    if (record.is_expired === true) return "Expired";
   }
   const topLevel = stringFromRecord(data.registration_status);
   if (topLevel && !topLevel.includes("{")) {
     return mapRegistrationStatus(topLevel);
   }
+  const statusField = stringFromRecord(data.status);
+  if (statusField) return mapRegistrationStatus(statusField);
   return null;
 }
 
@@ -552,7 +587,7 @@ function mergeRegistrationInfo({
     writeOffDetails = "Written-off record detected on PPSR certificate";
   }
 
-  return {
+  return applyRegistrationExpiryInference({
     status:
       status?.status ??
       payloadStatus ??
@@ -567,7 +602,7 @@ function mergeRegistrationInfo({
     financeDetails,
     hasSafetyRecalls: ppsr?.hasSafetyRecalls ?? null,
     ppsrCertificateUrl: ppsr?.certificateUrl ?? null,
-  };
+  });
 }
 
 /**
@@ -611,7 +646,7 @@ async function fetchPpsrLookup(input: {
   return {
     rego: stringFromRecord(certificate.rego)?.trim() || null,
     regoState,
-    regoExpiry: parseAutograbDate(certificate.rego_expiry),
+    regoExpiry: parseCertificateRegoExpiry(certificate, data),
     hasSecuredParties: Boolean(certificate.has_secured_parties),
     hasStolenRecords: Boolean(certificate.has_stolen_records),
     hasWrittenOffRecords: Boolean(certificate.has_written_off_records),
@@ -621,19 +656,69 @@ async function fetchPpsrLookup(input: {
   };
 }
 
+function parseCertificateRegoExpiry(
+  certificate: JsonRecord,
+  root?: JsonRecord,
+): string | null {
+  const records: JsonRecord[] = [certificate];
+  if (root) records.push(root);
+  for (const record of records) {
+    const direct = scanRegistrationExpiryFromRecord(record);
+    if (direct) return direct;
+    for (const nestKey of [
+      "nevdis",
+      "search_result",
+      "vehicle_details",
+      "registration",
+    ] as const) {
+      const nested = record[nestKey];
+      if (nested && typeof nested === "object") {
+        const fromNested = scanRegistrationExpiryFromRecord(
+          nested as JsonRecord,
+        );
+        if (fromNested) return fromNested;
+      }
+    }
+  }
+  return parseAutograbDate(certificate.rego_expiry);
+}
+
+/** Re-run PPSR generate to pick up rego expiry / certificate URL when missing at purchase. */
+export async function refreshPpsrCertificateSummary(
+  vehicle: VehicleIdentity,
+): Promise<PpsrCertificateSummary | null> {
+  if (!AUTOGRAB_API_KEY?.trim()) return null;
+  const vin = vehicle.vin?.trim();
+  const rego = vehicle.rego?.trim();
+  if (vin) {
+    return fetchPpsrLookup({ vin, rego: rego || undefined, state: vehicle.state });
+  }
+  if (rego && vehicle.state) {
+    return fetchPpsrLookup({ rego, state: vehicle.state });
+  }
+  return null;
+}
+
 function extractLeadImageUrl(lead: JsonRecord): string | null {
-  for (const key of [
+  const keys = [
     "cover_image",
     "cover_image_url",
+    "primary_image_url",
     "image_url",
     "photo_url",
     "thumbnail_url",
-    "primary_image_url",
-  ]) {
+  ] as const;
+  let fallback: string | null = null;
+  for (const key of keys) {
     const url = stringFromRecord(lead[key]);
-    if (url?.startsWith("http")) return url;
+    if (!url?.startsWith("http")) continue;
+    if (isLikelyLowResHeroUrl(url)) {
+      fallback ??= url;
+      continue;
+    }
+    return url;
   }
-  return null;
+  return fallback;
 }
 
 function formatColourLabel(raw: string): string {
@@ -878,8 +963,12 @@ async function fetchRegistrationStatus(
     incidentText.includes("finance") ||
     incidentText.includes("security interest");
 
-  return {
-    status: mapRegistrationStatus(String(data.registration_status ?? "")),
+  const mappedStatus =
+    registrationStatusFromPayload(data) ??
+    mapRegistrationStatus(String(data.registration_status ?? ""));
+
+  return applyRegistrationExpiryInference({
+    status: mappedStatus,
     expiryDate: expiryFromRegistrationPayload(data),
     stolen,
     writtenOff,
@@ -891,7 +980,43 @@ async function fetchRegistrationStatus(
     financeDetails: financeOwing
       ? "Security interest or finance record detected"
       : null,
+  });
+}
+
+async function fetchRegistrationPayloadSummary(
+  plate: string,
+  state: AustralianState,
+): Promise<Pick<RegistrationInfo, "status" | "expiryDate"> | null> {
+  const res = await autograbGet(
+    `/vehicles/registrations/${encodeURIComponent(plate)}?region=au&state=${state}&features=${REGISTRATION_FEATURES}`,
+  );
+  if (!res.ok) return null;
+  const data = (await res.json()) as JsonRecord;
+  const expiryDate = expiryFromRegistrationPayload(data);
+  const status = registrationStatusFromPayload(data);
+  if (!expiryDate && !status) return null;
+  return {
+    expiryDate: expiryDate ?? null,
+    status: status ?? "Registered",
   };
+}
+
+function mergeLiveRegistrationFields(
+  stored: RegistrationInfo,
+  live: Pick<RegistrationInfo, "status" | "expiryDate">,
+): RegistrationInfo {
+  const expiryDate = live.expiryDate?.trim() || stored.expiryDate;
+  let status = stored.status;
+  if (live.status && live.status !== "Registered") {
+    status = live.status;
+  } else if (live.expiryDate && !stored.expiryDate?.trim()) {
+    status = live.status ?? stored.status;
+  }
+  return applyRegistrationExpiryInference({
+    ...stored,
+    expiryDate: expiryDate ?? null,
+    status,
+  });
 }
 
 /**
@@ -902,30 +1027,54 @@ export async function refreshRegistrationIfMissing(
   registration: RegistrationInfo,
   vehicle: VehicleIdentity,
 ): Promise<RegistrationInfo> {
-  if (registration.expiryDate?.trim()) return registration;
+  let next = applyRegistrationExpiryInference(registration);
   const plate = vehicle.rego?.trim();
-  if (!plate || !vehicle.state) return registration;
-  if (!AUTOGRAB_API_KEY?.trim()) return registration;
+  if (!plate || !vehicle.state) return next;
+  if (!AUTOGRAB_API_KEY?.trim()) return next;
 
-  const live = await fetchRegistrationStatus(plate, vehicle.state);
-  if (!live?.expiryDate) return registration;
+  if (next.expiryDate?.trim()) return next;
 
-  return {
-    ...registration,
-    expiryDate: live.expiryDate,
-    status: registration.status ?? live.status,
-  };
+  const liveStatus = await fetchRegistrationStatus(plate, vehicle.state);
+  if (liveStatus?.expiryDate?.trim()) {
+    return mergeLiveRegistrationFields(next, liveStatus);
+  }
+
+  const fromLookup = await fetchRegistrationPayloadSummary(plate, vehicle.state);
+  if (fromLookup?.expiryDate?.trim()) {
+    return mergeLiveRegistrationFields(next, fromLookup);
+  }
+
+  if (liveStatus) {
+    return applyRegistrationExpiryInference({
+      ...next,
+      status: liveStatus.status ?? next.status,
+      expiryDate: liveStatus.expiryDate ?? next.expiryDate,
+    });
+  }
+
+  return next;
 }
 
 function mapRegistrationStatus(
   status: string,
 ): RegistrationInfo["status"] {
-  const normalized = status.toUpperCase();
-  if (normalized.includes("REGISTER")) return "Registered";
+  const normalized = status.trim().toUpperCase();
+  if (!normalized || normalized === "[OBJECT OBJECT]") return "Unregistered";
+  if (normalized.includes("EXPIRE") || normalized.includes("LAPSED")) {
+    return "Expired";
+  }
   if (normalized.includes("SUSPEND")) return "Suspended";
-  if (normalized.includes("EXPIRE")) return "Expired";
-  if (normalized.includes("UNREGISTER")) return "Unregistered";
-  return "Registered";
+  if (normalized.includes("UNREGISTER") || normalized.includes("CANCEL")) {
+    return "Unregistered";
+  }
+  if (
+    normalized.includes("REGISTER") ||
+    normalized.includes("CURRENT") ||
+    normalized.includes("ACTIVE")
+  ) {
+    return "Registered";
+  }
+  return "Unregistered";
 }
 
 async function fetchValuation(
@@ -1059,7 +1208,36 @@ type StockPhotoRecord = {
   color?: string | null;
   url?: string;
   match_confidence?: string;
+  width?: number;
+  height?: number;
 };
+
+function stockPhotoPixelArea(image: StockPhotoRecord): number {
+  const w = Number(image.width);
+  const h = Number(image.height);
+  if (!Number.isFinite(w) || !Number.isFinite(h) || w <= 0 || h <= 0) {
+    return 0;
+  }
+  return w * h;
+}
+
+function rankStockPhoto(a: StockPhotoRecord, b: StockPhotoRecord): number {
+  const rankA =
+    STOCK_PHOTO_CONFIDENCE_RANK[a.match_confidence ?? "low"] ?? 3;
+  const rankB =
+    STOCK_PHOTO_CONFIDENCE_RANK[b.match_confidence ?? "low"] ?? 3;
+  if (rankA !== rankB) return rankA - rankB;
+
+  const stockA = a.type === "stock" ? 0 : a.type === "generated" ? 1 : 2;
+  const stockB = b.type === "stock" ? 0 : b.type === "generated" ? 1 : 2;
+  if (stockA !== stockB) return stockA - stockB;
+
+  const lowA = a.url && isLikelyLowResHeroUrl(a.url) ? 1 : 0;
+  const lowB = b.url && isLikelyLowResHeroUrl(b.url) ? 1 : 0;
+  if (lowA !== lowB) return lowA - lowB;
+
+  return stockPhotoPixelArea(b) - stockPhotoPixelArea(a);
+}
 
 const STOCK_PHOTO_CONFIDENCE_RANK: Record<string, number> = {
   high: 0,
@@ -1090,22 +1268,26 @@ async function fetchVehicleStockPhoto(
   const images = (Array.isArray(data.images) ? data.images : []) as StockPhotoRecord[];
   const ranked = [...images]
     .filter((image) => typeof image.url === "string" && image.url.startsWith("http"))
-    .sort((a, b) => {
-      const rankA =
-        STOCK_PHOTO_CONFIDENCE_RANK[a.match_confidence ?? "low"] ?? 3;
-      const rankB =
-        STOCK_PHOTO_CONFIDENCE_RANK[b.match_confidence ?? "low"] ?? 3;
-      if (rankA !== rankB) return rankA - rankB;
-      return a.type === "stock" && b.type !== "stock" ? -1 : 0;
-    });
+    .sort(rankStockPhoto);
 
   const best = ranked[0];
   if (!best?.url) return null;
 
+  const confidence = (best.match_confidence ?? "low").toLowerCase();
+  const shownColour = best.color ?? colorParam ?? undefined;
+  if (
+    confidence === "low" &&
+    colour?.trim() &&
+    shownColour &&
+    !coloursRoughlyMatch(shownColour, colour)
+  ) {
+    return null;
+  }
+
   return {
     url: best.url,
     kind: best.type === "stock" ? "stock" : "generated",
-    shownColour: best.color ?? colorParam ?? undefined,
+    shownColour,
   };
 }
 
@@ -1235,7 +1417,7 @@ async function fetchMarketOverlay(
   vehicle: VehicleIdentity,
 ): Promise<MarketInfo | null> {
   const res = await autograbGet(
-    `/sourcing/market_overlay/${vehicleId}?region=au&features=${MARKET_OVERLAY_FEATURES}`,
+    `/sourcing/market_overlay/${vehicleId}?region=au&exclude_outliers=true&include_all_active=true&include_trash=false&features=${MARKET_OVERLAY_FEATURES}`,
   );
   if (!res.ok) return null;
 

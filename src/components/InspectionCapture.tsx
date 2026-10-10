@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Camera,
   CheckCircle2,
@@ -66,6 +67,19 @@ function findNextStepIndex(uploaded: Set<string>, fromStep: number): number {
   return Math.min(fromStep + 1, INSPECTION_ANGLES.length - 1);
 }
 
+function exitInspectionDoneScreen(router: ReturnType<typeof useRouter>) {
+  try {
+    window.close();
+  } catch {
+    // window.close() is blocked unless this tab was opened by script
+  }
+  if (window.history.length > 1) {
+    window.history.back();
+    return;
+  }
+  router.push("/");
+}
+
 export function InspectionCapture({
   token,
   initialPhotos = [],
@@ -73,6 +87,7 @@ export function InspectionCapture({
   token: string;
   initialPhotos?: UploadedPhoto[];
 }) {
+  const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const submitBarRef = useRef<HTMLDivElement>(null);
   const uploadingRef = useRef(false);
@@ -242,10 +257,23 @@ export function InspectionCapture({
 
   if (doneMessage) {
     return (
-      <div className="mx-auto flex min-h-[70vh] max-w-lg flex-col items-center justify-center px-4 py-10 text-center">
+      <div className="inspect-capture-page mx-auto flex min-h-[100dvh] max-w-lg flex-col items-center justify-center px-4 py-10 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] text-center">
         <CheckCircle2 className="h-14 w-14 text-emerald-400" aria-hidden />
         <h1 className="mt-5 text-2xl font-bold text-white">All done</h1>
-        <p className="mt-3 text-sm leading-relaxed text-slate-400">{doneMessage}</p>
+        <p className="mt-3 max-w-sm text-sm leading-relaxed text-slate-400">
+          {doneMessage}
+        </p>
+        <button
+          type="button"
+          onClick={() => exitInspectionDoneScreen(router)}
+          className="mt-10 inline-flex w-full max-w-xs items-center justify-center rounded-xl bg-accent-600 px-6 py-3.5 text-base font-bold text-white transition hover:bg-accent-500"
+        >
+          Exit
+        </button>
+        <p className="mt-3 max-w-xs text-[11px] leading-relaxed text-slate-500">
+          If this page stays open, switch back to your messages or close this
+          browser tab.
+        </p>
       </div>
     );
   }

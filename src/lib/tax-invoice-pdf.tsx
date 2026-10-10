@@ -70,13 +70,6 @@ function splitGstInclusive(totalCents: number): {
   return { exGstCents, gstCents };
 }
 
-function amountLineLabel(tierName: string): string {
-  if (/insights\+/i.test(tierName)) {
-    return "Auto Verifi Vehicle Insights+ Report";
-  }
-  return "Auto Verifi Vehicle Insights Report";
-}
-
 const styles = StyleSheet.create({
   page: {
     padding: 40,
@@ -281,7 +274,7 @@ export function TaxInvoicePdf({
       ? listExGst - splitGstInclusive(amountPaidCents).exGstCents
       : 0;
   const { gstCents } = splitGstInclusive(amountPaidCents);
-  const lineLabel = amountLineLabel(tierConfig.name);
+  const productDescription = tierConfig.name;
   const discountLabel = promoCode?.trim()
     ? `Promotion discount (${promoCode.trim().toUpperCase()})`
     : "Promotion discount";
@@ -327,7 +320,7 @@ export function TaxInvoicePdf({
         <Text style={styles.sectionTitle}>Supply details</Text>
         <KeyValueTable
           rows={[
-            { label: "Description", value: "Vehicle Insights Report" },
+            { label: "Description", value: productDescription },
             { label: "Vehicle", value: vehicleLabel },
             { label: "Registration", value: regoLine },
             { label: "VIN", value: vinLine },
@@ -348,7 +341,7 @@ export function TaxInvoicePdf({
             <Text style={[styles.amountHeadText, styles.colAmt]}>Amount</Text>
           </View>
           <View style={styles.amountRow}>
-            <Text style={styles.colDesc}>{lineLabel}</Text>
+            <Text style={styles.colDesc}>{productDescription}</Text>
             <Text style={styles.colAmt}>
               {formatMoney(listExGst, currency)}
             </Text>

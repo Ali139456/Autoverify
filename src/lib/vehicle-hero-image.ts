@@ -36,3 +36,24 @@ export function buildStockHeroDisclaimer(shownColour?: string | null): string {
   }
   return VEHICLE_HERO_IMAGE_DISCLAIMER;
 }
+
+/** Thumbnail or tiny resize variants — deprioritize for report hero (source is usually AutoGrab CDN). */
+export function isLikelyLowResHeroUrl(url: string): boolean {
+  const lower = url.trim().toLowerCase();
+  if (!lower.startsWith("http")) return false;
+  if (
+    /thumbnail|\/thumb[/_-]|[_-]thumb\.|\/t\/|_small\.|\/small\//.test(lower)
+  ) {
+    return true;
+  }
+  try {
+    const parsed = new URL(url);
+    for (const key of ["w", "width", "h", "height"]) {
+      const value = Number(parsed.searchParams.get(key));
+      if (Number.isFinite(value) && value > 0 && value < 480) return true;
+    }
+  } catch {
+    // ignore malformed URLs
+  }
+  return false;
+}

@@ -166,6 +166,15 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                     {insight.statusSubtext}
                   </p>
                 ) : null}
+                {insight.listItems?.length ? (
+                  <ul className="mt-1.5 space-y-0.5 text-[11px] leading-snug text-slate-600">
+                    {insight.listItems.map((item) => (
+                      <li key={item} className="break-words">
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
                 {insight.id === "registration" && insight.detail ? (
                   <p
                     className={`mt-1 text-[11px] leading-snug break-words font-bold ${insightToneClass(insight.tone)}`}

@@ -7,15 +7,65 @@ export type RideShareEligibilityRow = {
   didi: string;
 };
 
+export type RideShareQuickCheck = "eligible" | "ineligible" | "unknown";
+
 export type RideShareQuickEligibility = {
   vehicleAgeYears: number | null;
+  /** Calendar year used for age (build date year when known, else model year). */
+  vehicleOriginYear: number | null;
   doors: number | null;
   passengers: number | null;
-  ageEligible: boolean;
-  doorsEligible: boolean;
-  passengersEligible: boolean;
+  ageCheck: RideShareQuickCheck;
+  doorsCheck: RideShareQuickCheck;
+  passengersCheck: RideShareQuickCheck;
   allEligible: boolean;
 };
+
+function parseYearFromBuildDateValue(value: string): number | null {
+  const trimmed = value.trim();
+  const dmy = trimmed.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+  if (dmy) {
+    const year = Number(dmy[3]);
+    return Number.isFinite(year) ? year : null;
+  }
+  const ymd = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (ymd) {
+    const year = Number(ymd[1]);
+    return Number.isFinite(year) ? year : null;
+  }
+  return null;
+}
+
+/** Prefer build date from the spec sheet; fall back to model year. */
+export function resolveRideShareVehicleOriginYear(
+  vehicle: VehicleIdentity,
+  report?: Pick<VehicleReport, "vehicleSpec">,
+): number | null {
+  const rows = report?.vehicleSpec?.dataRows ?? [];
+  const buildRow = rows.find(
+    (row) => row.label.trim().toLowerCase() === "build date",
+  );
+  if (buildRow?.value) {
+    const fromBuild = parseYearFromBuildDateValue(buildRow.value);
+    if (fromBuild != null) return fromBuild;
+  }
+  return vehicle.year > 0 ? vehicle.year : null;
+}
+
+function evaluateAgeCheck(vehicleAgeYears: number | null): RideShareQuickCheck {
+  if (vehicleAgeYears == null || vehicleAgeYears < 0) return "unknown";
+  return vehicleAgeYears < 15 ? "eligible" : "ineligible";
+}
+
+function evaluateDoorsCheck(doors: number | null): RideShareQuickCheck {
+  if (doors == null || Number.isNaN(doors)) return "unknown";
+  return doors >= 4 ? "eligible" : "ineligible";
+}
+
+function evaluatePassengersCheck(passengers: number | null): RideShareQuickCheck {
+  if (passengers == null || Number.isNaN(passengers)) return "unknown";
+  return passengers > 4 && passengers < 7 ? "eligible" : "ineligible";
+}
 
 /** Page-1 quick checks (UberX/DiDi age, doors, passenger band). */
 export function evaluateRideShareQuickEligibility(
@@ -23,10 +73,10 @@ export function evaluateRideShareQuickEligibility(
   report?: Pick<VehicleReport, "vehicleSpec" | "createdAt">,
   referenceYear = new Date().getFullYear(),
 ): RideShareQuickEligibility {
+  const vehicleOriginYear = resolveRideShareVehicleOriginYear(vehicle, report);
   const vehicleAgeYears =
-    vehicle.year > 0 ? referenceYear - vehicle.year : null;
-  const ageEligible =
-    vehicleAgeYears != null && vehicleAgeYears >= 0 && vehicleAgeYears < 15;
+    vehicleOriginYear != null ? referenceYear - vehicleOriginYear : null;
+  const ageCheck = evaluateAgeCheck(vehicleAgeYears);
 
   const counts = resolveVehicleDoorAndSeatCounts(vehicle, report);
   const doors =
@@ -34,22 +84,22 @@ export function evaluateRideShareQuickEligibility(
   const passengers =
     counts.passengers === "—" ? null : Number.parseInt(counts.passengers, 10);
 
-  const doorsEligible = doors != null && !Number.isNaN(doors) && doors >= 4;
-  const passengersEligible =
-    passengers != null &&
-    !Number.isNaN(passengers) &&
-    passengers > 4 &&
-    passengers < 7;
+  const doorsCheck = evaluateDoorsCheck(doors);
+  const passengersCheck = evaluatePassengersCheck(passengers);
 
   return {
     vehicleAgeYears,
+    vehicleOriginYear,
     doors: doors != null && !Number.isNaN(doors) ? doors : null,
     passengers:
       passengers != null && !Number.isNaN(passengers) ? passengers : null,
-    ageEligible,
-    doorsEligible,
-    passengersEligible,
-    allEligible: ageEligible && doorsEligible && passengersEligible,
+    ageCheck,
+    doorsCheck,
+    passengersCheck,
+    allEligible:
+      ageCheck === "eligible" &&
+      doorsCheck === "eligible" &&
+      passengersCheck === "eligible",
   };
 }
 

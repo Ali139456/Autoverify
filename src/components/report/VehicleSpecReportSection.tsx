@@ -65,9 +65,9 @@ export function VehicleSpecReportSection({
                         {powerRow ? "*" : ""}
                       </dt>
                       <dd
-                        className={`bg-white px-4 py-2.5 font-semibold ${
+                        className={`bg-white px-4 py-2.5 font-normal ${
                           powerRow
-                            ? "report-spec-power-row text-[#0073E3]"
+                            ? "report-spec-power-row font-medium text-[#0073E3]"
                             : "text-slate-900"
                         }`}
                       >

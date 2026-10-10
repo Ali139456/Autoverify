@@ -27,9 +27,12 @@ function sampleAssetUrl(file: string): string {
   return samplePublicUrl(`/sample/${file}`);
 }
 
+function sampleDamageUrl(file: string): string {
+  return samplePublicUrl(`/sample/damage/${file}`);
+}
+
 /**
- * Black Mercedes-Benz C-Class (W205) demo walkaround — file per inspection angle.
- * Assets under `public/sample/walkaround/` (Unsplash, see README).
+ * Mercedes C300 demo walkaround — synced from `images/` → `public/sample/walkaround/` (see README + scripts/sync-sample-walkaround.ps1).
  */
 const SAMPLE_WALKAROUND_FILES: Record<string, string> = {
   front_left: "front-left.jpg",
@@ -44,6 +47,8 @@ const SAMPLE_WALKAROUND_FILES: Record<string, string> = {
   interior_driver_front: "interior-front.jpg",
   interior_passenger_rear: "interior-rear.jpg",
   dashboard: "odometer.jpg",
+  keys: "keys.jpg",
+  service_record: "service-record.jpg",
 };
 
 const SAMPLE_WALKAROUND_ANGLES = [
@@ -52,6 +57,8 @@ const SAMPLE_WALKAROUND_ANGLES = [
   "interior_driver_front",
   "interior_passenger_rear",
   "dashboard",
+  "keys",
+  "service_record",
 ] as const;
 
 const SAMPLE_DAMAGE: DamageAnalysis = {
@@ -65,8 +72,8 @@ const SAMPLE_DAMAGE: DamageAnalysis = {
       severity: "Minor",
       confidence: 0.91,
       repairEstimate: 320,
-      description: "Light scuff consistent with parking contact.",
-      imageUrl: sampleWalkaroundUrl("front.jpg"),
+      description: "Scuff and scratch damage on the lower front bumper.",
+      imageUrl: sampleDamageUrl("front-bumper.jpg"),
     },
     {
       panel: "Rear left door",
@@ -74,8 +81,8 @@ const SAMPLE_DAMAGE: DamageAnalysis = {
       severity: "Minor",
       confidence: 0.87,
       repairEstimate: 600,
-      description: "Small dent — paintless repair may be suitable.",
-      imageUrl: sampleWalkaroundUrl("rear-left.jpg"),
+      description: "Minor dent below the rear door handle — paintless repair may be suitable.",
+      imageUrl: sampleDamageUrl("rear-left-door.jpg"),
     },
   ],
 };

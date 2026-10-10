@@ -14,7 +14,11 @@ import {
 
 } from "@/lib/ppsr-certificate";
 
-import { formatReportReference } from "@/lib/report-design";
+import {
+  formatExpiryDate,
+  formatReportReference,
+} from "@/lib/report-design";
+import { registrationDisplayStatus } from "@/lib/registration-info";
 import { PpsrCertificateViewer } from "./PpsrCertificateViewer";
 import { ReportShell } from "./ReportShell";
 
@@ -41,8 +45,9 @@ export function PpsrCertificateReportPage({
   const directUrl = report.registration.ppsrCertificateUrl?.trim() ?? "";
 
   const isSample = isSampleReportId(report.id);
-
-
+  const { registration } = report;
+  const expiryIso = registration.expiryDate?.trim();
+  const registrationStatus = registrationDisplayStatus(registration);
 
   return (
 
@@ -100,6 +105,34 @@ export function PpsrCertificateReportPage({
 
             </p>
 
+          ) : null}
+
+          {!isSample ? (
+            expiryIso ? (
+              <div className="rounded-lg border border-sky-200 bg-sky-50 px-3 py-2.5 text-xs leading-relaxed text-slate-800">
+                <p className="font-bold text-slate-900">
+                  Registration expiry (registration authority data)
+                </p>
+                <p className="mt-1">
+                  Status {registrationStatus} · Expiry{" "}
+                  {formatExpiryDate(expiryIso)}
+                </p>
+                <p className="mt-1.5 text-slate-600">
+                  The official PPSR certificate below may show &ldquo;No data
+                  recorded&rdquo; next to registration expiry when NEVDIS does not
+                  supply that field on the certificate. Use the expiry above and
+                  the Registration insight on page 1, or verify on your state
+                  road agency website.
+                </p>
+              </div>
+            ) : (
+              <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-950">
+                Registration expiry was not returned on the PPSR certificate or
+                our registration lookup for this report. If the certificate shows
+                &ldquo;No data recorded&rdquo;, check Service NSW (or your state
+                equivalent) for the current expiry date.
+              </p>
+            )
           ) : null}
 
         </div>

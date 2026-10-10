@@ -22,7 +22,11 @@ import { countVehicleReportPages } from "@/lib/report-page-count";
 import { hasVehicleSpecContent } from "@/lib/vehicle-spec-sheet";
 import { VehicleSpecReportPage } from "@/components/report/VehicleSpecReportPage";
 import { buildCheckSearchUrl } from "@/lib/vehicle-identifier";
-import { refreshRegistrationIfMissing } from "@/lib/autograb";
+import {
+  refreshPpsrCertificateSummary,
+  refreshRegistrationIfMissing,
+} from "@/lib/autograb";
+import { applyRegistrationExpiryInference } from "@/lib/registration-info";
 
 export const metadata: Metadata = {
   title: "Vehicle Report",
@@ -37,10 +41,25 @@ export default async function ReportPage({
   const { id } = await params;
   const stored = await getReport(id);
   if (!stored) notFound();
-  const registration = await refreshRegistrationIfMissing(
-    stored.registration,
-    stored.vehicle,
+  let registration = applyRegistrationExpiryInference(
+    await refreshRegistrationIfMissing(stored.registration, stored.vehicle),
   );
+  const ppsrRefresh = await refreshPpsrCertificateSummary(stored.vehicle);
+  if (ppsrRefresh?.regoExpiry?.trim()) {
+    registration = applyRegistrationExpiryInference({
+      ...registration,
+      expiryDate: registration.expiryDate?.trim() || ppsrRefresh.regoExpiry,
+    });
+  }
+  if (
+    ppsrRefresh?.certificateUrl?.trim() &&
+    !registration.ppsrCertificateUrl?.trim()
+  ) {
+    registration = {
+      ...registration,
+      ppsrCertificateUrl: ppsrRefresh.certificateUrl,
+    };
+  }
   const report =
     registration === stored.registration
       ? stored

@@ -24,6 +24,7 @@ import {
   futureValueForecastNote,
 
   resolveFutureValue,
+  resolveValuation,
 
 } from "@/lib/report-design";
 
@@ -125,7 +126,8 @@ export function CarInsightsReport({
 
 }) {
 
-  const { vehicle, valuation } = report;
+  const { vehicle } = report;
+  const valuation = resolveValuation(report);
 
   const showFutureValue = hasDamageAnalysis(resolveReportTier(report.tier));
 

@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { refreshRegistrationIfMissing } from "@/lib/autograb";
+import {
+  refreshPpsrCertificateSummary,
+  refreshRegistrationIfMissing,
+} from "@/lib/autograb";
+import { applyRegistrationExpiryInference } from "@/lib/registration-info";
 import { generateReportPdfBuffer } from "@/lib/report-pdf-buffer";
 import { getReport } from "@/lib/store";
 
@@ -20,10 +24,16 @@ export async function GET(
     );
   }
 
-  const registration = await refreshRegistrationIfMissing(
-    report.registration,
-    report.vehicle,
+  let registration = applyRegistrationExpiryInference(
+    await refreshRegistrationIfMissing(report.registration, report.vehicle),
   );
+  const ppsrRefresh = await refreshPpsrCertificateSummary(report.vehicle);
+  if (ppsrRefresh?.regoExpiry?.trim()) {
+    registration = applyRegistrationExpiryInference({
+      ...registration,
+      expiryDate: registration.expiryDate?.trim() || ppsrRefresh.regoExpiry,
+    });
+  }
   const enriched =
     registration === report.registration
       ? report
