@@ -83,17 +83,17 @@ function scrollToSubmitBar(submitBar: HTMLDivElement | null) {
   });
 }
 
+/** Public route — safe after inspection (no preview/login). */
+const INSPECTION_EXIT_PATH = "/vehicleinspections";
+
 function exitInspectionDoneScreen(router: ReturnType<typeof useRouter>) {
   try {
     window.close();
   } catch {
     // window.close() is blocked unless this tab was opened by script
   }
-  if (window.history.length > 1) {
-    window.history.back();
-    return;
-  }
-  router.push("/");
+  // Never history.back() — in-app browsers often land on report/home and show auth errors.
+  router.replace(INSPECTION_EXIT_PATH);
 }
 
 export function InspectionCapture({
@@ -296,8 +296,8 @@ export function InspectionCapture({
           Exit
         </button>
         <p className="mt-3 max-w-xs text-[11px] leading-relaxed text-slate-500">
-          If this page stays open, switch back to your messages or close this
-          browser tab.
+          If Exit does not close the tab, switch back to your messages or close
+          this browser window manually.
         </p>
       </div>
     );
