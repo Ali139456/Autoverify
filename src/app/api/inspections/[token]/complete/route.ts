@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   downloadInspectionPhotos,
+  getInspectionById,
   getInspectionByToken,
   getInspectionProgress,
   isInspectionExpired,
   updateInspection,
 } from "@/lib/inspections";
+import { sendInspectionPhotosUpdatedEmail } from "@/lib/email";
 import { getReport, updateReport } from "@/lib/store";
 import { submitInspectionToRavin } from "@/lib/ravin-ingest";
 
@@ -35,7 +37,9 @@ export async function POST(
       return NextResponse.json({ error: "Report not found." }, { status: 404 });
     }
 
-    const photoFiles = await downloadInspectionPhotos(inspection);
+    const freshInspection =
+      (await getInspectionById(inspection.id)) ?? inspection;
+    const photoFiles = await downloadInspectionPhotos(freshInspection);
 
     await updateInspection(inspection.id, {
       status: "uploaded",
@@ -49,9 +53,17 @@ export async function POST(
     const submission = await submitInspectionToRavin({
       reportId: inspection.reportId,
       inspectionId: inspection.id,
+      ravinInspectionId: freshInspection.ravinInspectionId,
       vin: report.vehicle.vin,
       photos: photoFiles,
     });
+
+    const notifyEmail = report.customerEmail?.trim();
+    if (notifyEmail) {
+      void sendInspectionPhotosUpdatedEmail(report, notifyEmail).catch((err) => {
+        console.error("[inspections/complete] inspection update email failed:", err);
+      });
+    }
 
     if (submission.mode === "demo" && submission.damage) {
       await updateInspection(inspection.id, {

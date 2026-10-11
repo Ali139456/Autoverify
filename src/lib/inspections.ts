@@ -318,3 +318,40 @@ export function getInspectionProgress(photos: InspectionPhoto[]) {
     missing: getMissingAngles(photos),
   };
 }
+
+/** Signed URLs for private Supabase bucket paths (web report + PDF render). */
+const INSPECTION_PHOTO_SIGNED_URL_TTL_SEC = 60 * 60 * 24;
+
+export async function resolveInspectionPhotoUrls(
+  photos: InspectionPhoto[],
+): Promise<InspectionPhoto[]> {
+  if (photos.length === 0 || !isSupabaseServerConfigured()) {
+    return photos;
+  }
+
+  const supabase = createServerClient();
+
+  return Promise.all(
+    photos.map(async (photo) => {
+      if (photo.externalUrl?.startsWith("http")) {
+        return photo;
+      }
+      if (
+        photo.storagePath.startsWith("http") ||
+        photo.storagePath.startsWith("/")
+      ) {
+        return photo;
+      }
+
+      const { data, error } = await supabase.storage
+        .from(INSPECTION_PHOTO_BUCKET)
+        .createSignedUrl(photo.storagePath, INSPECTION_PHOTO_SIGNED_URL_TTL_SEC);
+
+      if (error || !data?.signedUrl) {
+        return photo;
+      }
+
+      return { ...photo, externalUrl: data.signedUrl };
+    }),
+  );
+}

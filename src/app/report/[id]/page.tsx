@@ -13,6 +13,7 @@ import {
   getInspectionByReportId,
   getInspectionOwnerUrl,
   isInspectionExpired,
+  resolveInspectionPhotoUrls,
 } from "@/lib/inspections";
 import { getBaseUrl } from "@/lib/stripe";
 import { PresentAndFutureValueReportPage } from "@/components/report/PresentAndFutureValueReportPage";
@@ -65,6 +66,9 @@ export default async function ReportPage({
       ? stored
       : { ...stored, registration };
   const inspection = await getInspectionByReportId(id);
+  const inspectionPhotos = await resolveInspectionPhotoUrls(
+    inspection?.photos ?? [],
+  );
   const inspectUrlForOwner =
     inspection && !isInspectionExpired(inspection)
       ? getInspectionOwnerUrl(inspection, getBaseUrl())
@@ -150,7 +154,7 @@ export default async function ReportPage({
           <div className="report-page-break report-page-flow">
             <InsightsPlusBodyReport
               report={report}
-              photos={inspection?.photos ?? []}
+              photos={inspectionPhotos}
               inspectUrl={inspectUrlForOwner}
               showActions
               pageLabel={`${reportPage++} / ${pageCount}`}

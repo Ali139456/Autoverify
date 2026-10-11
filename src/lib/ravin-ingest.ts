@@ -24,6 +24,8 @@ export type RavinSubmissionMode = "s3" | "pending" | "demo";
 export async function submitInspectionToRavin(input: {
   reportId: string;
   inspectionId: string;
+  /** Ravin partner invitation id when the report was linked via Inspector Lite. */
+  ravinInspectionId?: string | null;
   vin?: string | null;
   photos: { name: string; data: Buffer; contentType: string; angle: string }[];
 }): Promise<{
@@ -31,18 +33,25 @@ export async function submitInspectionToRavin(input: {
   ravinInspectionId: string | null;
   damage: DamageAnalysis | null;
 }> {
+  const linkedRavinId = input.ravinInspectionId?.trim() || null;
+  const ingestId =
+    linkedRavinId ?? `insp-${input.reportId.toLowerCase()}`;
+
   if (isRavinS3Configured()) {
-    const ravinInspectionId = `insp-${input.reportId.toLowerCase()}`;
     await uploadPhotosToRavinS3({
-      inspectionId: ravinInspectionId,
+      inspectionId: ingestId,
       vin: input.vin,
       photos: input.photos,
     });
-    return { mode: "s3", ravinInspectionId, damage: null };
+    return { mode: "s3", ravinInspectionId: ingestId, damage: null };
   }
 
   if (isRavinLiveAccount()) {
-    return { mode: "pending", ravinInspectionId: input.reportId, damage: null };
+    return {
+      mode: "pending",
+      ravinInspectionId: linkedRavinId ?? input.reportId,
+      damage: null,
+    };
   }
 
   const damage = await analyzeDamage(

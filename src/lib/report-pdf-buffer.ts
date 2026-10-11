@@ -1,6 +1,9 @@
 import { createElement, ReactElement } from "react";
 import { DocumentProps, renderToBuffer } from "@react-pdf/renderer";
-import { getInspectionByReportId } from "./inspections";
+import {
+  getInspectionByReportId,
+  resolveInspectionPhotoUrls,
+} from "./inspections";
 import {
   fetchPpsrCertificateForReport,
   hasPpsrCertificate,
@@ -14,7 +17,9 @@ export async function generateReportPdfBuffer(
   report: VehicleReport,
 ): Promise<Buffer> {
   const inspection = await getInspectionByReportId(report.id);
-  let photos: InspectionPhoto[] = inspection?.photos ?? [];
+  let photos: InspectionPhoto[] = await resolveInspectionPhotoUrls(
+    inspection?.photos ?? [],
+  );
   if (photos.length === 0 && report.id.startsWith("SAMPLE-")) {
     photos = buildSampleInspectionPhotos();
   }
