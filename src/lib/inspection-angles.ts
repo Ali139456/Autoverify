@@ -22,7 +22,7 @@ export const INSPECTION_ANGLES = [
   { id: "wheel_right_rear", label: "Right rear wheel" },
   { id: "wheel_left_rear", label: "Left rear wheel" },
   { id: "wheel_left_front", label: "Left front wheel" },
-  { id: "vin_plate", label: "VIN plate" },
+  { id: "vin_plate", label: "VIN identification photo" },
   { id: "keys", label: "# Keys" },
   {
     id: "service_record",

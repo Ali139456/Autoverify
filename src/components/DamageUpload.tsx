@@ -10,7 +10,7 @@ const MANUAL_PHOTO_CHECKLIST = [
   "Four tyre / wheel close-ups",
   "Interior dash cluster with odometer (engine running)",
   "Interior seats — driver & passenger, front & rear, plus boot",
-  "VIN plate (usually on the driver door jamb)",
+  "VIN identification photo (usually on the driver door jamb)",
 ] as const;
 
 async function readJsonResponse<T extends object>(
