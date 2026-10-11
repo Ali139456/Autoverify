@@ -5,7 +5,7 @@
  */
 export const INSPECTION_ANGLES = [
   { id: "front_left", label: "Front left" },
-  { id: "front", label: "Front" },
+  { id: "front", label: "Front centre" },
   { id: "front_right", label: "Front right" },
   { id: "right_side", label: "Right side (body)" },
   { id: "rear_right", label: "Rear right" },
