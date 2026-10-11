@@ -1034,10 +1034,14 @@ html.dark body {
     page-break-inside: avoid;
   }
 
+  .report-photo-tile > div {
+    background-color: #f1f5f9 !important;
+  }
+
   .report-photo-tile img {
-    object-fit: contain !important;
+    object-fit: cover !important;
     object-position: center !important;
-    background-color: #020617 !important;
+    background-color: #f1f5f9 !important;
   }
 
   .report-insights-section {

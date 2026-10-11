@@ -403,9 +403,9 @@ const styles = StyleSheet.create({
   photoImage: {
     width: "100%",
     height: 64,
-    objectFit: "contain",
+    objectFit: "cover",
     objectPosition: "center",
-    backgroundColor: "#020617",
+    backgroundColor: "#f1f5f9",
   },
   photoCaption: {
     paddingHorizontal: 4,
