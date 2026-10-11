@@ -56,15 +56,31 @@ function inspectionErrorMessage(err: unknown, fallback: string): string {
   return err.message;
 }
 
+function allAnglesUploaded(uploaded: Set<string>): boolean {
+  return INSPECTION_ANGLES.every((angle) => uploaded.has(angle.id));
+}
+
 /** Next capture step after a successful upload (first missing angle ahead, then wrap). */
 function findNextStepIndex(uploaded: Set<string>, fromStep: number): number {
+  if (allAnglesUploaded(uploaded)) {
+    return fromStep;
+  }
   for (let i = fromStep + 1; i < INSPECTION_ANGLES.length; i++) {
     if (!uploaded.has(INSPECTION_ANGLES[i].id)) return i;
   }
   for (let i = 0; i < fromStep; i++) {
     if (!uploaded.has(INSPECTION_ANGLES[i].id)) return i;
   }
-  return Math.min(fromStep + 1, INSPECTION_ANGLES.length - 1);
+  return fromStep;
+}
+
+function scrollToSubmitBar(submitBar: HTMLDivElement | null) {
+  if (!submitBar) return;
+  submitBar.scrollIntoView({ behavior: "smooth", block: "end" });
+  window.scrollTo({
+    top: document.documentElement.scrollHeight,
+    behavior: "smooth",
+  });
 }
 
 function exitInspectionDoneScreen(router: ReturnType<typeof useRouter>) {
@@ -150,10 +166,10 @@ export function InspectionCapture({
   useEffect(() => {
     if (!allPhotosComplete) return;
     const frame = requestAnimationFrame(() => {
-      submitBarRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+      scrollToSubmitBar(submitBarRef.current);
     });
     return () => cancelAnimationFrame(frame);
-  }, [allPhotosComplete]);
+  }, [allPhotosComplete, stepIndex]);
 
   async function uploadPhoto(file: File) {
     setUploading(true);
@@ -201,7 +217,16 @@ export function InspectionCapture({
 
       const uploaded = new Set(merged.map((photo) => photo.angle));
       uploaded.add(capturedAngleId);
-      setStepIndex(findNextStepIndex(uploaded, capturedStep));
+      const complete = allAnglesUploaded(uploaded);
+      const nextStep = findNextStepIndex(uploaded, capturedStep);
+      setStepIndex(nextStep);
+      if (complete) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            scrollToSubmitBar(submitBarRef.current);
+          });
+        });
+      }
     } catch (err) {
       setError(inspectionErrorMessage(err, "Upload failed."));
     } finally {
