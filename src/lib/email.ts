@@ -102,13 +102,30 @@ export async function sendPurchaseConfirmationEmail(
   });
 }
 
+/** Buyer + ops inbox when walkaround photos are submitted. */
+export function getInspectionPhotoNotifyEmails(
+  report: VehicleReport,
+): string[] {
+  const emails = new Set<string>();
+  const customer = report.customerEmail?.trim().toLowerCase();
+  if (customer) emails.add(customer);
+  const support = process.env.AUTOVERIFI_SUPPORT_EMAIL?.trim().toLowerCase();
+  if (support) emails.add(support);
+  return [...emails];
+}
+
 /** Sent when walkaround photos are submitted (Insights+). */
 export async function sendInspectionPhotosUpdatedEmail(
   report: VehicleReport,
   email: string,
 ): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY?.trim();
-  if (!apiKey) return;
+  if (!apiKey) {
+    console.warn(
+      "[email] RESEND_API_KEY not set — skipping inspection photos email.",
+    );
+    return;
+  }
 
   const from =
     process.env.RESEND_FROM?.trim() ??
@@ -125,7 +142,7 @@ export async function sendInspectionPhotosUpdatedEmail(
 <p style="color:#64748b;font-size:13px">AI damage analysis may take a little longer if Ravin is still processing the images.</p>
 </body></html>`;
 
-  await fetch("https://api.resend.com/emails", {
+  const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -138,4 +155,11 @@ export async function sendInspectionPhotosUpdatedEmail(
       html,
     }),
   });
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => "");
+    throw new Error(
+      `Resend inspection email failed (${response.status}): ${body.slice(0, 200)}`,
+    );
+  }
 }

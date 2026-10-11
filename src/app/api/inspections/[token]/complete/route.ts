@@ -7,7 +7,10 @@ import {
   isInspectionExpired,
   updateInspection,
 } from "@/lib/inspections";
-import { sendInspectionPhotosUpdatedEmail } from "@/lib/email";
+import {
+  getInspectionPhotoNotifyEmails,
+  sendInspectionPhotosUpdatedEmail,
+} from "@/lib/email";
 import { getReport, updateReport } from "@/lib/store";
 import { submitInspectionToRavin } from "@/lib/ravin-ingest";
 
@@ -58,11 +61,19 @@ export async function POST(
       photos: photoFiles,
     });
 
-    const notifyEmail = report.customerEmail?.trim();
-    if (notifyEmail) {
+    const notifyEmails = getInspectionPhotoNotifyEmails(report);
+    for (const notifyEmail of notifyEmails) {
       void sendInspectionPhotosUpdatedEmail(report, notifyEmail).catch((err) => {
-        console.error("[inspections/complete] inspection update email failed:", err);
+        console.error(
+          `[inspections/complete] inspection update email failed (${notifyEmail}):`,
+          err,
+        );
       });
+    }
+    if (notifyEmails.length === 0) {
+      console.warn(
+        `[inspections/complete] no notify email for report ${report.id} (set customer email or AUTOVERIFI_SUPPORT_EMAIL).`,
+      );
     }
 
     if (submission.mode === "demo" && submission.damage) {
