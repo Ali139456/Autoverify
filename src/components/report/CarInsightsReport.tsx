@@ -308,7 +308,7 @@ export function CarInsightsReport({
 
               vehicleTitle={vehicleTitle}
 
-              className="report-hero-image relative order-1 aspect-[16/10] min-h-[220px] w-full bg-[#020617] sm:min-h-[240px] lg:order-2 lg:aspect-auto lg:min-h-[280px] lg:h-auto"
+              className="report-hero-image relative order-1 aspect-[16/10] min-h-[220px] h-full w-full bg-[#020617] sm:min-h-[240px] lg:order-2 lg:aspect-auto lg:min-h-[280px]"
 
             />
 

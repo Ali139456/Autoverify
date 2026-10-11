@@ -31,41 +31,25 @@ export function VehicleHeroImage({
     vehicle.heroImageDisclaimer ?? VEHICLE_HERO_IMAGE_DISCLAIMER;
 
   const imgClass =
-
     imageClassName ??
-
-    "absolute inset-0 h-full w-full object-contain object-center";
-
-
+    "max-h-full max-w-full object-contain object-center bg-[#020617]";
 
   return (
-
-    <div className={`${className} overflow-hidden`}>
-
+    <div className={`${className} flex min-h-0 flex-col overflow-hidden`}>
       {vehicle.heroImageUrl ? (
-
         <>
-
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-
-          <img
-
-            src={vehicle.heroImageUrl}
-
-            alt={`${vehicleTitle} reference photo`}
-
-            className={imgClass}
-
-            decoding="async"
-
-          />
-
-          <p className="absolute bottom-0 left-0 right-0 z-10 bg-black/55 px-3 py-1.5 text-[10px] leading-snug text-white">
-
+          <div className="relative flex min-h-0 flex-1 items-center justify-center bg-[#020617]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={vehicle.heroImageUrl}
+              alt={`${vehicleTitle} reference photo`}
+              className={imgClass}
+              decoding="async"
+            />
+          </div>
+          <p className="shrink-0 bg-black/55 px-3 py-1.5 text-[10px] leading-snug text-white">
             *{disclaimer}
-
           </p>
-
         </>
 
       ) : (
