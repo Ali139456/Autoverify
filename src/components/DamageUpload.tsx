@@ -9,7 +9,7 @@ const MANUAL_PHOTO_CHECKLIST = [
   "Exterior walkaround (8 panels: front, sides, corners, rear)",
   "Four tyre / wheel close-ups",
   "Interior dash cluster with odometer (engine running)",
-  "Interior seats — driver & passenger front, rear interior, plus boot",
+  "Interior seats — driver & passenger front and rear interior",
   "VIN identification photo (usually on the driver door jamb)",
 ] as const;
 

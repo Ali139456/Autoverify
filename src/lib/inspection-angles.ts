@@ -16,7 +16,6 @@ export const INSPECTION_ANGLES = [
   { id: "interior_driver_front", label: "Driver side front interior" },
   { id: "interior_passenger_front", label: "Passenger side front interior" },
   { id: "interior_rear", label: "Rear interior" },
-  { id: "interior_rear_boot", label: "Rear boot interior" },
   { id: "wheel_right_front", label: "Right front wheel" },
   { id: "wheel_right_rear", label: "Right rear wheel" },
   { id: "wheel_left_rear", label: "Left rear wheel" },
