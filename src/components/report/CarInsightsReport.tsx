@@ -340,7 +340,7 @@ export function CarInsightsReport({
 
         </div>
 
-        <ReportManufacturersWarrantyNotice />
+        <ReportManufacturersWarrantyNotice vehicle={vehicle} />
 
         {!deferValuations ? (
           <>

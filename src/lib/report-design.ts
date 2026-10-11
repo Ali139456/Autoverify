@@ -140,6 +140,24 @@ export const VEHICLE_RECALLS_GOV_AU_URL = "https://www.vehiclerecalls.gov.au";
 export const MANUFACTURERS_WARRANTY_NOTICE =
   "Contact Authorised Dealer/service centre and quote VIN to confirm remaining Manufacturer's warranty.";
 
+export const SERVICE_HISTORY_STATUS_LABEL =
+  "Service history — check with vehicle owner";
+
+export const SERVICE_HISTORY_DETAIL =
+  "Contact the vehicle owner or selling dealer for service history records.";
+
+/** Warranty remaining / expiry line for the overview block (when AutoGrab supplies a value). */
+export function formatWarrantyRemainingDisplay(
+  warrantyRemaining: string | null | undefined,
+): string | null {
+  const raw = warrantyRemaining?.trim();
+  if (!raw) return null;
+  if (/^\d{4}-\d{2}-\d{2}/.test(raw)) {
+    return formatExpiryDate(raw);
+  }
+  return raw;
+}
+
 /** Registration expiry for reports: DD-MM-YYYY (e.g. 16-02-2027). */
 export function formatExpiryDate(iso: string): string {
   const trimmed = iso.trim();
@@ -502,11 +520,6 @@ export function buildStatusChecks(report: VehicleReport): StatusCheck[] {
           ok: false,
           advisory: true,
         },
-    {
-      label: "Service history — check with vehicle owner",
-      ok: false,
-      muted: true,
-    },
   ];
 }
 
@@ -582,8 +595,7 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
       title: "Service History",
       status: "Check with vehicle owner",
       tone: "neutral",
-      detail:
-        "Contact the vehicle owner or selling dealer for service history records.",
+      detail: SERVICE_HISTORY_DETAIL,
     },
     {
       id: "future",

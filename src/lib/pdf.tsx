@@ -47,6 +47,9 @@ import {
   buildStatusChecks,
   formatPPlateStatus,
   MANUFACTURERS_WARRANTY_NOTICE,
+  SERVICE_HISTORY_DETAIL,
+  SERVICE_HISTORY_STATUS_LABEL,
+  formatWarrantyRemainingDisplay,
   formatReportDate,
   formatReportReference,
   getFutureValueAtYears,
@@ -829,7 +832,15 @@ function PdfOverviewSpecBar({ specs }: { specs: OverviewSpec[] }) {
   );
 }
 
-function PdfManufacturersWarrantyNotice() {
+function PdfManufacturersWarrantyNotice({
+  vehicle,
+}: {
+  vehicle: VehicleReport["vehicle"];
+}) {
+  const warrantyExpiry = formatWarrantyRemainingDisplay(
+    vehicle.warrantyRemaining,
+  );
+
   return (
     <View
       style={{
@@ -853,6 +864,18 @@ function PdfManufacturersWarrantyNotice() {
       >
         Manufacturer&apos;s warranty remaining
       </Text>
+      {warrantyExpiry ? (
+        <Text
+          style={{
+            marginTop: 4,
+            fontSize: 8.5,
+            fontFamily: "Helvetica-Bold",
+            color: "#0f172a",
+          }}
+        >
+          Expiry {warrantyExpiry}
+        </Text>
+      ) : null}
       <Text
         style={{
           marginTop: 4,
@@ -864,6 +887,28 @@ function PdfManufacturersWarrantyNotice() {
       >
         {MANUFACTURERS_WARRANTY_NOTICE}
       </Text>
+      <View
+        style={{
+          marginTop: 8,
+          paddingTop: 8,
+          borderTopWidth: 1,
+          borderTopColor: "#e2e8f0",
+        }}
+      >
+        <Text style={{ fontSize: 8, color: "#475569", lineHeight: 1.4 }}>
+          {SERVICE_HISTORY_STATUS_LABEL}
+        </Text>
+        <Text
+          style={{
+            marginTop: 2,
+            fontSize: 7.5,
+            color: "#64748b",
+            lineHeight: 1.4,
+          }}
+        >
+          {SERVICE_HISTORY_DETAIL}
+        </Text>
+      </View>
     </View>
   );
 }
@@ -1098,7 +1143,7 @@ function CarInsightsOverviewPage({
           <Text style={styles.sectionLabel}>Key Insights</Text>
         </View>
         <PdfInsightGrid insights={insights} />
-        <PdfManufacturersWarrantyNotice />
+        <PdfManufacturersWarrantyNotice vehicle={vehicle} />
       </View>
     </PdfPageShell>
   );
