@@ -2,7 +2,7 @@
 
 `c300-hero.jpg` — black **Mercedes C300** (from repo `images/`, matches `front-left.jpg`).
 
-`walkaround/*.jpg` — same **C300 photo set** as `autoverifi-app/images/` (Denise’s sample shoot: front / sides / rear / wheels / dash / interior). Re-sync after image updates:
+`walkaround/*.jpg` — same **C300 photo set** as `autoverifi-app/images/` (Denise’s sample shoot: front / sides / rear / wheels / dash / interior). **Side body** tiles use full-car shots (`image (4).png` right, `image (2).png` left); `image (9).png` is only for damage evidence. Re-sync after image updates:
 
 `powershell -File scripts/sync-sample-walkaround.ps1`
 
