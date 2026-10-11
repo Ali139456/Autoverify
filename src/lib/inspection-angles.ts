@@ -9,7 +9,7 @@ export const INSPECTION_ANGLES = [
   { id: "front_right", label: "Front right" },
   { id: "right_side", label: "Right side (body)" },
   { id: "rear_right", label: "Rear right" },
-  { id: "rear", label: "Rear" },
+  { id: "rear", label: "Rear centre" },
   { id: "rear_left", label: "Rear left" },
   { id: "left_side", label: "Left side (body)" },
   { id: "dashboard", label: "Dash cluster with engine running" },
