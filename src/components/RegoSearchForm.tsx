@@ -115,9 +115,7 @@ export function RegoSearchForm({
           <span className={`${labelClass} min-w-0 flex-1`}>
             Registration Plate or VIN
           </span>
-          <span
-            className={`${labelClass} ${sampleLinks === "both" ? "w-[4.25rem]" : "w-[5.75rem]"} shrink-0 text-left`}
-          >
+          <span className={`${labelClass} w-[5.75rem] shrink-0 text-left`}>
             State{vinMode ? " (optional)" : ""}
           </span>
         </div>
@@ -135,14 +133,12 @@ export function RegoSearchForm({
             />
           </div>
 
-          <div
-            className={`relative shrink-0 ${sampleLinks === "both" ? "w-[4.25rem]" : "w-[5.75rem]"}`}
-          >
+          <div className="relative w-[5.75rem] shrink-0 min-[480px]:w-[6rem]">
             <select
               value={state}
               onChange={(e) => setState(e.target.value)}
               aria-label="State of registration"
-              className={`${fieldClass} cursor-pointer appearance-none pl-3 pr-8 text-left text-sm font-bold sm:text-base`}
+              className={`${fieldClass} cursor-pointer appearance-none pl-2.5 pr-7 text-left text-sm font-bold tracking-wide sm:pl-3 sm:pr-8 sm:text-base`}
             >
               {STATES.map((s) => (
                 <option key={s} value={s}>
