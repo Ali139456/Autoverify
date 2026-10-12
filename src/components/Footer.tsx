@@ -23,8 +23,8 @@ const CHECKS = [
   "PPSR / finance owing",
   "Write-off & stolen records",
   "Vehicle specifications",
-  "ANCAP safety ratings",
   "Market valuation & comparables",
+  "Future predicted valuation insights",
   "AI powered exterior, tyres and interior condition assessment",
 ];
 
