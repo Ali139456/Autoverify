@@ -108,12 +108,19 @@ const PDF_TABLE_FONT_BODY = 8;
 const PDF_TABLE_FONT_HEAD = 7.5;
 const PDF_TABLE_PAD_V = 7;
 const PDF_TABLE_PAD_H = 12;
+/** Page 1 insight cards — match web `ReportInsightCard` spacing (~p-4, text-xs). */
+const PDF_INSIGHT_PAD = 10;
+const PDF_INSIGHT_MIN_H = 80;
+const PDF_INSIGHT_TITLE = 7.5;
+const PDF_INSIGHT_BODY = 9;
+const PDF_INSIGHT_BODY_SM = 8.25;
+const PDF_INSIGHT_LINE = 1.45;
 const RIDE_SHARE_ORANGE = "#E87722";
 const LOGO_BLUE = publicPdfImage(REPORT_LOGO_PNG_PATH);
 
 const PDF_A4_HEIGHT = 841.89;
 /** Fixed height of the status + hero panel on page 1 (keeps yoga layout stable). */
-const STATUS_PANEL_HEIGHT = 150;
+const STATUS_PANEL_HEIGHT = 172;
 
 const styles = StyleSheet.create({
   page: {
@@ -194,23 +201,24 @@ const styles = StyleSheet.create({
   },
   specItem: {
     width: "25%",
-    paddingVertical: 7,
-    paddingHorizontal: 8,
+    paddingVertical: 9,
+    paddingHorizontal: 11,
     borderRightWidth: PDF_BORDER_INNER,
     borderRightColor: BORDER_SLATE_200,
   },
-  specLabelRow: { flexDirection: "row", alignItems: "center", gap: 3 },
+  specLabelRow: { flexDirection: "row", alignItems: "center", gap: 4 },
   specLabel: {
-    fontSize: 6.5,
+    fontSize: 7.5,
     color: GREY,
     textTransform: "uppercase",
     fontFamily: "Helvetica-Bold",
   },
   specValue: {
-    marginTop: 3,
-    fontSize: 8.5,
+    marginTop: 4,
+    fontSize: 10,
     fontFamily: "Helvetica-Bold",
     color: "#0f172a",
+    lineHeight: 1.25,
   },
   statusPanel: {
     marginTop: 12,
@@ -223,7 +231,8 @@ const styles = StyleSheet.create({
   },
   statusLeft: {
     width: "58%",
-    padding: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
     borderRightWidth: PDF_BORDER_INNER,
     borderRightColor: BORDER_SLATE_200,
   },
@@ -276,14 +285,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#020617",
   },
   statusTitle: {
-    fontSize: 7,
+    fontSize: 7.5,
     color: "#0f172a",
     textTransform: "uppercase",
     fontFamily: "Helvetica-Bold",
-    marginBottom: 8,
+    letterSpacing: 0.6,
+    marginBottom: 10,
   },
-  statusRow: { flexDirection: "row", marginBottom: 5, alignItems: "flex-start", gap: 5 },
-  statusText: { flex: 1, fontSize: 8.5, color: "#334155" },
+  statusRow: { flexDirection: "row", marginBottom: 7, alignItems: "flex-start", gap: 6 },
+  statusText: { flex: 1, fontSize: 9, lineHeight: 1.4, color: "#334155" },
   insightsHeader: {
     marginTop: 14,
     flexDirection: "row",
@@ -304,37 +314,48 @@ const styles = StyleSheet.create({
     color: BLUE,
   },
   insightGrid: {
-    marginTop: 8,
+    marginTop: 10,
   },
   insightRow: {
     flexDirection: "row",
     alignItems: "stretch",
-    marginBottom: 6,
+    marginBottom: 8,
   },
   insightCard: {
     width: "24.25%",
     marginRight: "1%",
     borderWidth: PDF_BORDER_OUTER,
     borderColor: BORDER_SLATE_200,
-    borderRadius: 6,
-    padding: 7,
-    minHeight: 58,
+    borderRadius: 8,
+    padding: PDF_INSIGHT_PAD,
+    minHeight: PDF_INSIGHT_MIN_H,
     backgroundColor: "#f1f5f9",
   },
   insightTop: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    gap: 4,
+    gap: 6,
   },
-  insightTitle: { fontSize: 7, color: GREY, textAlign: "right", flex: 1 },
+  insightTitle: {
+    fontSize: PDF_INSIGHT_TITLE,
+    color: GREY,
+    textAlign: "right",
+    flex: 1,
+    lineHeight: 1.35,
+    fontFamily: "Helvetica-Bold",
+  },
   insightBottom: {
-    marginTop: 6,
+    marginTop: 8,
     flexDirection: "column",
     alignItems: "stretch",
   },
-  insightStatusRow: { flexDirection: "row", alignItems: "flex-start", gap: 3 },
-  insightStatus: { fontSize: 7.5, fontFamily: "Helvetica-Bold", lineHeight: 1.35 },
+  insightStatusRow: { flexDirection: "row", alignItems: "flex-start", gap: 4 },
+  insightStatus: {
+    fontSize: PDF_INSIGHT_BODY,
+    fontFamily: "Helvetica-Bold",
+    lineHeight: PDF_INSIGHT_LINE,
+  },
   clear: { color: "#15803d" },
   warn: { color: "#dc2626" },
   info: { color: "#0284c7" },
@@ -654,21 +675,21 @@ function PdfInsightCard({
   return (
           <View style={[styles.insightCard, last ? { marginRight: 0 } : {}]}>
             <View style={styles.insightTop}>
-              <PdfInsightIcon insightId={insight.id} />
+              <PdfInsightIcon insightId={insight.id} size={14} />
               <Text style={styles.insightTitle}>{insight.title}</Text>
             </View>
             <View style={styles.insightBottom}>
               {insight.lines?.length ? (
                 <View style={{ width: "100%" }}>
-                  {insight.lines.map((line) => (
+                  {insight.lines.map((line, lineIndex) => (
                     <Text
                       key={line.text}
                       style={{
-                        fontSize: 7.5,
+                        fontSize: PDF_INSIGHT_BODY,
                         fontFamily: "Helvetica-Bold",
                         color: pdfRideShareLineColor(line.variant),
-                        marginTop: 2,
-                        lineHeight: 1.35,
+                        marginTop: lineIndex === 0 ? 0 : 3,
+                        lineHeight: PDF_INSIGHT_LINE,
                       }}
                     >
                       {line.text}
@@ -677,10 +698,11 @@ function PdfInsightCard({
                   {insight.detail ? (
                     <Text
                       style={{
-                        marginTop: 3,
-                        fontSize: 7,
+                        marginTop: 4,
+                        fontSize: PDF_INSIGHT_BODY_SM,
                         color: GREY,
                         fontFamily: "Helvetica",
+                        lineHeight: PDF_INSIGHT_LINE,
                       }}
                     >
                       {insight.detail}
@@ -698,10 +720,10 @@ function PdfInsightCard({
                   ) : insight.detail ? (
                     <Text
                       style={{
-                        fontSize: 7,
+                        fontSize: PDF_INSIGHT_BODY_SM,
                         color: GREY,
                         fontFamily: "Helvetica",
-                        lineHeight: 1.35,
+                        lineHeight: PDF_INSIGHT_LINE,
                       }}
                     >
                       {insight.detail}
@@ -713,24 +735,24 @@ function PdfInsightCard({
                         styles.insightStatus,
                         insight.id === "registration" || insight.id === "market"
                           ? toneStyle(insight.tone)
-                          : { color: GREY, fontFamily: "Helvetica" },
-                        { marginTop: 2, fontSize: 7 },
+                          : { color: GREY, fontFamily: "Helvetica", fontSize: PDF_INSIGHT_BODY_SM },
+                        { marginTop: 3 },
                       ]}
                     >
                       {insight.statusSubtext}
                     </Text>
                   ) : null}
                   {insight.listItems?.length && insight.id !== "odometer" ? (
-                    <View style={{ marginTop: 3 }}>
-                      {insight.listItems.map((item) => (
+                    <View style={{ marginTop: 4 }}>
+                      {insight.listItems.map((item, itemIndex) => (
                         <Text
                           key={item}
                           style={{
-                            fontSize: 6.5,
+                            fontSize: PDF_INSIGHT_BODY_SM,
                             color: GREY,
                             fontFamily: "Helvetica",
-                            lineHeight: 1.45,
-                            marginTop: 1,
+                            lineHeight: PDF_INSIGHT_LINE,
+                            marginTop: itemIndex === 0 ? 0 : 2,
                           }}
                         >
                           {item}
@@ -743,7 +765,7 @@ function PdfInsightCard({
                       style={[
                         styles.insightStatus,
                         toneStyle(insight.tone),
-                        { marginTop: 2, fontSize: 7 },
+                        { marginTop: 3 },
                       ]}
                     >
                       {insight.detail}
@@ -752,11 +774,11 @@ function PdfInsightCard({
                   {insight.id === "recall" && insight.status === "Clear" ? (
                     <Text
                       style={{
-                        marginTop: 2,
-                        fontSize: 6.5,
+                        marginTop: 4,
+                        fontSize: PDF_INSIGHT_BODY_SM,
                         color: GREY,
                         fontFamily: "Helvetica",
-                        lineHeight: 1.4,
+                        lineHeight: PDF_INSIGHT_LINE,
                       }}
                     >
                       Check for recall updates on{" "}
@@ -768,11 +790,11 @@ function PdfInsightCard({
                   {insight.id === "ancap" && insight.status === "Not available" ? (
                     <Text
                       style={{
-                        marginTop: 3,
-                        fontSize: 6.5,
+                        marginTop: 4,
+                        fontSize: PDF_INSIGHT_BODY_SM,
                         color: GREY,
                         fontFamily: "Helvetica",
-                        lineHeight: 1.4,
+                        lineHeight: PDF_INSIGHT_LINE,
                       }}
                     >
                       Verify ANCAP rating here:{" "}
@@ -783,11 +805,11 @@ function PdfInsightCard({
                   ) : footnote && insight.id !== "service" ? (
                     <Text
                       style={{
-                        marginTop: 3,
-                        fontSize: 7,
+                        marginTop: 4,
+                        fontSize: PDF_INSIGHT_BODY_SM,
                         color: GREY,
                         fontFamily: "Helvetica",
-                        lineHeight: 1.35,
+                        lineHeight: PDF_INSIGHT_LINE,
                       }}
                     >
                       {footnote}
@@ -887,7 +909,7 @@ function PdfOverviewSpecBar({ specs }: { specs: OverviewSpec[] }) {
                 ]}
               >
                 <View style={styles.specLabelRow}>
-                  <PdfSpecIcon index={iconIndex} />
+                  <PdfSpecIcon index={iconIndex} size={12} />
                   <Text style={styles.specLabel}>{s.label}</Text>
                 </View>
                 <Text
