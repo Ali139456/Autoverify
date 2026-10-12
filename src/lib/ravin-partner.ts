@@ -66,7 +66,79 @@ function normalizeInspectorUrl(url: string): string {
   }
 }
 
-async function getPartnerToken(): Promise<string> {
+export type RavinS3PostCredentials = {
+  accessKeyId: string;
+  policy: string;
+  signature: string;
+  uploadUrl?: string;
+};
+
+export type RavinSignInResult = {
+  token: string;
+  s3: RavinS3PostCredentials | null;
+  raw: Record<string, unknown>;
+};
+
+function readStringField(
+  record: Record<string, unknown>,
+  keys: string[],
+): string | null {
+  for (const key of keys) {
+    const value = record[key];
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  return null;
+}
+
+/** Pull S3 POST bundle fields from getSignInToken (or nested) responses. */
+export function extractRavinS3PostCredentials(
+  payload: unknown,
+): RavinS3PostCredentials | null {
+  if (!payload || typeof payload !== "object") return null;
+  const record = payload as Record<string, unknown>;
+
+  const accessKeyId = readStringField(record, [
+    "AWSAccessKeyId",
+    "accessKeyId",
+    "AccessKeyId",
+    "s3AccessKeyId",
+    "S3AccessKeyId",
+  ]);
+  const policy = readStringField(record, ["policy", "Policy", "s3Policy", "S3Policy"]);
+  const signature = readStringField(record, [
+    "signature",
+    "Signature",
+    "s3Signature",
+    "S3Signature",
+  ]);
+
+  if (accessKeyId && policy && signature) {
+    const uploadUrl = readStringField(record, [
+      "uploadUrl",
+      "s3UploadUrl",
+      "S3UploadUrl",
+      "bucketUrl",
+    ]);
+    return {
+      accessKeyId,
+      policy,
+      signature,
+      uploadUrl: uploadUrl ?? undefined,
+    };
+  }
+
+  for (const value of Object.values(record)) {
+    if (value && typeof value === "object") {
+      const nested = extractRavinS3PostCredentials(value);
+      if (nested) return nested;
+    }
+  }
+
+  return null;
+}
+
+/** Ravin partner authentication — token plus optional S3 POST credentials for ingest. */
+export async function fetchRavinSignIn(): Promise<RavinSignInResult> {
   if (!RAVIN_API_KEY) {
     throw new Error("RAVIN_API_KEY is not configured.");
   }
@@ -81,16 +153,36 @@ async function getPartnerToken(): Promise<string> {
   if (!response.ok) {
     const message =
       (typeof body?.error === "string" && body.error) ||
+      (typeof body?.message === "string" && body.message) ||
       `Ravin sign-in failed (${response.status}).`;
     throw new Error(message);
   }
 
-  const token = typeof body?.token === "string" ? body.token : null;
+  if (!body) {
+    throw new Error("Ravin sign-in returned an empty response.");
+  }
+
+  const token = typeof body.token === "string" ? body.token : null;
   if (!token) {
     throw new Error("Ravin sign-in did not return a partner token.");
   }
 
-  return token;
+  return {
+    token,
+    s3: extractRavinS3PostCredentials(body),
+    raw: body,
+  };
+}
+
+async function getPartnerToken(): Promise<string> {
+  const signIn = await fetchRavinSignIn();
+  return signIn.token;
+}
+
+/** S3 POST credentials from the latest getSignInToken call (Ravin site 49 flow). */
+export async function fetchRavinS3PostCredentials(): Promise<RavinS3PostCredentials | null> {
+  const signIn = await fetchRavinSignIn();
+  return signIn.s3;
 }
 
 /** Production health check — verifies RAVIN_API_KEY against getSignInToken. */

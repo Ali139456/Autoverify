@@ -101,7 +101,7 @@ export function RegoSearchForm({
     <form onSubmit={onSubmit} className="relative w-full">
       {loading && !externalLoadingOverlay ? (
         <div
-          className={`absolute inset-0 z-20 flex min-h-[12rem] w-full items-center justify-center rounded-2xl ${
+          className={`absolute inset-0 z-20 flex min-h-full w-full items-center justify-center rounded-2xl px-2 ${
             onDark
               ? "bg-ink-950 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]"
               : "bg-white dark:bg-ink-950"

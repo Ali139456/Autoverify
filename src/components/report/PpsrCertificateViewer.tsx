@@ -30,9 +30,19 @@ export function PpsrCertificateViewer({ proxyUrl }: PpsrCertificateViewerProps) 
         const pdf = await pdfjs.getDocument({ data }).promise;
         const images: string[] = [];
 
+        const maxCssWidth =
+          typeof window !== "undefined"
+            ? Math.min(window.innerWidth, 960) - 48
+            : 720;
+
         for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
           const page = await pdf.getPage(pageNum);
-          const viewport = page.getViewport({ scale: 1.75 });
+          const base = page.getViewport({ scale: 1 });
+          const scale = Math.min(
+            1.75,
+            Math.max(1, maxCssWidth / base.width),
+          );
+          const viewport = page.getViewport({ scale });
           const canvas = document.createElement("canvas");
           canvas.width = viewport.width;
           canvas.height = viewport.height;
@@ -88,14 +98,15 @@ export function PpsrCertificateViewer({ proxyUrl }: PpsrCertificateViewerProps) 
   }
 
   return (
-    <div className="report-ppsr-rendered">
+    <div className="report-ppsr-rendered min-w-0 max-w-full">
       {pageImages.map((src, index) => (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           key={`ppsr-page-${index}`}
           src={src}
           alt={`PPSR certificate page ${index + 1}`}
-          className="report-ppsr-full-image mx-auto block h-auto w-full max-w-full object-contain object-top"
+          className="report-ppsr-full-image mx-auto block h-auto w-full max-w-full object-contain object-top [max-width:100%]"
+          style={{ width: "100%", height: "auto" }}
         />
       ))}
     </div>

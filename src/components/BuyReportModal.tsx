@@ -53,7 +53,7 @@ export function BuyReportModal({
       >
         {searching ? (
           <div
-            className="absolute inset-0 z-20 flex items-center justify-center rounded-3xl bg-ink-950"
+            className="absolute inset-0 z-20 flex min-h-full w-full items-center justify-center rounded-3xl bg-ink-950 px-4"
             role="status"
             aria-live="polite"
           >

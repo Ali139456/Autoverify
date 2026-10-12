@@ -107,11 +107,11 @@ export function PresentAndFutureValueReportPage({
 
           pageLabel={pageLabel}
 
-          className="report-shell-valuations"
+          className="report-shell-valuations !overflow-x-visible"
 
         >
 
-          <div className="report-body space-y-6">
+          <div className="report-body min-w-0 space-y-6">
 
             <div className="report-supplementary report-present-value rounded-xl border border-slate-200 bg-slate-50 p-5">
 
@@ -269,11 +269,11 @@ export function PresentAndFutureValueReportPage({
 
           pageLabel={pPlatePageLabel}
 
-          className="report-shell-valuations report-shell-valuations-supplements"
+          className="report-shell-valuations report-shell-valuations-supplements !overflow-x-visible"
 
         >
 
-          <div className="report-body space-y-6">
+          <div className="report-body min-w-0 space-y-6">
 
             <ReportPPlateSupplement report={report} />
 
@@ -293,11 +293,11 @@ export function PresentAndFutureValueReportPage({
 
           pageLabel={rideSharePageLabel}
 
-          className="report-shell-valuations report-shell-valuations-supplements"
+          className="report-shell-valuations report-shell-valuations-supplements !overflow-x-visible"
 
         >
 
-          <div className="report-body space-y-6">
+          <div className="report-body min-w-0 space-y-6">
 
             <ReportRideShareSupplement />
 

@@ -37,18 +37,23 @@ function SearchSpinnerRing({ compact }: { compact?: boolean }) {
 export function VehicleSearchLoading({
   embedded = false,
   onDark = false,
+  viewportCentered = false,
 }: {
   /** When true, omit outer min-height (used over the search form). */
   embedded?: boolean;
   /** Match RegoSearchForm hero/modal dark styling. */
   onDark?: boolean;
+  /** Center in a flex parent that already fills the viewport (e.g. /check loading). */
+  viewportCentered?: boolean;
 }) {
   return (
     <div
       className={
-        embedded
-          ? "flex w-full flex-col items-center justify-center px-4 py-8"
-          : "flex w-full min-h-[50vh] flex-col items-center justify-center px-6 py-16 sm:min-h-[calc(100vh-8rem)] sm:py-24"
+        viewportCentered
+          ? "flex w-full max-w-sm flex-col items-center justify-center px-4 text-center"
+          : embedded
+            ? "flex w-full flex-col items-center justify-center px-4 py-6"
+            : "flex w-full min-h-[50vh] flex-col items-center justify-center px-6 py-16 sm:min-h-[calc(100vh-8rem)] sm:py-24"
       }
       role="status"
       aria-live="polite"

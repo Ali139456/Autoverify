@@ -2,7 +2,6 @@ import type { VehicleIdentity } from "@/lib/types";
 import {
   MANUFACTURERS_WARRANTY_NOTICE,
   SERVICE_HISTORY_DETAIL,
-  SERVICE_HISTORY_STATUS_LABEL,
   formatWarrantyRemainingDisplay,
 } from "@/lib/report-design";
 
@@ -35,10 +34,10 @@ export function ReportManufacturersWarrantyNotice({
         {MANUFACTURERS_WARRANTY_NOTICE}
       </p>
       <div className="report-service-history-notice mt-4 border-t border-slate-200 pt-4">
-        <p className="text-sm font-medium text-slate-600">
-          {SERVICE_HISTORY_STATUS_LABEL}
-        </p>
-        <p className="mt-1 text-sm leading-relaxed text-slate-500">
+        <h3 className="text-xs font-bold uppercase tracking-wide text-slate-900">
+          Service History
+        </h3>
+        <p className="mt-2 text-sm leading-relaxed text-slate-500">
           {SERVICE_HISTORY_DETAIL}
         </p>
       </div>

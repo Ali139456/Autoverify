@@ -56,7 +56,7 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
 
     <div className="report-view min-h-screen bg-slate-100 py-8 sm:py-12">
 
-      <div id="report-print-area" className="mx-auto max-w-5xl space-y-6 px-4 sm:py-0 sm:px-6">
+      <div id="report-print-area" className="mx-auto min-w-0 max-w-5xl space-y-6 px-3 sm:py-0 sm:px-6">
 
         <div className="report-no-print rounded-xl border border-[#0073E3]/30 bg-[#0073E3]/5 px-4 py-3 text-center text-sm text-slate-700">
 
@@ -68,9 +68,11 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
 
 
 
-        <div className="report-no-print flex justify-end">
+        <div className="report-no-print w-full min-w-0 sm:flex sm:justify-end">
 
-          <ReportPrintActions />
+          <ReportPrintActions
+            pdfDownloadUrl={`/api/sample-report/pdf?tier=${encodeURIComponent(tier)}`}
+          />
 
         </div>
 

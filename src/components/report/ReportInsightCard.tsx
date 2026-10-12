@@ -149,11 +149,17 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
             <div className="flex items-start gap-1.5">
               <InsightStatusBadge tone={insight.tone} />
               <div className="min-w-0">
+                {insight.status?.trim() ? (
                 <p
                   className={`text-xs font-bold leading-snug break-words ${insightToneClass(insight.tone)}`}
                 >
                   {insight.status}
                 </p>
+                ) : insight.detail ? (
+                  <p className="text-[11px] font-medium leading-relaxed text-slate-600">
+                    {insight.detail}
+                  </p>
+                ) : null}
                 {insight.statusSubtext ? (
                   <p
                     className={`mt-1 text-[11px] leading-snug break-words ${
@@ -208,7 +214,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                   {ANCAP_SAFETY_RATINGS_URL}
                 </a>
               </p>
-            ) : note ? (
+            ) : note && insight.id !== "service" ? (
               <p className="mt-2 text-[11px] leading-relaxed text-slate-600">
                 {note}
               </p>

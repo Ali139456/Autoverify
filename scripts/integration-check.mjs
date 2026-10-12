@@ -112,7 +112,12 @@ async function run() {
       const body = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(body?.error ?? `HTTP ${res.status}`);
       if (!body?.token) throw new Error("no token in response");
-      return "token received";
+      const hasS3 =
+        body.AWSAccessKeyId ||
+        body.accessKeyId ||
+        body.s3Policy ||
+        body.policy;
+      return hasS3 ? "token + S3 POST fields" : "token received (no S3 fields in JSON)";
     })
   ) {
     ok++;

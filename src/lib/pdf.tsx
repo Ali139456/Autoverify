@@ -52,7 +52,6 @@ import {
   formatPPlateStatus,
   MANUFACTURERS_WARRANTY_NOTICE,
   SERVICE_HISTORY_DETAIL,
-  SERVICE_HISTORY_STATUS_LABEL,
   formatWarrantyRemainingDisplay,
   formatReportDate,
   formatReportReference,
@@ -633,9 +632,22 @@ function PdfInsightCard({
               <View style={styles.insightStatusRow}>
                 <PdfStatusBadge tone={insight.tone} />
                 <View style={{ flex: 1, minWidth: 0 }}>
+                  {insight.status?.trim() ? (
                   <Text style={[styles.insightStatus, toneStyle(insight.tone)]}>
                     {insight.status}
                   </Text>
+                  ) : insight.detail ? (
+                    <Text
+                      style={{
+                        fontSize: 7,
+                        color: GREY,
+                        fontFamily: "Helvetica",
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      {insight.detail}
+                    </Text>
+                  ) : null}
                   {insight.statusSubtext ? (
                     <Text
                       style={[
@@ -709,7 +721,7 @@ function PdfInsightCard({
                         www.ancap.com.au/safety-ratings
                       </Link>
                     </Text>
-                  ) : footnote ? (
+                  ) : footnote && insight.id !== "service" ? (
                     <Text
                       style={{
                         marginTop: 3,
@@ -900,12 +912,20 @@ function PdfManufacturersWarrantyNotice({
           borderTopColor: "#e2e8f0",
         }}
       >
-        <Text style={{ fontSize: 8, color: "#475569", lineHeight: 1.4 }}>
-          {SERVICE_HISTORY_STATUS_LABEL}
+        <Text
+          style={{
+            fontSize: 8,
+            fontFamily: "Helvetica-Bold",
+            color: "#0f172a",
+            textTransform: "uppercase",
+            letterSpacing: 0.6,
+          }}
+        >
+          Service History
         </Text>
         <Text
           style={{
-            marginTop: 2,
+            marginTop: 4,
             fontSize: 7.5,
             color: "#64748b",
             lineHeight: 1.4,

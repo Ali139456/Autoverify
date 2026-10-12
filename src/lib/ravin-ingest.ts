@@ -1,16 +1,44 @@
 import { DamageAnalysis } from "./types";
 import { analyzeDamage, isRavinLiveAccount } from "./ravin";
+import {
+  fetchRavinS3PostCredentials,
+  isRavinPartnerConfigured,
+  type RavinS3PostCredentials,
+} from "./ravin-partner";
 import { parseRavinWebhookPayload } from "./ravin-webhook";
 
 const RAVIN_S3_UPLOAD_URL =
   process.env.RAVIN_S3_UPLOAD_URL ?? "https://ravin-eye-ingest.s3.amazonaws.com/";
 
+function staticRavinS3Credentials(): RavinS3PostCredentials | null {
+  const accessKeyId = process.env.RAVIN_S3_ACCESS_KEY_ID?.trim();
+  const policy = process.env.RAVIN_S3_POLICY?.trim();
+  const signature = process.env.RAVIN_S3_SIGNATURE?.trim();
+  if (!accessKeyId || !policy || !signature) return null;
+  const uploadUrl = process.env.RAVIN_S3_UPLOAD_URL?.trim();
+  return {
+    accessKeyId,
+    policy,
+    signature,
+    uploadUrl: uploadUrl || undefined,
+  };
+}
+
+/** Static env S3 bundle and/or dynamic credentials from getSignInToken. */
 export function isRavinS3Configured(): boolean {
-  return Boolean(
-    process.env.RAVIN_S3_ACCESS_KEY_ID &&
-      process.env.RAVIN_S3_POLICY &&
-      process.env.RAVIN_S3_SIGNATURE,
-  );
+  return Boolean(staticRavinS3Credentials() || isRavinPartnerConfigured());
+}
+
+async function resolveRavinS3Credentials(): Promise<RavinS3PostCredentials | null> {
+  if (isRavinPartnerConfigured()) {
+    try {
+      const dynamic = await fetchRavinS3PostCredentials();
+      if (dynamic) return dynamic;
+    } catch (err) {
+      console.error("[ravin-ingest] Dynamic S3 credentials from getSignInToken failed:", err);
+    }
+  }
+  return staticRavinS3Credentials();
 }
 
 /**
@@ -37,11 +65,13 @@ export async function submitInspectionToRavin(input: {
   const ingestId =
     linkedRavinId ?? `insp-${input.reportId.toLowerCase()}`;
 
-  if (isRavinS3Configured()) {
+  const s3Credentials = await resolveRavinS3Credentials();
+  if (s3Credentials) {
     await uploadPhotosToRavinS3({
       inspectionId: ingestId,
       vin: input.vin,
       photos: input.photos,
+      credentials: s3Credentials,
     });
     return { mode: "s3", ravinInspectionId: ingestId, damage: null };
   }
@@ -69,10 +99,11 @@ async function uploadPhotosToRavinS3(input: {
   inspectionId: string;
   vin?: string | null;
   photos: { name: string; data: Buffer; contentType: string; angle: string }[];
+  credentials: RavinS3PostCredentials;
 }) {
-  const accessKeyId = process.env.RAVIN_S3_ACCESS_KEY_ID!;
-  const policy = process.env.RAVIN_S3_POLICY!;
-  const signature = process.env.RAVIN_S3_SIGNATURE!;
+  const { accessKeyId, policy, signature } = input.credentials;
+  const uploadUrl =
+    input.credentials.uploadUrl?.trim() || RAVIN_S3_UPLOAD_URL;
   const datePrefix = new Date().toISOString().slice(0, 10);
 
   for (const photo of input.photos) {
@@ -91,7 +122,7 @@ async function uploadPhotosToRavinS3(input: {
       photo.name,
     );
 
-    const response = await fetch(RAVIN_S3_UPLOAD_URL, {
+    const response = await fetch(uploadUrl, {
       method: "POST",
       body: form,
     });

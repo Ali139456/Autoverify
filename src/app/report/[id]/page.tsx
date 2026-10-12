@@ -115,9 +115,9 @@ export default async function ReportPage({
 
   return (
     <div className="report-view min-h-screen bg-slate-100 py-8 sm:py-12">
-      <div id="report-print-area" className="mx-auto max-w-5xl space-y-6 px-4 sm:px-6">
-        <div className="report-no-print flex justify-end">
-          <ReportPrintActions />
+      <div id="report-print-area" className="mx-auto min-w-0 max-w-5xl space-y-6 px-3 sm:px-6">
+        <div className="report-no-print w-full min-w-0 sm:flex sm:justify-end">
+          <ReportPrintActions pdfDownloadUrl={`/api/report/${report.id}/pdf`} />
         </div>
 
         <div className="report-print-page-first">

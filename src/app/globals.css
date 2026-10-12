@@ -27,6 +27,8 @@ body {
   background: #ffffff;
   color: #0f172a;
   font-family: var(--font-sans), system-ui, sans-serif;
+  overflow-x: clip;
+  max-width: 100%;
 }
 
 html.dark {
@@ -51,6 +53,7 @@ html.dark body {
 .reveal {
   opacity: 0;
   transform: translateY(28px);
+  max-width: 100%;
   transition:
     opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
@@ -450,6 +453,9 @@ html.dark body {
     max-width: none !important;
     padding: 0 !important;
     min-height: auto !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
   }
 
   #report-print-area > .report-page-break {
@@ -473,8 +479,10 @@ html.dark body {
    */
   .report-shell {
     box-shadow: none !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 12px !important;
+    border: none !important;
+    border-radius: 0 !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
     margin: 0 0 0 0 !important;
     width: 100% !important;
     display: flex !important;
@@ -1079,6 +1087,9 @@ html.dark body {
     box-shadow: none !important;
     padding: 10px !important;
     border-radius: 8px !important;
+    border-color: #e2e8f0 !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
     justify-content: flex-start !important;
   }
 
@@ -1120,7 +1131,8 @@ html.dark body {
     color: #0f172a !important;
   }
 
-  .report-manufacturers-warranty h2 {
+  .report-manufacturers-warranty h2,
+  .report-manufacturers-warranty h3 {
     color: #0f172a !important;
     font-size: 9px !important;
   }
@@ -1245,12 +1257,17 @@ html.dark body {
     display: block !important;
     width: 100% !important;
     max-width: 100% !important;
-    /* Header + footer + @page margins must fit on one sheet */
-    max-height: 232mm !important;
+    max-height: none !important;
     height: auto !important;
     object-fit: contain !important;
     object-position: top center !important;
     margin: 0 auto !important;
+  }
+
+  /* One rendered PDF page per printed sheet (full certificate in sample + live reports). */
+  .report-ppsr-rendered .report-ppsr-full-image {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
   .report-ppsr-iframe-fallback {
@@ -1314,5 +1331,86 @@ html.dark body {
     break-inside: avoid;
     page-break-inside: avoid;
     margin-top: 6px !important;
+  }
+
+  /*
+   * Match on-screen border weight/colour in Print / Save as PDF. Engines often
+   * render Tailwind hairlines as heavy black unless colours are forced.
+   */
+  #report-print-area,
+  #report-print-area * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  #report-print-area .border.border-slate-200,
+  #report-print-area .border-slate-200 {
+    border-color: #e2e8f0 !important;
+  }
+
+  #report-print-area .border-slate-100 {
+    border-color: #f1f5f9 !important;
+  }
+
+  #report-print-area .border-slate-300 {
+    border-color: #cbd5e1 !important;
+  }
+
+  #report-print-area tr.border-t.border-slate-100 {
+    border-top-width: 1px !important;
+    border-top-style: solid !important;
+    border-top-color: #f1f5f9 !important;
+  }
+
+  #report-print-area tr.border-b.border-slate-100 {
+    border-bottom-width: 1px !important;
+    border-bottom-style: solid !important;
+    border-bottom-color: #f1f5f9 !important;
+  }
+
+  #report-print-area tr.border-b.border-slate-200,
+  #report-print-area thead tr.border-b {
+    border-bottom-width: 1px !important;
+    border-bottom-style: solid !important;
+    border-bottom-color: #e2e8f0 !important;
+  }
+
+  #report-print-area .report-section-heading {
+    border-bottom-width: 2px !important;
+    border-bottom-style: solid !important;
+    border-bottom-color: #0073e3 !important;
+  }
+
+  #report-print-area .report-spec-data-row.border-t.border-slate-200 {
+    border-top-width: 1px !important;
+    border-top-color: #e2e8f0 !important;
+  }
+
+  #report-print-area .report-spec-data-label {
+    border-right-width: 1px !important;
+    border-right-color: #e2e8f0 !important;
+  }
+
+  #report-print-area .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+    border-color: #e2e8f0 !important;
+  }
+
+  #report-print-area .report-shell-header {
+    border-bottom-width: 2px !important;
+    border-bottom-color: #0073e3 !important;
+  }
+
+  #report-print-area .report-shell-footer,
+  #report-print-area .report-general-disclaimer {
+    border-top-width: 1px !important;
+    border-top-color: #e2e8f0 !important;
+  }
+
+  #report-print-area .report-insight-card,
+  #report-print-area .report-spec-data-table-wrap,
+  #report-print-area .report-ppsr-viewer {
+    border-width: 1px !important;
+    border-style: solid !important;
+    border-color: #e2e8f0 !important;
   }
 }

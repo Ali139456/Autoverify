@@ -95,7 +95,7 @@ function TierCard({
   const isPlus = tier === "insights_plus";
   const isSelected = selectedTier === tier;
   const cardShell =
-    "relative box-border flex h-full w-full min-w-0 max-w-full flex-col overflow-hidden rounded-2xl border-2 border-accent-500 px-5 py-6 shadow-sm sm:px-8 sm:py-8 dark:shadow-none";
+    "relative box-border flex h-full w-full min-w-0 max-w-full flex-col overflow-hidden rounded-2xl border border-accent-500 px-4 py-5 shadow-sm sm:border-2 sm:px-8 sm:py-8 dark:shadow-none";
   const cardBg = isPlus
     ? "bg-gradient-to-b from-blue-50 to-white dark:from-accent-700/40 dark:to-ink-950"
     : "bg-white dark:bg-ink-800";
@@ -108,13 +108,13 @@ function TierCard({
           <TierProductTitle tier={tier} />
         </div>
         {isPlus ? (
-          <span className="inline-flex w-fit max-w-full items-center gap-1.5 self-start rounded-full border border-accent-500/35 bg-accent-50 px-2.5 py-1 text-[10px] font-semibold leading-snug text-accent-800 shadow-sm dark:border-accent-400/45 dark:bg-accent-500/15 dark:text-accent-200 sm:max-w-[13rem] sm:gap-2 sm:px-3 sm:py-1.5 sm:text-[11px]">
+          <span className="inline-flex w-fit max-w-full flex-wrap items-center gap-1.5 self-start rounded-full border border-accent-500/35 bg-accent-50 px-2.5 py-1 text-[10px] font-semibold leading-snug text-accent-800 shadow-sm dark:border-accent-400/45 dark:bg-accent-500/15 dark:text-accent-200 sm:max-w-[13rem] sm:gap-2 sm:px-3 sm:py-1.5 sm:text-[11px]">
             <Sparkles className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5" aria-hidden />
             Includes AI powered condition scan
           </span>
         ) : null}
       </div>
-      <p className="mt-3 text-3xl font-extrabold tabular-nums text-accent-500 sm:text-5xl">
+      <p className="mt-3 text-3xl font-extrabold tabular-nums text-accent-500 sm:text-4xl lg:text-5xl">
         {formatTierPrice(tier)}
       </p>
       <p className="mt-2 text-pretty text-sm leading-relaxed text-slate-900 dark:text-slate-300">

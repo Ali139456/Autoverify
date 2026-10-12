@@ -32,13 +32,13 @@ export function ReportPPlateSupplement({ report }: { report: VehicleReport }) {
 
   return (
 
-    <div className="report-pplate-status rounded-xl border border-slate-200 bg-slate-50 p-5">
+    <div className="report-pplate-status min-w-0 max-w-full rounded-xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
 
       <h3 className="report-section-heading">P plate status</h3>
 
-      <div className="mt-3 overflow-hidden rounded-lg border border-slate-200 bg-white">
+      <div className="mt-3 min-w-0 max-w-full overflow-hidden rounded-lg border border-slate-200 bg-white">
 
-        <table className="w-full text-left text-sm">
+        <table className="w-full table-fixed border-collapse text-left text-[11px] sm:text-sm">
 
           <tbody>
 
@@ -48,7 +48,7 @@ export function ReportPPlateSupplement({ report }: { report: VehicleReport }) {
 
                 scope="row"
 
-                className="report-spec-data-label w-[38%] px-4 py-2.5 font-medium text-slate-600"
+                className="report-spec-data-label w-[36%] px-2 py-2 font-medium text-slate-600 sm:px-4 sm:py-2.5"
 
               >
 
@@ -58,7 +58,7 @@ export function ReportPPlateSupplement({ report }: { report: VehicleReport }) {
 
               <td
 
-                className={`px-4 py-2.5 font-semibold ${
+                className={`px-2 py-2 font-semibold break-words leading-snug sm:px-4 sm:py-2.5 ${
 
                   isPPlateAdvisoryCopy(pPlateStatus) ? "" : "text-slate-900"
 
@@ -96,23 +96,30 @@ export function ReportPPlateSupplement({ report }: { report: VehicleReport }) {
 
       </h3>
 
-      <div className="mt-2 overflow-x-auto rounded-lg border border-slate-200 bg-white">
+      <div className="report-table-scroll mt-2 min-w-0 max-w-full overflow-x-auto rounded-lg border border-slate-200 bg-white [-webkit-overflow-scrolling:touch] sm:overflow-x-visible">
 
-        <table className="min-w-[520px] w-full border-collapse text-left text-xs sm:text-sm">
+        <table className="w-full min-w-0 table-fixed border-collapse text-left text-[11px] sm:min-w-[520px] sm:table-auto sm:text-sm">
+
+          <colgroup className="sm:hidden">
+            <col className="w-[32%]" />
+            <col className="w-[68%]" />
+          </colgroup>
 
           <thead>
 
             <tr className="border-b border-slate-200 bg-slate-50">
 
-              <th className="px-3 py-2.5 font-bold uppercase tracking-wide text-slate-500 sm:px-4">
+              <th className="px-2 py-2 font-bold uppercase tracking-wide text-slate-500 sm:px-4 sm:py-2.5">
 
                 State
 
               </th>
 
-              <th className="px-3 py-2.5 font-bold uppercase tracking-wide text-slate-500 sm:px-4">
+              <th className="px-2 py-2 font-bold uppercase tracking-wide text-slate-500 sm:px-4 sm:py-2.5">
 
-                State link references
+                <span className="sm:hidden">Link</span>
+
+                <span className="hidden sm:inline">State link references</span>
 
               </th>
 
@@ -136,7 +143,7 @@ export function ReportPPlateSupplement({ report }: { report: VehicleReport }) {
 
                   scope="row"
 
-                  className="report-spec-data-label px-3 py-2.5 font-medium text-slate-600 sm:px-4"
+                  className="report-spec-data-label px-2 py-2 font-medium text-slate-600 sm:px-4 sm:py-2.5"
 
                 >
 
@@ -144,7 +151,7 @@ export function ReportPPlateSupplement({ report }: { report: VehicleReport }) {
 
                 </th>
 
-                <td className="px-3 py-2.5 sm:px-4">
+                <td className="px-2 py-2 sm:px-4 sm:py-2.5">
 
                   <a
 
@@ -154,7 +161,7 @@ export function ReportPPlateSupplement({ report }: { report: VehicleReport }) {
 
                     rel="noopener noreferrer"
 
-                    className="font-medium text-[#0073E3] underline underline-offset-2 hover:text-[#0062c2]"
+                    className="font-medium text-[#0073E3] underline underline-offset-2 break-words [overflow-wrap:anywhere] hover:text-[#0062c2]"
 
                   >
 
@@ -186,31 +193,39 @@ export function ReportRideShareSupplement() {
 
   return (
 
-    <div className="report-rideshare-eligibility rounded-xl border border-slate-200 bg-slate-50 p-5">
+    <div className="report-rideshare-eligibility min-w-0 max-w-full rounded-xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
 
       <h3 className="report-section-heading">{RIDE_SHARE_TABLE_HEADING}</h3>
 
-      <div className="mt-3 overflow-x-auto rounded-lg border border-slate-200 bg-white">
+      <div className="report-table-scroll mt-3 min-w-0 max-w-full overflow-x-auto rounded-lg border border-slate-200 bg-white [-webkit-overflow-scrolling:touch] sm:overflow-x-visible">
 
-        <table className="min-w-[640px] w-full border-collapse text-left text-xs sm:text-sm">
+        <table className="w-full min-w-0 table-fixed border-collapse text-left text-[10px] leading-snug sm:min-w-[640px] sm:table-auto sm:text-xs md:text-sm">
+
+          <colgroup className="sm:hidden">
+            <col className="w-[38%]" />
+            <col className="w-[31%]" />
+            <col className="w-[31%]" />
+          </colgroup>
 
           <thead>
 
             <tr className="border-b border-slate-200 bg-slate-50">
 
-              <th className="px-3 py-2.5 font-bold uppercase tracking-wide text-slate-500 sm:px-4">
+              <th className="px-1.5 py-2 font-bold uppercase tracking-wide text-slate-500 sm:px-4 sm:py-2.5">
 
-                Eligibility requirement
+                <span className="sm:hidden">Requirement</span>
+
+                <span className="hidden sm:inline">Eligibility requirement</span>
 
               </th>
 
-              <th className="px-3 py-2.5 font-bold uppercase tracking-wide text-slate-500 sm:px-4">
+              <th className="px-1.5 py-2 font-bold uppercase tracking-wide text-slate-500 sm:px-4 sm:py-2.5">
 
                 UberX
 
               </th>
 
-              <th className="px-3 py-2.5 font-bold uppercase tracking-wide text-slate-500 sm:px-4">
+              <th className="px-1.5 py-2 font-bold uppercase tracking-wide text-slate-500 sm:px-4 sm:py-2.5">
 
                 DiDi
 
@@ -236,7 +251,7 @@ export function ReportRideShareSupplement() {
 
                   scope="row"
 
-                  className="report-spec-data-label px-3 py-2.5 font-medium text-slate-600 sm:px-4"
+                  className="report-spec-data-label px-1.5 py-2 font-medium text-slate-600 break-words sm:px-4 sm:py-2.5"
 
                 >
 
@@ -244,9 +259,9 @@ export function ReportRideShareSupplement() {
 
                 </th>
 
-                <td className="px-3 py-2.5 text-slate-700 sm:px-4">{row.uberX}</td>
+                <td className="px-1.5 py-2 text-slate-700 break-words sm:px-4 sm:py-2.5">{row.uberX}</td>
 
-                <td className="px-3 py-2.5 text-slate-700 sm:px-4">{row.didi}</td>
+                <td className="px-1.5 py-2 text-slate-700 break-words sm:px-4 sm:py-2.5">{row.didi}</td>
 
               </tr>
 
@@ -278,7 +293,7 @@ export function ReportValuationSupplements({
 
   return (
 
-    <div className="report-valuation-supplements space-y-5">
+    <div className="report-valuation-supplements min-w-0 max-w-full space-y-5">
 
       <ReportPPlateSupplement report={report} />
 

@@ -198,7 +198,7 @@ export function HomePage() {
               meet
             </p>
           </Reveal>
-          <Reveal delay={150} className="mt-8 sm:mt-12">
+          <Reveal delay={150} className="mt-8 w-full min-w-0 sm:mt-12">
             <PricingTierCards showHeading={false} />
           </Reveal>
         </div>

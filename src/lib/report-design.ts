@@ -140,9 +140,6 @@ export const VEHICLE_RECALLS_GOV_AU_URL = "https://www.vehiclerecalls.gov.au";
 export const MANUFACTURERS_WARRANTY_NOTICE =
   "Contact Authorised Dealer/service centre and quote VIN to confirm remaining Manufacturer's warranty.";
 
-export const SERVICE_HISTORY_STATUS_LABEL =
-  "Service history — check with vehicle owner";
-
 export const SERVICE_HISTORY_DETAIL =
   "Contact the vehicle owner or selling dealer for service history records.";
 
@@ -593,8 +590,8 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
     {
       id: "service",
       title: "Service History",
-      status: "Check with vehicle owner",
-      tone: "neutral",
+      status: "",
+      tone: "muted",
       detail: SERVICE_HISTORY_DETAIL,
     },
     {

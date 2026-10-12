@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { VehicleReport } from "@/lib/types";
 
@@ -9,8 +8,6 @@ import {
   isSampleReportId,
 
   ppsrCertificateProxyPath,
-
-  SAMPLE_PPSR_CERTIFICATE_IMAGE,
 
 } from "@/lib/ppsr-certificate";
 
@@ -65,7 +62,7 @@ export function PpsrCertificateReportPage({
 
     >
 
-      <section className="report-ppsr-certificate space-y-3">
+      <section className="report-ppsr-certificate min-w-0 max-w-full space-y-3">
 
         <div className="report-ppsr-intro space-y-2">
 
@@ -139,31 +136,15 @@ export function PpsrCertificateReportPage({
 
 
 
-        <div className="report-ppsr-viewer overflow-hidden rounded-lg border border-slate-300 bg-white">
-
-          {isSample ? (
-
-            <Image
-
-              src={SAMPLE_PPSR_CERTIFICATE_IMAGE}
-
-              alt="PPSR serial number search certificate (sample)"
-
-              width={1240}
-
-              height={1754}
-
-              className="report-ppsr-full-image mx-auto h-auto w-full max-w-full object-contain object-top"
-
-              priority
-
-            />
-
-          ) : (
-            <PpsrCertificateViewer proxyUrl={proxyUrl} />
-          )}
-
+        <div className="report-ppsr-viewer min-w-0 max-w-full overflow-x-auto rounded-lg border border-slate-300 bg-white [-webkit-overflow-scrolling:touch]">
+          <PpsrCertificateViewer proxyUrl={proxyUrl} />
         </div>
+
+        <p className="report-no-print text-xs leading-relaxed text-slate-500 sm:hidden">
+          Swipe down for all certificate pages. For pinch-zoom and full PDF controls, tap{" "}
+          <span className="font-semibold text-[#0073E3]">Open PPSR certificate PDF</span>{" "}
+          below.
+        </p>
 
 
 

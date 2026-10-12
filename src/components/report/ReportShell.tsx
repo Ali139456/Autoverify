@@ -18,7 +18,7 @@ export function ReportShell({
 }) {
   return (
     <article
-      className={`report-shell flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 ${className ?? ""}`}
+      className={`report-shell flex min-w-0 max-w-full flex-col overflow-x-clip overflow-y-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 ${className ?? ""}`}
     >
       <header className="report-shell-header border-b-2 border-[#0073E3] bg-white px-6 py-5 sm:px-8">
         <div className="flex items-start justify-between gap-6">
@@ -36,7 +36,7 @@ export function ReportShell({
         </div>
       </header>
 
-      <div className="report-shell-body flex min-h-0 flex-1 flex-col px-6 py-8 sm:px-8">
+      <div className="report-shell-body flex min-h-0 min-w-0 flex-1 flex-col px-4 py-6 sm:px-8 sm:py-8">
         {children}
       </div>
 
