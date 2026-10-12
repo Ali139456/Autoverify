@@ -95,7 +95,11 @@ export async function POST(req: NextRequest) {
       (!inspection.ravinInviteUrl || refreshRavinInvite)
     ) {
       try {
-        const invite = await createRavinPartnerInvite({ invitationId: reportId });
+        const invite = await createRavinPartnerInvite({
+          claimId: reportId,
+          lp: report.vehicle.rego,
+          state: report.vehicle.state,
+        });
         inspectUrl = invite.inviteUrl;
         ravinInviteUrl = invite.inviteUrl;
         provider = "ravin";

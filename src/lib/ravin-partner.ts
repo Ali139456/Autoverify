@@ -1,11 +1,22 @@
 const RAVIN_API_KEY = process.env.RAVIN_API_KEY;
 const RAVIN_BASE_URL = (
-  process.env.RAVIN_BASE_URL ?? "https://beta.mtaus.ravin-ai.com"
+  process.env.RAVIN_BASE_URL ?? "https://inspect.mtaus.ravin-ai.com"
 ).replace(/\/$/, "");
-const RAVIN_SITE_ID = Number(process.env.RAVIN_SITE_ID ?? "39");
+const RAVIN_SITE_ID = Number(process.env.RAVIN_SITE_ID ?? "49");
+const RAVIN_CLIENT_ID = process.env.RAVIN_CLIENT_ID?.trim() || "autoverifi";
 const RAVIN_PROVIDER = process.env.RAVIN_PROVIDER ?? "consumer";
-const RAVIN_LINK_EXPIRED_IN = Number(process.env.RAVIN_LINK_EXPIRED_IN ?? "72");
-const RAVIN_LOGIN_EXPIRED_IN = Number(process.env.RAVIN_LOGIN_EXPIRED_IN ?? "48");
+const RAVIN_INSPECTOR_PATH =
+  process.env.RAVIN_INSPECTOR_PATH?.trim() || "inspector2/page/tmp";
+const RAVIN_LINK_EXPIRE_IN = Number(
+  process.env.RAVIN_LINK_EXPIRE_IN ??
+    process.env.RAVIN_LINK_EXPIRED_IN ??
+    "72",
+);
+const RAVIN_LOGIN_EXPIRE_IN = Number(
+  process.env.RAVIN_LOGIN_EXPIRE_IN ??
+    process.env.RAVIN_LOGIN_EXPIRED_IN ??
+    "48",
+);
 
 export type RavinPartnerInvite = {
   invitationId: string;
@@ -18,11 +29,15 @@ export function isRavinPartnerConfigured(): boolean {
   return Boolean(RAVIN_API_KEY && Number.isFinite(RAVIN_SITE_ID) && RAVIN_SITE_ID > 0);
 }
 
-/** Inspector mobile walkaround URL (Ravin MTA US beta). */
+/** Inspector mobile walkaround URL (Ravin MTA US — inspector2 flow). */
 export function buildInspectorLiteUrl(code: string): string {
-  const url = new URL(`${RAVIN_BASE_URL}/inspector-lite/page/tmp`);
+  const base = RAVIN_BASE_URL.replace(/\/$/, "");
+  const path = RAVIN_INSPECTOR_PATH.replace(/^\/+/, "").replace(/\/+$/, "");
+  const url = new URL(`${base}/${path}/`);
   url.searchParams.set("code", code);
-  url.searchParams.set("image-upload", "true");
+  if (path.includes("inspector-lite")) {
+    url.searchParams.set("image-upload", "true");
+  }
   return url.toString();
 }
 
@@ -179,8 +194,63 @@ async function getPartnerToken(): Promise<string> {
   return signIn.token;
 }
 
-/** S3 POST credentials from the latest getSignInToken call (Ravin site 49 flow). */
-export async function fetchRavinS3PostCredentials(): Promise<RavinS3PostCredentials | null> {
+function ravinCompressedUploadTimestamp(): number {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return Number(
+    `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}${pad(d.getUTCSeconds())}`,
+  );
+}
+
+/** S3 POST credentials for direct ingest (Auto Verifi site 49 — Appendix C). */
+export async function fetchRavinCompressedUploadCredentials(
+  claimId: string,
+): Promise<RavinS3PostCredentials | null> {
+  const trimmedClaim = claimId.trim();
+  if (!trimmedClaim) return null;
+
+  const response = await fetch(`${RAVIN_BASE_URL}/generateCompressedDataUpload`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      clientId: RAVIN_CLIENT_ID,
+      siteId: RAVIN_SITE_ID,
+      claimId: trimmedClaim,
+      timestamp: ravinCompressedUploadTimestamp(),
+    }),
+  });
+
+  const body = await response.json().catch(() => null);
+  if (!response.ok) {
+    const message =
+      (body &&
+        typeof body === "object" &&
+        typeof (body as Record<string, unknown>).message === "string" &&
+        (body as Record<string, unknown>).message) ||
+      (body &&
+        typeof body === "object" &&
+        typeof (body as Record<string, unknown>).error === "string" &&
+        (body as Record<string, unknown>).error) ||
+      `Ravin compressed upload auth failed (${response.status}).`;
+    throw new Error(String(message));
+  }
+
+  return extractRavinS3PostCredentials(body);
+}
+
+/** S3 POST credentials — compressed-upload auth first, then getSignInToken fallback. */
+export async function fetchRavinS3PostCredentials(
+  claimId?: string,
+): Promise<RavinS3PostCredentials | null> {
+  if (claimId?.trim()) {
+    try {
+      const fromCompressed = await fetchRavinCompressedUploadCredentials(claimId);
+      if (fromCompressed) return fromCompressed;
+    } catch (err) {
+      console.error("[ravin-partner] generateCompressedDataUpload failed:", err);
+    }
+  }
+
   const signIn = await fetchRavinSignIn();
   return signIn.s3;
 }
@@ -291,11 +361,22 @@ function extractExpiresAt(payload: unknown): string | null {
 }
 
 export async function createRavinPartnerInvite(input: {
-  invitationId: string;
-  linkExpiredIn?: number;
-  loginExpiredIn?: number;
+  claimId?: string;
+  /** @deprecated use claimId */
+  invitationId?: string;
+  lp?: string | null;
+  state?: string | null;
+  linkExpireIn?: number;
+  loginExpireIn?: number;
 }): Promise<RavinPartnerInvite> {
+  const claimId = (input.claimId ?? input.invitationId)?.trim();
+  if (!claimId) {
+    throw new Error("Ravin partner invite requires claimId.");
+  }
+
   const partnerToken = await getPartnerToken();
+  const lp = input.lp?.trim() || claimId;
+  const state = input.state?.trim() || "NSW";
 
   const response = await fetch(`${RAVIN_BASE_URL}/partnerInvite`, {
     method: "POST",
@@ -304,21 +385,23 @@ export async function createRavinPartnerInvite(input: {
       partnerToken,
       siteId: RAVIN_SITE_ID,
       provider: RAVIN_PROVIDER,
-      linkExpiredIn: input.linkExpiredIn ?? RAVIN_LINK_EXPIRED_IN,
-      loginExpiredIn: input.loginExpiredIn ?? RAVIN_LOGIN_EXPIRED_IN,
-      invitationId: input.invitationId,
+      linkExpireIn: input.linkExpireIn ?? RAVIN_LINK_EXPIRE_IN,
+      loginExpireIn: input.loginExpireIn ?? RAVIN_LOGIN_EXPIRE_IN,
+      claimId,
+      lp,
+      state,
     }),
   });
 
   const body = await response.json().catch(() => null);
   if (!response.ok) {
+    const record =
+      body && typeof body === "object" ? (body as Record<string, unknown>) : null;
     const message =
-      (body &&
-        typeof body === "object" &&
-        typeof (body as Record<string, unknown>).error === "string" &&
-        (body as Record<string, unknown>).error) ||
+      (typeof record?.message === "string" && record.message) ||
+      (typeof record?.error === "string" && record.error) ||
       `Ravin partner invite failed (${response.status}).`;
-    throw new Error(String(message));
+    throw new Error(message);
   }
 
   const inviteUrl = extractInviteUrl(body);
@@ -327,7 +410,7 @@ export async function createRavinPartnerInvite(input: {
   }
 
   return {
-    invitationId: input.invitationId,
+    invitationId: claimId,
     inviteUrl,
     expiresAt: extractExpiresAt(body),
     raw: body,

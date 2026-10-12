@@ -29,13 +29,15 @@ export function isRavinS3Configured(): boolean {
   return Boolean(staticRavinS3Credentials() || isRavinPartnerConfigured());
 }
 
-async function resolveRavinS3Credentials(): Promise<RavinS3PostCredentials | null> {
+async function resolveRavinS3Credentials(
+  claimId: string,
+): Promise<RavinS3PostCredentials | null> {
   if (isRavinPartnerConfigured()) {
     try {
-      const dynamic = await fetchRavinS3PostCredentials();
+      const dynamic = await fetchRavinS3PostCredentials(claimId);
       if (dynamic) return dynamic;
     } catch (err) {
-      console.error("[ravin-ingest] Dynamic S3 credentials from getSignInToken failed:", err);
+      console.error("[ravin-ingest] Ravin S3 credential fetch failed:", err);
     }
   }
   return staticRavinS3Credentials();
@@ -65,7 +67,7 @@ export async function submitInspectionToRavin(input: {
   const ingestId =
     linkedRavinId ?? `insp-${input.reportId.toLowerCase()}`;
 
-  const s3Credentials = await resolveRavinS3Credentials();
+  const s3Credentials = await resolveRavinS3Credentials(ingestId);
   if (s3Credentials) {
     await uploadPhotosToRavinS3({
       inspectionId: ingestId,

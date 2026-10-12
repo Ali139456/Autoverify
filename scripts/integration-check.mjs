@@ -123,6 +123,48 @@ async function run() {
     ok++;
   } else fail++;
 
+  if (
+    await check("Ravin partnerInvite", async () => {
+      const key = process.env.RAVIN_API_KEY?.trim();
+      const site = Number(process.env.RAVIN_SITE_ID);
+      if (!key || !Number.isFinite(site)) throw new Error("RAVIN_API_KEY or RAVIN_SITE_ID missing");
+      const url = (process.env.RAVIN_BASE_URL ?? "https://inspect.mtaus.ravin-ai.com").replace(
+        /\/$/,
+        "",
+      );
+      const signIn = await fetch(`${url}/getSignInToken`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientKey: key }),
+      });
+      const signBody = await signIn.json().catch(() => ({}));
+      if (!signIn.ok || !signBody?.token) {
+        throw new Error(signBody?.message ?? signBody?.error ?? `sign-in HTTP ${signIn.status}`);
+      }
+      const res = await fetch(`${url}/partnerInvite`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          partnerToken: signBody.token,
+          siteId: site,
+          provider: process.env.RAVIN_PROVIDER ?? "consumer",
+          linkExpireIn: Number(process.env.RAVIN_LINK_EXPIRE_IN ?? 72),
+          loginExpireIn: Number(process.env.RAVIN_LOGIN_EXPIRE_IN ?? 48),
+          claimId: "integration-test",
+          lp: "TEST01",
+          state: "NSW",
+        }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body?.message ?? body?.error ?? `HTTP ${res.status}`);
+      const link = body?.message ?? body?.inviteUrl ?? body?.url;
+      if (!link || typeof link !== "string") throw new Error("no invite link in response");
+      return link.slice(0, 72) + (link.length > 72 ? "…" : "");
+    })
+  ) {
+    ok++;
+  } else fail++;
+
   const s3 =
     process.env.RAVIN_S3_ACCESS_KEY_ID &&
     process.env.RAVIN_S3_POLICY &&
