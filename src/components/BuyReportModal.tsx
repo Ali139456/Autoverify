@@ -90,6 +90,7 @@ export function BuyReportModal({
             onDark
             inputId={BUY_REPORT_MODAL_INPUT_ID}
             onLoadingChange={setSearching}
+            sampleLinks="both"
           />
         </div>
       </div>
