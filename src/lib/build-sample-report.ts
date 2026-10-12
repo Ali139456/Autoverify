@@ -247,12 +247,10 @@ function buildMercedesSampleCore() {
       },
     },
     detailedSpecs: [
-      { description: "Body", value: "Sedan" },
       {
         description: "Fuel type",
         value: "Premium unleaded / electric (mild hybrid)",
       },
-      { description: "Transmission", value: "Automatic" },
     ],
   });
   vehicleSpec.factoryFeatures = [

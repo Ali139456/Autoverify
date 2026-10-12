@@ -26,6 +26,18 @@ export function buildInspectorLiteUrl(code: string): string {
   return url.toString();
 }
 
+export function isRavinInspectorLiteUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url.startsWith("http") ? url : `https://${url}`);
+    return (
+      parsed.hostname.includes("ravin-ai.com") &&
+      parsed.pathname.includes("inspector")
+    );
+  } catch {
+    return false;
+  }
+}
+
 export function parseInspectorLiteCodeFromUrl(url: string): string | null {
   try {
     const parsed = new URL(normalizeInspectorUrl(url));
@@ -79,6 +91,24 @@ async function getPartnerToken(): Promise<string> {
   }
 
   return token;
+}
+
+/** Production health check — verifies RAVIN_API_KEY against getSignInToken. */
+export async function probeRavinPartnerConnection(): Promise<
+  { ok: true } | { ok: false; error: string }
+> {
+  if (!isRavinPartnerConfigured()) {
+    return { ok: false, error: "RAVIN_API_KEY or RAVIN_SITE_ID is not configured." };
+  }
+  try {
+    await getPartnerToken();
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : "Ravin sign-in failed.",
+    };
+  }
 }
 
 function extractSessionCode(payload: unknown): string | null {

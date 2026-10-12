@@ -31,8 +31,16 @@ function stringOrNull(value: unknown): string | null {
 }
 
 function rowExists(rows: { label: string }[], label: string): boolean {
-  const key = label.toLowerCase();
-  return rows.some((row) => row.label.toLowerCase() === key);
+  const key = normalizeSpecLabelKey(label);
+  return rows.some((row) => normalizeSpecLabelKey(row.label) === key);
+}
+
+/** Treat AutoGrab / detailed-spec aliases as the same row (e.g. Body vs Body type). */
+function normalizeSpecLabelKey(label: string): string {
+  const key = label.trim().toLowerCase().replace(/\s+/g, " ");
+  if (key === "body" || key === "body type") return "body type";
+  if (key === "fuel" || key === "fuel type") return "fuel type";
+  return key;
 }
 
 function findDetailedSpecValue(
@@ -349,7 +357,8 @@ export function buildVehicleSpecSheet(input: {
       const value = String(spec.value ?? "").trim();
       if (!description || !value) continue;
       const exists = dataRows.some(
-        (row) => row.label.toLowerCase() === description.toLowerCase(),
+        (row) =>
+          normalizeSpecLabelKey(row.label) === normalizeSpecLabelKey(description),
       );
       if (!exists) {
         pushRow(dataRows, description, value);

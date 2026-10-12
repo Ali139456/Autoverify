@@ -7,6 +7,8 @@ type SampleReportLinkProps = {
   tier?: ReportTier;
   variant?: "text" | "outline" | "hero";
   className?: string;
+  /** Override default "Sample Report" label (hero row uses tier-specific text). */
+  label?: string;
 };
 
 const baseText =
@@ -16,10 +18,11 @@ export function SampleReportLink({
   tier = "insights",
   variant = "text",
   className = "",
+  label: labelProp,
 }: SampleReportLinkProps) {
   const href = getSampleReportHref(tier);
   const external = isExternalHref(href);
-  const label = "Sample Report";
+  const label = labelProp?.trim() || "Sample Report";
 
   if (variant === "hero") {
     return (
@@ -27,11 +30,11 @@ export function SampleReportLink({
         href={href}
         target={external ? "_blank" : undefined}
         rel={external ? "noopener noreferrer" : undefined}
-        className={`group flex h-10 min-w-0 items-center justify-center gap-1 whitespace-nowrap rounded-lg border-2 border-[#0073E3] bg-transparent px-2.5 text-xs font-bold text-[#0073E3] transition hover:bg-[#0073E3]/10 sm:gap-1.5 sm:px-4 sm:text-sm ${className}`}
+        className={`group flex h-10 min-w-0 items-center justify-center gap-0.5 rounded-lg border-2 border-[#0073E3] bg-transparent px-2.5 text-center text-xs font-bold leading-tight text-[#0073E3] transition hover:bg-[#0073E3]/10 sm:gap-1.5 sm:px-4 sm:text-sm ${className}`}
       >
-        {label}
+        <span className="min-w-0">{label}</span>
         <ArrowRight
-          className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+          className="hidden h-3.5 w-3.5 shrink-0 transition-transform group-hover:translate-x-0.5 sm:inline sm:h-4 sm:w-4"
           aria-hidden
         />
       </Link>

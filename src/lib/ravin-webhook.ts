@@ -176,18 +176,52 @@ export function extractRavinPhotos(payload: unknown): RavinPhotoRef[] {
   });
 }
 
+const INVITATION_ID_KEYS = [
+  "invitationId",
+  "invitation_id",
+  "invitationID",
+  "partnerInvitationId",
+  "inspectionId",
+  "inspection_id",
+  "reportId",
+  "report_id",
+  "eventId",
+  "event_id",
+];
+
 export function extractInvitationId(payload: unknown): string | null {
-  if (!payload || typeof payload !== "object") return null;
+  const found = collectInvitationIds(payload);
+  return found[0] ?? null;
+}
+
+/** All candidate ids from a Ravin webhook (report uuid, insp- prefix, event id, etc.). */
+export function collectInvitationIds(
+  payload: unknown,
+  ids: string[] = [],
+  depth = 0,
+): string[] {
+  if (depth > 12 || payload == null || typeof payload !== "object") return ids;
+
+  if (Array.isArray(payload)) {
+    for (const entry of payload) {
+      collectInvitationIds(entry, ids, depth + 1);
+    }
+    return [...new Set(ids)];
+  }
+
   const record = payload as Record<string, unknown>;
+  for (const key of INVITATION_ID_KEYS) {
+    const value = record[key];
+    if (typeof value === "string" && value.trim()) {
+      ids.push(value.trim());
+    }
+  }
 
-  const direct =
-    record.invitationId ??
-    record.invitation_id ??
-    record.inspectionId ??
-    record.inspection_id ??
-    record.reportId ??
-    record.report_id;
+  for (const value of Object.values(record)) {
+    if (value && typeof value === "object") {
+      collectInvitationIds(value, ids, depth + 1);
+    }
+  }
 
-  if (typeof direct === "string" && direct.trim()) return direct.trim();
-  return null;
+  return [...new Set(ids)];
 }

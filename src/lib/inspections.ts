@@ -144,31 +144,58 @@ export async function getInspectionById(
   return rowToSession(data as InspectionRow);
 }
 
+function expandRavinInvitationLookupKeys(invitationId: string): string[] {
+  const trimmed = invitationId.trim();
+  const keys = new Set<string>([trimmed]);
+  const lower = trimmed.toLowerCase();
+  if (lower.startsWith("insp-")) {
+    keys.add(trimmed.slice(5));
+  }
+  return [...keys];
+}
+
 export async function getInspectionByInvitationId(
   invitationId: string,
 ): Promise<InspectionSession | null> {
   if (!isSupabaseServerConfigured()) return null;
-  const supabase = createServerClient();
 
-  const { data: reportMatch } = await supabase
-    .from("reports")
-    .select("id")
-    .eq("id", invitationId)
-    .maybeSingle();
+  for (const key of expandRavinInvitationLookupKeys(invitationId)) {
+    const supabase = createServerClient();
 
-  if (reportMatch?.id) {
-    return getInspectionByReportId(reportMatch.id);
+    const { data: reportMatch } = await supabase
+      .from("reports")
+      .select("id")
+      .eq("id", key)
+      .maybeSingle();
+
+    if (reportMatch?.id) {
+      const session = await getInspectionByReportId(reportMatch.id);
+      if (session) return session;
+    }
+
+    const { data, error } = await supabase
+      .from("inspections")
+      .select("*")
+      .eq("ravin_inspection_id", key)
+      .maybeSingle();
+
+    if (error) throw new Error(error.message);
+    if (data) return rowToSession(data as InspectionRow);
   }
 
-  const { data, error } = await supabase
-    .from("inspections")
-    .select("*")
-    .eq("ravin_inspection_id", invitationId)
-    .maybeSingle();
+  return null;
+}
 
-  if (error) throw new Error(error.message);
-  if (!data) return null;
-  return rowToSession(data as InspectionRow);
+export async function resolveInspectionFromRavinWebhook(
+  payload: unknown,
+  extractIds: (payload: unknown) => string[],
+): Promise<InspectionSession | null> {
+  const candidates = extractIds(payload);
+  for (const id of candidates) {
+    const session = await getInspectionByInvitationId(id);
+    if (session) return session;
+  }
+  return null;
 }
 
 export async function updateInspection(

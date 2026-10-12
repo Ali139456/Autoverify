@@ -30,10 +30,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const inspection = await getInspectionByReportId(reportId);
     let link = inspectUrl;
     if (!link) {
-      const inspection = await getInspectionByReportId(reportId);
       link = inspection?.ravinInviteUrl ?? "";
+    } else if (
+      inspection?.ravinInviteUrl &&
+      link.includes("/inspect/") &&
+      !link.includes("ravin-ai.com")
+    ) {
+      link = inspection.ravinInviteUrl;
     }
 
     if (!link) {

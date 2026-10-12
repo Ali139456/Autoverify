@@ -11,8 +11,8 @@ export function HeroCheckLead() {
       <p className="text-gradient-blue animate-fade-up delay-200 mt-3 text-2xl font-extrabold tracking-tight sm:mt-4 sm:text-3xl lg:text-4xl">
         Past, Present and Future insights to buy with confidence
       </p>
-      <div className="animate-fade-up delay-300 relative mx-auto mt-6 max-w-md sm:mt-8 lg:mx-0">
-        <RegoSearchForm onDark />
+      <div className="animate-fade-up delay-300 relative mx-auto mt-6 max-w-xl sm:mt-8 lg:mx-0">
+        <RegoSearchForm onDark sampleLinks="both" />
       </div>
     </div>
   );

@@ -53,13 +53,29 @@ export async function POST(
       workflowStatus: "processing_ravin",
     });
 
-    const submission = await submitInspectionToRavin({
-      reportId: inspection.reportId,
-      inspectionId: inspection.id,
-      ravinInspectionId: freshInspection.ravinInspectionId,
-      vin: report.vehicle.vin,
-      photos: photoFiles,
-    });
+    let submission;
+    try {
+      submission = await submitInspectionToRavin({
+        reportId: inspection.reportId,
+        inspectionId: inspection.id,
+        ravinInspectionId: freshInspection.ravinInspectionId,
+        vin: report.vehicle.vin,
+        photos: photoFiles,
+      });
+    } catch (ravinErr) {
+      console.error("[inspections/complete] Ravin ingest failed:", ravinErr);
+      await updateInspection(inspection.id, { status: "uploaded" });
+      return NextResponse.json({
+        ok: true,
+        mode: "pending",
+        complete: false,
+        missingAngles: progress.missing,
+        ravinIngestError:
+          ravinErr instanceof Error ? ravinErr.message : "Ravin ingest failed.",
+        message:
+          "Photos saved to your Auto Verifi report. AI damage analysis will be added automatically once condition assessment is complete.",
+      });
+    }
 
     const notifyEmails = getInspectionPhotoNotifyEmails(report);
     for (const notifyEmail of notifyEmails) {

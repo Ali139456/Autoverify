@@ -25,17 +25,20 @@ export function InspectionStarter({
   const [smsSent, setSmsSent] = useState(false);
   const [smsError, setSmsError] = useState<string | null>(null);
   const [smsNotice, setSmsNotice] = useState<string | null>(null);
+  const [ravinWarning, setRavinWarning] = useState<string | null>(null);
+  const [provider, setProvider] = useState<"ravin" | "internal" | null>(null);
   const [modalOpen, setModalOpen] = useState(
     () => Boolean(autoShowQr && initialInspectUrl),
   );
   const autoStarted = useRef(false);
 
-  const startInspection = useCallback(async (openModal: boolean) => {
+  const startInspection = useCallback(async (openModal: boolean, refreshRavinInvite = false) => {
     setLoading(true);
     setError(null);
     setSmsSent(false);
     setSmsError(null);
     setSmsNotice(null);
+    setRavinWarning(null);
 
     try {
       const res = await fetch("/api/inspections/start", {
@@ -45,6 +48,7 @@ export function InspectionStarter({
           reportId,
           customerPhone,
           ownerPhone,
+          refreshRavinInvite,
         }),
       });
       const raw = await res.text();
@@ -57,6 +61,7 @@ export function InspectionStarter({
         smsError?: string | null;
         smsNotice?: string | null;
         ravinWarning?: string | null;
+        ravinInviteUrl?: string | null;
       } = {};
       try {
         data = raw ? (JSON.parse(raw) as typeof data) : {};
@@ -71,10 +76,16 @@ export function InspectionStarter({
       if (!data.inspectUrl) {
         throw new Error("Inspection link was not returned. Please try again.");
       }
-      setInspectUrl(data.inspectUrl);
+      const nextUrl =
+        data.provider === "ravin" && data.ravinInviteUrl
+          ? data.ravinInviteUrl
+          : data.inspectUrl;
+      setInspectUrl(nextUrl);
       if (data.internalInspectUrl && data.provider === "internal") {
         setInspectUrl(data.internalInspectUrl);
       }
+      setProvider(data.provider ?? null);
+      setRavinWarning(data.ravinWarning ?? null);
       setSmsSent(Boolean(data.smsSent));
       setSmsError(data.smsError ?? null);
       setSmsNotice(data.smsNotice ?? null);
@@ -159,6 +170,32 @@ export function InspectionStarter({
         )}
         {smsNotice && !smsError && (
           <p className="mt-3 text-sm text-slate-400">{smsNotice}</p>
+        )}
+
+        {provider === "ravin" && (
+          <p className="mt-3 text-sm font-medium text-emerald-400">
+            Ravin Inspector Lite link ready — use this for AI condition scan and your Ravin dashboard.
+          </p>
+        )}
+        {provider === "internal" && (
+          <p className="mt-3 text-sm text-amber-300">
+            Using Auto Verifi capture only. Ravin dashboard needs an inspector-lite link or S3 ingest on production.
+          </p>
+        )}
+        {ravinWarning && (
+          <p className="mt-2 text-sm text-amber-300" role="alert">
+            {ravinWarning}
+          </p>
+        )}
+        {provider === "internal" && (
+          <button
+            type="button"
+            onClick={() => void startInspection(false, true)}
+            disabled={loading}
+            className="mt-3 text-xs font-bold text-accent-400 underline hover:text-accent-300 disabled:opacity-50"
+          >
+            Retry Ravin Inspector Lite link
+          </button>
         )}
 
         {inspectUrl && !modalOpen && (

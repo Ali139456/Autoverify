@@ -7,7 +7,9 @@ import {
   parseRavinWebhookPayload,
   extractInvitationId,
   extractRavinPhotos,
+  collectInvitationIds,
 } from "@/lib/ravin-webhook";
+import { resolveInspectionFromRavinWebhook } from "@/lib/inspections";
 import { saveRavinWebhookEvent, updateReportWorkflowStatus } from "@/lib/store-supabase";
 import { updateReport } from "@/lib/store";
 import { isSupabaseServerConfigured } from "@/lib/supabase/server";
@@ -43,9 +45,9 @@ export async function POST(req: NextRequest) {
   }
 
   const invitationId = extractInvitationId(payload);
-  const inspection = invitationId
-    ? await getInspectionByInvitationId(invitationId)
-    : null;
+  const inspection =
+    (await resolveInspectionFromRavinWebhook(payload, collectInvitationIds)) ??
+    (invitationId ? await getInspectionByInvitationId(invitationId) : null);
 
   await saveRavinWebhookEvent({
     reportId: inspection?.reportId ?? null,

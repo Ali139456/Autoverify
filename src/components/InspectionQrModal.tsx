@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { Copy, Loader2, Send, Smartphone, X } from "lucide-react";
+import { isRavinInspectorLiteUrl } from "@/lib/ravin-partner";
 
 type InspectionQrModalProps = {
   open: boolean;
@@ -140,7 +141,9 @@ function InspectionQrModalContent({
             Continue on your mobile device
           </h2>
           <p className="mt-2 text-sm text-slate-600">
-            Scan the QR code to complete the AI condition check for this vehicle.
+            {isRavinInspectorLiteUrl(inspectUrl)
+              ? "Scan to open Ravin Inspector Lite — AI condition scan and Ravin Eye dashboard."
+              : "Scan the QR code to complete the AI condition check for this vehicle."}
           </p>
 
           <div className="mt-6">

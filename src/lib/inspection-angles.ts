@@ -55,6 +55,7 @@ export const LEGACY_INSPECTION_ANGLE_IDS = [
   "interior",
   "interior_passenger_rear",
   "interior_driver_rear",
+  "interior_rear_boot",
 ] as const;
 
 export function isValidInspectionAngleId(id: string): boolean {
@@ -71,6 +72,7 @@ export function getInspectionAngleLabel(id: string): string {
   if (id === "interior_passenger_rear" || id === "interior_driver_rear") {
     return "Rear interior";
   }
+  if (id === "interior_rear_boot") return "Rear boot interior";
   return INSPECTION_ANGLES.find((angle) => angle.id === id)?.label ?? id;
 }
 
@@ -96,3 +98,13 @@ export const INSPECTION_LINK_TTL_HOURS = 72;
 
 /** Max photos for manual desktop upload (matches guided capture count). */
 export const MANUAL_DAMAGE_UPLOAD_MAX_PHOTOS = INSPECTION_ANGLES.length;
+
+/** Keys and service invoice — shown on report for record only (no Ravin AI). */
+export const RECORD_ONLY_INSPECTION_ANGLE_IDS = ["keys", "service_record"] as const;
+
+export function isRecordOnlyInspectionPhoto(angle: string): boolean {
+  return (RECORD_ONLY_INSPECTION_ANGLE_IDS as readonly string[]).includes(angle);
+}
+
+export const INSPECTION_RECORD_ONLY_FOOTNOTE =
+  "No AI assessment on these images. These images are for a matter of record only.";

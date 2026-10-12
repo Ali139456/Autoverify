@@ -5,7 +5,11 @@ import {
   formatReportReference,
   resolveDamageFindingImageUrl,
 } from "@/lib/report-design";
-import { isExteriorInspectionAngle } from "@/lib/inspection-angles";
+import {
+  INSPECTION_RECORD_ONLY_FOOTNOTE,
+  isExteriorInspectionAngle,
+  isRecordOnlyInspectionPhoto,
+} from "@/lib/inspection-angles";
 import type { InspectionPhoto, VehicleReport } from "@/lib/types";
 import { InspectionStarter } from "@/components/InspectionStarter";
 import { DamageUpload } from "@/components/DamageUpload";
@@ -21,6 +25,7 @@ function PhotoTile({
 }) {
   const url = getInspectionPhotoUrl(photo);
   const isFrontRego = photo.angle === "front";
+  const recordOnly = isRecordOnlyInspectionPhoto(photo.angle);
 
   return (
     <figure className="report-photo-tile overflow-hidden rounded-lg border border-slate-200 bg-white">
@@ -41,11 +46,17 @@ function PhotoTile({
       <figcaption className="border-t border-slate-200 px-2 py-1.5">
         <p className="text-[11px] font-bold leading-snug text-slate-700">
           {photo.label}
+          {recordOnly ? "*" : null}
           {isFrontRego ? (
             <span className="ml-1 font-normal text-slate-500">(rego visible)</span>
           ) : null}
         </p>
         <InspectionPhotoEvidenceCaption photo={photo} />
+        {recordOnly ? (
+          <p className="mt-1 text-[10px] leading-snug text-slate-500">
+            *{INSPECTION_RECORD_ONLY_FOOTNOTE}
+          </p>
+        ) : null}
         {caption ? (
           <p className="mt-0.5 text-[10px] text-red-600">{caption}</p>
         ) : null}

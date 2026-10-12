@@ -25,7 +25,11 @@ import {
   CAR_BUYING_CHECKLIST_ITEMS,
   CAR_BUYING_CHECKLIST_TITLE,
 } from "./car-buying-checklist";
-import { isExteriorInspectionAngle } from "./inspection-angles";
+import {
+  INSPECTION_RECORD_ONLY_FOOTNOTE,
+  isExteriorInspectionAngle,
+  isRecordOnlyInspectionPhoto,
+} from "./inspection-angles";
 import {
   hasVehicleSpecContent,
   visibleSpecDataRows,
@@ -1788,10 +1792,13 @@ function PdfPhotoGroup({
             {row.map((photo, i) => {
               const url = resolvePdfImageSrc(getInspectionPhotoUrl(photo));
               const evidenceLines = formatInspectionPhotoEvidenceLines(photo);
+              const recordOnly = isRecordOnlyInspectionPhoto(photo.angle);
               const label =
                 photo.angle === "front"
                   ? `${photo.label} (rego visible)`
-                  : photo.label;
+                  : recordOnly
+                    ? `${photo.label}*`
+                    : photo.label;
               return (
                 <View
                   key={`${photo.angle}-${photo.uploadedAt}`}
@@ -1811,6 +1818,11 @@ function PdfPhotoGroup({
                       {line}
                     </Text>
                   ))}
+                  {recordOnly ? (
+                    <Text style={styles.photoEvidenceCaption}>
+                      *{INSPECTION_RECORD_ONLY_FOOTNOTE}
+                    </Text>
+                  ) : null}
                   <View style={{ height: 3 }} />
                 </View>
               );

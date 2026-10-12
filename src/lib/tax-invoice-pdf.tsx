@@ -175,12 +175,14 @@ const styles = StyleSheet.create({
   },
   amountHead: {
     flexDirection: "row",
-    backgroundColor: NAVY,
+    backgroundColor: HEADER_BG,
     paddingVertical: 9,
     paddingHorizontal: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: BORDER,
   },
   amountHeadText: {
-    color: "#ffffff",
+    color: NAVY,
     fontFamily: "Helvetica-Bold",
     fontSize: 8.5,
   },
@@ -267,12 +269,7 @@ export function TaxInvoicePdf({
     : "—";
   const vinLine = report.vehicle.vin?.trim() || "—";
   const reportGenerated = formatLongAuDate(new Date(report.createdAt));
-  const listExGst = splitGstInclusive(listPriceCents).exGstCents;
   const discountCents = Math.max(0, listPriceCents - amountPaidCents);
-  const discountExGst =
-    discountCents > 0
-      ? listExGst - splitGstInclusive(amountPaidCents).exGstCents
-      : 0;
   const { gstCents } = splitGstInclusive(amountPaidCents);
   const productDescription = tierConfig.name;
   const discountLabel = promoCode?.trim()
@@ -338,19 +335,21 @@ export function TaxInvoicePdf({
             <Text style={[styles.amountHeadText, styles.colDesc]}>
               Description
             </Text>
-            <Text style={[styles.amountHeadText, styles.colAmt]}>Amount</Text>
+            <Text style={[styles.amountHeadText, styles.colAmt]}>
+              Amount (inc. GST)
+            </Text>
           </View>
           <View style={styles.amountRow}>
             <Text style={styles.colDesc}>{productDescription}</Text>
             <Text style={styles.colAmt}>
-              {formatMoney(listExGst, currency)}
+              {formatMoney(listPriceCents, currency)}
             </Text>
           </View>
           {discountCents > 0 ? (
             <View style={styles.amountRow}>
               <Text style={styles.colDesc}>{discountLabel}</Text>
               <Text style={styles.colAmt}>
-                {formatMoney(-discountExGst, currency)}
+                {formatMoney(-discountCents, currency)}
               </Text>
             </View>
           ) : null}

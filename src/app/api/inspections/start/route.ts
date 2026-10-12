@@ -89,7 +89,11 @@ export async function POST(req: NextRequest) {
     let ravinInviteUrl: string | null = inspection.ravinInviteUrl;
     let ravinWarning: string | null = null;
 
-    if (isRavinPartnerConfigured() && !inspection.ravinInviteUrl) {
+    const refreshRavinInvite = Boolean(body.refreshRavinInvite);
+    if (
+      isRavinPartnerConfigured() &&
+      (!inspection.ravinInviteUrl || refreshRavinInvite)
+    ) {
       try {
         const invite = await createRavinPartnerInvite({ invitationId: reportId });
         inspectUrl = invite.inviteUrl;
@@ -148,6 +152,8 @@ export async function POST(req: NextRequest) {
       internalInspectUrl,
       ravinInviteUrl,
       provider,
+      ravinWarning,
+      ravinConfigured: isRavinPartnerConfigured(),
       expiresAt: inspection.expiresAt,
       ownerPhone,
       customerPhone,

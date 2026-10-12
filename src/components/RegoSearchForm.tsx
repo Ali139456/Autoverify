@@ -22,6 +22,7 @@ export function RegoSearchForm({
   onDark = false,
   inputId = VEHICLE_SEARCH_INPUT_ID,
   onLoadingChange,
+  sampleLinks = "single",
 }: {
   defaultRego?: string;
   defaultVin?: string;
@@ -33,6 +34,8 @@ export function RegoSearchForm({
   inputId?: string;
   /** Parent renders a full-panel overlay (e.g. buy modal). */
   onLoadingChange?: (loading: boolean) => void;
+  /** Homepage: separate Insights and Insights+ sample buttons. */
+  sampleLinks?: "single" | "both";
 }) {
   const router = useRouter();
   const [query, setQuery] = useState(defaultVin || defaultRego);
@@ -76,8 +79,8 @@ export function RegoSearchForm({
   const shellClass = compact
     ? ""
     : onDark
-      ? "mx-auto max-w-md rounded-2xl border border-white/10 bg-ink-800 p-2.5 sm:p-3 lg:mx-0"
-      : "mx-auto max-w-md rounded-2xl border border-slate-200 bg-white p-2.5 shadow-lg dark:border-white/10 dark:bg-ink-800 dark:shadow-none sm:p-3 lg:mx-0";
+      ? "mx-auto w-full max-w-xl rounded-2xl border border-white/10 bg-ink-800 p-2 sm:p-2.5 lg:mx-0"
+      : "mx-auto w-full max-w-md rounded-2xl border border-slate-200 bg-white p-2.5 shadow-lg dark:border-white/10 dark:bg-ink-800 dark:shadow-none sm:p-3 lg:mx-0";
 
   const fieldClass = onDark
     ? "h-10 w-full min-w-0 rounded-lg border border-white/15 bg-ink-950 text-sm font-bold outline-none transition placeholder:text-xs placeholder:font-semibold placeholder:normal-case placeholder:text-[#0073E3] focus:border-[#0073E3] focus:ring-2 focus:ring-[#0073E3]/25 sm:placeholder:text-sm sm:placeholder:font-bold sm:text-base"
@@ -112,12 +115,14 @@ export function RegoSearchForm({
           <span className={`${labelClass} min-w-0 flex-1`}>
             Registration Plate or VIN
           </span>
-          <span className={`${labelClass} w-[5.75rem] shrink-0 text-left`}>
+          <span
+            className={`${labelClass} ${sampleLinks === "both" ? "w-[4.25rem]" : "w-[5.75rem]"} shrink-0 text-left`}
+          >
             State{vinMode ? " (optional)" : ""}
           </span>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-1.5 sm:gap-2">
           <div className="relative min-w-0 flex-1">
             <input
               id={inputId}
@@ -126,11 +131,13 @@ export function RegoSearchForm({
               placeholder="Rego or VIN"
               aria-label="Registration plate or VIN"
               maxLength={17}
-              className={`${fieldClass} px-3 text-left ${regoTextClass} ${!vinMode && query.trim() ? "plate-input uppercase" : ""}`}
+              className={`${fieldClass} px-2.5 text-left sm:px-3 ${regoTextClass} ${!vinMode && query.trim() ? "plate-input uppercase" : ""}`}
             />
           </div>
 
-          <div className="relative w-[5.75rem] shrink-0">
+          <div
+            className={`relative shrink-0 ${sampleLinks === "both" ? "w-[4.25rem]" : "w-[5.75rem]"}`}
+          >
             <select
               value={state}
               onChange={(e) => setState(e.target.value)}
@@ -149,20 +156,56 @@ export function RegoSearchForm({
           </div>
         </div>
 
-        <div className="mx-auto mt-2.5 grid w-full grid-cols-2 gap-2 lg:mx-0">
+        <div
+          className={`mx-auto mt-2 grid w-full gap-1.5 lg:mx-0 sm:mt-2.5 sm:gap-2 ${
+            sampleLinks === "both" ? "grid-cols-3" : "grid-cols-2"
+          }`}
+        >
           <button
             type="submit"
             disabled={loading}
-            className="btn-shine group flex h-10 min-w-0 items-center justify-center gap-1 rounded-lg bg-[#0073E3] px-2.5 text-xs font-bold text-white transition hover:bg-[#0062c2] disabled:opacity-60 sm:gap-1.5 sm:px-4 sm:text-sm"
+            className="btn-shine group flex h-10 min-w-0 items-center justify-center gap-0.5 rounded-lg bg-[#0073E3] px-1.5 text-[10px] font-bold leading-tight text-white transition hover:bg-[#0062c2] disabled:opacity-60 sm:gap-1 sm:px-2.5 sm:text-xs md:text-sm"
           >
             {loading ? "Searching…" : "Buy Report"}
             <ArrowRight
-              className="h-4 w-4 transition-transform group-hover:translate-x-1"
+              className="hidden h-3.5 w-3.5 shrink-0 transition-transform group-hover:translate-x-1 sm:inline sm:h-4 sm:w-4"
               aria-hidden
             />
           </button>
           {!loading ? (
-            <SampleReportLink tier="insights" variant="hero" />
+            sampleLinks === "both" ? (
+              <>
+                <SampleReportLink
+                  tier="insights"
+                  variant="hero"
+                  label="Sample Insights"
+                  className="!px-1 !text-[10px] sm:!px-2 sm:!text-xs md:!text-sm"
+                />
+                <SampleReportLink
+                  tier="insights_plus"
+                  variant="hero"
+                  label="Sample Insights+"
+                  className="!px-1 !text-[10px] sm:!px-2 sm:!text-xs md:!text-sm"
+                />
+              </>
+            ) : (
+              <SampleReportLink tier="insights" variant="hero" />
+            )
+          ) : sampleLinks === "both" ? (
+            <>
+              <span
+                className="flex h-10 min-w-0 items-center justify-center rounded-lg border-2 border-[#0073E3]/40 px-1 text-[10px] font-bold text-[#0073E3]/40 sm:text-xs"
+                aria-hidden
+              >
+                Sample Insights
+              </span>
+              <span
+                className="flex h-10 min-w-0 items-center justify-center rounded-lg border-2 border-[#0073E3]/40 px-1 text-[10px] font-bold text-[#0073E3]/40 sm:text-xs"
+                aria-hidden
+              >
+                Sample Insights+
+              </span>
+            </>
           ) : (
             <Link
               href="/sample-report"
