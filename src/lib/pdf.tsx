@@ -101,6 +101,9 @@ const TABLE_ROW_SHADE = "#eff6ff";
 /** Match Tailwind slate borders on the web report. */
 const BORDER_SLATE_200 = "#e2e8f0";
 const BORDER_SLATE_100 = "#f1f5f9";
+/** 1pt borders in react-pdf read darker/thicker than 1px on the web report. */
+const PDF_BORDER_OUTER = 0.75;
+const PDF_BORDER_INNER = 0.5;
 const PDF_TABLE_FONT_BODY = 8;
 const PDF_TABLE_FONT_HEAD = 7.5;
 const PDF_TABLE_PAD_V = 7;
@@ -178,23 +181,23 @@ const styles = StyleSheet.create({
   },
   specBar: {
     marginTop: 12,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderWidth: PDF_BORDER_OUTER,
+    borderColor: BORDER_SLATE_200,
     borderRadius: 8,
     backgroundColor: LIGHT,
     overflow: "hidden",
   },
   specRow: {
     flexDirection: "row",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
+    borderBottomWidth: PDF_BORDER_INNER,
+    borderBottomColor: BORDER_SLATE_200,
   },
   specItem: {
     width: "25%",
     paddingVertical: 7,
     paddingHorizontal: 8,
-    borderRightWidth: 1,
-    borderRightColor: "#e2e8f0",
+    borderRightWidth: PDF_BORDER_INNER,
+    borderRightColor: BORDER_SLATE_200,
   },
   specLabelRow: { flexDirection: "row", alignItems: "center", gap: 3 },
   specLabel: {
@@ -212,8 +215,8 @@ const styles = StyleSheet.create({
   statusPanel: {
     marginTop: 12,
     flexDirection: "row",
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderWidth: PDF_BORDER_OUTER,
+    borderColor: BORDER_SLATE_200,
     borderRadius: 8,
     overflow: "hidden",
     height: STATUS_PANEL_HEIGHT,
@@ -221,8 +224,8 @@ const styles = StyleSheet.create({
   statusLeft: {
     width: "58%",
     padding: 12,
-    borderRightWidth: 1,
-    borderRightColor: "#e2e8f0",
+    borderRightWidth: PDF_BORDER_INNER,
+    borderRightColor: BORDER_SLATE_200,
   },
   statusImageWrap: {
     width: "42%",
@@ -256,8 +259,8 @@ const styles = StyleSheet.create({
     minHeight: 128,
     backgroundColor: "#020617",
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderWidth: PDF_BORDER_OUTER,
+    borderColor: BORDER_SLATE_200,
     overflow: "hidden",
     position: "relative",
     display: "flex",
@@ -311,8 +314,8 @@ const styles = StyleSheet.create({
   insightCard: {
     width: "24.25%",
     marginRight: "1%",
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderWidth: PDF_BORDER_OUTER,
+    borderColor: BORDER_SLATE_200,
     borderRadius: 6,
     padding: 7,
     minHeight: 58,
@@ -341,8 +344,8 @@ const styles = StyleSheet.create({
     width: "32%",
     marginRight: "2%",
     backgroundColor: "#ffffff",
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderWidth: PDF_BORDER_OUTER,
+    borderColor: BORDER_SLATE_200,
     borderRadius: 6,
     padding: 8,
   },
@@ -361,20 +364,20 @@ const styles = StyleSheet.create({
   para: { lineHeight: 1.45, color: "#334155", fontSize: 8.5 },
   specSheetTableWrap: {
     marginTop: 6,
-    borderWidth: 1,
+    borderWidth: PDF_BORDER_OUTER,
     borderColor: BORDER_SLATE_200,
     borderRadius: 6,
     overflow: "hidden",
   },
   specSheetRow: {
     flexDirection: "row",
-    borderBottomWidth: 1,
+    borderBottomWidth: PDF_BORDER_INNER,
     borderBottomColor: BORDER_SLATE_200,
   },
   specSheetLabelCell: {
     width: "42%",
     backgroundColor: SPEC_LABEL_BG,
-    borderRightWidth: 1,
+    borderRightWidth: PDF_BORDER_INNER,
     borderRightColor: BORDER_SLATE_200,
     paddingVertical: PDF_TABLE_PAD_V,
     paddingHorizontal: PDF_TABLE_PAD_H,
@@ -392,7 +395,7 @@ const styles = StyleSheet.create({
   },
   pdfTableWrap: {
     marginTop: 4,
-    borderWidth: 1,
+    borderWidth: PDF_BORDER_OUTER,
     borderColor: BORDER_SLATE_200,
     borderRadius: 6,
     overflow: "hidden",
@@ -400,7 +403,7 @@ const styles = StyleSheet.create({
   pdfTableHeadRow: {
     flexDirection: "row",
     backgroundColor: LIGHT,
-    borderBottomWidth: 1,
+    borderBottomWidth: PDF_BORDER_INNER,
     borderBottomColor: BORDER_SLATE_200,
     paddingVertical: PDF_TABLE_PAD_V,
     paddingHorizontal: PDF_TABLE_PAD_H,
@@ -412,7 +415,7 @@ const styles = StyleSheet.create({
   },
   pdfTableBodyRow: {
     flexDirection: "row",
-    borderTopWidth: 1,
+    borderTopWidth: PDF_BORDER_INNER,
     borderTopColor: BORDER_SLATE_100,
     alignItems: "flex-start",
   },
@@ -434,7 +437,7 @@ const styles = StyleSheet.create({
   },
   pdfTableLabelCell: {
     backgroundColor: SPEC_LABEL_BG,
-    borderRightWidth: 1,
+    borderRightWidth: PDF_BORDER_INNER,
     borderRightColor: BORDER_SLATE_200,
     paddingVertical: PDF_TABLE_PAD_V,
     paddingHorizontal: PDF_TABLE_PAD_H,
@@ -458,8 +461,8 @@ const styles = StyleSheet.create({
   photoTile: {
     width: "23.5%",
     marginRight: "2%",
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderWidth: PDF_BORDER_OUTER,
+    borderColor: BORDER_SLATE_200,
     borderRadius: 5,
     overflow: "hidden",
   },
@@ -476,8 +479,8 @@ const styles = StyleSheet.create({
     paddingBottom: 1,
     fontSize: 6.5,
     fontFamily: "Helvetica-Bold",
-    borderTopWidth: 1,
-    borderTopColor: "#e2e8f0",
+    borderTopWidth: PDF_BORDER_INNER,
+    borderTopColor: BORDER_SLATE_200,
   },
   photoEvidenceCaption: {
     paddingHorizontal: 4,
@@ -490,7 +493,7 @@ const styles = StyleSheet.create({
     width: "48%",
     marginRight: "2%",
     marginBottom: 6,
-    borderWidth: 1,
+    borderWidth: PDF_BORDER_OUTER,
     borderColor: "#fecaca",
     backgroundColor: "#fef2f2",
     borderRadius: 6,
@@ -500,8 +503,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    borderTopWidth: 1,
-    borderTopColor: "#e2e8f0",
+    borderTopWidth: PDF_BORDER_INNER,
+    borderTopColor: BORDER_SLATE_200,
     paddingTop: 8,
     paddingBottom: 16,
     paddingHorizontal: 32,
@@ -921,8 +924,8 @@ function PdfManufacturersWarrantyNotice({
         padding: 10,
         backgroundColor: LIGHT,
         borderRadius: 8,
-        borderWidth: 1,
-        borderColor: "#e2e8f0",
+        borderWidth: PDF_BORDER_OUTER,
+        borderColor: BORDER_SLATE_200,
       }}
       wrap={false}
     >
@@ -964,8 +967,8 @@ function PdfManufacturersWarrantyNotice({
         style={{
           marginTop: 8,
           paddingTop: 8,
-          borderTopWidth: 1,
-          borderTopColor: "#e2e8f0",
+          borderTopWidth: PDF_BORDER_INNER,
+          borderTopColor: BORDER_SLATE_200,
         }}
       >
         <Text
@@ -1569,8 +1572,8 @@ function CarBuyingChecklistPage({
                 padding: 10,
                 backgroundColor: LIGHT,
                 borderRadius: 8,
-                borderWidth: 1,
-                borderColor: "#e2e8f0",
+                borderWidth: PDF_BORDER_OUTER,
+                borderColor: BORDER_SLATE_200,
               }}
               wrap={false}
             >
@@ -1663,8 +1666,8 @@ function PdfGeneralDisclaimer() {
       style={{
         marginTop: 12,
         paddingTop: 8,
-        borderTopWidth: 1,
-        borderTopColor: "#e2e8f0",
+        borderTopWidth: PDF_BORDER_INNER,
+        borderTopColor: BORDER_SLATE_200,
       }}
       wrap={false}
     >

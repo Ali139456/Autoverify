@@ -30,6 +30,8 @@ const BORDER_ROW = "#f1f5f9";
 const HEADER_BG = "#f1f5f9";
 const TABLE_PAD_V = 7;
 const TABLE_PAD_H = 12;
+const PDF_BORDER_OUTER = 0.75;
+const PDF_BORDER_INNER = 0.5;
 const LOGO = publicPdfImage(REPORT_LOGO_PNG_PATH);
 
 export type TaxInvoicePdfProps = {
@@ -118,14 +120,14 @@ const styles = StyleSheet.create({
   },
   box: {
     flex: 1,
-    borderWidth: 1,
+    borderWidth: PDF_BORDER_OUTER,
     borderColor: BORDER,
   },
   boxHeader: {
     backgroundColor: HEADER_BG,
     paddingVertical: 8,
     paddingHorizontal: 10,
-    borderBottomWidth: 1,
+    borderBottomWidth: PDF_BORDER_INNER,
     borderBottomColor: BORDER,
   },
   boxHeaderText: {
@@ -147,13 +149,13 @@ const styles = StyleSheet.create({
     color: NAVY,
   },
   kvTable: {
-    borderWidth: 1,
+    borderWidth: PDF_BORDER_OUTER,
     borderColor: BORDER,
     marginBottom: 22,
   },
   kvRow: {
     flexDirection: "row",
-    borderBottomWidth: 1,
+    borderBottomWidth: PDF_BORDER_INNER,
     borderBottomColor: BORDER_ROW,
   },
   kvLabel: {
@@ -163,7 +165,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: TABLE_PAD_H,
     fontFamily: "Helvetica-Bold",
     fontSize: 8.5,
-    borderRightWidth: 1,
+    borderRightWidth: PDF_BORDER_INNER,
     borderRightColor: BORDER,
   },
   kvValue: {
@@ -173,7 +175,7 @@ const styles = StyleSheet.create({
     fontSize: 8.5,
   },
   amountTable: {
-    borderWidth: 1,
+    borderWidth: PDF_BORDER_OUTER,
     borderColor: BORDER,
   },
   amountHead: {
@@ -181,7 +183,7 @@ const styles = StyleSheet.create({
     backgroundColor: HEADER_BG,
     paddingVertical: 9,
     paddingHorizontal: 10,
-    borderBottomWidth: 1,
+    borderBottomWidth: PDF_BORDER_INNER,
     borderBottomColor: BORDER,
   },
   amountHeadText: {
@@ -191,8 +193,8 @@ const styles = StyleSheet.create({
   },
   amountRow: {
     flexDirection: "row",
-    borderBottomWidth: 1,
-    borderBottomColor: BORDER,
+    borderBottomWidth: PDF_BORDER_INNER,
+    borderBottomColor: BORDER_ROW,
     paddingVertical: 9,
     paddingHorizontal: 10,
   },
@@ -216,7 +218,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    borderTopWidth: 1,
+    borderTopWidth: PDF_BORDER_INNER,
     borderTopColor: BORDER,
     paddingTop: 12,
     minHeight: 56,
