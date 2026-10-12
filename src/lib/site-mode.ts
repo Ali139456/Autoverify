@@ -68,6 +68,7 @@ export function isPublicWhileComingSoon(pathname: string): boolean {
 
   if (
     pathname.startsWith("/api/webhooks/") ||
+    pathname.startsWith("/api/health/") ||
     pathname === "/api/checkout"
   ) {
     return true;
