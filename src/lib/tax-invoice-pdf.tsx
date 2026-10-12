@@ -26,7 +26,10 @@ const BLUE = "#0073E3";
 const NAVY = "#0f172a";
 const GREY = "#64748b";
 const BORDER = "#e2e8f0";
+const BORDER_ROW = "#f1f5f9";
 const HEADER_BG = "#f1f5f9";
+const TABLE_PAD_V = 7;
+const TABLE_PAD_H = 12;
 const LOGO = publicPdfImage(REPORT_LOGO_PNG_PATH);
 
 export type TaxInvoicePdfProps = {
@@ -151,13 +154,13 @@ const styles = StyleSheet.create({
   kvRow: {
     flexDirection: "row",
     borderBottomWidth: 1,
-    borderBottomColor: BORDER,
+    borderBottomColor: BORDER_ROW,
   },
   kvLabel: {
     width: "32%",
     backgroundColor: HEADER_BG,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
+    paddingVertical: TABLE_PAD_V,
+    paddingHorizontal: TABLE_PAD_H,
     fontFamily: "Helvetica-Bold",
     fontSize: 8.5,
     borderRightWidth: 1,
@@ -165,8 +168,8 @@ const styles = StyleSheet.create({
   },
   kvValue: {
     flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
+    paddingVertical: TABLE_PAD_V,
+    paddingHorizontal: TABLE_PAD_H,
     fontSize: 8.5,
   },
   amountTable: {

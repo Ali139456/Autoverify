@@ -98,6 +98,13 @@ const GREY = "#64748b";
 const LIGHT = "#f8fafc";
 const SPEC_LABEL_BG = "#f1f5f9";
 const TABLE_ROW_SHADE = "#eff6ff";
+/** Match Tailwind slate borders on the web report. */
+const BORDER_SLATE_200 = "#e2e8f0";
+const BORDER_SLATE_100 = "#f1f5f9";
+const PDF_TABLE_FONT_BODY = 8;
+const PDF_TABLE_FONT_HEAD = 7.5;
+const PDF_TABLE_PAD_V = 7;
+const PDF_TABLE_PAD_H = 12;
 const RIDE_SHARE_ORANGE = "#E87722";
 const LOGO_BLUE = publicPdfImage(REPORT_LOGO_PNG_PATH);
 
@@ -346,7 +353,7 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontFamily: "Helvetica-Bold",
     color: BLUE,
-    borderBottomWidth: 1.5,
+    borderBottomWidth: 2,
     borderBottomColor: BLUE,
     paddingBottom: 3,
     marginBottom: 8,
@@ -355,33 +362,82 @@ const styles = StyleSheet.create({
   specSheetTableWrap: {
     marginTop: 6,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderColor: BORDER_SLATE_200,
     borderRadius: 6,
     overflow: "hidden",
   },
   specSheetRow: {
     flexDirection: "row",
     borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
+    borderBottomColor: BORDER_SLATE_200,
   },
   specSheetLabelCell: {
     width: "42%",
     backgroundColor: SPEC_LABEL_BG,
     borderRightWidth: 1,
-    borderRightColor: "#e2e8f0",
-    paddingVertical: 4,
-    paddingHorizontal: 6,
+    borderRightColor: BORDER_SLATE_200,
+    paddingVertical: PDF_TABLE_PAD_V,
+    paddingHorizontal: PDF_TABLE_PAD_H,
   },
-  specSheetLabel: { fontSize: 7.5, color: GREY },
+  specSheetLabel: { fontSize: PDF_TABLE_FONT_BODY, color: GREY },
   specSheetValueCell: {
     width: "58%",
-    paddingVertical: 4,
-    paddingHorizontal: 6,
+    paddingVertical: PDF_TABLE_PAD_V,
+    paddingHorizontal: PDF_TABLE_PAD_H,
   },
   specSheetValue: {
-    fontSize: 7.5,
+    fontSize: PDF_TABLE_FONT_BODY,
     fontFamily: "Helvetica",
     color: "#0f172a",
+  },
+  pdfTableWrap: {
+    marginTop: 4,
+    borderWidth: 1,
+    borderColor: BORDER_SLATE_200,
+    borderRadius: 6,
+    overflow: "hidden",
+  },
+  pdfTableHeadRow: {
+    flexDirection: "row",
+    backgroundColor: LIGHT,
+    borderBottomWidth: 1,
+    borderBottomColor: BORDER_SLATE_200,
+    paddingVertical: PDF_TABLE_PAD_V,
+    paddingHorizontal: PDF_TABLE_PAD_H,
+  },
+  pdfTableHeadCell: {
+    fontSize: PDF_TABLE_FONT_HEAD,
+    fontFamily: "Helvetica-Bold",
+    color: GREY,
+  },
+  pdfTableBodyRow: {
+    flexDirection: "row",
+    borderTopWidth: 1,
+    borderTopColor: BORDER_SLATE_100,
+    alignItems: "flex-start",
+  },
+  pdfTableBodyRowFirst: {
+    borderTopWidth: 0,
+  },
+  pdfTableCell: {
+    fontSize: PDF_TABLE_FONT_BODY,
+    paddingVertical: PDF_TABLE_PAD_V,
+    paddingHorizontal: PDF_TABLE_PAD_H,
+    color: "#334155",
+  },
+  pdfTableCellBold: {
+    fontSize: PDF_TABLE_FONT_BODY,
+    paddingVertical: PDF_TABLE_PAD_V,
+    paddingHorizontal: PDF_TABLE_PAD_H,
+    fontFamily: "Helvetica-Bold",
+    color: "#0f172a",
+  },
+  pdfTableLabelCell: {
+    backgroundColor: SPEC_LABEL_BG,
+    borderRightWidth: 1,
+    borderRightColor: BORDER_SLATE_200,
+    paddingVertical: PDF_TABLE_PAD_V,
+    paddingHorizontal: PDF_TABLE_PAD_H,
   },
   featureItem: { fontSize: 7.5, color: "#334155", marginBottom: 3 },
   plusHeading: {
@@ -952,28 +1008,12 @@ function PdfValuationSupplements({ report }: { report: VehicleReport }) {
   return (
     <View style={{ marginTop: 8 }} wrap={false}>
       <Text style={[styles.sectionTitle, { fontSize: 8 }]}>P plate status</Text>
-      <View
-        style={{
-          marginTop: 4,
-          borderWidth: 1,
-          borderColor: "#e2e8f0",
-          borderRadius: 6,
-          overflow: "hidden",
-        }}
-      >
+      <View style={styles.pdfTableWrap}>
         <View style={{ flexDirection: "row" }}>
-          <View
-            style={{
-              width: "36%",
-              backgroundColor: SPEC_LABEL_BG,
-              padding: 5,
-              borderRightWidth: 1,
-              borderRightColor: "#e2e8f0",
-            }}
-          >
+          <View style={[styles.pdfTableLabelCell, { width: "36%" }]}>
             <Text style={styles.specSheetLabel}>P plate eligibility</Text>
           </View>
-          <View style={{ flex: 1, padding: 5 }}>
+          <View style={{ flex: 1, paddingVertical: PDF_TABLE_PAD_V, paddingHorizontal: PDF_TABLE_PAD_H }}>
             <Text
               style={[
                 styles.specSheetValue,
@@ -991,53 +1031,26 @@ function PdfValuationSupplements({ report }: { report: VehicleReport }) {
       <Text style={[styles.sectionTitle, { marginTop: 8, fontSize: 8 }]}>
         P-plate vehicle/legal reference
       </Text>
-      <View
-        style={{
-          marginTop: 3,
-          borderWidth: 1,
-          borderColor: "#e2e8f0",
-          borderRadius: 6,
-        }}
-      >
-        <View
-          style={{
-            flexDirection: "row",
-            backgroundColor: LIGHT,
-            borderBottomWidth: 1,
-            borderBottomColor: "#e2e8f0",
-            padding: 4,
-          }}
-        >
-          <Text style={{ width: "22%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
-            State
-          </Text>
-          <Text style={{ flex: 1, fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
+      <View style={[styles.pdfTableWrap, { marginTop: 3 }]}>
+        <View style={styles.pdfTableHeadRow}>
+          <Text style={[styles.pdfTableHeadCell, { width: "32%" }]}>State</Text>
+          <Text style={[styles.pdfTableHeadCell, { flex: 1 }]}>
             State link references
           </Text>
         </View>
         {P_PLATE_REFERENCE_ROWS.map((row, index) => (
           <View
             key={row.state}
-            style={{
-              flexDirection: "row",
-              borderTopWidth: index === 0 ? 0 : 1,
-              borderTopColor: "#e2e8f0",
-              alignItems: "flex-start",
-            }}
+            style={[
+              styles.pdfTableBodyRow,
+              index === 0 ? styles.pdfTableBodyRowFirst : {},
+            ]}
           >
-            <View
-              style={{
-                width: "22%",
-                backgroundColor: SPEC_LABEL_BG,
-                padding: 4,
-                borderRightWidth: 1,
-                borderRightColor: "#e2e8f0",
-              }}
-            >
+            <View style={[styles.pdfTableLabelCell, { width: "32%" }]}>
               <Text style={styles.specSheetLabel}>{row.state}</Text>
             </View>
-            <View style={{ flex: 1, padding: 4 }}>
-              <Link src={row.href} style={{ fontSize: 6.5, color: BLUE }}>
+            <View style={{ flex: 1, paddingVertical: PDF_TABLE_PAD_V, paddingHorizontal: PDF_TABLE_PAD_H }}>
+              <Link src={row.href} style={{ fontSize: PDF_TABLE_FONT_BODY, color: BLUE }}>
                 {row.label}
               </Link>
             </View>
@@ -1048,60 +1061,27 @@ function PdfValuationSupplements({ report }: { report: VehicleReport }) {
       <Text style={[styles.sectionTitle, { marginTop: 8, fontSize: 8 }]}>
         {RIDE_SHARE_TABLE_HEADING}
       </Text>
-      <View
-        style={{
-          marginTop: 4,
-          borderWidth: 1,
-          borderColor: "#e2e8f0",
-          borderRadius: 6,
-        }}
-      >
-        <View
-          style={{
-            flexDirection: "row",
-            backgroundColor: LIGHT,
-            borderBottomWidth: 1,
-            borderBottomColor: "#e2e8f0",
-            padding: 4,
-          }}
-        >
-          <Text style={{ width: "28%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
+      <View style={styles.pdfTableWrap}>
+        <View style={styles.pdfTableHeadRow}>
+          <Text style={[styles.pdfTableHeadCell, { width: "38%" }]}>
             Requirement
           </Text>
-          <Text style={{ width: "36%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
-            UberX
-          </Text>
-          <Text style={{ width: "36%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
-            DiDi
-          </Text>
+          <Text style={[styles.pdfTableHeadCell, { width: "31%" }]}>UberX</Text>
+          <Text style={[styles.pdfTableHeadCell, { width: "31%" }]}>DiDi</Text>
         </View>
         {RIDE_SHARE_ELIGIBILITY_ROWS.map((row, index) => (
           <View
             key={row.requirement}
-            style={{
-              flexDirection: "row",
-              borderTopWidth: index === 0 ? 0 : 1,
-              borderTopColor: "#e2e8f0",
-              alignItems: "flex-start",
-            }}
+            style={[
+              styles.pdfTableBodyRow,
+              index === 0 ? styles.pdfTableBodyRowFirst : {},
+            ]}
           >
-            <View
-              style={{
-                width: "28%",
-                backgroundColor: SPEC_LABEL_BG,
-                padding: 4,
-                borderRightWidth: 1,
-                borderRightColor: "#e2e8f0",
-              }}
-            >
+            <View style={[styles.pdfTableLabelCell, { width: "38%" }]}>
               <Text style={styles.specSheetLabel}>{row.requirement}</Text>
             </View>
-            <Text style={{ width: "36%", fontSize: 6.5, padding: 4, color: "#334155" }}>
-              {row.uberX}
-            </Text>
-            <Text style={{ width: "36%", fontSize: 6.5, padding: 4, color: "#334155" }}>
-              {row.didi}
-            </Text>
+            <Text style={[styles.pdfTableCell, { width: "31%" }]}>{row.uberX}</Text>
+            <Text style={[styles.pdfTableCell, { width: "31%" }]}>{row.didi}</Text>
           </View>
         ))}
       </View>
@@ -1282,66 +1262,35 @@ function PdfOdometerHistoryTable({ report }: { report: VehicleReport }) {
           {odometerHistoryCountLabel(history.length)}
         </Text>
       </View>
-      <View
-        style={{
-          marginTop: 4,
-          borderWidth: 1,
-          borderColor: "#e2e8f0",
-          borderRadius: 6,
-        }}
-      >
-        <View
-          style={{
-            flexDirection: "row",
-            backgroundColor: LIGHT,
-            borderBottomWidth: 1,
-            borderBottomColor: "#e2e8f0",
-            padding: 4,
-          }}
-        >
-          <Text style={{ width: "28%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
-            Date
-          </Text>
-          <Text style={{ width: "32%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
-            Odometer
-          </Text>
-          <Text style={{ width: "40%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
-            Source
-          </Text>
+      <View style={styles.pdfTableWrap}>
+        <View style={styles.pdfTableHeadRow}>
+          <Text style={[styles.pdfTableHeadCell, { width: "28%" }]}>Date</Text>
+          <Text style={[styles.pdfTableHeadCell, { width: "32%" }]}>Odometer</Text>
+          <Text style={[styles.pdfTableHeadCell, { width: "40%" }]}>Source</Text>
         </View>
         {history.map((entry, index) => (
           <View
             key={`${entry.date}-${entry.odometer}-${index}`}
-            style={{
-              flexDirection: "row",
-              borderTopWidth: index === 0 ? 0 : 1,
-              borderTopColor: "#e2e8f0",
-              backgroundColor: index % 2 === 1 ? TABLE_ROW_SHADE : "#ffffff",
-            }}
+            style={[
+              styles.pdfTableBodyRow,
+              index === 0 ? styles.pdfTableBodyRowFirst : {},
+              {
+                backgroundColor: index % 2 === 1 ? TABLE_ROW_SHADE : "#ffffff",
+              },
+            ]}
           >
-            <Text
-              style={{
-                width: "28%",
-                fontSize: 6.5,
-                padding: 4,
-                fontFamily: "Helvetica-Bold",
-                color: "#0f172a",
-              }}
-            >
+            <Text style={[styles.pdfTableCellBold, { width: "28%" }]}>
               {formatExpiryDate(entry.date)}
             </Text>
             <Text
-              style={{
-                width: "32%",
-                fontSize: 6.5,
-                padding: 4,
-                fontFamily: "Helvetica-Bold",
-                color: BLUE,
-              }}
+              style={[
+                styles.pdfTableCellBold,
+                { width: "32%", color: BLUE },
+              ]}
             >
               {entry.odometer.toLocaleString()} km
             </Text>
-            <Text style={{ width: "40%", fontSize: 6.5, padding: 4, color: "#334155" }}>
+            <Text style={[styles.pdfTableCell, { width: "40%" }]}>
               {entry.source?.trim() || "—"}
             </Text>
           </View>
@@ -1374,82 +1323,41 @@ function PdfComparableVehiclesTable({ report }: { report: VehicleReport }) {
       <Text style={[styles.sectionTitle, { fontSize: 8 }]}>
         Comparable vehicles for sale
       </Text>
-      <View
-        style={{
-          marginTop: 4,
-          borderWidth: 1,
-          borderColor: "#e2e8f0",
-          borderRadius: 6,
-        }}
-      >
-        <View
-          style={{
-            flexDirection: "row",
-            backgroundColor: LIGHT,
-            borderBottomWidth: 1,
-            borderBottomColor: "#e2e8f0",
-            padding: 4,
-          }}
-        >
-          <Text style={{ width: colVehicle, fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
-            Vehicle
-          </Text>
-          <Text style={{ width: colPrice, fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
-            Price
-          </Text>
-          <Text style={{ width: colOdometer, fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
-            Odometer
-          </Text>
-          <Text style={{ width: colLocation, fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
-            Location
-          </Text>
+      <View style={styles.pdfTableWrap}>
+        <View style={styles.pdfTableHeadRow}>
+          <Text style={[styles.pdfTableHeadCell, { width: colVehicle }]}>Vehicle</Text>
+          <Text style={[styles.pdfTableHeadCell, { width: colPrice }]}>Price</Text>
+          <Text style={[styles.pdfTableHeadCell, { width: colOdometer }]}>Odometer</Text>
+          <Text style={[styles.pdfTableHeadCell, { width: colLocation }]}>Location</Text>
           {showDaysListed ? (
-            <Text style={{ width: "10%", fontSize: 6.5, fontFamily: "Helvetica-Bold" }}>
-              Listed
-            </Text>
+            <Text style={[styles.pdfTableHeadCell, { width: "10%" }]}>Listed</Text>
           ) : null}
         </View>
         {listings.map((listing, index) => (
           <View
             key={`${listing.title}-${index}`}
-            style={{
-              flexDirection: "row",
-              borderTopWidth: index === 0 ? 0 : 1,
-              borderTopColor: "#e2e8f0",
-              backgroundColor: index % 2 === 1 ? TABLE_ROW_SHADE : "#ffffff",
-              alignItems: "flex-start",
-            }}
+            style={[
+              styles.pdfTableBodyRow,
+              index === 0 ? styles.pdfTableBodyRowFirst : {},
+              {
+                backgroundColor: index % 2 === 1 ? TABLE_ROW_SHADE : "#ffffff",
+              },
+            ]}
           >
-            <Text
-              style={{
-                width: colVehicle,
-                fontSize: 6.5,
-                padding: 4,
-                fontFamily: "Helvetica-Bold",
-                color: "#0f172a",
-              }}
-            >
+            <Text style={[styles.pdfTableCellBold, { width: colVehicle }]}>
               {listing.title}
             </Text>
-            <Text
-              style={{
-                width: colPrice,
-                fontSize: 6.5,
-                padding: 4,
-                fontFamily: "Helvetica-Bold",
-                color: BLUE,
-              }}
-            >
+            <Text style={[styles.pdfTableCellBold, { width: colPrice, color: BLUE }]}>
               {money(listing.price)}
             </Text>
-            <Text style={{ width: colOdometer, fontSize: 6.5, padding: 4, color: "#334155" }}>
+            <Text style={[styles.pdfTableCell, { width: colOdometer }]}>
               {listing.odometer.toLocaleString()} km
             </Text>
-            <Text style={{ width: colLocation, fontSize: 6.5, padding: 4, color: "#334155" }}>
+            <Text style={[styles.pdfTableCell, { width: colLocation }]}>
               {listing.location}
             </Text>
             {showDaysListed ? (
-              <Text style={{ width: "10%", fontSize: 6.5, padding: 4, color: "#334155" }}>
+              <Text style={[styles.pdfTableCell, { width: "10%" }]}>
                 {listing.daysListed}d
               </Text>
             ) : null}
