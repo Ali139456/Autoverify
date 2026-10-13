@@ -54,7 +54,7 @@ function PhotoTile({
         <InspectionPhotoEvidenceCaption photo={photo} />
         {recordOnly ? (
           <p className="mt-1 text-[10px] leading-snug text-slate-500">
-            *{INSPECTION_RECORD_ONLY_FOOTNOTE}
+            {INSPECTION_RECORD_ONLY_FOOTNOTE}
           </p>
         ) : null}
         {caption ? (

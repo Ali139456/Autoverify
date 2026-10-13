@@ -1007,9 +1007,10 @@ function PdfManufacturersWarrantyNotice({
         <Text
           style={{
             marginTop: 4,
-            fontSize: 7.5,
-            color: "#64748b",
-            lineHeight: 1.4,
+            fontSize: 8,
+            fontFamily: "Helvetica",
+            color: RIDE_SHARE_ORANGE,
+            lineHeight: 1.45,
           }}
         >
           {SERVICE_HISTORY_DETAIL}
@@ -1773,7 +1774,7 @@ function PdfPhotoGroup({
                   ))}
                   {recordOnly ? (
                     <Text style={styles.photoEvidenceCaption}>
-                      *{INSPECTION_RECORD_ONLY_FOOTNOTE}
+                      {INSPECTION_RECORD_ONLY_FOOTNOTE}
                     </Text>
                   ) : null}
                   <View style={{ height: 3 }} />

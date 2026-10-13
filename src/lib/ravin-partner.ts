@@ -1,4 +1,4 @@
-const RAVIN_API_KEY = process.env.RAVIN_API_KEY;
+const RAVIN_API_KEY = process.env.RAVIN_API_KEY?.trim();
 const RAVIN_BASE_URL = (
   process.env.RAVIN_BASE_URL ?? "https://inspect.mtaus.ravin-ai.com"
 ).replace(/\/$/, "");

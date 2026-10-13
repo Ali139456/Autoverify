@@ -107,4 +107,4 @@ export function isRecordOnlyInspectionPhoto(angle: string): boolean {
 }
 
 export const INSPECTION_RECORD_ONLY_FOOTNOTE =
-  "No AI assessment on these images. These images are for a matter of record only.";
+  "No AI scan on this image. This image is for a matter of record only.";

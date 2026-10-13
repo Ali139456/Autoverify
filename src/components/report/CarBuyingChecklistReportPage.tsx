@@ -28,7 +28,7 @@ export function CarBuyingChecklistReportPage({
     >
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-[#0073E3] sm:text-3xl">
+          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
             {CAR_BUYING_CHECKLIST_TITLE}
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-slate-600">

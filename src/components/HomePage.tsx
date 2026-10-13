@@ -28,8 +28,8 @@ const INSIGHT_PILLARS = [
       },
       {
         icon: FileText,
-        title: "Recall & registration data",
-        text: "Safety recall signals and registration status from official register sources.",
+        title: "Registration data, Odometer and Vehicle spec",
+        text: "Registration status from official sources, Odometer information review, and vehicle spec, factory fitted and optional feature validation where data is available.",
       },
     ],
   },

@@ -48,11 +48,13 @@ export const REPORT_TIERS: Record<ReportTier, ReportTierConfig> = {
     tagline: "Key Vehicle History Checks and Current Valuation Insights",
     highlights: [
       "PPSR, finance, write-off and stolen vehicle check",
+      "Full vehicle specs validating factory fitted and optional features",
       "Live market insights and Retail vs Trade in Valuation",
-      "Safety Recall Data",
-      "ANCAP Safety rating",
-      "Odometer check",
-      "Model, variant, series and full vehicle specs",
+      "Odometer review",
+      "Safety recall data",
+      "ANCAP ratings",
+      "P plate legal status",
+      "Ride share eligibility",
     ],
   },
   insights_plus: {

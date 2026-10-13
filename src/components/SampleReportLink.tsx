@@ -9,6 +9,8 @@ type SampleReportLinkProps = {
   className?: string;
   /** Override default "Sample Report" label (hero row uses tier-specific text). */
   label?: string;
+  /** e.g. close buy-report modal before client navigation */
+  onNavigate?: () => void;
 };
 
 const baseText =
@@ -19,10 +21,15 @@ export function SampleReportLink({
   variant = "text",
   className = "",
   label: labelProp,
+  onNavigate,
 }: SampleReportLinkProps) {
   const href = getSampleReportHref(tier);
   const external = isExternalHref(href);
   const label = labelProp?.trim() || "Sample Report";
+
+  const navigateProps = onNavigate
+    ? { onClick: () => onNavigate() }
+    : undefined;
 
   if (variant === "hero") {
     return (
@@ -30,7 +37,8 @@ export function SampleReportLink({
         href={href}
         target={external ? "_blank" : undefined}
         rel={external ? "noopener noreferrer" : undefined}
-        className={`group flex h-10 min-w-0 items-center justify-center gap-0.5 rounded-lg border-2 border-[#0073E3] bg-transparent px-2.5 text-center text-xs font-bold leading-tight text-[#0073E3] transition hover:bg-[#0073E3]/10 sm:gap-1.5 sm:px-4 sm:text-sm ${className}`}
+        {...navigateProps}
+        className={`group relative z-10 flex h-10 min-w-0 items-center justify-center gap-0.5 rounded-lg border-2 border-[#0073E3] bg-transparent px-2.5 text-center text-xs font-bold leading-tight text-[#0073E3] transition hover:bg-[#0073E3]/10 sm:gap-1.5 sm:px-4 sm:text-sm ${className}`}
       >
         <span className="min-w-0">{label}</span>
         <ArrowRight

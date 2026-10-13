@@ -24,10 +24,7 @@ import { ReportOdometerHistoryTable } from "./ReportOdometerHistoryTable";
 
 import { ReportShell } from "./ReportShell";
 
-import {
-  ReportPPlateSupplement,
-  ReportRideShareSupplement,
-} from "./ReportValuationSupplements";
+import { ReportValuationSupplements } from "./ReportValuationSupplements";
 
 
 
@@ -37,9 +34,7 @@ export function PresentAndFutureValueReportPage({
 
   pageLabel,
 
-  pPlatePageLabel,
-
-  rideSharePageLabel,
+  supplementsPageLabel,
 
   trailingContent,
 
@@ -49,15 +44,11 @@ export function PresentAndFutureValueReportPage({
 
   pageLabel: string;
 
-  /** Footer label for P-plate page (one A4 shell so print footer pins to sheet bottom). */
+  /** Footer label for P-plate + ride-share (one sheet in print). */
 
-  pPlatePageLabel: string;
+  supplementsPageLabel: string;
 
-  /** Footer label for ride-share page. */
-
-  rideSharePageLabel: string;
-
-  /** Rendered at the end of the ride-share page body (e.g. the general disclaimer). */
+  /** Rendered at the end of the supplements page body (e.g. the general disclaimer). */
 
   trailingContent?: ReactNode;
 
@@ -267,39 +258,15 @@ export function PresentAndFutureValueReportPage({
 
           {...shellProps}
 
-          pageLabel={pPlatePageLabel}
+          pageLabel={supplementsPageLabel}
 
-          className="report-shell-valuations report-shell-valuations-supplements !overflow-x-visible"
-
-        >
-
-          <div className="report-body min-w-0 space-y-6">
-
-            <ReportPPlateSupplement report={report} />
-
-          </div>
-
-        </ReportShell>
-
-      </div>
-
-
-
-      <div className="report-page-break">
-
-        <ReportShell
-
-          {...shellProps}
-
-          pageLabel={rideSharePageLabel}
-
-          className="report-shell-valuations report-shell-valuations-supplements !overflow-x-visible"
+          className="report-shell-valuations report-shell-valuations-supplements report-shell-flow !overflow-x-visible"
 
         >
 
           <div className="report-body min-w-0 space-y-6">
 
-            <ReportRideShareSupplement />
+            <ReportValuationSupplements report={report} />
 
             {trailingContent}
 

@@ -22,6 +22,7 @@ export function RegoSearchForm({
   onDark = false,
   inputId = VEHICLE_SEARCH_INPUT_ID,
   onLoadingChange,
+  onSampleNavigate,
   sampleLinks = "single",
 }: {
   defaultRego?: string;
@@ -34,6 +35,8 @@ export function RegoSearchForm({
   inputId?: string;
   /** Parent renders a full-panel overlay (e.g. buy modal). */
   onLoadingChange?: (loading: boolean) => void;
+  /** Called when user opens a sample report link (e.g. close buy modal). */
+  onSampleNavigate?: () => void;
   /** Homepage: separate Insights and Insights+ sample buttons. */
   sampleLinks?: "single" | "both";
 }) {
@@ -175,17 +178,23 @@ export function RegoSearchForm({
                   tier="insights"
                   variant="hero"
                   label="Sample Insights"
+                  onNavigate={onSampleNavigate}
                   className="!px-1 !text-[10px] sm:!px-2 sm:!text-xs md:!text-sm"
                 />
                 <SampleReportLink
                   tier="insights_plus"
                   variant="hero"
                   label="Sample Insights+"
+                  onNavigate={onSampleNavigate}
                   className="!px-1 !text-[10px] sm:!px-2 sm:!text-xs md:!text-sm"
                 />
               </>
             ) : (
-              <SampleReportLink tier="insights" variant="hero" />
+              <SampleReportLink
+                tier="insights"
+                variant="hero"
+                onNavigate={onSampleNavigate}
+              />
             )
           ) : sampleLinks === "both" ? (
             <>

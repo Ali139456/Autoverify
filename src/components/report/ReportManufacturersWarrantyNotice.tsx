@@ -37,7 +37,7 @@ export function ReportManufacturersWarrantyNotice({
         <h3 className="text-xs font-bold uppercase tracking-wide text-slate-900">
           Service History
         </h3>
-        <p className="mt-2 text-sm leading-relaxed text-slate-500">
+        <p className="mt-2 text-sm font-medium leading-relaxed text-[#E87722]">
           {SERVICE_HISTORY_DETAIL}
         </p>
       </div>

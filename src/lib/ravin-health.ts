@@ -60,10 +60,16 @@ export function getRavinIntegrationStatus(baseUrl: string): RavinIntegrationStat
 
 export async function getRavinHealthPayload(baseUrl: string, probePartner: boolean) {
   const status = getRavinIntegrationStatus(baseUrl);
-  let partnerSignIn: { ok: boolean; error?: string } | undefined;
+  let partnerSignIn:
+    | { ok: boolean; error?: string; keyLength?: number }
+    | undefined;
 
   if (probePartner && status.partnerApiConfigured) {
-    partnerSignIn = await probeRavinPartnerConnection();
+    const result = await probeRavinPartnerConnection();
+    partnerSignIn = {
+      ...result,
+      keyLength: process.env.RAVIN_API_KEY?.trim().length,
+    };
   }
 
   return { ...status, partnerSignIn };

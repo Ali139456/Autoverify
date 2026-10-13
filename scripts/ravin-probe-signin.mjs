@@ -32,20 +32,35 @@ if (!key) {
 
 console.log("Key length:", key.length, "prefix:", key.slice(0, 8) + "…");
 
+const bases = [
+  url,
+  "https://beta.mtaus.ravin-ai.com",
+];
+
 const bodies = [
   { clientKey: key },
   { clientKey: key, siteId: 49 },
   { clientKey: key, clientId: "autoverifi", siteId: 49 },
+  { ClientKey: key },
+  { client_key: key },
 ];
 
-for (const body of bodies) {
-  const res = await fetch(`${url}/getSignInToken`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  const j = await res.json().catch(() => ({}));
-  const summary =
-    j.token ? "token ok" : j.message ?? j.error ?? JSON.stringify(j).slice(0, 120);
-  console.log(res.status, Object.keys(body).join("+"), "→", summary);
+for (const base of bases) {
+  console.log("\n===", base, "===");
+  for (const body of bodies) {
+    const res = await fetch(`${base.replace(/\/$/, "")}/getSignInToken`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const text = await res.text();
+    let summary = text.slice(0, 160);
+    try {
+      const j = JSON.parse(text);
+      summary = j.token ? "token ok" : j.message ?? j.error ?? summary;
+    } catch {
+      /* keep text */
+    }
+    console.log(res.status, Object.keys(body).join("+"), "→", summary);
+  }
 }

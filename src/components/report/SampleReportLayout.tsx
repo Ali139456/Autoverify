@@ -95,8 +95,7 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
         <PresentAndFutureValueReportPage
           report={report}
           pageLabel={`${reportPage++} / ${pageCount}`}
-          pPlatePageLabel={`${reportPage++} / ${pageCount}`}
-          rideSharePageLabel={`${reportPage++} / ${pageCount}`}
+          supplementsPageLabel={`${reportPage++} / ${pageCount}`}
         />
 
         {hasVehicleSpecSheet ? (

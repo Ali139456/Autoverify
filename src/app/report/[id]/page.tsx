@@ -132,8 +132,7 @@ export default async function ReportPage({
         <PresentAndFutureValueReportPage
           report={report}
           pageLabel={`${reportPage++} / ${pageCount}`}
-          pPlatePageLabel={`${reportPage++} / ${pageCount}`}
-          rideSharePageLabel={`${reportPage++} / ${pageCount}`}
+          supplementsPageLabel={`${reportPage++} / ${pageCount}`}
         />
 
         {hasVehicleSpecSheet ? (
