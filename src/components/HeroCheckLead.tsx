@@ -4,7 +4,7 @@ export function HeroCheckLead() {
   return (
     <div className="relative min-w-0 text-center lg:text-left">
       <h1 className="animate-fade-up delay-100 text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
-        Know what
+        Know what car
         <br />
         you&apos;re buying.
       </h1>

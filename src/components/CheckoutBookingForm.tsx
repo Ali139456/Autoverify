@@ -500,11 +500,11 @@ export function CheckoutBookingForm({
 
             <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
 
-              After you pay, we send the owner an SMS with the mobile inspection link
+              After you pay, we SMS the inspection link to the owner and to your
 
-              (Insights+ only). If the text does not arrive, use the QR code on your
+              mobile when the numbers differ (Insights+ only). Use the QR code on your
 
-              report to open or resend the link.
+              report to open or resend the link if needed.
 
             </p>
 
@@ -534,7 +534,7 @@ export function CheckoutBookingForm({
 
           receipt and report link.
           {requiresPhones
-            ? " The owner inspection SMS is sent when that report page loads."
+            ? " Inspection SMS goes to the owner and to you (when numbers differ) when the report page loads."
             : null}
 
         </p>

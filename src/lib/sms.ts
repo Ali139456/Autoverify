@@ -75,6 +75,8 @@ export async function sendInspectionLinkSms(input: {
   to: string;
   inspectUrl: string;
   vehicleLabel?: string;
+  /** Purchaser copy mentions they can open the link or forward to the owner. */
+  recipient?: "owner" | "purchaser";
 }): Promise<{ to: string }> {
   if (!isSmsConfigured()) {
     throw new Error(SMS_NOT_CONFIGURED_MESSAGE);
@@ -89,7 +91,10 @@ export async function sendInspectionLinkSms(input: {
     readTwilioCredentials();
   const vehicle = input.vehicleLabel ? ` for ${input.vehicleLabel}` : "";
 
-  const body = `Auto Verifi: complete the AI condition check${vehicle} on your phone:\n${input.inspectUrl}`;
+  const body =
+    input.recipient === "purchaser"
+      ? `Auto Verifi: your Insights+ inspection link${vehicle}. Open on this phone or forward to the vehicle owner:\n${input.inspectUrl}`
+      : `Auto Verifi: complete the AI condition check${vehicle} on your phone:\n${input.inspectUrl}`;
 
   const params = new URLSearchParams({ To: to, Body: body });
   if (messagingServiceSid) {

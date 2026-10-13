@@ -300,7 +300,6 @@ export function TaxInvoicePdf({
               <Text style={styles.boxHeaderText}>Supplier</Text>
             </View>
             <View style={styles.boxBody}>
-              <Text>Auto Verifi</Text>
               <Text style={styles.boxLineBold}>{company.legalName}</Text>
               <Text>ABN: {formatAbnDisplay(company.abn || "76692062061")}</Text>
               <Text>{company.address}</Text>

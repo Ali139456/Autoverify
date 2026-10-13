@@ -127,23 +127,48 @@ export async function POST(req: NextRequest) {
     });
 
     let smsSent = false;
+    let smsSentToOwner = false;
+    let smsSentToPurchaser = false;
     let smsError: string | null = null;
     let smsNotice: string | null = null;
 
     if (!isSmsConfigured()) {
       smsError = SMS_NOT_CONFIGURED_MESSAGE;
     } else if (createdNewInspection) {
+      const vehicleLabel = `${report.vehicle.year} ${report.vehicle.make} ${report.vehicle.model}`;
+      const sendToPurchaser =
+        customerPhone !== null && customerPhone !== ownerPhone;
+
       try {
-        const vehicleLabel = `${report.vehicle.year} ${report.vehicle.make} ${report.vehicle.model}`;
         await sendInspectionLinkSms({
           to: ownerPhone,
           inspectUrl,
           vehicleLabel,
+          recipient: "owner",
         });
+        smsSentToOwner = true;
         smsSent = true;
       } catch (err) {
         smsError =
           err instanceof Error ? err.message : "Could not send inspection SMS.";
+      }
+
+      if (sendToPurchaser && !smsError) {
+        try {
+          await sendInspectionLinkSms({
+            to: customerPhone,
+            inspectUrl,
+            vehicleLabel,
+            recipient: "purchaser",
+          });
+          smsSentToPurchaser = true;
+        } catch (err) {
+          const purchaserMsg =
+            err instanceof Error ? err.message : "Could not send purchaser SMS.";
+          smsError = smsSentToOwner
+            ? `Owner SMS sent. Purchaser SMS failed: ${purchaserMsg}`
+            : purchaserMsg;
+        }
       }
     } else {
       smsNotice =
@@ -162,6 +187,8 @@ export async function POST(req: NextRequest) {
       ownerPhone,
       customerPhone,
       smsSent,
+      smsSentToOwner,
+      smsSentToPurchaser,
       smsError,
       smsNotice,
     });

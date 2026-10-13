@@ -23,6 +23,7 @@ export function InspectionStarter({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [smsSent, setSmsSent] = useState(false);
+  const [smsSentToPurchaser, setSmsSentToPurchaser] = useState(false);
   const [smsError, setSmsError] = useState<string | null>(null);
   const [smsNotice, setSmsNotice] = useState<string | null>(null);
   const [ravinWarning, setRavinWarning] = useState<string | null>(null);
@@ -36,6 +37,7 @@ export function InspectionStarter({
     setLoading(true);
     setError(null);
     setSmsSent(false);
+    setSmsSentToPurchaser(false);
     setSmsError(null);
     setSmsNotice(null);
     setRavinWarning(null);
@@ -58,6 +60,8 @@ export function InspectionStarter({
         internalInspectUrl?: string;
         provider?: "ravin" | "internal";
         smsSent?: boolean;
+        smsSentToOwner?: boolean;
+        smsSentToPurchaser?: boolean;
         smsError?: string | null;
         smsNotice?: string | null;
         ravinWarning?: string | null;
@@ -87,6 +91,7 @@ export function InspectionStarter({
       setProvider(data.provider ?? null);
       setRavinWarning(data.ravinWarning ?? null);
       setSmsSent(Boolean(data.smsSent));
+      setSmsSentToPurchaser(Boolean(data.smsSentToPurchaser));
       setSmsError(data.smsError ?? null);
       setSmsNotice(data.smsNotice ?? null);
       if (openModal) setModalOpen(true);
@@ -126,13 +131,20 @@ export function InspectionStarter({
           <div>
             <h3 className="font-bold text-white">AI condition check</h3>
             <p className="mt-1 text-sm text-slate-400">
-              After payment, we text the inspection link to the owner&apos;s mobile
-              from checkout. They complete the guided photo walkaround on their
-              phone.
+              After payment, we text the inspection link to the owner&apos;s mobile and
+              to your number from checkout (when different), so you can complete the
+              scan with the car or forward the link to the owner.
             </p>
             {ownerPhone && (
               <p className="mt-2 text-xs text-slate-500">
                 Owner SMS: <span className="font-medium text-slate-300">{ownerPhone}</span>
+                {customerPhone && customerPhone !== ownerPhone ? (
+                  <>
+                    {" "}
+                    · Purchaser SMS:{" "}
+                    <span className="font-medium text-slate-300">{customerPhone}</span>
+                  </>
+                ) : null}
               </p>
             )}
           </div>
@@ -160,7 +172,9 @@ export function InspectionStarter({
 
         {smsSent && (
           <p className="mt-3 text-sm font-medium text-emerald-400">
-            Inspection link sent by SMS to the vehicle owner.
+            {smsSentToPurchaser
+              ? "Inspection link sent by SMS to the owner and to your mobile."
+              : "Inspection link sent by SMS to the vehicle owner."}
           </p>
         )}
         {smsError && (

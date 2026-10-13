@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     marginTop: 3,
     textTransform: "uppercase",
     fontFamily: "Helvetica-Bold",
-    letterSpacing: 0.8,
+    letterSpacing: 0.15,
   },
   headerMeta: {
     textAlign: "right",
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     fontSize: 7,
     color: GREY,
     textTransform: "uppercase",
-    letterSpacing: 0.8,
+    letterSpacing: 0.15,
     fontFamily: "Helvetica-Bold",
   },
   specBar: {
@@ -238,24 +238,28 @@ const styles = StyleSheet.create({
   },
   statusImageWrap: {
     width: "42%",
-    height: STATUS_PANEL_HEIGHT - 2,
-    position: "relative",
+    height: STATUS_PANEL_HEIGHT,
     backgroundColor: "#020617",
+    flexDirection: "column",
     overflow: "hidden",
   },
+  statusImageArea: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    minHeight: 0,
+    paddingHorizontal: 4,
+    paddingTop: 4,
+  },
   statusImage: {
-    width: "100%",
-    height: STATUS_PANEL_HEIGHT - 2,
+    maxWidth: "100%",
+    maxHeight: "100%",
     objectFit: "contain",
     objectPosition: "center",
     backgroundColor: "#020617",
   },
   statusImageCaption: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "rgba(15,23,42,0.72)",
+    backgroundColor: "rgba(15,23,42,0.85)",
     color: "#ffffff",
     fontSize: 6,
     paddingHorizontal: 6,
@@ -268,18 +272,12 @@ const styles = StyleSheet.create({
     minHeight: 128,
     backgroundColor: "#020617",
     borderRadius: 8,
-    borderWidth: PDF_BORDER_OUTER,
-    borderColor: BORDER_SLATE_200,
     overflow: "hidden",
-    position: "relative",
-    display: "flex",
     flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
   },
   specHeroBannerImage: {
     width: "100%",
-    height: 108,
+    height: 100,
     objectFit: "contain",
     objectPosition: "center",
     backgroundColor: "#020617",
@@ -304,7 +302,7 @@ const styles = StyleSheet.create({
     fontSize: 8,
     fontFamily: "Helvetica-Bold",
     textTransform: "uppercase",
-    letterSpacing: 0.8,
+    letterSpacing: 0.15,
     color: "#0f172a",
   },
   sectionLabelAccent: {
@@ -376,7 +374,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 9,
     fontFamily: "Helvetica-Bold",
-    color: BLUE,
+    color: "#0f172a",
     borderBottomWidth: 2,
     borderBottomColor: BLUE,
     paddingBottom: 3,
@@ -839,19 +837,25 @@ function PdfVehicleHero({
   return (
     <View style={wrapStyle}>
       {heroSrc ? (
-        <>
-          <Image
-            src={heroSrc}
-            style={
-              layout === "banner"
-                ? styles.specHeroBannerImage
-                : styles.statusImage
-            }
-          />
-          <Text style={styles.statusImageCaption}>
-            *{vehicle.heroImageDisclaimer ?? VEHICLE_HERO_IMAGE_DISCLAIMER}
-          </Text>
-        </>
+        layout === "banner" ? (
+          <>
+            <View style={styles.statusImageArea}>
+              <Image src={heroSrc} style={styles.specHeroBannerImage} />
+            </View>
+            <Text style={styles.statusImageCaption}>
+              *{vehicle.heroImageDisclaimer ?? VEHICLE_HERO_IMAGE_DISCLAIMER}
+            </Text>
+          </>
+        ) : (
+          <>
+            <View style={styles.statusImageArea}>
+              <Image src={heroSrc} style={styles.statusImage} />
+            </View>
+            <Text style={styles.statusImageCaption}>
+              *{vehicle.heroImageDisclaimer ?? VEHICLE_HERO_IMAGE_DISCLAIMER}
+            </Text>
+          </>
+        )
       ) : (
         <View
           style={{
@@ -1032,7 +1036,7 @@ function pdfRideShareLineColor(variant: string): string {
 function PdfValuationSupplements({ report }: { report: VehicleReport }) {
   const pPlateStatus = formatPPlateStatus(report.vehicle);
   return (
-    <View style={{ marginTop: 8 }} wrap={false}>
+    <View style={{ marginTop: 4 }}>
       <Text style={[styles.sectionTitle, { fontSize: 8 }]}>P plate status</Text>
       <View style={styles.pdfTableWrap}>
         <View style={{ flexDirection: "row" }}>
@@ -1254,8 +1258,23 @@ function PdfPresentAndFutureValuations({
 
       <PdfOdometerHistoryTable report={report} />
       <PdfComparableVehiclesTable report={report} />
-      <PdfValuationSupplements report={report} />
     </>
+  );
+}
+
+function PdfSupplementsPage({
+  report,
+  pageLabel,
+}: {
+  report: VehicleReport;
+  pageLabel: string;
+}) {
+  return (
+    <PdfPageShell report={report} pageLabel={pageLabel}>
+      <View style={styles.body}>
+        <PdfValuationSupplements report={report} />
+      </View>
+    </PdfPageShell>
   );
 }
 
@@ -1265,7 +1284,7 @@ function PdfOdometerHistoryTable({ report }: { report: VehicleReport }) {
   const purchaseLine = readingAtPurchaseOfReportDetail(report.vehicle);
 
   return (
-    <View style={{ marginTop: 8 }} wrap={false}>
+    <View style={{ marginTop: 8 }}>
       <View
         style={{
           flexDirection: "row",
@@ -1345,7 +1364,7 @@ function PdfComparableVehiclesTable({ report }: { report: VehicleReport }) {
   const colOdometer = showDaysListed ? "16%" : "18%";
   const colLocation = showDaysListed ? "22%" : "24%";
   return (
-    <View style={{ marginTop: 8 }} wrap={false}>
+    <View style={{ marginTop: 8 }}>
       <Text style={[styles.sectionTitle, { fontSize: 8 }]}>
         Comparable vehicles for sale
       </Text>
@@ -1582,7 +1601,7 @@ function CarBuyingChecklistPage({
   return (
     <PdfPageShell report={report} pageLabel={pageLabel}>
       <View style={styles.body}>
-        <Text style={[styles.title, { color: BLUE }]}>{CAR_BUYING_CHECKLIST_TITLE}</Text>
+        <Text style={styles.title}>{CAR_BUYING_CHECKLIST_TITLE}</Text>
         <Text style={[styles.para, { marginTop: 8 }]}>{CAR_BUYING_CHECKLIST_INTRO}</Text>
 
         <View style={{ marginTop: 12 }}>
@@ -1908,7 +1927,7 @@ export function ReportPdf({
       : 0;
   const includePpsrIntro = hasPpsrCertificate(report);
   const totalPages =
-    2 + // Overview + valuations (mirrors web report pages 1–2)
+    3 + // Overview, valuations, P-plate / ride-share supplements
     specPageCount +
     (isPlus ? 1 : 0) + // Insights+ body condition
     1 + // Car buying checklist + general disclaimer
@@ -1917,6 +1936,7 @@ export function ReportPdf({
   const nextPageLabel = () => `${pageNumber++} / ${totalPages}`;
   const overviewLabel = nextPageLabel();
   const valuationsLabel = nextPageLabel();
+  const supplementsLabel = nextPageLabel();
   const specPageLabels = Array.from({ length: specPageCount }, () =>
     nextPageLabel(),
   );
@@ -1925,6 +1945,7 @@ export function ReportPdf({
     <Document title={`Auto Verifi Report ${report.id}`}>
       <CarInsightsOverviewPage report={report} pageLabel={overviewLabel} />
       <PdfValuationsPage report={report} pageLabel={valuationsLabel} />
+      <PdfSupplementsPage report={report} pageLabel={supplementsLabel} />
       {includeSpec && report.vehicleSpec ? (
         <VehicleSpecPages report={report} pageLabels={specPageLabels} />
       ) : null}
