@@ -17,13 +17,16 @@ export function ReportShell({
   children: ReactNode;
 }) {
   const shellClass = className ?? "";
-  const pinFooterToSheetBottom =
+  const pinFooterToSheetBottom = !shellClass.includes("report-shell-ppsr");
+  const pinFooterFixedSheet =
+    pinFooterToSheetBottom &&
     !shellClass.includes("report-shell-spec") &&
-    !shellClass.includes("report-shell-ppsr");
+    !shellClass.includes("report-shell-insights-plus-photos") &&
+    !shellClass.includes("report-shell-insights-plus-additional");
 
   return (
     <article
-      className={`report-shell flex min-w-0 max-w-full flex-col overflow-x-clip overflow-y-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 ${pinFooterToSheetBottom ? "report-shell-pin-footer " : ""}${shellClass}`}
+      className={`report-shell flex min-w-0 max-w-full flex-col overflow-x-clip overflow-y-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 ${pinFooterToSheetBottom ? "report-shell-pin-footer " : ""}${pinFooterFixedSheet ? "report-shell-pin-footer--fixed " : ""}${shellClass}`}
     >
       <header className="report-shell-header border-b-2 border-[#0073E3] bg-white px-6 py-5 sm:px-8">
         <div className="flex items-start justify-between gap-6">
@@ -45,7 +48,7 @@ export function ReportShell({
         {children}
       </div>
 
-      <footer className="report-shell-footer mt-auto flex shrink-0 items-center justify-between gap-4 border-t border-slate-200 px-6 py-4 sm:px-8">
+      <footer className="report-shell-footer mt-auto flex shrink-0 items-end justify-between gap-4 border-t border-slate-200 px-6 py-4 sm:px-8">
         <Logo height={34} linked={false} variant="onLight" />
         <p className="text-right text-xs font-medium uppercase tracking-wide text-slate-400">
           {reportReference ? (

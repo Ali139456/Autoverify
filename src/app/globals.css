@@ -516,8 +516,15 @@ html.dark body {
   }
 
   .report-shell.report-shell-pin-footer {
-    height: 279.5mm !important;
     min-height: 279.5mm !important;
+    height: auto !important;
+    max-height: none !important;
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+
+  .report-shell.report-shell-pin-footer.report-shell-pin-footer--fixed {
+    height: 279.5mm !important;
     max-height: 279.5mm !important;
     break-inside: avoid !important;
     page-break-inside: avoid !important;
@@ -630,9 +637,10 @@ html.dark body {
     position: static !important;
     flex-shrink: 0 !important;
     margin-top: auto !important;
-    padding: 8px 18px !important;
+    padding: 8px 18px 6px !important;
     border-top: 1px solid #e2e8f0 !important;
     background-color: #ffffff !important;
+    align-items: flex-end !important;
   }
 
   .report-shell-footer img {
@@ -640,12 +648,16 @@ html.dark body {
     width: auto !important;
     max-width: 100% !important;
     object-fit: contain !important;
-    object-position: left center !important;
+    object-position: left bottom !important;
     filter: none !important;
+    display: block !important;
   }
 
   .report-shell-footer p {
     font-size: 8px !important;
+    line-height: 1.2 !important;
+    margin: 0 !important;
+    padding-bottom: 1px !important;
   }
 
   .report-page-break {
@@ -717,6 +729,7 @@ html.dark body {
 
   .report-shell-insights-page1 .report-spec-value {
     font-size: 12px !important;
+    font-weight: 500 !important;
   }
 
   .report-shell-insights-page1 .report-status-items span {
@@ -1035,6 +1048,7 @@ html.dark body {
 
   .report-spec-value {
     font-size: 11px !important;
+    font-weight: 500 !important;
     margin-top: 4px !important;
     line-height: 1.25 !important;
   }

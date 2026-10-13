@@ -99,17 +99,15 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
         />
 
         {hasVehicleSpecSheet ? (
-          <div className="report-page-break report-page-flow">
-            <VehicleSpecReportPage
-              report={report}
-              pageLabel={`${reportPage++} / ${pageCount}`}
-              factoryPageLabel={
-                hasFactoryFeatures
-                  ? `${reportPage++} / ${pageCount}`
-                  : undefined
-              }
-            />
-          </div>
+          <VehicleSpecReportPage
+            report={report}
+            pageLabel={`${reportPage++} / ${pageCount}`}
+            factoryPageLabel={
+              hasFactoryFeatures
+                ? `${reportPage++} / ${pageCount}`
+                : undefined
+            }
+          />
         ) : null}
 
 
@@ -120,6 +118,7 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
             photos={buildSampleInspectionPhotos()}
             showActions={false}
             photosPageLabel={`${reportPage++} / ${pageCount}`}
+            additionalPhotosPageLabel={`${reportPage++} / ${pageCount}`}
             damagePageLabel={`${reportPage++} / ${pageCount}`}
           />
         ) : null}

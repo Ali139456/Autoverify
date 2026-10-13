@@ -30,21 +30,25 @@ export function VehicleSpecReportPage({
 
   if (!hasFactory || !factoryPageLabel) {
     return (
-      <ReportShell {...shellProps} pageLabel={pageLabel}>
-        <div className="space-y-6">
-          <VehicleSpecReportSection report={report} part="full" />
-          {trailingContent}
-        </div>
-      </ReportShell>
+      <div className="report-page-break report-page-flow">
+        <ReportShell {...shellProps} pageLabel={pageLabel}>
+          <div className="space-y-6">
+            <VehicleSpecReportSection report={report} part="full" />
+            {trailingContent}
+          </div>
+        </ReportShell>
+      </div>
     );
   }
 
   return (
     <>
-      <ReportShell {...shellProps} pageLabel={pageLabel}>
-        <VehicleSpecReportSection report={report} part="data" />
-      </ReportShell>
-      <div className="report-page-break report-spec-continued">
+      <div className="report-page-break report-page-flow">
+        <ReportShell {...shellProps} pageLabel={pageLabel}>
+          <VehicleSpecReportSection report={report} part="data" />
+        </ReportShell>
+      </div>
+      <div className="report-page-break report-page-flow">
         <ReportShell {...shellProps} pageLabel={factoryPageLabel}>
           <div className="space-y-6">
             <VehicleSpecReportSection report={report} part="factory" />

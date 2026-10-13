@@ -221,7 +221,7 @@ export function CarInsightsReport({
 
               <p
 
-                className={`report-spec-value mt-1.5 text-sm font-bold text-slate-900 ${
+                className={`report-spec-value mt-1.5 text-sm font-medium text-slate-900 ${
 
                   label === "VIN"
 

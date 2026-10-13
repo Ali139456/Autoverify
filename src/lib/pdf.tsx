@@ -25,7 +25,7 @@ import {
   CAR_BUYING_CHECKLIST_TITLE,
 } from "./car-buying-checklist";
 import {
-  INSPECTION_RECORD_ONLY_FOOTNOTE,
+  INSPECTION_RECORD_ONLY_FOOTNOTE_WITH_STAR,
   isExteriorInspectionAngle,
   isRecordOnlyInspectionPhoto,
 } from "./inspection-angles";
@@ -109,7 +109,6 @@ const PDF_TABLE_PAD_V = 7;
 const PDF_TABLE_PAD_H = 12;
 /** Page 1 insight cards — match web `ReportInsightCard` spacing (~p-4, text-xs). */
 const PDF_INSIGHT_PAD = 10;
-const PDF_INSIGHT_MIN_H = 80;
 const PDF_INSIGHT_TITLE = 7.5;
 const PDF_INSIGHT_BODY = 9;
 const PDF_INSIGHT_BODY_SM = 8.25;
@@ -215,7 +214,7 @@ const styles = StyleSheet.create({
   specValue: {
     marginTop: 4,
     fontSize: 10,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Helvetica",
     color: "#0f172a",
     lineHeight: 1.25,
   },
@@ -325,7 +324,6 @@ const styles = StyleSheet.create({
     borderColor: BORDER_SLATE_200,
     borderRadius: 8,
     padding: PDF_INSIGHT_PAD,
-    minHeight: PDF_INSIGHT_MIN_H,
     backgroundColor: "#f1f5f9",
   },
   insightTop: {
@@ -340,7 +338,7 @@ const styles = StyleSheet.create({
     textAlign: "right",
     flex: 1,
     lineHeight: 1.35,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Helvetica",
   },
   insightBottom: {
     marginTop: 8,
@@ -433,12 +431,12 @@ const styles = StyleSheet.create({
   },
   pdfTableBodyRow: {
     flexDirection: "row",
-    borderTopWidth: PDF_BORDER_INNER,
-    borderTopColor: BORDER_SLATE_100,
-    alignItems: "flex-start",
+    alignItems: "stretch",
+    borderBottomWidth: PDF_BORDER_INNER,
+    borderBottomColor: BORDER_SLATE_200,
   },
-  pdfTableBodyRowFirst: {
-    borderTopWidth: 0,
+  pdfTableBodyRowLast: {
+    borderBottomWidth: 0,
   },
   pdfTableCell: {
     fontSize: PDF_TABLE_FONT_BODY,
@@ -459,6 +457,7 @@ const styles = StyleSheet.create({
     borderRightColor: BORDER_SLATE_200,
     paddingVertical: PDF_TABLE_PAD_V,
     paddingHorizontal: PDF_TABLE_PAD_H,
+    justifyContent: "center",
   },
   featureItem: { fontSize: 7.5, color: "#334155", marginBottom: 3 },
   plusHeading: {
@@ -682,10 +681,16 @@ function PdfInsightCard({
                     <Text
                       key={line.text}
                       style={{
-                        fontSize: PDF_INSIGHT_BODY,
-                        fontFamily: "Helvetica-Bold",
+                        fontSize:
+                          insight.id === "rideshare"
+                            ? PDF_INSIGHT_BODY_SM
+                            : PDF_INSIGHT_BODY,
+                        fontFamily:
+                          line.variant === "muted"
+                            ? "Helvetica"
+                            : "Helvetica-Bold",
                         color: pdfRideShareLineColor(line.variant),
-                        marginTop: lineIndex === 0 ? 0 : 3,
+                        marginTop: lineIndex === 0 ? 0 : 2,
                         lineHeight: PDF_INSIGHT_LINE,
                       }}
                     >
@@ -718,7 +723,8 @@ function PdfInsightCard({
                     <Text
                       style={{
                         fontSize: PDF_INSIGHT_BODY_SM,
-                        color: GREY,
+                        color:
+                          insight.id === "service" ? "#475569" : GREY,
                         fontFamily: "Helvetica",
                         lineHeight: PDF_INSIGHT_LINE,
                       }}
@@ -981,7 +987,7 @@ function PdfManufacturersWarrantyNotice({
         style={{
           marginTop: 4,
           fontSize: 8,
-          fontFamily: "Helvetica-Bold",
+          fontFamily: "Helvetica",
           color: RIDE_SHARE_ORANGE,
           lineHeight: 1.45,
         }}
@@ -1072,7 +1078,9 @@ function PdfValuationSupplements({ report }: { report: VehicleReport }) {
             key={row.state}
             style={[
               styles.pdfTableBodyRow,
-              index === 0 ? styles.pdfTableBodyRowFirst : {},
+              index === P_PLATE_REFERENCE_ROWS.length - 1
+                ? styles.pdfTableBodyRowLast
+                : {},
             ]}
           >
             <View style={[styles.pdfTableLabelCell, { width: "32%" }]}>
@@ -1103,7 +1111,9 @@ function PdfValuationSupplements({ report }: { report: VehicleReport }) {
             key={row.requirement}
             style={[
               styles.pdfTableBodyRow,
-              index === 0 ? styles.pdfTableBodyRowFirst : {},
+              index === RIDE_SHARE_ELIGIBILITY_ROWS.length - 1
+                ? styles.pdfTableBodyRowLast
+                : {},
             ]}
           >
             <View style={[styles.pdfTableLabelCell, { width: "38%" }]}>
@@ -1317,7 +1327,7 @@ function PdfOdometerHistoryTable({ report }: { report: VehicleReport }) {
             key={`${entry.date}-${entry.odometer}-${index}`}
             style={[
               styles.pdfTableBodyRow,
-              index === 0 ? styles.pdfTableBodyRowFirst : {},
+              index === history.length - 1 ? styles.pdfTableBodyRowLast : {},
               {
                 backgroundColor: index % 2 === 1 ? TABLE_ROW_SHADE : "#ffffff",
               },
@@ -1382,7 +1392,7 @@ function PdfComparableVehiclesTable({ report }: { report: VehicleReport }) {
             key={`${listing.title}-${index}`}
             style={[
               styles.pdfTableBodyRow,
-              index === 0 ? styles.pdfTableBodyRowFirst : {},
+              index === listings.length - 1 ? styles.pdfTableBodyRowLast : {},
               {
                 backgroundColor: index % 2 === 1 ? TABLE_ROW_SHADE : "#ffffff",
               },
@@ -1709,6 +1719,9 @@ function PdfPhotoGroup({
   note?: string;
 }) {
   if (photos.length === 0) return null;
+  const hasRecordOnlyPhoto = photos.some((photo) =>
+    isRecordOnlyInspectionPhoto(photo.angle),
+  );
   return (
     <View style={[styles.section, { marginTop: 10 }]}>
       <Text style={styles.sectionTitle}>{title}</Text>
@@ -1721,13 +1734,10 @@ function PdfPhotoGroup({
             {row.map((photo, i) => {
               const url = resolvePdfImageSrc(getInspectionPhotoUrl(photo));
               const evidenceLines = formatInspectionPhotoEvidenceLines(photo);
-              const recordOnly = isRecordOnlyInspectionPhoto(photo.angle);
               const label =
                 photo.angle === "front"
                   ? `${photo.label} (rego visible)`
-                  : recordOnly
-                    ? `${photo.label}*`
-                    : photo.label;
+                  : photo.label;
               return (
                 <View
                   key={`${photo.angle}-${photo.uploadedAt}`}
@@ -1747,11 +1757,6 @@ function PdfPhotoGroup({
                       {line}
                     </Text>
                   ))}
-                  {recordOnly ? (
-                    <Text style={styles.photoEvidenceCaption}>
-                      {INSPECTION_RECORD_ONLY_FOOTNOTE}
-                    </Text>
-                  ) : null}
                   <View style={{ height: 3 }} />
                 </View>
               );
@@ -1759,6 +1764,11 @@ function PdfPhotoGroup({
           </View>
         ))}
       </View>
+      {hasRecordOnlyPhoto ? (
+        <Text style={[styles.photoEvidenceCaption, { marginTop: 4 }]}>
+          {INSPECTION_RECORD_ONLY_FOOTNOTE_WITH_STAR}
+        </Text>
+      ) : null}
     </View>
   );
 }
@@ -1776,9 +1786,6 @@ function InsightsPlusPhotosPage({
   const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
   const walkaroundPhotos = photos.filter((photo) =>
     isExteriorInspectionAngle(photo.angle),
-  );
-  const additionalPhotos = photos.filter(
-    (photo) => !isExteriorInspectionAngle(photo.angle),
   );
 
   return (
@@ -1803,6 +1810,34 @@ function InsightsPlusPhotosPage({
           photos={walkaroundPhotos}
           note="Captured on the owner's device. Time and location are recorded beneath each photo when location access is granted; the front photo should show the registration plate."
         />
+      </View>
+    </PdfPageShell>
+  );
+}
+
+function InsightsPlusAdditionalPhotosPage({
+  report,
+  photos,
+  pageLabel,
+}: {
+  report: VehicleReport;
+  photos: InspectionPhoto[];
+  pageLabel: string;
+}) {
+  const { vehicle } = report;
+  const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
+  const additionalPhotos = photos.filter(
+    (photo) => !isExteriorInspectionAngle(photo.angle),
+  );
+  if (additionalPhotos.length === 0) return null;
+
+  return (
+    <PdfPageShell report={report} pageLabel={pageLabel}>
+      <View style={styles.body}>
+        <Text style={[styles.para, { fontSize: 8, color: GREY }]}>
+          Auto Verifi Insights+ · {vehicleTitle}
+        </Text>
+        <Text style={[styles.sectionTitle, { marginTop: 4 }]}>Additional Photos</Text>
         <PdfPhotoGroup title="Additional Photos" photos={additionalPhotos} />
       </View>
     </PdfPageShell>
@@ -1903,15 +1938,19 @@ export function ReportPdf({
   photos?: InspectionPhoto[];
 }) {
   const isPlus = hasDamageAnalysis(report.tier);
+  const hasAdditionalPhotos = photos.some(
+    (photo) => !isExteriorInspectionAngle(photo.angle),
+  );
   const includeSpec = hasVehicleSpecContent(report.vehicleSpec);
   const specPageCount =
     includeSpec && report.vehicleSpec
       ? countVehicleSpecPdfPages(report.vehicleSpec)
       : 0;
+  const insightsPlusPageCount = isPlus ? (hasAdditionalPhotos ? 3 : 2) : 0;
   const totalPages =
     3 + // Overview, valuations, P-plate / ride-share supplements
     specPageCount +
-    (isPlus ? 2 : 0) + // Insights+ photos + detected damage
+    insightsPlusPageCount +
     1; // Car buying checklist + general disclaimer (PPSR PDF merged after)
   let pageNumber = 1;
   const nextPageLabel = () => `${pageNumber++} / ${totalPages}`;
@@ -1937,6 +1976,13 @@ export function ReportPdf({
             photos={photos}
             pageLabel={`${pageNumber++} / ${totalPages}`}
           />
+          {hasAdditionalPhotos ? (
+            <InsightsPlusAdditionalPhotosPage
+              report={report}
+              photos={photos}
+              pageLabel={`${pageNumber++} / ${totalPages}`}
+            />
+          ) : null}
           <InsightsPlusDamagePage
             report={report}
             photos={photos}

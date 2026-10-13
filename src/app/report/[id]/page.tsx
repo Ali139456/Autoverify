@@ -28,6 +28,7 @@ import {
   refreshRegistrationIfMissing,
 } from "@/lib/autograb";
 import { applyRegistrationExpiryInference } from "@/lib/registration-info";
+import { isExteriorInspectionAngle } from "@/lib/inspection-angles";
 
 export const metadata: Metadata = {
   title: "Vehicle Report",
@@ -81,11 +82,15 @@ export default async function ReportPage({
   const hasVehicleSpecSheet = hasVehicleSpecContent(report.vehicleSpec);
   const hasFactoryFeatures =
     (report.vehicleSpec?.factoryFeatures.length ?? 0) > 0;
+  const hasAdditionalInspectionPhotos = inspectionPhotos.some(
+    (photo) => !isExteriorInspectionAngle(photo.angle),
+  );
   const pageCount = countVehicleReportPages(
     includesDamage,
     hasPpsrAppendix,
     hasVehicleSpecSheet,
     hasFactoryFeatures,
+    hasAdditionalInspectionPhotos,
   );
   let reportPage = 1;
 
@@ -136,17 +141,15 @@ export default async function ReportPage({
         />
 
         {hasVehicleSpecSheet ? (
-          <div className="report-page-break report-page-flow">
-            <VehicleSpecReportPage
-              report={report}
-              pageLabel={`${reportPage++} / ${pageCount}`}
-              factoryPageLabel={
-                hasFactoryFeatures
-                  ? `${reportPage++} / ${pageCount}`
-                  : undefined
-              }
-            />
-          </div>
+          <VehicleSpecReportPage
+            report={report}
+            pageLabel={`${reportPage++} / ${pageCount}`}
+            factoryPageLabel={
+              hasFactoryFeatures
+                ? `${reportPage++} / ${pageCount}`
+                : undefined
+            }
+          />
         ) : null}
 
         {includesDamage && (
@@ -156,6 +159,11 @@ export default async function ReportPage({
             inspectUrl={inspectUrlForOwner}
             showActions
             photosPageLabel={`${reportPage++} / ${pageCount}`}
+            additionalPhotosPageLabel={
+              hasAdditionalInspectionPhotos
+                ? `${reportPage++} / ${pageCount}`
+                : undefined
+            }
             damagePageLabel={`${reportPage++} / ${pageCount}`}
           />
         )}

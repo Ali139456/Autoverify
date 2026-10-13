@@ -103,15 +103,18 @@ function TierCard({
 
   return (
     <div className={`${cardShell} ${cardBg} ${cardSelected}`}>
-      <div className="flex min-h-0 flex-col gap-2 sm:min-h-[4.25rem] sm:flex-row sm:items-start sm:justify-between sm:gap-3">
-        <div className="min-w-0 sm:flex-1">
+      <div className="flex min-h-0 flex-col gap-1.5 sm:min-h-[4.25rem] sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <div className="min-w-0 sm:flex-1 sm:pr-2">
           <TierProductTitle tier={tier} />
         </div>
         {isPlus ? (
-          <span className="inline-flex w-fit max-w-full flex-wrap items-center gap-1.5 self-start rounded-full border border-accent-500/35 bg-accent-50 px-2.5 py-1 text-[10px] font-semibold leading-snug text-accent-800 shadow-sm dark:border-accent-400/45 dark:bg-accent-500/15 dark:text-accent-200 sm:max-w-[13rem] sm:gap-2 sm:px-3 sm:py-1.5 sm:text-[11px]">
-            <Sparkles className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5" aria-hidden />
-            Includes AI powered condition scan
-          </span>
+          <p className="inline-flex max-w-full shrink-0 items-start gap-1.5 text-pretty text-[10px] font-semibold leading-snug text-accent-700 dark:text-accent-100 sm:max-w-[10.5rem] sm:items-center sm:justify-end sm:text-right sm:text-[11px] sm:leading-tight">
+            <Sparkles
+              className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-600 dark:text-accent-200 sm:mt-0"
+              aria-hidden
+            />
+            <span>Includes AI powered condition scan</span>
+          </p>
         ) : null}
       </div>
       <p className="mt-3 text-3xl font-extrabold tabular-nums text-accent-500 sm:text-4xl lg:text-5xl">

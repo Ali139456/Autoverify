@@ -6,7 +6,7 @@ import {
   resolveDamageFindingImageUrl,
 } from "@/lib/report-design";
 import {
-  INSPECTION_RECORD_ONLY_FOOTNOTE,
+  INSPECTION_RECORD_ONLY_FOOTNOTE_WITH_STAR,
   isExteriorInspectionAngle,
   isRecordOnlyInspectionPhoto,
 } from "@/lib/inspection-angles";
@@ -25,8 +25,6 @@ function PhotoTile({
 }) {
   const url = getInspectionPhotoUrl(photo);
   const isFrontRego = photo.angle === "front";
-  const recordOnly = isRecordOnlyInspectionPhoto(photo.angle);
-
   return (
     <figure className="report-photo-tile overflow-hidden rounded-lg border border-slate-200 bg-white">
       <div className="relative aspect-[4/3] bg-slate-100">
@@ -46,17 +44,11 @@ function PhotoTile({
       <figcaption className="border-t border-slate-200 px-2 py-1.5">
         <p className="text-[11px] font-bold leading-snug text-slate-700">
           {photo.label}
-          {recordOnly ? "*" : null}
           {isFrontRego ? (
             <span className="ml-1 font-normal text-slate-500">(rego visible)</span>
           ) : null}
         </p>
         <InspectionPhotoEvidenceCaption photo={photo} />
-        {recordOnly ? (
-          <p className="mt-1 text-[10px] leading-snug text-slate-500">
-            {INSPECTION_RECORD_ONLY_FOOTNOTE}
-          </p>
-        ) : null}
         {caption ? (
           <p className="mt-0.5 text-[10px] text-red-600">{caption}</p>
         ) : null}
@@ -77,6 +69,9 @@ function PhotoGroup({
   note?: string;
 }) {
   if (photos.length === 0) return null;
+  const hasRecordOnlyPhoto = photos.some((photo) =>
+    isRecordOnlyInspectionPhoto(photo.angle),
+  );
   return (
     <div className="report-inspection-photos">
       <h3 className="text-xs font-bold uppercase tracking-[0.16em] text-slate-900">
@@ -97,6 +92,11 @@ function PhotoGroup({
           />
         ))}
       </div>
+      {hasRecordOnlyPhoto ? (
+        <p className="report-record-only-footnote mt-2 text-[10px] leading-snug text-slate-500">
+          {INSPECTION_RECORD_ONLY_FOOTNOTE_WITH_STAR}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -126,6 +126,7 @@ export function InsightsPlusBodyReport({
   inspectUrl,
   showActions = false,
   photosPageLabel,
+  additionalPhotosPageLabel,
   damagePageLabel,
   trailingContent,
 }: {
@@ -134,6 +135,7 @@ export function InsightsPlusBodyReport({
   inspectUrl?: string | null;
   showActions?: boolean;
   photosPageLabel: string;
+  additionalPhotosPageLabel?: string;
   damagePageLabel: string;
   /** Rendered at the end of the damage page body (e.g. the general disclaimer). */
   trailingContent?: ReactNode;
@@ -160,7 +162,7 @@ export function InsightsPlusBodyReport({
 
   return (
     <>
-      <div className="report-page-break">
+      <div className="report-page-break report-page-flow">
         <ReportShell
           {...shellProps}
           pageLabel={photosPageLabel}
@@ -204,15 +206,35 @@ export function InsightsPlusBodyReport({
               damageByPanel={damageByPanel}
               note="Captured on the owner's device. Time and location are recorded beneath each photo when location access is granted; the front photo should show the registration plate."
             />
-
-            <PhotoGroup
-              title="Additional photos"
-              photos={additionalPhotos}
-              damageByPanel={damageByPanel}
-            />
           </div>
         </ReportShell>
       </div>
+
+      {additionalPhotos.length > 0 && additionalPhotosPageLabel ? (
+        <div className="report-page-break report-page-flow">
+          <ReportShell
+            {...shellProps}
+            pageLabel={additionalPhotosPageLabel}
+            className="report-shell-insights-plus report-shell-insights-plus-additional report-shell-insights-plus-photos !overflow-visible"
+          >
+            <div className="report-insights-plus-photos-body space-y-6">
+              <div className="report-insights-plus-damage-heading">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">
+                  Auto Verifi Insights+ · {vehicleTitle}
+                </p>
+                <h2 className="mt-1 text-lg font-extrabold text-slate-900">
+                  Additional photos
+                </h2>
+              </div>
+              <PhotoGroup
+                title="Additional photos"
+                photos={additionalPhotos}
+                damageByPanel={damageByPanel}
+              />
+            </div>
+          </ReportShell>
+        </div>
+      ) : null}
 
       <div className="report-page-break">
         <ReportShell
