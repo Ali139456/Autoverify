@@ -8,7 +8,7 @@ export function countVehicleReportPages(
   pages += 2; // Present/future + comparables; P-plate + ride-share
   if (hasVehicleSpecSheet) pages += 1;
   if (hasVehicleSpecSheet && hasFactoryFeatures) pages += 1; // Factory list (continued)
-  if (includesDamage) pages += 1; // Insights+ body condition + photos/damage
+  if (includesDamage) pages += 2; // Insights+ photos; detected damage
   pages += 1; // Car buying checklist + general disclaimer
   if (hasPpsrAppendix) pages += 1;
   return pages;

@@ -260,7 +260,7 @@ export function PresentAndFutureValueReportPage({
 
           pageLabel={supplementsPageLabel}
 
-          className="report-shell-valuations report-shell-valuations-supplements report-shell-flow !overflow-x-visible"
+          className="report-shell-valuations report-shell-valuations-supplements !overflow-x-visible"
 
         >
 

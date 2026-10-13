@@ -1527,7 +1527,7 @@ function buildDemoResult(
       options?.vin ??
       `6T1${plate.padEnd(3, "X").slice(0, 3)}${String(
         Math.floor(rand() * 1e11),
-      ).padStart(11, "0")}`,
+    ).padStart(11, "0")}`,
     make: spec.make,
     model: spec.model,
     variant: spec.variant,

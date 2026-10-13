@@ -115,23 +115,13 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
 
 
         {includesDamage ? (
-
-          <div className="report-page-break report-page-flow">
-
-            <InsightsPlusBodyReport
-
-              report={report}
-
-              photos={buildSampleInspectionPhotos()}
-
-              showActions={false}
-
-              pageLabel={`${reportPage++} / ${pageCount}`}
-
-            />
-
-          </div>
-
+          <InsightsPlusBodyReport
+            report={report}
+            photos={buildSampleInspectionPhotos()}
+            showActions={false}
+            photosPageLabel={`${reportPage++} / ${pageCount}`}
+            damagePageLabel={`${reportPage++} / ${pageCount}`}
+          />
         ) : null}
 
         <div className="report-page-break">
@@ -146,7 +136,7 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
 
         {hasPpsrAppendix ? (
 
-          <div className="report-page-break">
+          <div className="report-page-break report-page-flow">
 
             <PpsrCertificateReportPage
 

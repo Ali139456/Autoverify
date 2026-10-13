@@ -10,7 +10,6 @@ import {
   Text,
   View,
 } from "@react-pdf/renderer";
-import { hasPpsrCertificate } from "./ppsr-certificate";
 import {
   RIDE_SHARE_ELIGIBILITY_ROWS,
   RIDE_SHARE_TABLE_HEADING,
@@ -1658,49 +1657,6 @@ function CarBuyingChecklistPage({
   );
 }
 
-function PpsrCertificateIntroPage({
-  report,
-  pageLabel,
-}: {
-  report: VehicleReport;
-  pageLabel: string;
-}) {
-  if (!hasPpsrCertificate(report)) return null;
-
-  return (
-    <PdfPageShell report={report} pageLabel={pageLabel}>
-      <View style={styles.body}>
-        <Text
-          style={{
-            fontSize: 8,
-            fontFamily: "Helvetica-Bold",
-            color: BLUE,
-            textTransform: "uppercase",
-            letterSpacing: 0.8,
-          }}
-        >
-          Official register search
-        </Text>
-        <Text style={[styles.title, { marginTop: 6, fontSize: 18, color: BLUE }]}>
-          PPSR certificate
-        </Text>
-        <Text style={[styles.para, { marginTop: 12 }]}>
-          The following pages contain the official search certificate issued by the
-          Australian Financial Security Authority (AFSA) for this vehicle. It should
-          be read together with your Auto Verifi report.
-        </Text>
-        <Text style={[styles.para, { marginTop: 8 }]}>
-          For help understanding PPSR terminology and search results, visit ppsr.gov.au.
-        </Text>
-        <Text style={[styles.para, { marginTop: 14, fontFamily: "Helvetica-Bold" }]}>
-          The official PPSR certificate PDF is appended immediately after this page in
-          your downloaded report file.
-        </Text>
-      </View>
-    </PdfPageShell>
-  );
-}
-
 function PdfGeneralDisclaimer() {
   const [terms, ...rest] = REPORT_GENERAL_DISCLAIMER_PARAGRAPHS;
   return (
@@ -1807,16 +1763,14 @@ function PdfPhotoGroup({
   );
 }
 
-function InsightsPlusPage({
+function InsightsPlusPhotosPage({
   report,
   photos,
   pageLabel,
-  trailing,
 }: {
   report: VehicleReport;
   photos: InspectionPhoto[];
   pageLabel: string;
-  trailing?: React.ReactNode;
 }) {
   const { vehicle, damage } = report;
   const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
@@ -1850,6 +1804,32 @@ function InsightsPlusPage({
           note="Captured on the owner's device. Time and location are recorded beneath each photo when location access is granted; the front photo should show the registration plate."
         />
         <PdfPhotoGroup title="Additional Photos" photos={additionalPhotos} />
+      </View>
+    </PdfPageShell>
+  );
+}
+
+function InsightsPlusDamagePage({
+  report,
+  photos,
+  pageLabel,
+  trailing,
+}: {
+  report: VehicleReport;
+  photos: InspectionPhoto[];
+  pageLabel: string;
+  trailing?: React.ReactNode;
+}) {
+  const { vehicle, damage } = report;
+  const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
+
+  return (
+    <PdfPageShell report={report} pageLabel={pageLabel}>
+      <View style={styles.body}>
+        <Text style={[styles.para, { fontSize: 8, color: GREY }]}>
+          Auto Verifi Insights+ · {vehicleTitle}
+        </Text>
+        <Text style={[styles.sectionTitle, { marginTop: 4 }]}>Detected Damage</Text>
 
         {damage && damage.findings.length === 0 && photos.length > 0 ? (
           <Text style={[styles.para, { marginTop: 6, color: RIDE_SHARE_GREEN }]}>
@@ -1857,9 +1837,8 @@ function InsightsPlusPage({
           </Text>
         ) : null}
 
-        {damage && damage.findings.length > 0 && (
+        {damage && damage.findings.length > 0 ? (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Detected Damage</Text>
             {chunkFactoryFeatures(damage.findings, 2).map((row, rowIndex) => (
               <View
                 key={rowIndex}
@@ -1904,7 +1883,11 @@ function InsightsPlusPage({
               </View>
             ))}
           </View>
-        )}
+        ) : !damage ? (
+          <Text style={[styles.para, { marginTop: 8 }]}>
+            AI damage analysis will appear on this page once processing is complete.
+          </Text>
+        ) : null}
 
         {trailing}
       </View>
@@ -1925,13 +1908,11 @@ export function ReportPdf({
     includeSpec && report.vehicleSpec
       ? countVehicleSpecPdfPages(report.vehicleSpec)
       : 0;
-  const includePpsrIntro = hasPpsrCertificate(report);
   const totalPages =
     3 + // Overview, valuations, P-plate / ride-share supplements
     specPageCount +
-    (isPlus ? 1 : 0) + // Insights+ body condition
-    1 + // Car buying checklist + general disclaimer
-    (includePpsrIntro ? 1 : 0);
+    (isPlus ? 2 : 0) + // Insights+ photos + detected damage
+    1; // Car buying checklist + general disclaimer (PPSR PDF merged after)
   let pageNumber = 1;
   const nextPageLabel = () => `${pageNumber++} / ${totalPages}`;
   const overviewLabel = nextPageLabel();
@@ -1950,23 +1931,24 @@ export function ReportPdf({
         <VehicleSpecPages report={report} pageLabels={specPageLabels} />
       ) : null}
       {isPlus ? (
-        <InsightsPlusPage
-          report={report}
-          photos={photos}
-          pageLabel={`${pageNumber++} / ${totalPages}`}
-        />
+        <>
+          <InsightsPlusPhotosPage
+            report={report}
+            photos={photos}
+            pageLabel={`${pageNumber++} / ${totalPages}`}
+          />
+          <InsightsPlusDamagePage
+            report={report}
+            photos={photos}
+            pageLabel={`${pageNumber++} / ${totalPages}`}
+          />
+        </>
       ) : null}
       <CarBuyingChecklistPage
         report={report}
         pageLabel={`${pageNumber++} / ${totalPages}`}
         trailing={<PdfGeneralDisclaimer />}
       />
-      {includePpsrIntro ? (
-        <PpsrCertificateIntroPage
-          report={report}
-          pageLabel={`${pageNumber++} / ${totalPages}+`}
-        />
-      ) : null}
     </Document>
   );
 }

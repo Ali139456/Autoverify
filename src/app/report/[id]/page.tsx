@@ -150,15 +150,14 @@ export default async function ReportPage({
         ) : null}
 
         {includesDamage && (
-          <div className="report-page-break report-page-flow">
-            <InsightsPlusBodyReport
-              report={report}
-              photos={inspectionPhotos}
-              inspectUrl={inspectUrlForOwner}
-              showActions
-              pageLabel={`${reportPage++} / ${pageCount}`}
-            />
-          </div>
+          <InsightsPlusBodyReport
+            report={report}
+            photos={inspectionPhotos}
+            inspectUrl={inspectUrlForOwner}
+            showActions
+            photosPageLabel={`${reportPage++} / ${pageCount}`}
+            damagePageLabel={`${reportPage++} / ${pageCount}`}
+          />
         )}
 
         <div className="report-page-break">
@@ -170,7 +169,7 @@ export default async function ReportPage({
         </div>
 
         {hasPpsrAppendix ? (
-          <div className="report-page-break">
+          <div className="report-page-break report-page-flow">
             <PpsrCertificateReportPage
               report={report}
               pageLabel={`${reportPage++} / ${pageCount}`}
