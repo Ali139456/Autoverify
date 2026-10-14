@@ -109,7 +109,7 @@ const PDF_TABLE_FONT_HEAD = 7.5;
 const PDF_TABLE_PAD_V = 7;
 const PDF_TABLE_PAD_H = 12;
 /** Page 1 insight cards — match web `ReportInsightCard` spacing (~p-4, text-xs). */
-const PDF_INSIGHT_PAD = 10;
+const PDF_INSIGHT_PAD = 7;
 const PDF_INSIGHT_TITLE = 7.5;
 const PDF_INSIGHT_BODY = 9;
 const PDF_INSIGHT_BODY_SM = 8.25;
@@ -119,7 +119,7 @@ const LOGO_BLUE = publicPdfImage(REPORT_LOGO_PNG_PATH);
 
 const PDF_A4_HEIGHT = 841.89;
 /** Fixed height of the status + hero panel on page 1 (keeps yoga layout stable). */
-const STATUS_PANEL_HEIGHT = 172;
+const STATUS_PANEL_HEIGHT = 148;
 
 const styles = StyleSheet.create({
   page: {
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: "#ffffff",
     paddingHorizontal: 32,
-    paddingVertical: 14,
+    paddingVertical: 11,
     flexDirection: "row",
     justifyContent: "space-between",
     borderBottomWidth: 2,
@@ -169,24 +169,25 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     fontFamily: "Helvetica-Bold",
   },
-  body: { paddingHorizontal: 32, paddingTop: 18, paddingBottom: 24 },
-  title: { fontSize: 18, fontFamily: "Helvetica-Bold", color: "#0f172a" },
+  body: { paddingHorizontal: 32, paddingTop: 14, paddingBottom: 18 },
+  bodyCompact: { paddingHorizontal: 32, paddingTop: 12, paddingBottom: 14 },
+  title: { fontSize: 16, fontFamily: "Helvetica-Bold", color: "#0f172a" },
   vehicleName: {
-    marginTop: 6,
-    fontSize: 12,
+    marginTop: 4,
+    fontSize: 11,
     fontFamily: "Helvetica-Bold",
     color: BLUE,
   },
   subtitle: {
-    marginTop: 6,
-    fontSize: 7,
+    marginTop: 4,
+    fontSize: 6.5,
     color: GREY,
     textTransform: "uppercase",
     letterSpacing: 0.15,
     fontFamily: "Helvetica-Bold",
   },
   specBar: {
-    marginTop: 12,
+    marginTop: 8,
     borderWidth: PDF_BORDER_OUTER,
     borderColor: BORDER_SLATE_200,
     borderRadius: 8,
@@ -200,8 +201,8 @@ const styles = StyleSheet.create({
   },
   specItem: {
     width: "25%",
-    paddingVertical: 9,
-    paddingHorizontal: 11,
+    paddingVertical: 6,
+    paddingHorizontal: 9,
     borderRightWidth: PDF_BORDER_INNER,
     borderRightColor: BORDER_SLATE_200,
   },
@@ -220,7 +221,7 @@ const styles = StyleSheet.create({
     lineHeight: 1.25,
   },
   statusPanel: {
-    marginTop: 12,
+    marginTop: 8,
     flexDirection: "row",
     borderWidth: PDF_BORDER_OUTER,
     borderColor: BORDER_SLATE_200,
@@ -230,8 +231,8 @@ const styles = StyleSheet.create({
   },
   statusLeft: {
     width: "58%",
-    paddingVertical: 14,
-    paddingHorizontal: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
     borderRightWidth: PDF_BORDER_INNER,
     borderRightColor: BORDER_SLATE_200,
   },
@@ -287,9 +288,9 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     fontFamily: "Helvetica-Bold",
     letterSpacing: 0.6,
-    marginBottom: 10,
+    marginBottom: 6,
   },
-  statusRow: { flexDirection: "row", marginBottom: 7, alignItems: "flex-start", gap: 6 },
+  statusRow: { flexDirection: "row", marginBottom: 5, alignItems: "flex-start", gap: 6 },
   statusText: { flex: 1, fontSize: 9, lineHeight: 1.4, color: "#334155" },
   insightsHeader: {
     marginTop: 14,
@@ -311,12 +312,12 @@ const styles = StyleSheet.create({
     color: BLUE,
   },
   insightGrid: {
-    marginTop: 10,
+    marginTop: 6,
   },
   insightRow: {
     flexDirection: "row",
     alignItems: "stretch",
-    marginBottom: 8,
+    marginBottom: 5,
   },
   insightCard: {
     width: "24.25%",
@@ -342,7 +343,7 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica",
   },
   insightBottom: {
-    marginTop: 8,
+    marginTop: 5,
     flexDirection: "column",
     alignItems: "stretch",
   },
@@ -523,8 +524,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderTopWidth: PDF_BORDER_INNER,
     borderTopColor: BORDER_SLATE_200,
-    paddingTop: 8,
-    paddingBottom: 16,
+    paddingTop: 6,
+    paddingBottom: 10,
     paddingHorizontal: 32,
     flexShrink: 0,
   },
@@ -1143,7 +1144,7 @@ function CarInsightsOverviewPage({
 
   return (
     <PdfPageShell report={report} pageLabel={pageLabel}>
-      <View style={styles.body}>
+      <View style={styles.bodyCompact}>
         <Text style={styles.title}>{getVehicleReportMainTitle(report.tier)}</Text>
         <Text style={styles.vehicleName}>{vehicleTitle}</Text>
         <Text style={styles.subtitle}>
@@ -1200,8 +1201,8 @@ function CarInsightsKeyInsightsPage({
 
   return (
     <PdfPageShell report={report} pageLabel={pageLabel}>
-      <View style={styles.body}>
-        <View style={{ marginTop: 4 }}>
+      <View style={styles.bodyCompact}>
+        <View style={{ marginTop: 0 }}>
           <Text style={styles.sectionLabel}>Key Insights</Text>
         </View>
         <PdfInsightGrid insights={insights} />

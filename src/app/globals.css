@@ -755,75 +755,116 @@ html.dark body {
     margin-top: 12px !important;
   }
 
-  .report-shell-insights-page1 .report-body.space-y-8 > * + * {
-    margin-top: 14px !important;
+  .report-shell-insights-page1 .report-shell-header,
+  .report-shell-insights-key-insights .report-shell-header {
+    padding: 10px 16px !important;
   }
 
-  .report-shell-insights-page1 .report-shell-body {
-    padding: 14px 20px 10px !important;
+  .report-shell-insights-page1 .report-shell-header img,
+  .report-shell-insights-key-insights .report-shell-header img {
+    height: 36px !important;
+  }
+
+  .report-shell-insights-page1 .report-shell-footer,
+  .report-shell-insights-key-insights .report-shell-footer {
+    padding: 6px 16px 5px !important;
+  }
+
+  .report-shell-insights-page1 .report-shell-footer img,
+  .report-shell-insights-key-insights .report-shell-footer img {
+    height: 28px !important;
+  }
+
+  .report-shell-insights-page1 .report-body.space-y-8 > * + * {
+    margin-top: 5px !important;
+  }
+
+  .report-shell-insights-page1 .report-shell-body,
+  .report-shell-insights-key-insights .report-shell-body {
+    padding: 10px 16px 8px !important;
   }
 
   .report-shell-insights-page1 .report-main-title {
-    font-size: 24px !important;
+    font-size: 21px !important;
+    line-height: 1.15 !important;
   }
 
   .report-shell-insights-page1 .report-vehicle-title {
-    font-size: 17px !important;
+    font-size: 15px !important;
+    margin-top: 4px !important;
   }
 
   .report-shell-insights-page1 .report-subtitle {
-    font-size: 9px !important;
+    font-size: 8px !important;
+    margin-top: 4px !important;
+  }
+
+  .report-shell-insights-page1 .report-spec-bar > div {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
   }
 
   .report-shell-insights-page1 .report-spec-value {
-    font-size: 12px !important;
+    font-size: 11px !important;
     font-weight: 500 !important;
+    margin-top: 2px !important;
+  }
+
+  .report-shell-insights-page1 .report-status-items {
+    margin-top: 10px !important;
+  }
+
+  .report-shell-insights-page1 .report-status-items li {
+    margin-bottom: 4px !important;
   }
 
   .report-shell-insights-page1 .report-status-items span {
-    font-size: 12px !important;
+    font-size: 11px !important;
   }
 
   .report-shell-insights-page1 .report-insight-card p,
   .report-shell-insights-key-insights .report-insight-card p {
-    font-size: 10px !important;
+    font-size: 9px !important;
+    line-height: 1.3 !important;
   }
 
   .report-shell-insights-page1 .report-supplementary .text-base {
     font-size: 14px !important;
   }
 
-  .report-shell-insights-page1 .report-body.space-y-8 > * + * {
-    margin-top: 8px !important;
-  }
-
   .report-shell-insights-page1 .report-insights-grid,
   .report-shell-insights-key-insights .report-insights-grid {
-    gap: 6px !important;
+    gap: 4px !important;
   }
 
   .report-shell-insights-page1 .report-insight-card,
   .report-shell-insights-key-insights .report-insight-card {
-    padding: 8px !important;
-  }
-
-  .report-shell-insights-key-insights .report-shell-body {
-    padding: 14px 20px 10px !important;
+    min-height: 0 !important;
+    padding: 6px !important;
+    gap: 6px !important;
   }
 
   .report-shell-insights-key-insights .report-body.space-y-8 > * + * {
-    margin-top: 8px !important;
+    margin-top: 5px !important;
+  }
+
+  .report-shell-insights-key-insights .report-insights-header {
+    margin-bottom: 6px !important;
+  }
+
+  .report-shell-insights-key-insights .report-insights-header h2 {
+    font-size: 11px !important;
   }
 
   .report-shell-insights-page1 .report-status-list {
-    padding: 10px 14px !important;
+    padding: 8px 12px !important;
   }
 
   .report-shell-insights-page1 .report-hero-image {
     position: relative !important;
-    min-height: 48mm !important;
-    height: 48mm !important;
-    max-height: 48mm !important;
+    min-height: 36mm !important;
+    height: 36mm !important;
+    max-height: 36mm !important;
     overflow: hidden !important;
   }
 
@@ -839,7 +880,7 @@ html.dark body {
     width: auto !important;
     max-width: 100% !important;
     height: auto !important;
-    max-height: 46mm !important;
+    max-height: 34mm !important;
     object-fit: contain !important;
     object-position: center center !important;
     background-color: #020617 !important;
@@ -847,7 +888,9 @@ html.dark body {
 
   .report-shell-insights-page1 .report-manufacturers-warranty,
   .report-shell-insights-key-insights .report-manufacturers-warranty {
-    padding: 6px 10px !important;
+    padding: 4px 8px !important;
+    font-size: 9px !important;
+    line-height: 1.35 !important;
   }
 
   .report-valuations-page-break {
