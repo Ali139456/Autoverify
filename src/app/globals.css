@@ -285,10 +285,7 @@ html.dark body {
   min-height: 1056px;
 }
 
-.report-shell-ppsr,
-.report-shell-flow,
-.report-shell-insights-plus-photos,
-.report-shell-insights-plus-damage {
+.report-shell-ppsr {
   min-height: auto;
 }
 
@@ -319,31 +316,121 @@ html.dark body {
 
 #report-print-area > .report-page-break > .report-shell,
 #report-print-area > .report-print-page-first > .report-shell {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   width: 100%;
+  height: auto;
 }
 
-#report-print-area > .report-page-break,
-#report-print-area > .report-print-page-first {
+#report-print-area > .report-page-break > .report-shell.report-shell-pin-footer:not(.report-shell-ppsr),
+#report-print-area
+  > .report-print-page-first
+  > .report-shell.report-shell-pin-footer:not(.report-shell-ppsr) {
+  flex: 1 1 auto;
+  min-height: 279.5mm;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Browser: min one A4; wrapper grows with shell so the next page cannot overlap. */
+#report-print-area > .report-page-break:not(.report-page-flow),
+#report-print-area > .report-print-page-first:not(.report-page-flow) {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  height: auto !important;
+  min-height: 279.5mm;
+  max-height: none !important;
+  box-sizing: border-box;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+#report-print-area > .report-page-break.report-page-flow {
   display: flex !important;
   flex-direction: column !important;
   height: auto;
   min-height: 279.5mm;
-  box-sizing: border-box;
+  max-height: none;
+  overflow: hidden;
+  isolation: isolate;
 }
 
-/* Long sections only (PPSR iframe, multi-page spec): grow past one sheet. */
-#report-print-area > .report-page-break.report-page-flow {
-  min-height: 279.5mm;
+#report-print-area .report-shell {
+  overflow-y: visible;
+  height: auto;
 }
 
-/* Pin footer to sheet bottom (screen + print preview). */
-#report-print-area > .report-page-break > .report-shell.report-shell-pin-footer,
+#report-print-area .report-shell-pin-footer .report-shell-body {
+  flex: 1 1 auto;
+  min-height: auto;
+}
+
+#report-print-area .report-shell-pin-footer--fixed {
+  height: auto !important;
+  max-height: none !important;
+}
+
+/* Short sheets: pin footer to bottom of min A4 height (screen only). */
+#report-print-area > .report-page-break:not(.report-page-flow) > .report-shell.report-shell-pin-footer,
 #report-print-area
-  > .report-print-page-first
+  > .report-print-page-first:not(.report-page-flow)
   > .report-shell.report-shell-pin-footer {
+  min-height: 279.5mm;
+  height: auto;
+}
+
+#report-print-area > .report-page-break.report-page-flow > .report-shell.report-shell-pin-footer {
+  min-height: auto;
+  height: auto;
+}
+
+/* One logical page: footer at bottom of sheet (screen), not directly under content. */
+#report-print-area > .report-sheet-pin-footer {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 279.5mm;
+  height: auto;
+  max-height: none;
+  box-sizing: border-box;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+#report-print-area > .report-sheet-pin-footer > .report-shell {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 279.5mm;
   height: 100%;
-  min-height: 100%;
+  max-height: none;
+  display: flex;
+  flex-direction: column;
+}
+
+#report-print-area > .report-sheet-pin-footer .report-shell-pin-footer .report-shell-body {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+#report-print-area > .report-sheet-pin-footer .report-shell-pin-footer .report-shell-footer {
+  margin-top: auto !important;
+}
+
+#report-print-area > .report-sheet-pin-footer > .report-shell.report-shell-pin-footer--fixed {
+  min-height: 279.5mm;
+  height: auto;
+  max-height: none;
+}
+
+#report-print-area > .report-sheet-pin-footer.report-page-flow {
+  height: auto;
+  min-height: 279.5mm;
+  max-height: none;
+}
+
+#report-print-area > .report-sheet-pin-footer.report-page-flow > .report-shell {
+  min-height: 279.5mm;
+  height: auto;
 }
 
 .report-spec-data-table-wrap {
@@ -419,14 +506,23 @@ html.dark body {
 .report-hero-image {
   position: relative;
   width: 100%;
-  background-color: #020617;
+  background-color: #f8fafc;
   overflow: hidden;
+}
+
+.report-hero-image-frame {
+  background-color: #f8fafc;
 }
 
 .report-hero-image img {
   object-fit: contain;
   object-position: center center;
-  background-color: #020617;
+  background-color: transparent;
+}
+
+.report-hero-image-caption {
+  background-color: #f8fafc;
+  color: #64748b;
 }
 
 .report-ppsr-viewer {
@@ -523,6 +619,7 @@ html.dark body {
     flex-direction: column !important;
     overflow: visible !important;
     box-sizing: border-box !important;
+    min-height: 0 !important;
   }
 
   /*
@@ -549,16 +646,24 @@ html.dark body {
     page-break-inside: avoid !important;
   }
 
-  /* Every logical page = one full A4 sheet (screen + print). */
-  #report-print-area > .report-page-break,
-  #report-print-area > .report-print-page-first {
-    height: auto !important;
+  /* Every logical page = one full A4 sheet (except long-flow sections). */
+  #report-print-area > .report-page-break:not(.report-page-flow),
+  #report-print-area > .report-print-page-first:not(.report-page-flow) {
+    height: 279.5mm !important;
     min-height: 279.5mm !important;
+    max-height: 279.5mm !important;
   }
 
-  #report-print-area > .report-page-break > .report-shell.report-shell-pin-footer:not(.report-shell-pin-footer--fixed),
+  #report-print-area > .report-page-break.report-page-flow {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+  }
+
+  #report-print-area > .report-page-break:not(.report-page-flow)
+    > .report-shell.report-shell-pin-footer:not(.report-shell-pin-footer--fixed),
   #report-print-area
-    > .report-print-page-first
+    > .report-print-page-first:not(.report-page-flow)
     > .report-shell.report-shell-pin-footer:not(.report-shell-pin-footer--fixed) {
     display: flex !important;
     flex-direction: column !important;
@@ -570,16 +675,71 @@ html.dark body {
     page-break-inside: avoid !important;
   }
 
-  .report-shell-insights-intro.report-shell-pin-footer {
-    break-inside: auto !important;
-    page-break-inside: auto !important;
-  }
-
   .report-shell.report-shell-pin-footer.report-shell-pin-footer--fixed {
     height: 279.5mm !important;
     max-height: 279.5mm !important;
     break-inside: avoid !important;
     page-break-inside: avoid !important;
+  }
+
+  /* Long / multi-block sections: no min A4 padding; allow natural page breaks inside. */
+  #report-print-area > .report-page-flow {
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
+  #report-print-area
+    > .report-page-flow:not(.report-sheet-pin-footer)
+    > .report-shell:not(.report-shell-pin-footer) {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+
+  #report-print-area > .report-page-flow > .report-shell.report-shell-pin-footer--fixed {
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+  }
+
+  #report-print-area
+    > .report-page-flow:not(.report-sheet-pin-footer)
+    > .report-shell:not(.report-shell-pin-footer)
+    .report-shell-header,
+  #report-print-area
+    > .report-page-flow:not(.report-sheet-pin-footer)
+    > .report-shell:not(.report-shell-pin-footer)
+    .report-shell-body,
+  #report-print-area
+    > .report-page-flow:not(.report-sheet-pin-footer)
+    > .report-shell:not(.report-shell-pin-footer)
+    .report-shell-footer {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  #report-print-area
+    > .report-page-flow:not(.report-sheet-pin-footer)
+    > .report-shell:not(.report-shell-pin-footer)
+    .report-shell-body {
+    flex: none !important;
+    min-height: 0 !important;
+  }
+
+  #report-print-area
+    > .report-page-flow:not(.report-sheet-pin-footer)
+    > .report-shell
+    .report-shell-footer {
+    break-before: auto !important;
+    page-break-before: auto !important;
+    margin-top: 10px !important;
+  }
+
+  #report-print-area > .report-sheet-pin-footer .report-shell-footer {
+    margin-top: auto !important;
   }
 
   .report-shell-flow.report-shell-spec,
@@ -596,8 +756,9 @@ html.dark body {
     page-break-inside: auto !important;
   }
 
-  #report-print-area > .report-page-break:last-child,
-  #report-print-area > .report-print-page-first:last-child {
+  /* Trailing .report-no-print nodes break :last-child; use last direct div instead. */
+  #report-print-area > div:last-of-type,
+  #report-print-area > .report-print-page-first:last-of-type {
     break-after: avoid !important;
     page-break-after: avoid !important;
   }
@@ -647,48 +808,60 @@ html.dark body {
     flex: 0 1 auto !important;
   }
 
-  .report-shell-flow .report-shell-footer {
+  .report-shell-flow:not(.report-shell-pin-footer) .report-shell-footer {
     margin-top: 0 !important;
     break-before: auto !important;
     page-break-before: auto !important;
   }
 
-  .report-shell-flow .report-shell-body {
+  .report-shell-flow:not(.report-shell-pin-footer) .report-shell-body {
     flex: 0 1 auto !important;
   }
 
-  /* Flow pages (vehicle spec): block layout so footer stays after body, not under header. */
-  #report-print-area .report-shell.report-shell-flow {
+  /* Long-form flow shells only (legacy); pinned sheets keep flex layout. */
+  #report-print-area .report-shell.report-shell-flow:not(.report-shell-pin-footer) {
     display: block !important;
     height: auto !important;
     min-height: 0 !important;
     overflow: visible !important;
   }
 
-  #report-print-area .report-shell.report-shell-flow .report-shell-header,
-  #report-print-area .report-shell.report-shell-flow .report-shell-body,
-  #report-print-area .report-shell.report-shell-flow .report-shell-footer {
+  #report-print-area
+    .report-shell.report-shell-flow:not(.report-shell-pin-footer)
+    .report-shell-header,
+  #report-print-area
+    .report-shell.report-shell-flow:not(.report-shell-pin-footer)
+    .report-shell-body,
+  #report-print-area
+    .report-shell.report-shell-flow:not(.report-shell-pin-footer)
+    .report-shell-footer {
     display: block !important;
     width: 100% !important;
   }
 
-  #report-print-area .report-shell.report-shell-flow .report-shell-header {
+  #report-print-area
+    .report-shell.report-shell-flow:not(.report-shell-pin-footer)
+    .report-shell-header {
     break-after: auto !important;
     page-break-after: auto !important;
   }
 
-  #report-print-area .report-shell.report-shell-flow .report-shell-footer {
+  #report-print-area
+    .report-shell.report-shell-flow:not(.report-shell-pin-footer)
+    .report-shell-footer {
     break-before: auto !important;
     page-break-before: auto !important;
     margin-top: 14px !important;
   }
 
-  #report-print-area .report-shell.report-shell-flow .report-shell-body {
+  #report-print-area
+    .report-shell.report-shell-flow:not(.report-shell-pin-footer)
+    .report-shell-body {
     flex: none !important;
     min-height: 0 !important;
   }
 
-  #report-print-area .report-shell.report-shell-flow {
+  #report-print-area .report-shell.report-shell-flow:not(.report-shell-pin-footer) {
     break-inside: auto !important;
     page-break-inside: auto !important;
   }
@@ -714,8 +887,6 @@ html.dark body {
   .report-shell-footer {
     break-inside: avoid !important;
     page-break-inside: avoid !important;
-    break-before: avoid !important;
-    page-break-before: avoid !important;
     position: static !important;
     flex-shrink: 0 !important;
     margin-top: auto !important;
@@ -773,10 +944,64 @@ html.dark body {
     page-break-before: auto;
   }
 
-  #report-print-area > .report-insights-intro-sheet,
-  #report-print-area > .report-valuations-market-sheet {
-    break-after: page !important;
-    page-break-after: always !important;
+  #report-print-area > .report-sheet-pin-footer {
+    min-height: 279.5mm !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  #report-print-area > .report-sheet-pin-footer {
+    height: 279.5mm !important;
+    min-height: 279.5mm !important;
+    max-height: 279.5mm !important;
+  }
+
+  #report-print-area > .report-sheet-pin-footer > .report-shell {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 100% !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  #report-print-area > .report-insights-intro-sheet.report-sheet-pin-footer {
+    height: auto !important;
+    min-height: 279.5mm !important;
+    max-height: none !important;
+  }
+
+  #report-print-area > .report-insights-intro-sheet.report-sheet-pin-footer > .report-shell {
+    height: auto !important;
+    min-height: 279.5mm !important;
+    max-height: none !important;
+  }
+
+  #report-print-area > .report-sheet-pin-footer.report-page-flow {
+    height: auto !important;
+    min-height: 279.5mm !important;
+    max-height: none !important;
+  }
+
+  #report-print-area > .report-sheet-pin-footer.report-page-flow > .report-shell {
+    height: auto !important;
+    min-height: 279.5mm !important;
+    max-height: none !important;
+  }
+
+  #report-print-area > .report-sheet-pin-footer .report-shell-pin-footer .report-shell-body {
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+  }
+
+  #report-print-area > .report-sheet-pin-footer .report-shell-pin-footer .report-shell-footer {
+    margin-top: auto !important;
+  }
+
+  .report-shell-valuations-primary.report-shell-flow {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
   }
 
   .report-shell-insights-intro .report-insights-header {
@@ -818,24 +1043,51 @@ html.dark body {
   }
 
   .report-shell-insights-intro .report-hero-image {
-    min-height: 34mm !important;
-    height: 34mm !important;
-    max-height: 34mm !important;
+    height: auto !important;
+    max-height: none !important;
+    background-color: #f8fafc !important;
+  }
+
+  .report-shell-insights-intro .report-hero-image-frame {
+    min-height: 28mm !important;
+    max-height: 30mm !important;
   }
 
   .report-shell-insights-intro .report-hero-image img {
-    max-height: 32mm !important;
+    max-height: 28mm !important;
+    background-color: transparent !important;
+  }
+
+  .report-shell-insights-intro .report-hero-image-caption {
+    color: #64748b !important;
+    background-color: #f8fafc !important;
+    font-size: 6px !important;
   }
 
   .report-shell-insights-intro .report-insights-section {
-    break-inside: auto !important;
-    page-break-inside: auto !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
   .report-shell-valuations-market .report-odometer-history,
-  .report-shell-valuations-market .report-comparables {
+  .report-shell-valuations-market .report-comparables,
+  .report-shell-valuations-combined .report-odometer-history,
+  .report-shell-valuations-combined .report-comparables {
     break-inside: avoid !important;
     page-break-inside: avoid !important;
+  }
+
+  .report-shell-valuations-combined .report-body.space-y-6 > * + * {
+    margin-top: 4px !important;
+  }
+
+  .report-shell-valuations-combined .report-present-value,
+  .report-shell-valuations-combined .report-future-section {
+    padding: 4px 8px !important;
+  }
+
+  .report-shell-valuations-supplements .report-body {
+    padding-top: 6px !important;
   }
 
   .report-body {
@@ -962,12 +1214,17 @@ html.dark body {
   .report-shell-insights-page1 .report-hero-image {
     position: relative !important;
     min-height: 36mm !important;
-    height: 36mm !important;
-    max-height: 36mm !important;
+    height: auto !important;
+    max-height: 40mm !important;
     overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    background-color: #f8fafc !important;
   }
 
-  .report-shell-insights-page1 .report-hero-image {
+  .report-shell-insights-page1 .report-hero-image-frame {
+    flex: 1 1 auto !important;
+    max-height: 30mm !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -979,10 +1236,10 @@ html.dark body {
     width: auto !important;
     max-width: 100% !important;
     height: auto !important;
-    max-height: 34mm !important;
+    max-height: 28mm !important;
     object-fit: contain !important;
     object-position: center center !important;
-    background-color: #020617 !important;
+    background-color: transparent !important;
   }
 
   .report-shell-insights-page1 .report-manufacturers-warranty,
@@ -1053,8 +1310,93 @@ html.dark body {
     page-break-inside: avoid !important;
   }
 
+  /* Walkaround + additional photos on one A4 sheet (sample has 14 tiles). */
+  .report-insights-plus-all-photos.report-shell-insights-plus-photos
+    .report-insights-plus-title
+    h1 {
+    font-size: 16px !important;
+  }
+
+  .report-insights-plus-all-photos.report-shell-insights-plus-photos
+    .report-insights-plus-photos-body.space-y-6
+    > *
+    + * {
+    margin-top: 5px !important;
+  }
+
+  .report-insights-plus-all-photos.report-shell-insights-plus-photos
+    .report-inspection-photos
+    + .report-inspection-photos {
+    margin-top: 4px !important;
+  }
+
+  .report-insights-plus-all-photos.report-shell-insights-plus-photos
+    .report-photo-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 3px !important;
+  }
+
+  .report-insights-plus-all-photos.report-shell-insights-plus-photos
+    .report-photo-tile
+    > div {
+    height: 17mm !important;
+    max-height: 17mm !important;
+  }
+
+  .report-insights-plus-all-photos.report-shell-insights-plus-photos
+    .report-photo-tile
+    figcaption
+    p {
+    font-size: 6px !important;
+    line-height: 1.15 !important;
+  }
+
+  .report-insights-plus-all-photos.report-shell-insights-plus-photos
+    .report-shell-body {
+    padding-bottom: 4px !important;
+  }
+
   .report-shell-insights-plus-damage .report-insights-plus-damage-body.space-y-6 > * + * {
     margin-top: 10px !important;
+  }
+
+  .report-shell-spec-full .report-spec-sheet {
+    padding: 8px 12px !important;
+    border: none !important;
+  }
+
+  .report-shell-spec-full .report-spec-sheet .mt-6.grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) !important;
+    gap: 8px !important;
+    margin-top: 6px !important;
+  }
+
+  .report-shell-spec-full .report-section-heading {
+    font-size: 9px !important;
+  }
+
+  .report-shell-spec-full .report-spec-data-table th,
+  .report-shell-spec-full .report-spec-data-table td {
+    padding: 2px 6px !important;
+    font-size: 8px !important;
+    line-height: 1.25 !important;
+  }
+
+  .report-shell-spec-full .report-spec-factory-list {
+    padding: 6px 8px !important;
+    max-height: none !important;
+  }
+
+  .report-shell-spec-full .report-spec-factory-list li {
+    font-size: 7.5px !important;
+    line-height: 1.2 !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .report-shell-spec-full .report-spec-factory-list li + li {
+    margin-top: 2px !important;
   }
 
   .report-shell-valuations .report-shell-body {
@@ -1354,16 +1696,25 @@ html.dark body {
   .report-hero-image {
     position: relative !important;
     min-height: 52mm !important;
-    height: 52mm !important;
-    max-height: 52mm !important;
+    height: auto !important;
+    max-height: 56mm !important;
     overflow: hidden !important;
-    background-color: #020617 !important;
+    background-color: #f8fafc !important;
     border: none !important;
     outline: none !important;
     box-shadow: none !important;
     display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .report-hero-image-frame {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    max-height: 44mm !important;
+    display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    background-color: #f8fafc !important;
   }
 
   .report-hero-image img {
@@ -1372,13 +1723,22 @@ html.dark body {
     width: auto !important;
     max-width: 100% !important;
     height: auto !important;
-    max-height: 50mm !important;
+    max-height: 42mm !important;
     object-fit: contain !important;
     object-position: center center !important;
-    background-color: #020617 !important;
+    background-color: transparent !important;
     border: none !important;
     outline: none !important;
     box-shadow: none !important;
+  }
+
+  .report-hero-image-caption {
+    flex-shrink: 0 !important;
+    color: #64748b !important;
+    background-color: #f8fafc !important;
+    font-size: 6px !important;
+    line-height: 1.35 !important;
+    border-top: 1px solid #e2e8f0 !important;
   }
 
   #report-print-area .ring-1 {
@@ -1628,6 +1988,17 @@ html.dark body {
     margin-top: 0 !important;
   }
 
+  /* PPSR sheets already use .report-page-break (break-before); avoid trailing blank sheet. */
+  #report-print-area .report-ppsr-page-sheet {
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+  }
+
+  .report-ppsr-rendered-single .report-ppsr-full-image {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
   .report-ppsr-iframe {
     display: block !important;
     width: 100% !important;
@@ -1659,7 +2030,7 @@ html.dark body {
     height: 52mm !important;
     min-height: 52mm !important;
     max-height: 52mm !important;
-    background-color: #020617 !important;
+    background-color: #f8fafc !important;
     padding: 2mm 3mm 0 !important;
     box-sizing: border-box !important;
   }

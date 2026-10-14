@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { Lock } from "lucide-react";
 import { CarInsightsReport } from "@/components/report/CarInsightsReport";
 import { InsightsPlusBodyReport } from "@/components/report/InsightsPlusBodyReport";
-import { PpsrCertificateReportPage } from "@/components/report/PpsrCertificateReportPage";
+import { PpsrCertificateReportPages } from "@/components/report/PpsrCertificateReportPages";
+import { PPSR_CERTIFICATE_SHEET_COUNT } from "@/lib/ppsr-certificate-public";
 import { hasPpsrCertificate } from "@/lib/ppsr-certificate";
 import { ReportPrintActions } from "@/components/report/ReportPrintActions";
 import { getReport } from "@/lib/store";
@@ -134,21 +135,14 @@ export default async function ReportPage({
 
         <PresentAndFutureValueReportPage
           report={report}
-          pageLabel={`${reportPage++} / ${pageCount}`}
-          marketPageLabel={`${reportPage++} / ${pageCount}`}
-          pplatePageLabel={`${reportPage++} / ${pageCount}`}
-          ridesharePageLabel={`${reportPage++} / ${pageCount}`}
+          valuationsPageLabel={`${reportPage++} / ${pageCount}`}
+          supplementsPageLabel={`${reportPage++} / ${pageCount}`}
         />
 
         {hasVehicleSpecSheet ? (
           <VehicleSpecReportPage
             report={report}
             pageLabel={`${reportPage++} / ${pageCount}`}
-            factoryPageLabel={
-              hasFactoryFeatures
-                ? `${reportPage++} / ${pageCount}`
-                : undefined
-            }
           />
         ) : null}
 
@@ -159,16 +153,11 @@ export default async function ReportPage({
             inspectUrl={inspectUrlForOwner}
             showActions
             photosPageLabel={`${reportPage++} / ${pageCount}`}
-            additionalPhotosPageLabel={
-              hasAdditionalInspectionPhotos
-                ? `${reportPage++} / ${pageCount}`
-                : undefined
-            }
             damagePageLabel={`${reportPage++} / ${pageCount}`}
           />
         )}
 
-        <div className="report-page-break">
+        <div className="report-page-break report-sheet-pin-footer">
           <CarBuyingChecklistReportPage
             report={report}
             pageLabel={`${reportPage++} / ${pageCount}`}
@@ -177,12 +166,13 @@ export default async function ReportPage({
         </div>
 
         {hasPpsrAppendix ? (
-          <div className="report-page-break report-page-flow">
-            <PpsrCertificateReportPage
-              report={report}
-              pageLabel={`${reportPage++} / ${pageCount}`}
-            />
-          </div>
+          <PpsrCertificateReportPages
+            report={report}
+            pageLabels={Array.from(
+              { length: PPSR_CERTIFICATE_SHEET_COUNT },
+              (_, i) => `${reportPage + i} / ${pageCount}`,
+            )}
+          />
         ) : null}
 
         <p className="report-no-print text-center text-xs leading-relaxed text-slate-500">

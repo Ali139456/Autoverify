@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
   statusImageWrap: {
     width: "42%",
     height: STATUS_PANEL_HEIGHT,
-    backgroundColor: "#020617",
+    backgroundColor: "#f8fafc",
     flexDirection: "column",
     overflow: "hidden",
   },
@@ -256,31 +256,33 @@ const styles = StyleSheet.create({
     maxHeight: "100%",
     objectFit: "contain",
     objectPosition: "center",
-    backgroundColor: "#020617",
   },
   statusImageCaption: {
-    backgroundColor: "rgba(15,23,42,0.85)",
-    color: "#ffffff",
+    backgroundColor: "#f8fafc",
+    color: "#64748b",
     fontSize: 6,
     paddingHorizontal: 6,
     paddingVertical: 4,
     lineHeight: 1.35,
+    borderTopWidth: PDF_BORDER_INNER,
+    borderTopColor: BORDER_SLATE_200,
   },
   specHeroBanner: {
     marginTop: 10,
     width: "100%",
     minHeight: 128,
-    backgroundColor: "#020617",
+    backgroundColor: "#f8fafc",
     borderRadius: 8,
     overflow: "hidden",
     flexDirection: "column",
+    borderWidth: PDF_BORDER_INNER,
+    borderColor: BORDER_SLATE_200,
   },
   specHeroBannerImage: {
     width: "100%",
     height: 100,
     objectFit: "contain",
     objectPosition: "center",
-    backgroundColor: "#020617",
   },
   statusTitle: {
     fontSize: 7.5,
@@ -1195,19 +1197,21 @@ function CarInsightsOverviewPage({
   );
 }
 
-/** One sheet: overview + all key insights + warranty (matches web print). */
-function CarInsightsIntroPage({
+function CarInsightsIntroLeadPage({
   report,
+  insights,
   pageLabel,
+  includeWarranty = false,
 }: {
   report: VehicleReport;
+  insights: ReportInsight[];
   pageLabel: string;
+  includeWarranty?: boolean;
 }) {
   const { vehicle } = report;
   const specs = buildReportOverviewSpecs(vehicle, report);
   const statusChecks = buildStatusChecks(report);
   const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
-  const insights = buildKeyInsights(report);
 
   return (
     <PdfPageShell report={report} pageLabel={pageLabel}>
@@ -1251,14 +1255,64 @@ function CarInsightsIntroPage({
           <PdfVehicleHero vehicle={vehicle} vehicleTitle={vehicleTitle} />
         </View>
 
-        <View style={{ marginTop: 8 }}>
-          <Text style={styles.sectionLabel}>Key Insights</Text>
-          <PdfInsightGrid insights={insights} />
-        </View>
+        {insights.length > 0 ? (
+          <View style={{ marginTop: 8 }}>
+            <Text style={styles.sectionLabel}>Key Insights</Text>
+            <PdfInsightGrid insights={insights} />
+          </View>
+        ) : null}
 
-        <View style={{ marginTop: 6 }}>
-          <PdfManufacturersWarrantyNotice vehicle={vehicle} />
-        </View>
+        {includeWarranty ? (
+          <View style={{ marginTop: 6 }}>
+            <PdfManufacturersWarrantyNotice vehicle={vehicle} />
+          </View>
+        ) : null}
+      </View>
+    </PdfPageShell>
+  );
+}
+
+function CarInsightsKeyInsightsPage({
+  report,
+  insights,
+  pageLabel,
+  includeWarranty = true,
+}: {
+  report: VehicleReport;
+  insights: ReportInsight[];
+  pageLabel: string;
+  includeWarranty?: boolean;
+}) {
+  const { vehicle } = report;
+
+  return (
+    <PdfPageShell report={report} pageLabel={pageLabel}>
+      <View style={styles.bodyCompact}>
+        <Text style={styles.sectionLabel}>Key Insights (continued)</Text>
+        <PdfInsightGrid insights={insights} />
+        {includeWarranty ? (
+          <View style={{ marginTop: 6 }}>
+            <PdfManufacturersWarrantyNotice vehicle={vehicle} />
+          </View>
+        ) : null}
+      </View>
+    </PdfPageShell>
+  );
+}
+
+function CarInsightsWarrantyPage({
+  report,
+  pageLabel,
+}: {
+  report: VehicleReport;
+  pageLabel: string;
+}) {
+  const { vehicle } = report;
+
+  return (
+    <PdfPageShell report={report} pageLabel={pageLabel}>
+      <View style={styles.bodyCompact}>
+        <PdfManufacturersWarrantyNotice vehicle={vehicle} />
       </View>
     </PdfPageShell>
   );
@@ -1540,6 +1594,25 @@ function PdfValuationsPage({
           report={report}
           showFutureValue={showFutureValue}
         />
+        <PdfOdometerHistoryTable report={report} />
+        <PdfComparableVehiclesTable report={report} />
+      </View>
+    </PdfPageShell>
+  );
+}
+
+function PdfValuationSupplementsPage({
+  report,
+  pageLabel,
+}: {
+  report: VehicleReport;
+  pageLabel: string;
+}) {
+  return (
+    <PdfPageShell report={report} pageLabel={pageLabel}>
+      <View style={styles.body}>
+        <PdfPPlateSupplementContent report={report} />
+        <PdfRideShareSupplementContent />
       </View>
     </PdfPageShell>
   );
@@ -1903,6 +1976,9 @@ function InsightsPlusPhotosPage({
   const walkaroundPhotos = photos.filter((photo) =>
     isExteriorInspectionAngle(photo.angle),
   );
+  const additionalPhotos = photos.filter(
+    (photo) => !isExteriorInspectionAngle(photo.angle),
+  );
 
   return (
     <PdfPageShell report={report} pageLabel={pageLabel}>
@@ -1926,35 +2002,13 @@ function InsightsPlusPhotosPage({
           photos={walkaroundPhotos}
           note="Captured on the owner's device. Time and location are recorded beneath each photo when location access is granted; the front photo should show the registration plate."
         />
-      </View>
-    </PdfPageShell>
-  );
-}
-
-function InsightsPlusAdditionalPhotosPage({
-  report,
-  photos,
-  pageLabel,
-}: {
-  report: VehicleReport;
-  photos: InspectionPhoto[];
-  pageLabel: string;
-}) {
-  const { vehicle } = report;
-  const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
-  const additionalPhotos = photos.filter(
-    (photo) => !isExteriorInspectionAngle(photo.angle),
-  );
-  if (additionalPhotos.length === 0) return null;
-
-  return (
-    <PdfPageShell report={report} pageLabel={pageLabel}>
-      <View style={styles.body}>
-        <Text style={[styles.para, { fontSize: 8, color: GREY }]}>
-          Auto Verifi Insights+ · {vehicleTitle}
-        </Text>
-        <Text style={[styles.sectionTitle, { marginTop: 4 }]}>Additional Photos</Text>
-        <PdfPhotoGroup title="Additional Photos" photos={additionalPhotos} />
+        {additionalPhotos.length > 0 ? (
+          <PdfPhotoGroup
+            title="Additional Photos"
+            photos={additionalPhotos}
+            note="Wheels, interior, odometer, keys, and supporting records from the guided inspection."
+          />
+        ) : null}
       </View>
     </PdfPageShell>
   );
@@ -2054,38 +2108,41 @@ export function ReportPdf({
   photos?: InspectionPhoto[];
 }) {
   const isPlus = hasDamageAnalysis(report.tier);
-  const hasAdditionalPhotos = photos.some(
-    (photo) => !isExteriorInspectionAngle(photo.angle),
-  );
   const includeSpec = hasVehicleSpecContent(report.vehicleSpec);
   const specPageCount =
     includeSpec && report.vehicleSpec
       ? countVehicleSpecPdfPages(report.vehicleSpec)
       : 0;
-  const insightsPlusPageCount = isPlus ? (hasAdditionalPhotos ? 3 : 2) : 0;
+  const insightsPlusPageCount = isPlus ? 2 : 0;
+  const keyInsights = buildKeyInsights(report);
   const totalPages =
-    5 + // Intro + valuations + market + P-plate + ride-share
+    1 + // Overview + all key insights + warranty
+    2 + // Valuations + market; P-plate & ride-share
     specPageCount +
     insightsPlusPageCount +
     1; // Car buying checklist + general disclaimer (PPSR PDF merged after)
   let pageNumber = 1;
   const nextPageLabel = () => `${pageNumber++} / ${totalPages}`;
-  const introLabel = nextPageLabel();
+  const introLeadLabel = nextPageLabel();
   const valuationsLabel = nextPageLabel();
-  const marketDataLabel = nextPageLabel();
-  const pplateLabel = nextPageLabel();
-  const rideshareLabel = nextPageLabel();
+  const supplementsLabel = nextPageLabel();
   const specPageLabels = Array.from({ length: specPageCount }, () =>
     nextPageLabel(),
   );
 
   return (
     <Document title={`Auto Verifi Report ${report.id}`}>
-      <CarInsightsIntroPage report={report} pageLabel={introLabel} />
+      <CarInsightsIntroLeadPage
+        report={report}
+        insights={keyInsights}
+        pageLabel={introLeadLabel}
+        includeWarranty
+      />
       <PdfValuationsPage report={report} pageLabel={valuationsLabel} />
-      <PdfMarketDataPage report={report} pageLabel={marketDataLabel} />
-      <PdfPPlateSupplementPage report={report} pageLabel={pplateLabel} />
-      <PdfRideShareSupplementPage report={report} pageLabel={rideshareLabel} />
+      <PdfValuationSupplementsPage
+        report={report}
+        pageLabel={supplementsLabel}
+      />
       {includeSpec && report.vehicleSpec ? (
         <VehicleSpecPages report={report} pageLabels={specPageLabels} />
       ) : null}
@@ -2096,13 +2153,6 @@ export function ReportPdf({
             photos={photos}
             pageLabel={`${pageNumber++} / ${totalPages}`}
           />
-          {hasAdditionalPhotos ? (
-            <InsightsPlusAdditionalPhotosPage
-              report={report}
-              photos={photos}
-              pageLabel={`${pageNumber++} / ${totalPages}`}
-            />
-          ) : null}
           <InsightsPlusDamagePage
             report={report}
             photos={photos}

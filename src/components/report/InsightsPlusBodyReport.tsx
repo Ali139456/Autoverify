@@ -127,7 +127,6 @@ export function InsightsPlusBodyReport({
   inspectUrl,
   showActions = false,
   photosPageLabel,
-  additionalPhotosPageLabel,
   damagePageLabel,
   trailingContent,
 }: {
@@ -136,7 +135,6 @@ export function InsightsPlusBodyReport({
   inspectUrl?: string | null;
   showActions?: boolean;
   photosPageLabel: string;
-  additionalPhotosPageLabel?: string;
   damagePageLabel: string;
   /** Rendered at the end of the damage page body (e.g. the general disclaimer). */
   trailingContent?: ReactNode;
@@ -163,11 +161,11 @@ export function InsightsPlusBodyReport({
 
   return (
     <>
-      <div className="report-page-break report-page-flow">
+      <div className="report-page-break report-sheet-pin-footer">
         <ReportShell
           {...shellProps}
           pageLabel={photosPageLabel}
-          className="report-shell-flow report-shell-insights-plus report-shell-insights-plus-photos !overflow-visible"
+          className="report-shell-insights-plus report-shell-insights-plus-photos report-insights-plus-all-photos !overflow-visible"
         >
           <div className="report-insights-plus-photos-body space-y-6">
             <InsightsPlusTitleBlock vehicleTitle={vehicleTitle} />
@@ -207,37 +205,19 @@ export function InsightsPlusBodyReport({
               damageByPanel={damageByPanel}
               note="Captured on the owner's device. Time and location are recorded beneath each photo when location access is granted; the front photo should show the registration plate."
             />
-          </div>
-        </ReportShell>
-      </div>
-
-      {additionalPhotos.length > 0 && additionalPhotosPageLabel ? (
-        <div className="report-page-break report-page-flow">
-          <ReportShell
-            {...shellProps}
-            pageLabel={additionalPhotosPageLabel}
-            className="report-shell-flow report-shell-insights-plus report-shell-insights-plus-additional report-shell-insights-plus-photos !overflow-visible"
-          >
-            <div className="report-insights-plus-photos-body space-y-6">
-              <div className="report-insights-plus-damage-heading">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">
-                  Auto Verifi Insights+ · {vehicleTitle}
-                </p>
-                <h2 className="mt-1 text-lg font-extrabold text-slate-900">
-                  Additional photos
-                </h2>
-              </div>
+            {additionalPhotos.length > 0 ? (
               <PhotoGroup
                 title="Additional photos"
                 photos={additionalPhotos}
                 damageByPanel={damageByPanel}
+                note="Wheels, interior, odometer, keys, and supporting records from the guided inspection."
               />
-            </div>
-          </ReportShell>
-        </div>
-      ) : null}
+            ) : null}
+          </div>
+        </ReportShell>
+      </div>
 
-      <div className="report-page-break">
+      <div className="report-page-break report-sheet-pin-footer">
         <ReportShell
           {...shellProps}
           pageLabel={damagePageLabel}

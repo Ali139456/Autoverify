@@ -6,7 +6,8 @@ import { PresentAndFutureValueReportPage } from "@/components/report/PresentAndF
 
 import { ReportPrintActions } from "@/components/report/ReportPrintActions";
 
-import { PpsrCertificateReportPage } from "@/components/report/PpsrCertificateReportPage";
+import { PpsrCertificateReportPages } from "@/components/report/PpsrCertificateReportPages";
+import { PPSR_CERTIFICATE_SHEET_COUNT } from "@/lib/ppsr-certificate-public";
 
 import { ReportGeneralDisclaimer } from "@/components/report/ReportGeneralDisclaimer";
 import { CarBuyingChecklistReportPage } from "@/components/report/CarBuyingChecklistReportPage";
@@ -83,28 +84,20 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
           showUpgrade={false}
 
           pageLabel={`${reportPage++} / ${pageCount}`}
-
           deferValuations
 
         />
 
         <PresentAndFutureValueReportPage
           report={report}
-          pageLabel={`${reportPage++} / ${pageCount}`}
-          marketPageLabel={`${reportPage++} / ${pageCount}`}
-          pplatePageLabel={`${reportPage++} / ${pageCount}`}
-          ridesharePageLabel={`${reportPage++} / ${pageCount}`}
+          valuationsPageLabel={`${reportPage++} / ${pageCount}`}
+          supplementsPageLabel={`${reportPage++} / ${pageCount}`}
         />
 
         {hasVehicleSpecSheet ? (
           <VehicleSpecReportPage
             report={report}
             pageLabel={`${reportPage++} / ${pageCount}`}
-            factoryPageLabel={
-              hasFactoryFeatures
-                ? `${reportPage++} / ${pageCount}`
-                : undefined
-            }
           />
         ) : null}
 
@@ -116,12 +109,11 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
             photos={buildSampleInspectionPhotos()}
             showActions={false}
             photosPageLabel={`${reportPage++} / ${pageCount}`}
-            additionalPhotosPageLabel={`${reportPage++} / ${pageCount}`}
             damagePageLabel={`${reportPage++} / ${pageCount}`}
           />
         ) : null}
 
-        <div className="report-page-break">
+        <div className="report-page-break report-sheet-pin-footer">
           <CarBuyingChecklistReportPage
             report={report}
             pageLabel={`${reportPage++} / ${pageCount}`}
@@ -132,19 +124,13 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
 
 
         {hasPpsrAppendix ? (
-
-          <div className="report-page-break report-page-flow">
-
-            <PpsrCertificateReportPage
-
-              report={report}
-
-              pageLabel={`${reportPage++} / ${pageCount}`}
-
-            />
-
-          </div>
-
+          <PpsrCertificateReportPages
+            report={report}
+            pageLabels={Array.from(
+              { length: PPSR_CERTIFICATE_SHEET_COUNT },
+              (_, i) => `${reportPage + i} / ${pageCount}`,
+            )}
+          />
         ) : null}
 
 

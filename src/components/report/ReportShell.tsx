@@ -17,20 +17,13 @@ export function ReportShell({
   children: ReactNode;
 }) {
   const shellClass = className ?? "";
-  const pinFooterToSheetBottom =
-    !shellClass.includes("report-shell-ppsr") &&
-    !shellClass.includes("report-shell-flow") &&
-    !shellClass.includes("report-shell-insights-plus-photos") &&
-    !shellClass.includes("report-shell-insights-plus-additional");
-  const pinFooterFixedSheet =
-    pinFooterToSheetBottom &&
-    !shellClass.includes("report-shell-spec") &&
-    !shellClass.includes("report-shell-insights-plus-photos") &&
-    !shellClass.includes("report-shell-insights-plus-additional");
+  /** PPSR appendix uses full-bleed register pages (no branded footer band). */
+  const pinFooterToSheetBottom = !shellClass.includes("report-shell-ppsr");
+  const pinFooterFixedSheet = pinFooterToSheetBottom;
 
   return (
     <article
-      className={`report-shell flex min-w-0 max-w-full flex-col overflow-x-clip overflow-y-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 ${pinFooterToSheetBottom ? "report-shell-pin-footer " : ""}${pinFooterFixedSheet ? "report-shell-pin-footer--fixed " : ""}${shellClass}`}
+      className={`report-shell flex min-w-0 max-w-full flex-col overflow-x-clip overflow-y-visible rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 ${pinFooterToSheetBottom ? "report-shell-pin-footer " : ""}${pinFooterFixedSheet ? "report-shell-pin-footer--fixed " : ""}${shellClass}`}
     >
       <header className="report-shell-header border-b-2 border-[#0073E3] bg-white px-6 py-5 sm:px-8">
         <div className="flex items-start justify-between gap-6">

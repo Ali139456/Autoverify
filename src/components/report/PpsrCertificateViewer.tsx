@@ -1,78 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { usePpsrCertificateImages } from "./usePpsrCertificateImages";
 
 type PpsrCertificateViewerProps = {
   proxyUrl: string;
+  /** When set, only render this zero-based PDF page (used internally). */
+  pageIndex?: number;
 };
 
-export function PpsrCertificateViewer({ proxyUrl }: PpsrCertificateViewerProps) {
-  const [pageImages, setPageImages] = useState<string[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      try {
-        const pdfjs = await import("pdfjs-dist");
-        pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-          "pdfjs-dist/build/pdf.worker.min.mjs",
-          import.meta.url,
-        ).toString();
-
-        const res = await fetch(proxyUrl);
-        if (!res.ok) {
-          throw new Error("Could not load certificate.");
-        }
-        const data = await res.arrayBuffer();
-        const pdf = await pdfjs.getDocument({ data }).promise;
-        const images: string[] = [];
-
-        const maxCssWidth =
-          typeof window !== "undefined"
-            ? Math.min(window.innerWidth, 960) - 48
-            : 720;
-
-        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-          const page = await pdf.getPage(pageNum);
-          const base = page.getViewport({ scale: 1 });
-          const scale = Math.min(
-            1.75,
-            Math.max(1, maxCssWidth / base.width),
-          );
-          const viewport = page.getViewport({ scale });
-          const canvas = document.createElement("canvas");
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          const ctx = canvas.getContext("2d");
-          if (!ctx) continue;
-          await page.render({ canvasContext: ctx, viewport }).promise;
-          images.push(canvas.toDataURL("image/png"));
-        }
-
-        if (!cancelled) {
-          setPageImages(images);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(
-            err instanceof Error ? err.message : "Could not render certificate.",
-          );
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    }
-
-    void load();
-    return () => {
-      cancelled = true;
-    };
-  }, [proxyUrl]);
+export function PpsrCertificateViewer({
+  proxyUrl,
+  pageIndex,
+}: PpsrCertificateViewerProps) {
+  const { pageImages, error, loading } = usePpsrCertificateImages(proxyUrl);
 
   if (loading) {
     return (
@@ -97,14 +37,17 @@ export function PpsrCertificateViewer({ proxyUrl }: PpsrCertificateViewerProps) 
     );
   }
 
+  const images =
+    pageIndex != null ? pageImages.slice(pageIndex, pageIndex + 1) : pageImages;
+
   return (
     <div className="report-ppsr-rendered min-w-0 max-w-full">
-      {pageImages.map((src, index) => (
+      {images.map((src, index) => (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          key={`ppsr-page-${index}`}
+          key={`ppsr-page-${pageIndex ?? index}-${index}`}
           src={src}
-          alt={`PPSR certificate page ${index + 1}`}
+          alt={`PPSR certificate page ${(pageIndex ?? index) + 1}`}
           className="report-ppsr-full-image mx-auto block h-auto w-full max-w-full object-contain object-top [max-width:100%]"
           style={{ width: "100%", height: "auto" }}
         />

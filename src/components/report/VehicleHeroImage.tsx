@@ -32,13 +32,13 @@ export function VehicleHeroImage({
 
   const imgClass =
     imageClassName ??
-    "max-h-full max-w-full object-contain object-center bg-[#020617]";
+    "max-h-full max-w-full object-contain object-center bg-transparent";
 
   return (
-    <div className={`${className} flex min-h-0 flex-col overflow-hidden`}>
+    <div className={`${className} flex min-h-0 flex-col overflow-hidden bg-slate-50`}>
       {vehicle.heroImageUrl ? (
         <>
-          <div className="relative flex min-h-0 flex-1 items-center justify-center bg-[#020617]">
+          <div className="report-hero-image-frame relative flex min-h-0 flex-1 items-center justify-center bg-slate-50">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={vehicle.heroImageUrl}
@@ -47,7 +47,7 @@ export function VehicleHeroImage({
               decoding="async"
             />
           </div>
-          <p className="shrink-0 bg-black/55 px-3 py-1.5 text-[10px] leading-snug text-white">
+          <p className="report-hero-image-caption shrink-0 border-t border-slate-200 bg-slate-50 px-3 py-1.5 text-[10px] leading-snug text-slate-500">
             *{disclaimer}
           </p>
         </>
