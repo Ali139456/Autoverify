@@ -49,7 +49,11 @@ export function VehicleSpecReportPage({
         </ReportShell>
       </div>
       <div className="report-page-break report-page-flow">
-        <ReportShell {...shellProps} pageLabel={factoryPageLabel}>
+        <ReportShell
+          {...shellProps}
+          className="report-shell-spec report-shell-flow report-shell-spec-continued"
+          pageLabel={factoryPageLabel}
+        >
           <div className="space-y-6">
             <VehicleSpecReportSection report={report} part="factory" />
             {trailingContent}

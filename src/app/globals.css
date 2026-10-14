@@ -631,6 +631,36 @@ html.dark body {
     flex: 0 1 auto !important;
   }
 
+  /* Flow pages (vehicle spec): block layout so footer stays after body, not under header. */
+  #report-print-area .report-shell.report-shell-flow {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+
+  #report-print-area .report-shell.report-shell-flow .report-shell-header,
+  #report-print-area .report-shell.report-shell-flow .report-shell-body,
+  #report-print-area .report-shell.report-shell-flow .report-shell-footer {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  #report-print-area .report-shell.report-shell-flow .report-shell-header {
+    break-after: auto !important;
+    page-break-after: auto !important;
+  }
+
+  #report-print-area .report-shell.report-shell-flow .report-shell-footer {
+    break-before: auto !important;
+    page-break-before: auto !important;
+    margin-top: 14px !important;
+  }
+
+  #report-print-area .report-shell-spec-continued .report-shell-header {
+    display: none !important;
+  }
+
   /* Fill the printable sheet: body grows, footer sits on the bottom edge. */
   .report-shell-pin-footer .report-shell-body {
     flex: 1 1 0 !important;
