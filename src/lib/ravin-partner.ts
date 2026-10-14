@@ -77,13 +77,24 @@ export function buildInspectorLiteUrl(code: string): string {
   return url.toString();
 }
 
+/** True only for the guided Inspector Lite walkthrough (not inspector2 / “preparing inspection”). */
 export function isRavinInspectorLiteUrl(url: string): boolean {
   try {
     const parsed = new URL(url.startsWith("http") ? url : `https://${url}`);
     if (!parsed.hostname.includes("ravin-ai.com")) return false;
-    if (parsed.pathname.includes("inspector-lite")) return true;
-    const appType = parsed.searchParams.get("app_type")?.toLowerCase();
-    return appType === "lite" && parsed.pathname.includes("inspector");
+    return parsed.pathname.includes("inspector-lite");
+  } catch {
+    return false;
+  }
+}
+
+export function isRavinLegacyFullInspectorUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url.startsWith("http") ? url : `https://${url}`);
+    return (
+      parsed.hostname.includes("ravin-ai.com") &&
+      parsed.pathname.includes("inspector2")
+    );
   } catch {
     return false;
   }
@@ -109,7 +120,14 @@ export function coerceRavinInspectorLiteUrl(url: string): string {
   if (isRavinInspectorLiteUrl(normalized)) return normalized;
 
   const code = parseInspectorLiteCodeFromUrl(normalized);
-  if (!code) return normalized;
+  if (!code) {
+    if (isRavinLegacyFullInspectorUrl(normalized)) {
+      console.warn(
+        "[ravin-partner] Legacy inspector2 URL without session code; cannot rewrite to Inspector Lite.",
+      );
+    }
+    return normalized;
+  }
 
   return buildInspectorLiteUrl(code);
 }
@@ -449,6 +467,8 @@ export async function createRavinPartnerInvite(input: {
       ...(RAVIN_APP_TYPE
         ? { app_type: RAVIN_APP_TYPE, appType: RAVIN_APP_TYPE }
         : {}),
+      imageUpload: true,
+      inspectorPath: effectiveLiteInspectorPath(),
     }),
   });
 
@@ -467,7 +487,11 @@ export async function createRavinPartnerInvite(input: {
   if (!rawInviteUrl) {
     throw new Error("Ravin partner invite succeeded but no inspection link was returned.");
   }
-  const inviteUrl = coerceRavinInspectorLiteUrl(rawInviteUrl);
+  const sessionCode =
+    parseInspectorLiteCodeFromUrl(rawInviteUrl) ?? extractSessionCode(body);
+  const inviteUrl = sessionCode
+    ? buildInspectorLiteUrl(sessionCode)
+    : coerceRavinInspectorLiteUrl(rawInviteUrl);
 
   return {
     invitationId: claimId,

@@ -3,8 +3,53 @@ import { InspectionCapture } from "@/components/InspectionCapture";
 import {
   getInspectionByToken,
   isInspectionExpired,
+  updateInspection,
 } from "@/lib/inspections";
-import { coerceRavinInspectorLiteUrl } from "@/lib/ravin-partner";
+import {
+  coerceRavinInspectorLiteUrl,
+  createRavinPartnerInvite,
+  isRavinInspectorLiteUrl,
+  isRavinPartnerConfigured,
+} from "@/lib/ravin-partner";
+import { getReport } from "@/lib/store";
+import type { InspectionSession } from "@/lib/types";
+
+async function resolveRavinLiteRedirectUrl(
+  inspection: InspectionSession,
+): Promise<string | null> {
+  const stored = inspection.ravinInviteUrl?.trim();
+  if (!stored) return null;
+
+  let liteUrl = coerceRavinInspectorLiteUrl(stored);
+  if (isRavinInspectorLiteUrl(liteUrl)) {
+    if (liteUrl !== stored) {
+      await updateInspection(inspection.id, { ravinInviteUrl: liteUrl });
+    }
+    return liteUrl;
+  }
+
+  if (!isRavinPartnerConfigured()) return null;
+
+  const report = await getReport(inspection.reportId);
+  if (!report) return null;
+
+  try {
+    const invite = await createRavinPartnerInvite({
+      claimId: report.id,
+      lp: report.vehicle.rego,
+      state: report.vehicle.state,
+    });
+    liteUrl = invite.inviteUrl;
+    await updateInspection(inspection.id, {
+      ravinInviteUrl: liteUrl,
+      ravinInspectionId: invite.invitationId,
+    });
+    return isRavinInspectorLiteUrl(liteUrl) ? liteUrl : null;
+  } catch (err) {
+    console.error("[inspect] Ravin Inspector Lite refresh failed:", err);
+    return null;
+  }
+}
 
 export default async function InspectPage({
   params,
@@ -16,9 +61,9 @@ export default async function InspectPage({
 
   if (!inspection) notFound();
 
-  const ravinUrl = inspection.ravinInviteUrl?.trim();
-  if (ravinUrl) {
-    redirect(coerceRavinInspectorLiteUrl(ravinUrl));
+  const ravinRedirect = await resolveRavinLiteRedirectUrl(inspection);
+  if (ravinRedirect) {
+    redirect(ravinRedirect);
   }
 
   if (isInspectionExpired(inspection)) {

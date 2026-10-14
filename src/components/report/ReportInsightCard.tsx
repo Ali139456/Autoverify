@@ -101,7 +101,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
 
   return (
 
-    <div className="report-insight-card flex min-h-[104px] min-w-0 flex-col gap-3 overflow-hidden rounded-xl border border-slate-200 bg-slate-100 p-3.5 sm:p-4">
+    <div className="report-insight-card flex h-full min-h-[104px] min-w-0 flex-col gap-3 overflow-hidden rounded-xl border border-slate-200 bg-slate-100 p-3.5 sm:p-4">
 
       <div className="flex items-start justify-between gap-2">
 
@@ -113,7 +113,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
 
         />
 
-        <p className="flex-1 text-right text-[10px] font-semibold uppercase leading-snug text-slate-500">
+        <p className="report-insight-card-title flex-1 text-right text-xs font-bold uppercase leading-snug text-slate-900">
 
           {insight.title}
 
@@ -121,7 +121,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
 
       </div>
 
-      <div className="mt-3">
+      <div className="mt-3 flex min-h-0 flex-1 flex-col">
 
         {insight.lines?.length ? (
           <div className="space-y-1 text-left">

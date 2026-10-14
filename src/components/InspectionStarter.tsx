@@ -80,14 +80,7 @@ export function InspectionStarter({
       if (!data.inspectUrl) {
         throw new Error("Inspection link was not returned. Please try again.");
       }
-      const nextUrl =
-        data.provider === "ravin" && data.ravinInviteUrl
-          ? data.ravinInviteUrl
-          : data.inspectUrl;
-      setInspectUrl(nextUrl);
-      if (data.internalInspectUrl && data.provider === "internal") {
-        setInspectUrl(data.internalInspectUrl);
-      }
+      setInspectUrl(data.inspectUrl ?? data.internalInspectUrl ?? null);
       setProvider(data.provider ?? null);
       setRavinWarning(data.ravinWarning ?? null);
       setSmsSent(Boolean(data.smsSent));

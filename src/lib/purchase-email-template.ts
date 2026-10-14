@@ -67,11 +67,25 @@ function purchaseEmailReportHeading(tier: ReportTier, includePpsr: boolean): str
   return includePpsr ? `${productName} & PPSR Certificate` : productName;
 }
 
-/** Plain footer line — stops clients auto-linking street addresses (blue underline). */
-function formatEmailFooterPlainLine(text: string): string {
+/** Break patterns mail clients turn into blue address/map links. */
+function deterEmailAutoLink(escapedHtml: string): string {
+  return escapedHtml
+    .replace(/\b(100)\b/g, "100&#8203;")
+    .replace(/Barangaroo/gi, "Barang&#8203;aroo")
+    .replace(/Avenue/gi, "Ave&#8203;nue")
+    .replace(/\bNSW\b/g, "NSW&#8203;")
+    .replace(/\b(2000)\b/g, "20&#8203;00")
+    .replace(/,\s*/g, ",&#8203; ");
+}
+
+/** Plain footer line — same colour as company name; no auto-link underline. */
+function formatEmailFooterPlainLine(
+  text: string,
+  color: string = FOOTER_CONTACT_COLOR,
+): string {
   const escaped = escapeHtml(text);
-  const deterAutoLink = escaped.replace(/\b(100)\b/, "100&#8203;");
-  return `<span x-apple-data-detectors="false" style="color:${FOOTER_CONTACT_COLOR};text-decoration:none;">${deterAutoLink}</span>`;
+  const plain = deterEmailAutoLink(escaped);
+  return `<span x-apple-data-detectors="false" data-outlook-id="footer-plain" style="color:${color} !important;text-decoration:none !important;-webkit-text-decoration:none !important;font-style:normal !important;">${plain}</span>`;
 }
 
 function buildEmailFooterContactHtml(
@@ -81,7 +95,7 @@ function buildEmailFooterContactHtml(
   if (company.abn.trim()) {
     lines.push(formatEmailFooterPlainLine(`ABN ${formatAbnPlain(company.abn)}`));
   }
-  lines.push(formatEmailFooterPlainLine(company.address));
+  lines.push(formatEmailFooterPlainLine(company.address, BRAND_NAVY));
   lines.push(
     `<a href="mailto:${escapeHtml(company.email)}" style="color:${FOOTER_CONTACT_COLOR};text-decoration:none;">${escapeHtml(company.email)}</a>`,
   );
@@ -228,7 +242,7 @@ export function buildPurchaseConfirmationEmailHtml(
             <td style="background:#ffffff;padding:0 32px 28px;border-left:1px solid #dbeafe;border-right:1px solid #dbeafe;">
               <p style="margin:0 0 14px;font-size:15px;line-height:1.65;color:#334155;">
                 Thank you for choosing <strong style="color:${BRAND_BLUE};">Auto Verifi</strong>.
-                Your <strong>${escapeHtml(reportHeading)}</strong> for <strong>${escapeHtml(vehicleLabel)}</strong> is ready — your PDF report and tax invoice are attached.
+                Your <strong>${escapeHtml(reportHeading)}</strong> for <strong>${escapeHtml(vehicleLabel)}</strong> is ready — your PDF report, tax invoice${includePpsr ? ", and PPSR certificate" : ""} are attached.
               </p>
               <p style="margin:0 0 22px;font-size:15px;line-height:1.65;color:#334155;">
                 View the full interactive report online or download the PDF again using the buttons below.
@@ -307,7 +321,7 @@ export function buildPurchaseConfirmationEmailHtml(
                 This report is compiled from third-party data sources and is provided for information only.
                 It is not personal financial, legal or tax advice. You should make your own enquiries before purchasing a vehicle.
               </p>
-              <p style="margin:0;font-size:12px;line-height:1.75;color:#475569;">
+              <p x-apple-data-detectors="false" style="margin:0;font-size:12px;line-height:1.75;color:${FOOTER_CONTACT_COLOR};">
                 ${footerContactHtml}
               </p>
             </td>

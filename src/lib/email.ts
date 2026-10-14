@@ -2,7 +2,7 @@ import {
   buildPurchaseConfirmationEmailHtml,
   type PurchaseEmailContext,
 } from "./purchase-email-template";
-import { fetchPpsrCertificateForReport, hasPpsrCertificate } from "./ppsr-certificate";
+import { fetchPpsrCertificateForPurchaseEmail } from "./ppsr-certificate";
 import { generateReportPdfBuffer } from "./report-pdf-buffer";
 import { generateTaxInvoicePdfBuffer } from "./tax-invoice-pdf-buffer";
 import { buildPurchaseEmailContextFromSession } from "./stripe-purchase-email";
@@ -72,18 +72,16 @@ export async function sendPurchaseConfirmationEmail(
     }
   }
 
-  if (hasPpsrCertificate(report)) {
-    try {
-      const ppsrPdf = await fetchPpsrCertificateForReport(report);
-      if (ppsrPdf) {
-        attachments.push({
-          filename: `PPSR-Certificate-${report.vehicle.rego || report.vehicle.vin || report.id}.pdf`,
-          content: ppsrPdf.toString("base64"),
-        });
-      }
-    } catch {
-      // PPSR attachment is optional; combined report PDF may still include it.
+  try {
+    const ppsrPdf = await fetchPpsrCertificateForPurchaseEmail(report);
+    if (ppsrPdf) {
+      attachments.push({
+        filename: `PPSR-Certificate-${report.vehicle.rego || report.vehicle.vin || report.id}.pdf`,
+        content: ppsrPdf.toString("base64"),
+      });
     }
+  } catch {
+    // PPSR attachment is optional; combined report PDF may still include it.
   }
 
   await fetch("https://api.resend.com/emails", {

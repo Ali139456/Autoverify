@@ -109,9 +109,9 @@ function TierCard({
           <TierProductTitle tier={tier} />
         </div>
         {isPlus ? (
-          <p className="inline-flex max-w-full shrink-0 items-start gap-0.5 text-pretty text-[10px] font-semibold leading-snug text-accent-500 sm:max-w-[10.5rem] sm:items-center sm:justify-end sm:gap-1 sm:text-right sm:text-[11px] sm:leading-tight">
+          <p className="inline-flex max-w-full shrink-0 items-start gap-0 text-pretty text-[10px] font-semibold leading-snug text-accent-500 sm:max-w-[10.5rem] sm:items-center sm:justify-end sm:text-right sm:text-[11px] sm:leading-tight">
             <Sparkles
-              className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-500 sm:mt-0"
+              className="-mr-0.5 mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-500 sm:mt-0"
               aria-hidden
             />
             <span>Includes AI powered condition scan</span>

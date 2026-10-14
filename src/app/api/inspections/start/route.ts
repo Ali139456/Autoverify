@@ -81,8 +81,8 @@ export async function POST(req: NextRequest) {
     }
 
     const baseUrl = getBaseUrl();
-    const internalInspectUrl = getInspectionOwnerUrl(
-      { accessToken: inspection.accessToken, ravinInviteUrl: null },
+    const ownerEntryUrl = getInspectionOwnerUrl(
+      { accessToken: inspection.accessToken },
       baseUrl,
     );
 
@@ -96,10 +96,7 @@ export async function POST(req: NextRequest) {
       await updateInspection(inspection.id, { ravinInviteUrl });
     }
 
-    let inspectUrl = getInspectionOwnerUrl(
-      { accessToken: inspection.accessToken, ravinInviteUrl },
-      baseUrl,
-    );
+    let inspectUrl = ownerEntryUrl;
     let provider: "ravin" | "internal" = ravinInviteUrl ? "ravin" : "internal";
     let ravinWarning: string | null = null;
 
@@ -117,7 +114,7 @@ export async function POST(req: NextRequest) {
           state: report.vehicle.state,
         });
         ravinInviteUrl = coerceRavinInspectorLiteUrl(invite.inviteUrl);
-        inspectUrl = ravinInviteUrl;
+        inspectUrl = ownerEntryUrl;
         provider = "ravin";
 
         await updateInspection(inspection.id, {
@@ -127,7 +124,7 @@ export async function POST(req: NextRequest) {
         });
       } catch (ravinErr) {
         console.error("[inspections/start] Ravin partner invite failed:", ravinErr);
-        inspectUrl = internalInspectUrl;
+        inspectUrl = ownerEntryUrl;
         provider = "internal";
         ravinWarning =
           ravinErr instanceof Error
@@ -194,7 +191,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       inspectionId: inspection.id,
       inspectUrl,
-      internalInspectUrl,
+      internalInspectUrl: ownerEntryUrl,
       ravinInviteUrl,
       provider,
       ravinWarning,

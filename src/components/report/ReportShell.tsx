@@ -26,17 +26,17 @@ export function ReportShell({
       className={`report-shell flex min-w-0 max-w-full flex-col overflow-x-clip overflow-y-visible rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 ${pinFooterToSheetBottom ? "report-shell-pin-footer " : ""}${pinFooterFixedSheet ? "report-shell-pin-footer--fixed " : ""}${shellClass}`}
     >
       <header className="report-shell-header border-b-2 border-[#0073E3] bg-white px-6 py-5 sm:px-8">
-        <div className="flex items-start justify-between gap-6">
-          <div className="flex min-w-0 flex-col items-start">
+        <div className="report-shell-header-row flex items-start justify-between gap-6 sm:gap-8">
+          <div className="report-shell-header-brand flex min-w-0 flex-col items-start">
             <Logo height={52} linked={false} variant="onLight" />
-            <p className="mt-1 w-full text-left text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0073E3]">
+            <p className="mt-1.5 w-full text-left text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0073E3]">
               Past | Present | Future Vehicle Insights
             </p>
           </div>
-          <div className="text-right text-[10px] font-semibold uppercase leading-relaxed tracking-wide text-slate-500">
-            <p>Generated: {formatReportDate(generatedAt)}</p>
-            {reportReference ? <p>Report ref: {reportReference}</p> : null}
-            <p>Autoverifi.com.au</p>
+          <div className="report-shell-header-meta shrink-0 space-y-1 text-right text-[10px] font-semibold uppercase leading-normal tracking-wide text-slate-500">
+            <p className="m-0">Generated: {formatReportDate(generatedAt)}</p>
+            {reportReference ? <p className="m-0">Report ref: {reportReference}</p> : null}
+            <p className="m-0">Autoverifi.com.au</p>
           </div>
         </div>
       </header>

@@ -68,7 +68,26 @@ export async function fetchPpsrCertificateForReport(
   if (isSampleReportId(report.id)) {
     return generateSamplePpsrPdfBuffer(report);
   }
-  const url = report.registration.ppsrCertificateUrl;
+  const url = report.registration.ppsrCertificateUrl?.trim();
   if (!url) return null;
   return fetchPpsrCertificateBuffer(url);
+}
+
+/** Purchase email: refresh PPSR from AutoGrab when the stored certificate URL is missing. */
+export async function fetchPpsrCertificateForPurchaseEmail(
+  report: VehicleReport,
+): Promise<Buffer | null> {
+  if (isSampleReportId(report.id)) {
+    return generateSamplePpsrPdfBuffer(report);
+  }
+
+  let certificateUrl = report.registration.ppsrCertificateUrl?.trim() ?? "";
+  if (!certificateUrl) {
+    const { refreshPpsrCertificateSummary } = await import("./autograb");
+    const refreshed = await refreshPpsrCertificateSummary(report.vehicle);
+    certificateUrl = refreshed?.certificateUrl?.trim() ?? "";
+  }
+
+  if (!certificateUrl) return null;
+  return fetchPpsrCertificateBuffer(certificateUrl);
 }

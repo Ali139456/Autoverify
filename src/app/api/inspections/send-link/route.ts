@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getInspectionByReportId } from "@/lib/inspections";
+import {
+  getInspectionByReportId,
+  getInspectionOwnerUrl,
+  isInspectionExpired,
+} from "@/lib/inspections";
 import { hasDamageAnalysis } from "@/lib/pricing";
 import { sendInspectionLinkSms } from "@/lib/sms";
 import { getReport } from "@/lib/store";
+import { getBaseUrl } from "@/lib/stripe";
 
 export async function POST(req: NextRequest) {
   try {
@@ -31,15 +36,11 @@ export async function POST(req: NextRequest) {
     }
 
     const inspection = await getInspectionByReportId(reportId);
-    let link = inspectUrl;
-    if (!link) {
-      link = inspection?.ravinInviteUrl ?? "";
-    } else if (
-      inspection?.ravinInviteUrl &&
-      link.includes("/inspect/") &&
-      !link.includes("ravin-ai.com")
-    ) {
-      link = inspection.ravinInviteUrl;
+    let link = "";
+    if (inspection && !isInspectionExpired(inspection)) {
+      link = getInspectionOwnerUrl(inspection, getBaseUrl());
+    } else if (inspectUrl) {
+      link = inspectUrl;
     }
 
     if (!link) {

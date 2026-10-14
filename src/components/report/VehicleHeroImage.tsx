@@ -32,13 +32,13 @@ export function VehicleHeroImage({
 
   const imgClass =
     imageClassName ??
-    "max-h-full max-w-full object-contain object-center bg-transparent";
+    "report-hero-image-photo mx-auto block h-auto w-auto max-h-full max-w-full object-contain object-center";
 
   return (
     <div className={`${className} flex min-h-0 flex-col overflow-hidden bg-slate-50`}>
       {vehicle.heroImageUrl ? (
         <>
-          <div className="report-hero-image-frame relative flex min-h-0 flex-1 items-center justify-center bg-slate-50">
+          <div className="report-hero-image-frame relative flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-slate-50 px-2 py-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={vehicle.heroImageUrl}

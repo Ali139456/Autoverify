@@ -9,7 +9,6 @@ import {
 import { createServerClient } from "./supabase/server";
 import { isSupabaseServerConfigured } from "./supabase/server";
 import { mergeInspectionPhotosByAngle } from "./merge-inspection-photos";
-import { coerceRavinInspectorLiteUrl } from "./ravin-partner";
 import { InspectionPhoto, InspectionSession, InspectionStatus } from "./types";
 
 type InspectionRow = {
@@ -58,15 +57,12 @@ export function isInspectionExpired(session: InspectionSession): boolean {
   return new Date(session.expiresAt).getTime() < Date.now();
 }
 
-/** Owner-facing link (Ravin invite when set, otherwise Auto Verifi mobile capture). */
+/** Owner-facing entry URL — `/inspect/{token}` redirects to Inspector Lite when configured. */
 export function getInspectionOwnerUrl(
-  session: Pick<InspectionSession, "accessToken" | "ravinInviteUrl">,
+  session: Pick<InspectionSession, "accessToken">,
   baseUrl: string,
 ): string {
   const base = baseUrl.replace(/\/$/, "");
-  if (session.ravinInviteUrl?.trim()) {
-    return coerceRavinInspectorLiteUrl(session.ravinInviteUrl);
-  }
   return `${base}/inspect/${session.accessToken}`;
 }
 

@@ -61,9 +61,9 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
 
         <div className="report-no-print rounded-xl border border-[#0073E3]/30 bg-[#0073E3]/5 px-4 py-3 text-center text-sm text-slate-700">
 
-          <span className="font-bold text-[#0073E3]">Sample report</span> — illustrative
-
-          data only. Purchase a report for your vehicle&apos;s live checks and valuation.
+          <span className="font-bold text-[#0073E3]">Sample report (QA baseline)</span> — fixed{" "}
+          <strong>MB3NZ · NSW</strong> · 2022 Mercedes-Benz C300 data for layout and print checks.
+          Live purchased reports use AutoGrab data and page lengths can differ.
 
         </div>
 

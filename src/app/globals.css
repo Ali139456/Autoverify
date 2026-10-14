@@ -505,19 +505,45 @@ html.dark body {
 
 .report-hero-image {
   position: relative;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   background-color: #f8fafc;
   overflow: hidden;
 }
 
 .report-hero-image-frame {
+  flex: 1 1 auto;
+  min-height: 0;
   background-color: #f8fafc;
 }
 
-.report-hero-image img {
+.report-hero-image-photo {
   object-fit: contain;
   object-position: center center;
-  background-color: transparent;
+  background-color: #f8fafc;
+  /* Stock images often have a white matte; blend into the panel grey. */
+  mix-blend-mode: multiply;
+}
+
+@media print {
+  .report-hero-image-photo {
+    mix-blend-mode: normal;
+    background-color: transparent;
+  }
+}
+
+.report-shell-header-row {
+  align-items: flex-start;
+}
+
+.report-shell-header-meta {
+  min-width: 8.75rem;
+  line-height: 1.55;
+}
+
+.report-shell-header-meta p {
+  margin: 0;
 }
 
 .report-hero-image-caption {
@@ -775,6 +801,14 @@ html.dark body {
     padding: 14px 18px !important;
   }
 
+  .report-shell-header .report-shell-header-row {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 14px !important;
+  }
+
   .report-shell-header img {
     height: 42px !important;
     width: auto !important;
@@ -784,6 +818,13 @@ html.dark body {
     filter: none !important;
   }
 
+  .report-shell-header .report-shell-header-brand p {
+    color: #0073e3 !important;
+    font-size: 8px !important;
+    margin-top: 4px !important;
+    letter-spacing: 0.18em !important;
+  }
+
   .report-shell-header > div > div:first-child p {
     color: #0073e3 !important;
     font-size: 8px !important;
@@ -791,10 +832,26 @@ html.dark body {
     letter-spacing: 0.18em !important;
   }
 
+  .report-shell-header .report-shell-header-meta {
+    min-width: 9.5rem !important;
+    line-height: 1.55 !important;
+  }
+
+  .report-shell-header .report-shell-header-meta p {
+    color: #64748b !important;
+    font-size: 8px !important;
+    line-height: 1.55 !important;
+    margin: 0 !important;
+  }
+
+  .report-shell-header .report-shell-header-meta p + p {
+    margin-top: 3px !important;
+  }
+
   .report-shell-header > div > div:last-child p {
     color: #64748b !important;
     font-size: 8px !important;
-    line-height: 1.45 !important;
+    line-height: 1.55 !important;
   }
 
   .report-shell-body {
@@ -1039,7 +1096,14 @@ html.dark body {
   }
 
   .report-shell-insights-intro .report-insights-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    align-items: stretch !important;
     gap: 3px !important;
+  }
+
+  .report-shell-insights-intro .report-insight-card {
+    height: 100% !important;
   }
 
   .report-shell-insights-intro .report-hero-image {
@@ -1185,12 +1249,16 @@ html.dark body {
 
   .report-shell-insights-page1 .report-insights-grid,
   .report-shell-insights-key-insights .report-insights-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    align-items: stretch !important;
     gap: 4px !important;
   }
 
   .report-shell-insights-page1 .report-insight-card,
   .report-shell-insights-key-insights .report-insight-card {
     min-height: 0 !important;
+    height: 100% !important;
     padding: 6px !important;
     gap: 6px !important;
   }
@@ -1796,16 +1864,17 @@ html.dark body {
 
   .report-insights-grid {
     flex: 1 1 auto !important;
+    display: grid !important;
     grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
     grid-auto-rows: auto !important;
     gap: 8px !important;
     align-content: start !important;
-    align-items: start !important;
+    align-items: stretch !important;
   }
 
   .report-insight-card {
     min-height: 0 !important;
-    height: auto !important;
+    height: 100% !important;
     box-shadow: none !important;
     padding: 10px !important;
     border-radius: 8px !important;
@@ -1825,6 +1894,12 @@ html.dark body {
     line-height: 1.3 !important;
     hyphens: none !important;
     -webkit-hyphens: none !important;
+  }
+
+  .report-insight-card .report-insight-card-title {
+    color: #0f172a !important;
+    font-size: 9px !important;
+    font-weight: 700 !important;
   }
 
   .report-insight-card a {
@@ -2075,23 +2150,46 @@ html.dark body {
     border-color: #cbd5e1 !important;
   }
 
+  #report-print-area .border-t.border-slate-100,
   #report-print-area tr.border-t.border-slate-100 {
     border-top-width: 1px !important;
     border-top-style: solid !important;
     border-top-color: #f1f5f9 !important;
   }
 
+  #report-print-area .border-t.border-slate-200,
+  #report-print-area tr.border-t.border-slate-200 {
+    border-top-width: 1px !important;
+    border-top-style: solid !important;
+    border-top-color: #e2e8f0 !important;
+  }
+
+  #report-print-area .border-b.border-slate-100,
   #report-print-area tr.border-b.border-slate-100 {
     border-bottom-width: 1px !important;
     border-bottom-style: solid !important;
     border-bottom-color: #f1f5f9 !important;
   }
 
+  #report-print-area .border-b.border-slate-200,
   #report-print-area tr.border-b.border-slate-200,
   #report-print-area thead tr.border-b {
     border-bottom-width: 1px !important;
     border-bottom-style: solid !important;
     border-bottom-color: #e2e8f0 !important;
+  }
+
+  #report-print-area table {
+    border-collapse: collapse !important;
+  }
+
+  /* One hairline under header — avoid stacked thead + first-row borders in print. */
+  #report-print-area table thead tr {
+    border-bottom: 1px solid #e2e8f0 !important;
+  }
+
+  #report-print-area table tbody tr:first-child {
+    border-top: none !important;
   }
 
   #report-print-area .report-section-heading {
@@ -2135,6 +2233,20 @@ html.dark body {
   }
 
   #report-print-area .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+    border-color: #e2e8f0 !important;
+    border-style: solid !important;
+  }
+
+  #report-print-area .report-spec-bar {
+    border-width: 1px !important;
+    border-style: solid !important;
+    border-color: #e2e8f0 !important;
+  }
+
+  #report-print-area .report-spec-bar.divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+    border-width: 0 !important;
+    border-top-width: 1px !important;
+    border-left-width: 1px !important;
     border-color: #e2e8f0 !important;
   }
 
