@@ -72,8 +72,10 @@ export function Footer({ showPurchaseCta = true }: { showPurchaseCta?: boolean }
         <div className="md:col-span-5">
           <Logo height={52} variant="auto" />
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-            Past, Present and Future insights to buy your next car with
-            confidence.
+            Past, Present and Future insights to{" "}
+            <span className="font-medium text-[#0073E3]">
+              buy your next car with confidence.
+            </span>
           </p>
         </div>
 

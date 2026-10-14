@@ -802,7 +802,7 @@ function PdfInsightCard({
                         lineHeight: PDF_INSIGHT_LINE,
                       }}
                     >
-                      Verify ANCAP rating here:{" "}
+                      Verify ANCAP{"\n"}rating here:{" "}
                       <Link src={ANCAP_SAFETY_RATINGS_URL}>
                         www.ancap.com.au/safety-ratings
                       </Link>
@@ -1040,7 +1040,7 @@ function pdfRideShareLineColor(variant: string): string {
   return GREY;
 }
 
-function PdfValuationSupplements({ report }: { report: VehicleReport }) {
+function PdfPPlateSupplementContent({ report }: { report: VehicleReport }) {
   const pPlateStatus = formatPPlateStatus(report.vehicle);
   return (
     <View style={{ marginTop: 4 }}>
@@ -1096,8 +1096,14 @@ function PdfValuationSupplements({ report }: { report: VehicleReport }) {
           </View>
         ))}
       </View>
+    </View>
+  );
+}
 
-      <Text style={[styles.sectionTitle, { marginTop: 8, fontSize: 8 }]}>
+function PdfRideShareSupplementContent() {
+  return (
+    <View style={{ marginTop: 4 }}>
+      <Text style={[styles.sectionTitle, { fontSize: 8 }]}>
         {RIDE_SHARE_TABLE_HEADING}
       </Text>
       <View style={styles.pdfTableWrap}>
@@ -1189,7 +1195,8 @@ function CarInsightsOverviewPage({
   );
 }
 
-function CarInsightsKeyInsightsPage({
+/** One sheet: overview + all key insights + warranty (matches web print). */
+function CarInsightsIntroPage({
   report,
   pageLabel,
 }: {
@@ -1197,33 +1204,61 @@ function CarInsightsKeyInsightsPage({
   pageLabel: string;
 }) {
   const { vehicle } = report;
+  const specs = buildReportOverviewSpecs(vehicle, report);
+  const statusChecks = buildStatusChecks(report);
+  const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
   const insights = buildKeyInsights(report);
 
   return (
     <PdfPageShell report={report} pageLabel={pageLabel}>
       <View style={styles.bodyCompact}>
-        <View style={{ marginTop: 0 }}>
-          <Text style={styles.sectionLabel}>Key Insights</Text>
+        <Text style={styles.title}>{getVehicleReportMainTitle(report.tier)}</Text>
+        <Text style={styles.vehicleName}>{vehicleTitle}</Text>
+        <Text style={styles.subtitle}>
+          A comprehensive summary of your vehicle&apos;s history, status and key insights.
+        </Text>
+
+        <PdfOverviewSpecBar specs={specs} />
+
+        <View style={[styles.statusPanel, { marginTop: 6 }]}>
+          <View style={styles.statusLeft}>
+            <Text style={styles.statusTitle}>Vehicle Status</Text>
+            {statusChecks.map((item) => (
+              <View key={item.label} style={styles.statusRow}>
+                <PdfCheckIcon
+                  ok={item.ok}
+                  issue={item.issue}
+                  muted={item.muted}
+                  advisory={item.advisory}
+                />
+                <Text
+                  style={{
+                    ...styles.statusText,
+                    color: item.issue
+                      ? "#dc2626"
+                      : item.advisory
+                        ? "#94a3b8"
+                        : item.muted
+                          ? "#94a3b8"
+                          : styles.statusText.color,
+                  }}
+                >
+                  {item.label}
+                </Text>
+              </View>
+            ))}
+          </View>
+          <PdfVehicleHero vehicle={vehicle} vehicleTitle={vehicleTitle} />
         </View>
-        <PdfInsightGrid insights={insights} />
-      </View>
-    </PdfPageShell>
-  );
-}
 
-function CarInsightsWarrantySupplementPage({
-  report,
-  pageLabel,
-}: {
-  report: VehicleReport;
-  pageLabel: string;
-}) {
-  const { vehicle } = report;
+        <View style={{ marginTop: 8 }}>
+          <Text style={styles.sectionLabel}>Key Insights</Text>
+          <PdfInsightGrid insights={insights} />
+        </View>
 
-  return (
-    <PdfPageShell report={report} pageLabel={pageLabel}>
-      <View style={styles.bodyCompact}>
-        <PdfManufacturersWarrantyNotice vehicle={vehicle} />
+        <View style={{ marginTop: 6 }}>
+          <PdfManufacturersWarrantyNotice vehicle={vehicle} />
+        </View>
       </View>
     </PdfPageShell>
   );
@@ -1301,13 +1336,11 @@ function PdfPresentAndFutureValuations({
         </View>
       ) : null}
 
-      <PdfOdometerHistoryTable report={report} />
-      <PdfComparableVehiclesTable report={report} />
     </>
   );
 }
 
-function PdfSupplementsPage({
+function PdfMarketDataPage({
   report,
   pageLabel,
 }: {
@@ -1317,7 +1350,40 @@ function PdfSupplementsPage({
   return (
     <PdfPageShell report={report} pageLabel={pageLabel}>
       <View style={styles.body}>
-        <PdfValuationSupplements report={report} />
+        <PdfOdometerHistoryTable report={report} />
+        <PdfComparableVehiclesTable report={report} />
+      </View>
+    </PdfPageShell>
+  );
+}
+
+function PdfPPlateSupplementPage({
+  report,
+  pageLabel,
+}: {
+  report: VehicleReport;
+  pageLabel: string;
+}) {
+  return (
+    <PdfPageShell report={report} pageLabel={pageLabel}>
+      <View style={styles.body}>
+        <PdfPPlateSupplementContent report={report} />
+      </View>
+    </PdfPageShell>
+  );
+}
+
+function PdfRideShareSupplementPage({
+  report,
+  pageLabel,
+}: {
+  report: VehicleReport;
+  pageLabel: string;
+}) {
+  return (
+    <PdfPageShell report={report} pageLabel={pageLabel}>
+      <View style={styles.body}>
+        <PdfRideShareSupplementContent />
       </View>
     </PdfPageShell>
   );
@@ -1998,31 +2064,28 @@ export function ReportPdf({
       : 0;
   const insightsPlusPageCount = isPlus ? (hasAdditionalPhotos ? 3 : 2) : 0;
   const totalPages =
-    5 + // Overview, key insights, warranty supplement, valuations, P-plate / ride-share supplements
+    5 + // Intro + valuations + market + P-plate + ride-share
     specPageCount +
     insightsPlusPageCount +
     1; // Car buying checklist + general disclaimer (PPSR PDF merged after)
   let pageNumber = 1;
   const nextPageLabel = () => `${pageNumber++} / ${totalPages}`;
-  const overviewLabel = nextPageLabel();
-  const keyInsightsLabel = nextPageLabel();
-  const warrantySupplementLabel = nextPageLabel();
+  const introLabel = nextPageLabel();
   const valuationsLabel = nextPageLabel();
-  const supplementsLabel = nextPageLabel();
+  const marketDataLabel = nextPageLabel();
+  const pplateLabel = nextPageLabel();
+  const rideshareLabel = nextPageLabel();
   const specPageLabels = Array.from({ length: specPageCount }, () =>
     nextPageLabel(),
   );
 
   return (
     <Document title={`Auto Verifi Report ${report.id}`}>
-      <CarInsightsOverviewPage report={report} pageLabel={overviewLabel} />
-      <CarInsightsKeyInsightsPage report={report} pageLabel={keyInsightsLabel} />
-      <CarInsightsWarrantySupplementPage
-        report={report}
-        pageLabel={warrantySupplementLabel}
-      />
+      <CarInsightsIntroPage report={report} pageLabel={introLabel} />
       <PdfValuationsPage report={report} pageLabel={valuationsLabel} />
-      <PdfSupplementsPage report={report} pageLabel={supplementsLabel} />
+      <PdfMarketDataPage report={report} pageLabel={marketDataLabel} />
+      <PdfPPlateSupplementPage report={report} pageLabel={pplateLabel} />
+      <PdfRideShareSupplementPage report={report} pageLabel={rideshareLabel} />
       {includeSpec && report.vehicleSpec ? (
         <VehicleSpecPages report={report} pageLabels={specPageLabels} />
       ) : null}

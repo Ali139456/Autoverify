@@ -24,7 +24,10 @@ import { ReportOdometerHistoryTable } from "./ReportOdometerHistoryTable";
 
 import { ReportShell } from "./ReportShell";
 
-import { ReportValuationSupplements } from "./ReportValuationSupplements";
+import {
+  ReportPPlateSupplement,
+  ReportRideShareSupplement,
+} from "./ReportValuationSupplements";
 
 
 
@@ -34,7 +37,11 @@ export function PresentAndFutureValueReportPage({
 
   pageLabel,
 
-  supplementsPageLabel,
+  marketPageLabel,
+
+  pplatePageLabel,
+
+  ridesharePageLabel,
 
   trailingContent,
 
@@ -44,9 +51,13 @@ export function PresentAndFutureValueReportPage({
 
   pageLabel: string;
 
-  /** Footer label for P-plate + ride-share (one sheet in print). */
+  /** Footer label for odometer history + comparable listings. */
 
-  supplementsPageLabel: string;
+  marketPageLabel: string;
+
+  pplatePageLabel: string;
+
+  ridesharePageLabel: string;
 
   /** Rendered at the end of the supplements page body (e.g. the general disclaimer). */
 
@@ -90,7 +101,7 @@ export function PresentAndFutureValueReportPage({
 
     <>
 
-      <div className="report-page-break report-valuations-page-break">
+      <div className="report-page-break report-page-flow report-valuations-page-break">
 
         <ReportShell
 
@@ -98,7 +109,7 @@ export function PresentAndFutureValueReportPage({
 
           pageLabel={pageLabel}
 
-          className="report-shell-valuations !overflow-x-visible"
+          className="report-shell-flow report-shell-valuations report-shell-valuations-primary !overflow-x-visible"
 
         >
 
@@ -238,7 +249,27 @@ export function PresentAndFutureValueReportPage({
 
             </div>
 
+          </div>
 
+        </ReportShell>
+
+      </div>
+
+
+
+      <div className="report-page-break report-page-flow report-valuations-market-sheet">
+
+        <ReportShell
+
+          {...shellProps}
+
+          pageLabel={marketPageLabel}
+
+          className="report-shell-flow report-shell-valuations report-shell-valuations-market !overflow-x-visible"
+
+        >
+
+          <div className="report-body min-w-0 space-y-6">
 
             <ReportOdometerHistoryTable report={report} />
 
@@ -252,21 +283,45 @@ export function PresentAndFutureValueReportPage({
 
 
 
-      <div className="report-page-break">
+      <div className="report-page-break report-page-flow">
 
         <ReportShell
 
           {...shellProps}
 
-          pageLabel={supplementsPageLabel}
+          pageLabel={pplatePageLabel}
 
-          className="report-shell-valuations report-shell-valuations-supplements !overflow-x-visible"
+          className="report-shell-flow report-shell-valuations report-shell-valuations-pplate !overflow-x-visible"
 
         >
 
           <div className="report-body min-w-0 space-y-6">
 
-            <ReportValuationSupplements report={report} />
+            <ReportPPlateSupplement report={report} />
+
+          </div>
+
+        </ReportShell>
+
+      </div>
+
+
+
+      <div className="report-page-break report-page-flow">
+
+        <ReportShell
+
+          {...shellProps}
+
+          pageLabel={ridesharePageLabel}
+
+          className="report-shell-flow report-shell-valuations report-shell-valuations-rideshare !overflow-x-visible"
+
+        >
+
+          <div className="report-body min-w-0 space-y-6">
+
+            <ReportRideShareSupplement />
 
             {trailingContent}
 

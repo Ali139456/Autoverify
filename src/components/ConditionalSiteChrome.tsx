@@ -18,7 +18,8 @@ export function ConditionalSiteChrome({
   const hideFooterPurchaseCta =
     pathname.startsWith("/check") ||
     pathname.startsWith("/checkout") ||
-    pathname.startsWith("/report/");
+    pathname.startsWith("/report/") ||
+    pathname.startsWith("/sample-report");
   const isPreviewLogin = pathname === "/preview";
   const isComingSoonHome =
     pathname === "/" && comingSoonMode && !previewAccess;

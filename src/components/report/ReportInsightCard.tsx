@@ -128,14 +128,23 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
             {insight.lines.map((line) => (
               <p
                 key={line.text}
-                className={rideShareLineClass(line.variant)}
+                className={`${rideShareLineClass(line.variant)} [hyphens:none]`}
                 style={
                   line.variant === "action"
                     ? { color: RIDE_SHARE_ORANGE }
                     : undefined
                 }
               >
-                {line.text}
+                {line.variant === "action" &&
+                line.text === "Check state-specific requirements" ? (
+                  <>
+                    Check state-specific
+                    <br />
+                    requirements
+                  </>
+                ) : (
+                  line.text
+                )}
               </p>
             ))}
             {insight.detail ? (
@@ -203,8 +212,10 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
               </div>
             </div>
             {insight.id === "ancap" && insight.status === "Not available" ? (
-              <p className="mt-2 min-w-0 text-[11px] leading-relaxed break-words text-slate-600">
-                Verify ANCAP rating here:{" "}
+              <p className="report-insight-ancap-note mt-2 min-w-0 text-[11px] leading-relaxed text-slate-600 [hyphens:none]">
+                Verify ANCAP
+                <br />
+                rating here:{" "}
                 <a
                   href={ANCAP_SAFETY_RATINGS_URL}
                   target="_blank"

@@ -129,15 +129,15 @@ export default async function ReportPage({
           report={report}
           showUpgrade={!includesDamage}
           pageLabel={`${reportPage++} / ${pageCount}`}
-          keyInsightsPageLabel={`${reportPage++} / ${pageCount}`}
-          warrantyPageLabel={`${reportPage++} / ${pageCount}`}
           deferValuations
         />
 
         <PresentAndFutureValueReportPage
           report={report}
           pageLabel={`${reportPage++} / ${pageCount}`}
-          supplementsPageLabel={`${reportPage++} / ${pageCount}`}
+          marketPageLabel={`${reportPage++} / ${pageCount}`}
+          pplatePageLabel={`${reportPage++} / ${pageCount}`}
+          ridesharePageLabel={`${reportPage++} / ${pageCount}`}
         />
 
         {hasVehicleSpecSheet ? (
@@ -168,7 +168,7 @@ export default async function ReportPage({
           />
         )}
 
-        <div className="report-page-break">
+        <div className="report-page-break report-page-flow">
           <CarBuyingChecklistReportPage
             report={report}
             pageLabel={`${reportPage++} / ${pageCount}`}

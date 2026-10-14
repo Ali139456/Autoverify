@@ -352,9 +352,24 @@ html.dark body {
   -webkit-print-color-adjust: exact;
 }
 
+.report-spec-data-table {
+  table-layout: fixed;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.report-spec-data-col-label {
+  width: 42%;
+}
+
+.report-spec-data-col-value {
+  width: 58%;
+}
+
 .report-spec-data-label {
   background-color: #f1f5f9;
   border-right: 1px solid #e2e8f0;
+  vertical-align: top;
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
 }
@@ -511,24 +526,38 @@ html.dark body {
     box-sizing: border-box !important;
   }
 
-  #report-print-area > .report-page-break:not(.report-page-flow),
-  #report-print-area > .report-print-page-first {
+  /*
+   * One-sheet sections: fixed printable height so the footer pins to the bottom
+   * (content is split across shells so nothing overflows under the footer).
+   */
+  #report-print-area > .report-print-one-sheet,
+  #report-print-area > .report-print-page-first.report-print-one-sheet {
     height: auto !important;
     min-height: 279.5mm !important;
   }
 
+  #report-print-area > .report-print-one-sheet > .report-shell.report-shell-pin-footer:not(.report-shell-pin-footer--fixed),
   #report-print-area
-    > .report-page-break:not(.report-page-flow)
-    > .report-shell.report-shell-pin-footer:not(.report-shell-pin-footer--fixed),
-  #report-print-area
-    > .report-print-page-first
+    > .report-print-page-first.report-print-one-sheet
     > .report-shell.report-shell-pin-footer:not(.report-shell-pin-footer--fixed) {
-    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 auto !important;
+    height: 100% !important;
     min-height: 279.5mm !important;
+    max-height: none !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
-  .report-shell.report-shell-pin-footer {
-    min-height: 279.5mm !important;
+  #report-print-area > .report-page-break:not(.report-page-flow):not(.report-print-one-sheet),
+  #report-print-area > .report-print-page-first:not(.report-print-one-sheet) {
+    height: auto !important;
+    min-height: auto !important;
+  }
+
+  .report-shell.report-shell-pin-footer:not(.report-shell-pin-footer--fixed) {
+    min-height: auto !important;
     height: auto !important;
     max-height: none !important;
     break-inside: auto !important;
@@ -559,17 +588,6 @@ html.dark body {
   #report-print-area .report-shell-ppsr {
     break-inside: auto !important;
     page-break-inside: auto !important;
-  }
-
-  #report-print-area
-    > .report-page-break:not(.report-page-flow)
-    > .report-shell.report-shell-pin-footer,
-  #report-print-area
-    > .report-print-page-first
-    > .report-shell.report-shell-pin-footer {
-    flex: 1 1 auto !important;
-    height: 100% !important;
-    min-height: 100% !important;
   }
 
   #report-print-area > .report-page-break:last-child,
@@ -659,6 +677,16 @@ html.dark body {
     margin-top: 14px !important;
   }
 
+  #report-print-area .report-shell.report-shell-flow .report-shell-body {
+    flex: none !important;
+    min-height: 0 !important;
+  }
+
+  #report-print-area .report-shell.report-shell-flow {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+
   #report-print-area .report-shell-spec-continued .report-shell-header {
     display: none !important;
   }
@@ -739,23 +767,110 @@ html.dark body {
     page-break-before: auto;
   }
 
-  #report-print-area > .report-insights-overview-sheet {
-    break-after: page !important;
-    page-break-after: always !important;
+  #report-print-area > .report-insights-intro-sheet {
     min-height: auto !important;
     height: auto !important;
-  }
-
-  #report-print-area > .report-insights-key-insights-sheet {
     break-after: page !important;
     page-break-after: always !important;
   }
 
-  #report-print-area > .report-insights-overview-sheet > .report-shell,
-  #report-print-area > .report-insights-key-insights-sheet > .report-shell,
-  #report-print-area > .report-insights-warranty-sheet > .report-shell {
+  #report-print-area > .report-valuations-market-sheet {
+    break-after: page !important;
+    page-break-after: always !important;
+  }
+
+  /* Intro: grow with content; footer after body (no 279.5mm pin / overlap). */
+  #report-print-area .report-shell.report-shell-insights-intro {
+    display: block !important;
     min-height: auto !important;
     height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+
+  #report-print-area .report-shell.report-shell-insights-intro .report-shell-header,
+  #report-print-area .report-shell.report-shell-insights-intro .report-shell-body,
+  #report-print-area .report-shell.report-shell-insights-intro .report-shell-footer {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  #report-print-area .report-shell.report-shell-insights-intro .report-shell-body {
+    flex: none !important;
+    min-height: 0 !important;
+  }
+
+  #report-print-area .report-shell.report-shell-insights-intro .report-shell-footer {
+    margin-top: 14px !important;
+    break-before: auto !important;
+    page-break-before: auto !important;
+  }
+
+  .report-shell-insights-intro .report-insight-card,
+  .report-shell-insights-intro .report-insights-grid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .report-shell-insights-intro .report-insights-header {
+    margin-bottom: 4px !important;
+  }
+
+  .report-shell-insights-intro .report-insights-header h2 {
+    font-size: 10px !important;
+  }
+
+  .report-shell-insights-intro .report-body.space-y-8 > * + * {
+    margin-top: 4px !important;
+  }
+
+  .report-shell-insights-intro .report-manufacturers-warranty h2,
+  .report-shell-insights-intro .report-manufacturers-warranty h3 {
+    font-size: 9px !important;
+    margin-top: 4px !important;
+  }
+
+  .report-shell-insights-intro .report-manufacturers-warranty p,
+  .report-shell-insights-intro .report-manufacturers-warranty li {
+    font-size: 8px !important;
+    line-height: 1.25 !important;
+  }
+
+  .report-shell-insights-intro .report-insight-card {
+    padding: 5px !important;
+    gap: 4px !important;
+  }
+
+  .report-shell-insights-intro .report-insight-card p {
+    font-size: 8px !important;
+    line-height: 1.25 !important;
+  }
+
+  .report-shell-insights-intro .report-insights-grid {
+    gap: 3px !important;
+  }
+
+  .report-shell-insights-intro .report-hero-image {
+    min-height: 34mm !important;
+    height: 34mm !important;
+    max-height: 34mm !important;
+  }
+
+  .report-shell-insights-intro .report-hero-image img {
+    max-height: 32mm !important;
+  }
+
+  .report-shell-insights-intro .report-insights-section {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+
+  .report-shell-valuations-market .report-odometer-history,
+  .report-shell-valuations-market .report-comparables {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
   .report-body {
@@ -1035,8 +1150,14 @@ html.dark body {
   .report-shell-valuations .report-pplate-status,
   .report-shell-valuations .report-rideshare-eligibility {
     padding: 8px 10px !important;
-    break-inside: avoid;
-    page-break-inside: avoid;
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+
+  .report-shell-valuations .report-rideshare-eligibility tr,
+  .report-shell-valuations .report-pplate-status tr {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
   }
 
   .report-shell-valuations .report-pplate-status h3,
@@ -1120,10 +1241,16 @@ html.dark body {
     font-size: 10px !important;
   }
 
-  .report-shell-spec .report-spec-data-row dt,
-  .report-shell-spec .report-spec-data-row dd {
+  .report-shell-spec .report-spec-data-table {
+    table-layout: fixed !important;
+    width: 100% !important;
+  }
+
+  .report-shell-spec .report-spec-data-row th,
+  .report-shell-spec .report-spec-data-row td {
     padding: 4px 10px !important;
     line-height: 1.3 !important;
+    vertical-align: top !important;
   }
 
   .report-shell-spec .report-spec-factory-list {
@@ -1371,6 +1498,8 @@ html.dark body {
   .report-insight-card p {
     font-size: 9px !important;
     line-height: 1.3 !important;
+    hyphens: none !important;
+    -webkit-hyphens: none !important;
   }
 
   .report-insight-card a {
@@ -1638,14 +1767,35 @@ html.dark body {
     border-bottom-color: #0073e3 !important;
   }
 
+  #report-print-area .report-spec-data-table {
+    table-layout: fixed !important;
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  #report-print-area .report-spec-data-col-label {
+    width: 42% !important;
+  }
+
+  #report-print-area .report-spec-data-col-value {
+    width: 58% !important;
+  }
+
   #report-print-area .report-spec-data-row.border-t.border-slate-200 {
     border-top-width: 1px !important;
+    border-top-style: solid !important;
     border-top-color: #e2e8f0 !important;
   }
 
   #report-print-area .report-spec-data-label {
     border-right-width: 1px !important;
+    border-right-style: solid !important;
     border-right-color: #e2e8f0 !important;
+  }
+
+  #report-print-area .report-spec-data-row th,
+  #report-print-area .report-spec-data-row td {
+    display: table-cell !important;
   }
 
   #report-print-area .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {

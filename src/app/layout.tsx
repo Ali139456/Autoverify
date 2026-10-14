@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { cookies, headers } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -78,14 +79,10 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("autoverifi-theme");if(t!=="light")document.documentElement.classList.add("dark");}catch(e){}})();`,
-          }}
-        />
-      </head>
       <body className="flex min-h-screen flex-col" suppressHydrationWarning>
+        <Script id="autoverifi-theme-init" strategy="beforeInteractive">
+          {`(function(){try{var t=localStorage.getItem("autoverifi-theme");if(t!=="light")document.documentElement.classList.add("dark");}catch(e){}})();`}
+        </Script>
         <ConditionalSiteChrome
           previewAccess={previewAccess}
           comingSoonMode={comingSoonMode}

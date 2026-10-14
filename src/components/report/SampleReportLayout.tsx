@@ -84,10 +84,6 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
 
           pageLabel={`${reportPage++} / ${pageCount}`}
 
-          keyInsightsPageLabel={`${reportPage++} / ${pageCount}`}
-
-          warrantyPageLabel={`${reportPage++} / ${pageCount}`}
-
           deferValuations
 
         />
@@ -95,7 +91,9 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
         <PresentAndFutureValueReportPage
           report={report}
           pageLabel={`${reportPage++} / ${pageCount}`}
-          supplementsPageLabel={`${reportPage++} / ${pageCount}`}
+          marketPageLabel={`${reportPage++} / ${pageCount}`}
+          pplatePageLabel={`${reportPage++} / ${pageCount}`}
+          ridesharePageLabel={`${reportPage++} / ${pageCount}`}
         />
 
         {hasVehicleSpecSheet ? (
@@ -123,7 +121,7 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
           />
         ) : null}
 
-        <div className="report-page-break">
+        <div className="report-page-break report-page-flow">
           <CarBuyingChecklistReportPage
             report={report}
             pageLabel={`${reportPage++} / ${pageCount}`}

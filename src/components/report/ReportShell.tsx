@@ -20,18 +20,13 @@ export function ReportShell({
   const pinFooterToSheetBottom =
     !shellClass.includes("report-shell-ppsr") &&
     !shellClass.includes("report-shell-flow") &&
-    !shellClass.includes("report-shell-insights-page1") &&
-    !shellClass.includes("report-shell-insights-key-insights") &&
-    !shellClass.includes("report-shell-insights-warranty") &&
+    !shellClass.includes("report-shell-flow") &&
     !shellClass.includes("report-shell-insights-plus-photos") &&
-    !shellClass.includes("report-shell-insights-plus-damage");
+    !shellClass.includes("report-shell-insights-plus-damage") &&
+    !shellClass.includes("report-shell-insights-plus-additional");
   const pinFooterFixedSheet =
     pinFooterToSheetBottom &&
     !shellClass.includes("report-shell-spec") &&
-    !shellClass.includes("report-shell-insights-page1") &&
-    !shellClass.includes("report-shell-insights-key-insights") &&
-    !shellClass.includes("report-shell-insights-warranty") &&
-    !shellClass.includes("report-shell-valuations") &&
     !shellClass.includes("report-shell-insights-plus-photos") &&
     !shellClass.includes("report-shell-insights-plus-additional");
 

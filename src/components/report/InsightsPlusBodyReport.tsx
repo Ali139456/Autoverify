@@ -167,7 +167,7 @@ export function InsightsPlusBodyReport({
         <ReportShell
           {...shellProps}
           pageLabel={photosPageLabel}
-          className="report-shell-insights-plus report-shell-insights-plus-photos !overflow-visible"
+          className="report-shell-flow report-shell-insights-plus report-shell-insights-plus-photos !overflow-visible"
         >
           <div className="report-insights-plus-photos-body space-y-6">
             <InsightsPlusTitleBlock vehicleTitle={vehicleTitle} />
@@ -216,7 +216,7 @@ export function InsightsPlusBodyReport({
           <ReportShell
             {...shellProps}
             pageLabel={additionalPhotosPageLabel}
-            className="report-shell-insights-plus report-shell-insights-plus-additional report-shell-insights-plus-photos !overflow-visible"
+            className="report-shell-flow report-shell-insights-plus report-shell-insights-plus-additional report-shell-insights-plus-photos !overflow-visible"
           >
             <div className="report-insights-plus-photos-body space-y-6">
               <div className="report-insights-plus-damage-heading">
@@ -237,11 +237,11 @@ export function InsightsPlusBodyReport({
         </div>
       ) : null}
 
-      <div className="report-page-break">
+      <div className="report-page-break report-page-flow">
         <ReportShell
           {...shellProps}
           pageLabel={damagePageLabel}
-          className="report-shell-insights-plus report-shell-insights-plus-damage !overflow-visible"
+          className="report-shell-flow report-shell-insights-plus report-shell-insights-plus-damage !overflow-visible"
         >
           <div className="report-insights-plus-damage-body space-y-6">
             <div className="report-insights-plus-damage-heading">

@@ -24,7 +24,7 @@ export function CarBuyingChecklistReportPage({
       generatedAt={report.createdAt}
       reportReference={formatReportReference(report.vehicle)}
       pageLabel={pageLabel}
-      className="report-shell-checklist"
+      className="report-shell-flow report-shell-checklist"
     >
       <div className="space-y-6">
         <div>

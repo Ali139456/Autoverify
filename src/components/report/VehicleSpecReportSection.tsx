@@ -35,7 +35,7 @@ export function VehicleSpecReportSection({
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
               Vehicle data &amp; factory equipment
             </p>
-            <h2 className="mt-1 text-xl font-bold text-slate-900">{vehicleTitle}</h2>
+            <h2 className="mt-1 text-xl font-bold text-[#0073E3]">{vehicleTitle}</h2>
             <p className="mt-1 text-xs text-slate-500">
               Captured {formatReportDate(sheet!.capturedAt)} from registration and
               build data sources.
@@ -46,37 +46,46 @@ export function VehicleSpecReportSection({
             <div>
               <h3 className="report-section-heading">Vehicle data</h3>
               <div className="report-spec-data-table-wrap mt-3 overflow-hidden rounded-lg border border-slate-200 bg-white">
-              <dl className="report-spec-data-table m-0">
-                {visibleSpecDataRows(sheet!.dataRows).map((row) => {
-                  const powerRow = isPowerToWeightSpecRow(row.label);
-                  return (
-                    <div
-                      key={row.label}
-                      className="report-spec-data-row grid grid-cols-[minmax(0,42%)_1fr] border-t border-slate-200 text-sm first:border-t-0"
-                    >
-                      <dt
-                        className={`report-spec-data-label px-4 py-2.5 font-medium ${
-                          powerRow
-                            ? "report-spec-power-row font-semibold text-[#0073E3]"
-                            : "text-slate-600"
-                        }`}
-                      >
-                        {row.label}
-                        {powerRow ? "*" : ""}
-                      </dt>
-                      <dd
-                        className={`bg-white px-4 py-2.5 font-normal ${
-                          powerRow
-                            ? "report-spec-power-row font-medium text-[#0073E3]"
-                            : "text-slate-900"
-                        }`}
-                      >
-                        {row.value}
-                      </dd>
-                    </div>
-                  );
-                })}
-              </dl>
+                <table className="report-spec-data-table w-full border-collapse text-sm">
+                  <colgroup>
+                    <col className="report-spec-data-col-label" />
+                    <col className="report-spec-data-col-value" />
+                  </colgroup>
+                  <tbody>
+                    {visibleSpecDataRows(sheet!.dataRows).map((row, rowIndex) => {
+                      const powerRow = isPowerToWeightSpecRow(row.label);
+                      return (
+                        <tr
+                          key={row.label}
+                          className={`report-spec-data-row border-t border-slate-200 ${
+                            rowIndex === 0 ? "border-t-0" : ""
+                          }`}
+                        >
+                          <th
+                            scope="row"
+                            className={`report-spec-data-label px-4 py-2.5 text-left font-medium ${
+                              powerRow
+                                ? "report-spec-power-row font-semibold text-[#0073E3]"
+                                : "text-slate-600"
+                            }`}
+                          >
+                            {row.label}
+                            {powerRow ? "*" : ""}
+                          </th>
+                          <td
+                            className={`bg-white px-4 py-2.5 font-normal ${
+                              powerRow
+                                ? "report-spec-power-row font-medium text-[#0073E3]"
+                                : "text-slate-900"
+                            }`}
+                          >
+                            {row.value}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
               {shouldShowPowerToWeightFootnote(sheet!.dataRows) ? (
                 <p className="report-spec-power-footnote mt-2 text-[11px] leading-relaxed text-[#0073E3]">
@@ -99,7 +108,7 @@ export function VehicleSpecReportSection({
           <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
             Vehicle data &amp; factory equipment (continued)
           </p>
-          <h2 className="mt-1 text-lg font-bold text-slate-900">{vehicleTitle}</h2>
+          <h2 className="mt-1 text-lg font-bold text-[#0073E3]">{vehicleTitle}</h2>
           <div className="mt-4">
             <FactoryFeaturesBlock sheet={sheet!} />
           </div>

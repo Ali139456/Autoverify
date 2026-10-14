@@ -112,6 +112,8 @@ export function CarInsightsReport({
 
   keyInsightsPageLabel,
 
+  insightPageLabels,
+
   warrantyPageLabel,
 
   deferValuations = true,
@@ -124,9 +126,13 @@ export function CarInsightsReport({
 
   pageLabel: string;
 
-  /** Footer label for the Key Insights sheet when valuations are deferred. */
+  /** @deprecated Prefer `insightPageLabels` (one label per print sheet). */
 
   keyInsightsPageLabel?: string;
+
+  /** Footer labels for Key Insights print sheets when valuations are deferred. */
+
+  insightPageLabels?: string[];
 
   /** Footer label for manufacturer warranty + service history (print page 3). */
 
@@ -319,31 +325,18 @@ export function CarInsightsReport({
   );
 
   const keyInsightsBody = (
-    <>
-        <div className="report-insights-section">
-
-          <div className="report-insights-header mb-4">
-
-            <h2 className="text-sm font-extrabold uppercase tracking-[0.16em] text-slate-900">
-
-              Key Insights
-
-            </h2>
-
-          </div>
-
-          <div className="report-insights-grid grid grid-cols-1 gap-3 min-[480px]:grid-cols-2 lg:grid-cols-4 [&>*]:min-w-0">
-
-            {insights.map((insight) => (
-
-              <ReportInsightCard key={insight.id} insight={insight} />
-
-            ))}
-
-          </div>
-
-        </div>
-    </>
+    <div className="report-insights-section">
+      <div className="report-insights-header mb-4">
+        <h2 className="text-sm font-extrabold uppercase tracking-[0.16em] text-slate-900">
+          Key Insights
+        </h2>
+      </div>
+      <div className="report-insights-grid grid grid-cols-1 gap-3 min-[480px]:grid-cols-2 lg:grid-cols-4 [&>*]:min-w-0">
+        {insights.map((insight) => (
+          <ReportInsightCard key={insight.id} insight={insight} />
+        ))}
+      </div>
+    </div>
   );
 
   const warrantySupplementBody = (
@@ -393,40 +386,22 @@ export function CarInsightsReport({
           </div>
         ) : null;
 
-  if (deferValuations && keyInsightsPageLabel && warrantyPageLabel) {
+  if (deferValuations) {
     return (
-      <>
-        <div className="report-print-page-first report-insights-overview-sheet">
-          <ReportShell
-            {...shellProps}
-            pageLabel={pageLabel}
-            className="report-shell-insights report-shell-insights-page1 !overflow-visible"
-          >
-            <div className="report-body space-y-8">{overviewBody}</div>
-          </ReportShell>
-        </div>
-        <div className="report-page-break report-insights-key-insights-sheet">
-          <ReportShell
-            {...shellProps}
-            pageLabel={keyInsightsPageLabel}
-            className="report-shell-insights report-shell-insights-key-insights !overflow-visible"
-          >
-            <div className="report-body space-y-8">{keyInsightsBody}</div>
-          </ReportShell>
-        </div>
-        <div className="report-page-break report-insights-warranty-sheet">
-          <ReportShell
-            {...shellProps}
-            pageLabel={warrantyPageLabel}
-            className="report-shell-insights report-shell-insights-warranty !overflow-visible"
-          >
-            <div className="report-body space-y-8">
-              {warrantySupplementBody}
-              {upgradeBlock}
-            </div>
-          </ReportShell>
-        </div>
-      </>
+      <div className="report-print-page-first report-page-flow report-insights-intro-sheet">
+        <ReportShell
+          {...shellProps}
+          pageLabel={pageLabel}
+          className="report-shell-flow report-shell-insights report-shell-insights-page1 report-shell-insights-intro !overflow-visible"
+        >
+          <div className="report-body space-y-8">
+            {overviewBody}
+            {keyInsightsBody}
+            {warrantySupplementBody}
+            {upgradeBlock}
+          </div>
+        </ReportShell>
+      </div>
     );
   }
 
