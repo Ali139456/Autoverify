@@ -18,6 +18,35 @@ const RAVIN_LOGIN_EXPIRE_IN = Number(
     "48",
 );
 
+/** Ravin Lite routing: URL `app_type=lite` (future) + inspector-lite path (current). */
+const RAVIN_APP_TYPE = (process.env.RAVIN_APP_TYPE ?? "lite").trim().toLowerCase();
+
+export type RavinLiteLinkConfig = {
+  appType: string | null;
+  inspectorPath: string;
+  usesImageUpload: boolean;
+};
+
+export function getRavinLiteLinkConfig(): RavinLiteLinkConfig {
+  const path = RAVIN_INSPECTOR_PATH.replace(/^\/+/, "").replace(/\/+$/, "");
+  return {
+    appType: RAVIN_APP_TYPE || null,
+    inspectorPath: path,
+    usesImageUpload: path.includes("inspector-lite"),
+  };
+}
+
+function applyLiteQueryParams(url: URL): void {
+  if (url.pathname.includes("inspector-lite")) {
+    if (!url.searchParams.has("image-upload")) {
+      url.searchParams.set("image-upload", "true");
+    }
+  }
+  if (RAVIN_APP_TYPE && !url.searchParams.has("app_type")) {
+    url.searchParams.set("app_type", RAVIN_APP_TYPE);
+  }
+}
+
 export type RavinPartnerInvite = {
   invitationId: string;
   inviteUrl: string;
@@ -35,19 +64,17 @@ export function buildInspectorLiteUrl(code: string): string {
   const path = RAVIN_INSPECTOR_PATH.replace(/^\/+/, "").replace(/\/+$/, "");
   const url = new URL(`${base}/${path}/`);
   url.searchParams.set("code", code);
-  if (path.includes("inspector-lite")) {
-    url.searchParams.set("image-upload", "true");
-  }
+  applyLiteQueryParams(url);
   return url.toString();
 }
 
 export function isRavinInspectorLiteUrl(url: string): boolean {
   try {
     const parsed = new URL(url.startsWith("http") ? url : `https://${url}`);
-    return (
-      parsed.hostname.includes("ravin-ai.com") &&
-      parsed.pathname.includes("inspector-lite")
-    );
+    if (!parsed.hostname.includes("ravin-ai.com")) return false;
+    if (parsed.pathname.includes("inspector-lite")) return true;
+    const appType = parsed.searchParams.get("app_type")?.toLowerCase();
+    return appType === "lite" && parsed.pathname.includes("inspector");
   } catch {
     return false;
   }
@@ -94,12 +121,7 @@ function normalizeInspectorUrl(url: string): string {
 
   try {
     const parsed = new URL(withScheme);
-    if (
-      parsed.pathname.includes("inspector-lite") &&
-      !parsed.searchParams.has("image-upload")
-    ) {
-      parsed.searchParams.set("image-upload", "true");
-    }
+    applyLiteQueryParams(parsed);
     return parsed.toString();
   } catch {
     return url;
@@ -415,6 +437,9 @@ export async function createRavinPartnerInvite(input: {
       claimId,
       lp,
       state,
+      ...(RAVIN_APP_TYPE
+        ? { app_type: RAVIN_APP_TYPE, appType: RAVIN_APP_TYPE }
+        : {}),
     }),
   });
 

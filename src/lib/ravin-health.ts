@@ -1,5 +1,9 @@
 import { isRavinS3Configured } from "./ravin-ingest";
-import { isRavinPartnerConfigured, probeRavinPartnerConnection } from "./ravin-partner";
+import {
+  getRavinLiteLinkConfig,
+  isRavinPartnerConfigured,
+  probeRavinPartnerConnection,
+} from "./ravin-partner";
 
 export type RavinIntegrationStatus = {
   partnerApiConfigured: boolean;
@@ -8,6 +12,8 @@ export type RavinIntegrationStatus = {
   baseUrl: string | null;
   siteId: string | null;
   webhookUrl: string | null;
+  liteLink: ReturnType<typeof getRavinLiteLinkConfig>;
+  traceUrlHint: string;
   demoReadiness: "ready_ravin_app" | "needs_s3_or_webhook" | "needs_partner_api";
   notes: string[];
 };
@@ -53,6 +59,8 @@ export function getRavinIntegrationStatus(baseUrl: string): RavinIntegrationStat
     baseUrl: process.env.RAVIN_BASE_URL?.trim() || null,
     siteId: process.env.RAVIN_SITE_ID?.trim() || null,
     webhookUrl: `${base}/api/webhooks/ravin`,
+    liteLink: getRavinLiteLinkConfig(),
+    traceUrlHint: `${base}/api/health/ravin?reportId=AV-…`,
     demoReadiness,
     notes,
   };

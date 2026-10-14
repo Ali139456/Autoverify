@@ -122,7 +122,7 @@ export async function POST(req: NextRequest) {
 
         await updateInspection(inspection.id, {
           ravinInspectionId: invite.invitationId,
-          ravinInviteUrl: invite.inviteUrl,
+          ravinInviteUrl,
           status: "pending",
         });
       } catch (ravinErr) {

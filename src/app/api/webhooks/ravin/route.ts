@@ -5,9 +5,9 @@ import {
 } from "@/lib/inspections";
 import {
   parseRavinWebhookPayload,
-  extractInvitationId,
   extractRavinPhotos,
   collectInvitationIds,
+  extractAutoVerifiReportIds,
 } from "@/lib/ravin-webhook";
 import { resolveInspectionFromRavinWebhook } from "@/lib/inspections";
 import { saveRavinWebhookEvent, updateReportWorkflowStatus } from "@/lib/store-supabase";
@@ -44,9 +44,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON payload." }, { status: 400 });
   }
 
-  const invitationId = extractInvitationId(payload);
+  const candidateIds = [
+    ...new Set([
+      ...collectInvitationIds(payload),
+      ...extractAutoVerifiReportIds(payload),
+    ]),
+  ];
+  const invitationId = candidateIds[0] ?? null;
   const inspection =
-    (await resolveInspectionFromRavinWebhook(payload, collectInvitationIds)) ??
+    (await resolveInspectionFromRavinWebhook(payload, () => candidateIds)) ??
     (invitationId ? await getInspectionByInvitationId(invitationId) : null);
 
   await saveRavinWebhookEvent({

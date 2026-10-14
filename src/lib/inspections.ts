@@ -199,6 +199,10 @@ export async function resolveInspectionFromRavinWebhook(
     const session = await getInspectionByInvitationId(id);
     if (session) return session;
   }
+  for (const id of candidates) {
+    const session = await getInspectionByReportId(id);
+    if (session) return session;
+  }
   return null;
 }
 

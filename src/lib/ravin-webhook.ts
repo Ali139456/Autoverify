@@ -176,6 +176,8 @@ export function extractRavinPhotos(payload: unknown): RavinPhotoRef[] {
   });
 }
 
+const AUTO_VERIFI_REPORT_ID = /\bAV-[A-Z0-9-]{4,}\b/gi;
+
 const INVITATION_ID_KEYS = [
   "invitationId",
   "invitation_id",
@@ -198,6 +200,37 @@ export function extractInvitationId(payload: unknown): string | null {
   return found[0] ?? null;
 }
 
+/** Ravin payloads often embed Auto Verifi claimId / report id (e.g. AV-MV7TCHG5-OY5ZSWRO). */
+export function extractAutoVerifiReportIds(
+  payload: unknown,
+  ids: string[] = [],
+  depth = 0,
+): string[] {
+  if (depth > 14 || payload == null) return ids;
+
+  if (typeof payload === "string") {
+    for (const match of payload.matchAll(AUTO_VERIFI_REPORT_ID)) {
+      ids.push(match[0].toUpperCase());
+    }
+    return [...new Set(ids)];
+  }
+
+  if (Array.isArray(payload)) {
+    for (const entry of payload) {
+      extractAutoVerifiReportIds(entry, ids, depth + 1);
+    }
+    return [...new Set(ids)];
+  }
+
+  if (typeof payload === "object") {
+    for (const value of Object.values(payload as Record<string, unknown>)) {
+      extractAutoVerifiReportIds(value, ids, depth + 1);
+    }
+  }
+
+  return [...new Set(ids)];
+}
+
 /** All candidate ids from a Ravin webhook (report uuid, insp- prefix, event id, etc.). */
 export function collectInvitationIds(
   payload: unknown,
@@ -218,6 +251,7 @@ export function collectInvitationIds(
     const value = record[key];
     if (typeof value === "string" && value.trim()) {
       ids.push(value.trim());
+      extractAutoVerifiReportIds(value, ids, depth + 1);
     }
   }
 
