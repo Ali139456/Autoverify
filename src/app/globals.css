@@ -323,7 +323,7 @@ html.dark body {
   width: 100%;
 }
 
-#report-print-area > .report-page-break:not(.report-page-flow),
+#report-print-area > .report-page-break,
 #report-print-area > .report-print-page-first {
   display: flex !important;
   flex-direction: column !important;
@@ -332,19 +332,18 @@ html.dark body {
   box-sizing: border-box;
 }
 
-/* Pin footer to sheet bottom on fixed logical pages (screen + print preview). */
-#report-print-area
-  > .report-page-break:not(.report-page-flow)
-  > .report-shell.report-shell-pin-footer,
+/* Long sections only (PPSR iframe, multi-page spec): grow past one sheet. */
+#report-print-area > .report-page-break.report-page-flow {
+  min-height: 279.5mm;
+}
+
+/* Pin footer to sheet bottom (screen + print preview). */
+#report-print-area > .report-page-break > .report-shell.report-shell-pin-footer,
 #report-print-area
   > .report-print-page-first
   > .report-shell.report-shell-pin-footer {
   height: 100%;
   min-height: 100%;
-}
-
-#report-print-area > .report-page-break.report-page-flow {
-  min-height: auto !important;
 }
 
 .report-spec-data-table-wrap {
@@ -550,16 +549,28 @@ html.dark body {
     page-break-inside: avoid !important;
   }
 
-  #report-print-area > .report-page-break:not(.report-page-flow):not(.report-print-one-sheet),
-  #report-print-area > .report-print-page-first:not(.report-print-one-sheet) {
+  /* Every logical page = one full A4 sheet (screen + print). */
+  #report-print-area > .report-page-break,
+  #report-print-area > .report-print-page-first {
     height: auto !important;
-    min-height: auto !important;
+    min-height: 279.5mm !important;
   }
 
-  .report-shell.report-shell-pin-footer:not(.report-shell-pin-footer--fixed) {
-    min-height: auto !important;
-    height: auto !important;
+  #report-print-area > .report-page-break > .report-shell.report-shell-pin-footer:not(.report-shell-pin-footer--fixed),
+  #report-print-area
+    > .report-print-page-first
+    > .report-shell.report-shell-pin-footer:not(.report-shell-pin-footer--fixed) {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 auto !important;
+    height: 100% !important;
+    min-height: 279.5mm !important;
     max-height: none !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .report-shell-insights-intro.report-shell-pin-footer {
     break-inside: auto !important;
     page-break-inside: auto !important;
   }
@@ -578,11 +589,6 @@ html.dark body {
     max-height: none !important;
     break-inside: auto !important;
     page-break-inside: auto !important;
-  }
-
-  #report-print-area > .report-page-break.report-page-flow {
-    height: auto !important;
-    min-height: auto !important;
   }
 
   #report-print-area .report-shell-ppsr {
@@ -767,51 +773,10 @@ html.dark body {
     page-break-before: auto;
   }
 
-  #report-print-area > .report-insights-intro-sheet {
-    min-height: auto !important;
-    height: auto !important;
-    break-after: page !important;
-    page-break-after: always !important;
-  }
-
+  #report-print-area > .report-insights-intro-sheet,
   #report-print-area > .report-valuations-market-sheet {
     break-after: page !important;
     page-break-after: always !important;
-  }
-
-  /* Intro: grow with content; footer after body (no 279.5mm pin / overlap). */
-  #report-print-area .report-shell.report-shell-insights-intro {
-    display: block !important;
-    min-height: auto !important;
-    height: auto !important;
-    max-height: none !important;
-    overflow: visible !important;
-    break-inside: auto !important;
-    page-break-inside: auto !important;
-  }
-
-  #report-print-area .report-shell.report-shell-insights-intro .report-shell-header,
-  #report-print-area .report-shell.report-shell-insights-intro .report-shell-body,
-  #report-print-area .report-shell.report-shell-insights-intro .report-shell-footer {
-    display: block !important;
-    width: 100% !important;
-  }
-
-  #report-print-area .report-shell.report-shell-insights-intro .report-shell-body {
-    flex: none !important;
-    min-height: 0 !important;
-  }
-
-  #report-print-area .report-shell.report-shell-insights-intro .report-shell-footer {
-    margin-top: 14px !important;
-    break-before: auto !important;
-    page-break-before: auto !important;
-  }
-
-  .report-shell-insights-intro .report-insight-card,
-  .report-shell-insights-intro .report-insights-grid {
-    break-inside: avoid;
-    page-break-inside: avoid;
   }
 
   .report-shell-insights-intro .report-insights-header {

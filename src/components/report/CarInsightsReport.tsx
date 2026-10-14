@@ -388,11 +388,11 @@ export function CarInsightsReport({
 
   if (deferValuations) {
     return (
-      <div className="report-print-page-first report-page-flow report-insights-intro-sheet">
+      <div className="report-print-page-first report-insights-intro-sheet">
         <ReportShell
           {...shellProps}
           pageLabel={pageLabel}
-          className="report-shell-flow report-shell-insights report-shell-insights-page1 report-shell-insights-intro !overflow-visible"
+          className="report-shell-insights report-shell-insights-page1 report-shell-insights-intro !overflow-visible"
         >
           <div className="report-body space-y-8">
             {overviewBody}

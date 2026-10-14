@@ -20,9 +20,7 @@ export function ReportShell({
   const pinFooterToSheetBottom =
     !shellClass.includes("report-shell-ppsr") &&
     !shellClass.includes("report-shell-flow") &&
-    !shellClass.includes("report-shell-flow") &&
     !shellClass.includes("report-shell-insights-plus-photos") &&
-    !shellClass.includes("report-shell-insights-plus-damage") &&
     !shellClass.includes("report-shell-insights-plus-additional");
   const pinFooterFixedSheet =
     pinFooterToSheetBottom &&

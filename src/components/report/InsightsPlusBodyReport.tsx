@@ -237,11 +237,11 @@ export function InsightsPlusBodyReport({
         </div>
       ) : null}
 
-      <div className="report-page-break report-page-flow">
+      <div className="report-page-break">
         <ReportShell
           {...shellProps}
           pageLabel={damagePageLabel}
-          className="report-shell-flow report-shell-insights-plus report-shell-insights-plus-damage !overflow-visible"
+          className="report-shell-insights-plus report-shell-insights-plus-damage !overflow-visible"
         >
           <div className="report-insights-plus-damage-body space-y-6">
             <div className="report-insights-plus-damage-heading">

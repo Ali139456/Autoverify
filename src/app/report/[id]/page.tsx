@@ -168,7 +168,7 @@ export default async function ReportPage({
           />
         )}
 
-        <div className="report-page-break report-page-flow">
+        <div className="report-page-break">
           <CarBuyingChecklistReportPage
             report={report}
             pageLabel={`${reportPage++} / ${pageCount}`}
