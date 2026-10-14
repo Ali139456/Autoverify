@@ -621,8 +621,14 @@ html.dark body {
     flex: 0 1 auto !important;
   }
 
-  .report-shell-flow:not(.report-shell-pin-footer) .report-shell-footer {
+  .report-shell-flow .report-shell-footer {
     margin-top: 0 !important;
+    break-before: auto !important;
+    page-break-before: auto !important;
+  }
+
+  .report-shell-flow .report-shell-body {
+    flex: 0 1 auto !important;
   }
 
   /* Fill the printable sheet: body grows, footer sits on the bottom edge. */

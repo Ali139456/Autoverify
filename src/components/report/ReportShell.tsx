@@ -17,7 +17,9 @@ export function ReportShell({
   children: ReactNode;
 }) {
   const shellClass = className ?? "";
-  const pinFooterToSheetBottom = !shellClass.includes("report-shell-ppsr");
+  const pinFooterToSheetBottom =
+    !shellClass.includes("report-shell-ppsr") &&
+    !shellClass.includes("report-shell-flow");
   const pinFooterFixedSheet =
     pinFooterToSheetBottom &&
     !shellClass.includes("report-shell-spec") &&
