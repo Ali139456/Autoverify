@@ -19,6 +19,7 @@ import type { ReportTier, VehicleReport } from "./types";
 const BRAND_BLUE = "#0073E3";
 const BRAND_NAVY = "#0f172a";
 const ACCENT_ORANGE = "#E87722";
+const FOOTER_CONTACT_COLOR = "#475569";
 
 export type PurchaseEmailContext = {
   customerName?: string | null;
@@ -66,19 +67,26 @@ function purchaseEmailReportHeading(tier: ReportTier, includePpsr: boolean): str
   return includePpsr ? `${productName} & PPSR Certificate` : productName;
 }
 
+/** Plain footer line — stops clients auto-linking street addresses (blue underline). */
+function formatEmailFooterPlainLine(text: string): string {
+  const escaped = escapeHtml(text);
+  const deterAutoLink = escaped.replace(/\b(100)\b/, "100&#8203;");
+  return `<span x-apple-data-detectors="false" style="color:${FOOTER_CONTACT_COLOR};text-decoration:none;">${deterAutoLink}</span>`;
+}
+
 function buildEmailFooterContactHtml(
   company: ReturnType<typeof getCompanyDetails>,
 ): string {
-  const lines = [escapeHtml(company.legalName)];
+  const lines = [formatEmailFooterPlainLine(company.legalName)];
   if (company.abn.trim()) {
-    lines.push(`ABN ${escapeHtml(formatAbnPlain(company.abn))}`);
+    lines.push(formatEmailFooterPlainLine(`ABN ${formatAbnPlain(company.abn)}`));
   }
-  lines.push(escapeHtml(company.address));
+  lines.push(formatEmailFooterPlainLine(company.address));
   lines.push(
-    `<a href="mailto:${escapeHtml(company.email)}" style="color:#475569;text-decoration:none;">${escapeHtml(company.email)}</a>`,
+    `<a href="mailto:${escapeHtml(company.email)}" style="color:${FOOTER_CONTACT_COLOR};text-decoration:none;">${escapeHtml(company.email)}</a>`,
   );
   lines.push(
-    `<a href="${escapeHtml(company.websiteUrl)}" style="color:#475569;text-decoration:none;">${escapeHtml(company.website)}</a>`,
+    `<a href="${escapeHtml(company.websiteUrl)}" style="color:${FOOTER_CONTACT_COLOR};text-decoration:none;">${escapeHtml(company.website)}</a>`,
   );
   return lines.join("<br />");
 }
@@ -181,6 +189,7 @@ export function buildPurchaseConfirmationEmailHtml(
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="light" />
+  <meta name="format-detection" content="telephone=no,address=no,email=no" />
   <title>Your Auto Verifi report</title>
 </head>
 <body style="margin:0;padding:0;background:#e8eef5;font-family:Arial,Helvetica,sans-serif;color:#334155;">

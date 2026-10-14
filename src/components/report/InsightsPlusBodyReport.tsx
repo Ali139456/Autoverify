@@ -8,6 +8,7 @@ import {
 import {
   INSPECTION_RECORD_ONLY_FOOTNOTE_WITH_STAR,
   isExteriorInspectionAngle,
+  formatInspectionPhotoTileLabel,
   isRecordOnlyInspectionPhoto,
 } from "@/lib/inspection-angles";
 import type { InspectionPhoto, VehicleReport } from "@/lib/types";
@@ -43,7 +44,7 @@ function PhotoTile({
       </div>
       <figcaption className="border-t border-slate-200 px-2 py-1.5">
         <p className="text-[11px] font-bold leading-snug text-slate-700">
-          {photo.label}
+          {formatInspectionPhotoTileLabel(photo.label, photo.angle)}
           {isFrontRego ? (
             <span className="ml-1 font-normal text-slate-500">(rego visible)</span>
           ) : null}
@@ -93,7 +94,7 @@ function PhotoGroup({
         ))}
       </div>
       {hasRecordOnlyPhoto ? (
-        <p className="report-record-only-footnote mt-2 text-[10px] leading-snug text-slate-500">
+        <p className="report-record-only-footnote mt-3 max-w-full text-left text-[10px] leading-snug text-slate-500">
           {INSPECTION_RECORD_ONLY_FOOTNOTE_WITH_STAR}
         </p>
       ) : null}

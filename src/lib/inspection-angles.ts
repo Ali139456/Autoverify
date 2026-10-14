@@ -111,3 +111,14 @@ export const INSPECTION_RECORD_ONLY_FOOTNOTE =
 
 /** Shown once per photo group when any tile is record-only (keys, service invoice). */
 export const INSPECTION_RECORD_ONLY_FOOTNOTE_WITH_STAR = `* ${INSPECTION_RECORD_ONLY_FOOTNOTE}`;
+
+/** Tile title; record-only angles get * to match the shared footnote below the grid. */
+export function formatInspectionPhotoTileLabel(
+  label: string,
+  angle: string,
+): string {
+  if (isRecordOnlyInspectionPhoto(angle)) {
+    return `${label}*`;
+  }
+  return label;
+}

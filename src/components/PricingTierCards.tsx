@@ -65,11 +65,12 @@ export function PricingTierCards({
 }
 
 function TierProductTitle({ tier }: { tier: ReportTier }) {
-  const { name } = getReportTierConfig(tier);
+  const isPlus = tier === "insights_plus";
 
   return (
     <h3 className="text-balance text-base font-semibold leading-snug text-slate-900 dark:text-white sm:text-lg">
-      {name}
+      <span className="block">Auto Verifi</span>
+      <span className="block">{isPlus ? "Insights+ Report" : "Insights Report"}</span>
     </h3>
   );
 }
@@ -108,9 +109,9 @@ function TierCard({
           <TierProductTitle tier={tier} />
         </div>
         {isPlus ? (
-          <p className="inline-flex max-w-full shrink-0 items-start gap-1.5 text-pretty text-[10px] font-semibold leading-snug text-accent-700 dark:text-accent-100 sm:max-w-[10.5rem] sm:items-center sm:justify-end sm:text-right sm:text-[11px] sm:leading-tight">
+          <p className="inline-flex max-w-full shrink-0 items-start gap-1.5 text-pretty text-[10px] font-semibold leading-snug text-accent-500 sm:max-w-[10.5rem] sm:items-center sm:justify-end sm:text-right sm:text-[11px] sm:leading-tight">
             <Sparkles
-              className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-600 dark:text-accent-200 sm:mt-0"
+              className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-500 sm:mt-0"
               aria-hidden
             />
             <span>Includes AI powered condition scan</span>

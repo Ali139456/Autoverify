@@ -82,9 +82,8 @@ export function DamageUpload({ reportId }: { reportId: string }) {
     <div className="rounded-xl border-2 border-dashed border-white/15 bg-ink-950/60 p-6 text-center">
       <Camera className="mx-auto h-8 w-8 text-accent-400" aria-hidden />
       <p className="mt-2 text-sm font-medium text-slate-300">
-        Prefer the guided mobile walkaround above. If you upload from this device
-        instead, include up to {MANUAL_DAMAGE_UPLOAD_MAX_PHOTOS} photos in this
-        order:
+        Prefer to upload images from this device instead? Include up to{" "}
+        {MANUAL_DAMAGE_UPLOAD_MAX_PHOTOS} photos in this order:
       </p>
       <ul className="mx-auto mt-3 max-w-md list-inside list-disc text-left text-xs leading-relaxed text-slate-400">
         {MANUAL_PHOTO_CHECKLIST.map((item) => (

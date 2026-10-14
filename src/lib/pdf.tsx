@@ -25,6 +25,7 @@ import {
   CAR_BUYING_CHECKLIST_TITLE,
 } from "./car-buying-checklist";
 import {
+  formatInspectionPhotoTileLabel,
   INSPECTION_RECORD_ONLY_FOOTNOTE_WITH_STAR,
   isExteriorInspectionAngle,
   isRecordOnlyInspectionPhoto,
@@ -1138,7 +1139,6 @@ function CarInsightsOverviewPage({
   const { vehicle } = report;
   const specs = buildReportOverviewSpecs(vehicle, report);
   const statusChecks = buildStatusChecks(report);
-  const insights = buildKeyInsights(report);
   const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
 
   return (
@@ -1183,7 +1183,25 @@ function CarInsightsOverviewPage({
           <PdfVehicleHero vehicle={vehicle} vehicleTitle={vehicleTitle} />
         </View>
 
-        <View style={{ marginTop: 14 }}>
+      </View>
+    </PdfPageShell>
+  );
+}
+
+function CarInsightsKeyInsightsPage({
+  report,
+  pageLabel,
+}: {
+  report: VehicleReport;
+  pageLabel: string;
+}) {
+  const { vehicle } = report;
+  const insights = buildKeyInsights(report);
+
+  return (
+    <PdfPageShell report={report} pageLabel={pageLabel}>
+      <View style={styles.body}>
+        <View style={{ marginTop: 4 }}>
           <Text style={styles.sectionLabel}>Key Insights</Text>
         </View>
         <PdfInsightGrid insights={insights} />
@@ -1734,10 +1752,14 @@ function PdfPhotoGroup({
             {row.map((photo, i) => {
               const url = resolvePdfImageSrc(getInspectionPhotoUrl(photo));
               const evidenceLines = formatInspectionPhotoEvidenceLines(photo);
+              const baseLabel = formatInspectionPhotoTileLabel(
+                photo.label,
+                photo.angle,
+              );
               const label =
                 photo.angle === "front"
-                  ? `${photo.label} (rego visible)`
-                  : photo.label;
+                  ? `${baseLabel} (rego visible)`
+                  : baseLabel;
               return (
                 <View
                   key={`${photo.angle}-${photo.uploadedAt}`}
@@ -1765,7 +1787,17 @@ function PdfPhotoGroup({
         ))}
       </View>
       {hasRecordOnlyPhoto ? (
-        <Text style={[styles.photoEvidenceCaption, { marginTop: 4 }]}>
+        <Text
+          style={[
+            styles.photoEvidenceCaption,
+            {
+              marginTop: 6,
+              marginBottom: 4,
+              width: "100%",
+              textAlign: "left",
+            },
+          ]}
+        >
           {INSPECTION_RECORD_ONLY_FOOTNOTE_WITH_STAR}
         </Text>
       ) : null}
@@ -1948,13 +1980,14 @@ export function ReportPdf({
       : 0;
   const insightsPlusPageCount = isPlus ? (hasAdditionalPhotos ? 3 : 2) : 0;
   const totalPages =
-    3 + // Overview, valuations, P-plate / ride-share supplements
+    4 + // Overview, key insights, valuations, P-plate / ride-share supplements
     specPageCount +
     insightsPlusPageCount +
     1; // Car buying checklist + general disclaimer (PPSR PDF merged after)
   let pageNumber = 1;
   const nextPageLabel = () => `${pageNumber++} / ${totalPages}`;
   const overviewLabel = nextPageLabel();
+  const keyInsightsLabel = nextPageLabel();
   const valuationsLabel = nextPageLabel();
   const supplementsLabel = nextPageLabel();
   const specPageLabels = Array.from({ length: specPageCount }, () =>
@@ -1964,6 +1997,7 @@ export function ReportPdf({
   return (
     <Document title={`Auto Verifi Report ${report.id}`}>
       <CarInsightsOverviewPage report={report} pageLabel={overviewLabel} />
+      <CarInsightsKeyInsightsPage report={report} pageLabel={keyInsightsLabel} />
       <PdfValuationsPage report={report} pageLabel={valuationsLabel} />
       <PdfSupplementsPage report={report} pageLabel={supplementsLabel} />
       {includeSpec && report.vehicleSpec ? (

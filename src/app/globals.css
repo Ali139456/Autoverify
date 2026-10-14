@@ -325,7 +325,7 @@ html.dark body {
 #report-print-area > .report-print-page-first {
   display: flex !important;
   flex-direction: column !important;
-  height: 279.5mm;
+  height: auto;
   min-height: 279.5mm;
   box-sizing: border-box;
 }
@@ -511,7 +511,17 @@ html.dark body {
 
   #report-print-area > .report-page-break:not(.report-page-flow),
   #report-print-area > .report-print-page-first {
-    height: 279.5mm !important;
+    height: auto !important;
+    min-height: 279.5mm !important;
+  }
+
+  #report-print-area
+    > .report-page-break:not(.report-page-flow)
+    > .report-shell.report-shell-pin-footer:not(.report-shell-pin-footer--fixed),
+  #report-print-area
+    > .report-print-page-first
+    > .report-shell.report-shell-pin-footer:not(.report-shell-pin-footer--fixed) {
+    height: auto !important;
     min-height: 279.5mm !important;
   }
 
@@ -833,6 +843,17 @@ html.dark body {
   .report-shell-insights-plus-photos .report-photo-tile figcaption p {
     font-size: 6.5px !important;
     line-height: 1.2 !important;
+  }
+
+  .report-shell-insights-plus-photos .report-record-only-footnote {
+    margin-top: 6px !important;
+    margin-bottom: 10px !important;
+    padding-left: 0 !important;
+    text-align: left !important;
+    font-size: 7px !important;
+    line-height: 1.35 !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
   .report-shell-insights-plus-damage .report-insights-plus-damage-body.space-y-6 > * + * {
