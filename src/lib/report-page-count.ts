@@ -5,7 +5,7 @@ export function countVehicleReportPages(
   hasFactoryFeatures = false,
   hasAdditionalInspectionPhotos = true,
 ): number {
-  let pages = 2; // Overview (status + hero); key insights + warranty
+  let pages = 3; // Overview; key insights grid; warranty + service history
   pages += 2; // Present/future + comparables; P-plate + ride-share
   if (hasVehicleSpecSheet) pages += 1;
   if (hasVehicleSpecSheet && hasFactoryFeatures) pages += 1; // Factory list (continued)

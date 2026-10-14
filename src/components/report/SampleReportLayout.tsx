@@ -86,6 +86,8 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
 
           keyInsightsPageLabel={`${reportPage++} / ${pageCount}`}
 
+          warrantyPageLabel={`${reportPage++} / ${pageCount}`}
+
           deferValuations
 
         />

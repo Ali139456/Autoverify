@@ -1206,6 +1206,23 @@ function CarInsightsKeyInsightsPage({
           <Text style={styles.sectionLabel}>Key Insights</Text>
         </View>
         <PdfInsightGrid insights={insights} />
+      </View>
+    </PdfPageShell>
+  );
+}
+
+function CarInsightsWarrantySupplementPage({
+  report,
+  pageLabel,
+}: {
+  report: VehicleReport;
+  pageLabel: string;
+}) {
+  const { vehicle } = report;
+
+  return (
+    <PdfPageShell report={report} pageLabel={pageLabel}>
+      <View style={styles.bodyCompact}>
         <PdfManufacturersWarrantyNotice vehicle={vehicle} />
       </View>
     </PdfPageShell>
@@ -1981,7 +1998,7 @@ export function ReportPdf({
       : 0;
   const insightsPlusPageCount = isPlus ? (hasAdditionalPhotos ? 3 : 2) : 0;
   const totalPages =
-    4 + // Overview, key insights, valuations, P-plate / ride-share supplements
+    5 + // Overview, key insights, warranty supplement, valuations, P-plate / ride-share supplements
     specPageCount +
     insightsPlusPageCount +
     1; // Car buying checklist + general disclaimer (PPSR PDF merged after)
@@ -1989,6 +2006,7 @@ export function ReportPdf({
   const nextPageLabel = () => `${pageNumber++} / ${totalPages}`;
   const overviewLabel = nextPageLabel();
   const keyInsightsLabel = nextPageLabel();
+  const warrantySupplementLabel = nextPageLabel();
   const valuationsLabel = nextPageLabel();
   const supplementsLabel = nextPageLabel();
   const specPageLabels = Array.from({ length: specPageCount }, () =>
@@ -1999,6 +2017,10 @@ export function ReportPdf({
     <Document title={`Auto Verifi Report ${report.id}`}>
       <CarInsightsOverviewPage report={report} pageLabel={overviewLabel} />
       <CarInsightsKeyInsightsPage report={report} pageLabel={keyInsightsLabel} />
+      <CarInsightsWarrantySupplementPage
+        report={report}
+        pageLabel={warrantySupplementLabel}
+      />
       <PdfValuationsPage report={report} pageLabel={valuationsLabel} />
       <PdfSupplementsPage report={report} pageLabel={supplementsLabel} />
       {includeSpec && report.vehicleSpec ? (

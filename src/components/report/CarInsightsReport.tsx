@@ -112,6 +112,8 @@ export function CarInsightsReport({
 
   keyInsightsPageLabel,
 
+  warrantyPageLabel,
+
   deferValuations = true,
 
 }: {
@@ -125,6 +127,10 @@ export function CarInsightsReport({
   /** Footer label for the Key Insights sheet when valuations are deferred. */
 
   keyInsightsPageLabel?: string;
+
+  /** Footer label for manufacturer warranty + service history (print page 3). */
+
+  warrantyPageLabel?: string;
 
   /** Present + future valuation blocks render on report page 2 (Insights+). */
 
@@ -337,9 +343,11 @@ export function CarInsightsReport({
           </div>
 
         </div>
-
-        <ReportManufacturersWarrantyNotice vehicle={vehicle} />
     </>
+  );
+
+  const warrantySupplementBody = (
+    <ReportManufacturersWarrantyNotice vehicle={vehicle} />
   );
 
   const upgradeBlock =
@@ -385,10 +393,10 @@ export function CarInsightsReport({
           </div>
         ) : null;
 
-  if (deferValuations && keyInsightsPageLabel) {
+  if (deferValuations && keyInsightsPageLabel && warrantyPageLabel) {
     return (
       <>
-        <div className="report-print-page-first">
+        <div className="report-print-page-first report-insights-overview-sheet">
           <ReportShell
             {...shellProps}
             pageLabel={pageLabel}
@@ -397,14 +405,23 @@ export function CarInsightsReport({
             <div className="report-body space-y-8">{overviewBody}</div>
           </ReportShell>
         </div>
-        <div className="report-page-break">
+        <div className="report-page-break report-insights-key-insights-sheet">
           <ReportShell
             {...shellProps}
             pageLabel={keyInsightsPageLabel}
             className="report-shell-insights report-shell-insights-key-insights !overflow-visible"
           >
+            <div className="report-body space-y-8">{keyInsightsBody}</div>
+          </ReportShell>
+        </div>
+        <div className="report-page-break report-insights-warranty-sheet">
+          <ReportShell
+            {...shellProps}
+            pageLabel={warrantyPageLabel}
+            className="report-shell-insights report-shell-insights-warranty !overflow-visible"
+          >
             <div className="report-body space-y-8">
-              {keyInsightsBody}
+              {warrantySupplementBody}
               {upgradeBlock}
             </div>
           </ReportShell>
@@ -432,6 +449,7 @@ export function CarInsightsReport({
       <div className="report-body space-y-8">
         {overviewBody}
         {keyInsightsBody}
+        {warrantySupplementBody}
         {!deferValuations ? (
           <>
           <div className="report-supplementary report-present-value rounded-xl border border-slate-200 bg-slate-50 p-5">

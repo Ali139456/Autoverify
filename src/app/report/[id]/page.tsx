@@ -130,6 +130,7 @@ export default async function ReportPage({
           showUpgrade={!includesDamage}
           pageLabel={`${reportPage++} / ${pageCount}`}
           keyInsightsPageLabel={`${reportPage++} / ${pageCount}`}
+          warrantyPageLabel={`${reportPage++} / ${pageCount}`}
           deferValuations
         />
 

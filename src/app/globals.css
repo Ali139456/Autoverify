@@ -739,6 +739,25 @@ html.dark body {
     page-break-before: auto;
   }
 
+  #report-print-area > .report-insights-overview-sheet {
+    break-after: page !important;
+    page-break-after: always !important;
+    min-height: auto !important;
+    height: auto !important;
+  }
+
+  #report-print-area > .report-insights-key-insights-sheet {
+    break-after: page !important;
+    page-break-after: always !important;
+  }
+
+  #report-print-area > .report-insights-overview-sheet > .report-shell,
+  #report-print-area > .report-insights-key-insights-sheet > .report-shell,
+  #report-print-area > .report-insights-warranty-sheet > .report-shell {
+    min-height: auto !important;
+    height: auto !important;
+  }
+
   .report-body {
     display: block !important;
   }
@@ -887,10 +906,15 @@ html.dark body {
   }
 
   .report-shell-insights-page1 .report-manufacturers-warranty,
-  .report-shell-insights-key-insights .report-manufacturers-warranty {
+  .report-shell-insights-key-insights .report-manufacturers-warranty,
+  .report-shell-insights-warranty .report-manufacturers-warranty {
     padding: 4px 8px !important;
     font-size: 9px !important;
     line-height: 1.35 !important;
+  }
+
+  .report-shell-insights-warranty .report-shell-body {
+    padding: 10px 16px 8px !important;
   }
 
   .report-valuations-page-break {
