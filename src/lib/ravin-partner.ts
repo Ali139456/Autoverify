@@ -6,7 +6,7 @@ const RAVIN_SITE_ID = Number(process.env.RAVIN_SITE_ID ?? "49");
 const RAVIN_CLIENT_ID = process.env.RAVIN_CLIENT_ID?.trim() || "autoverifi";
 const RAVIN_PROVIDER = process.env.RAVIN_PROVIDER ?? "consumer";
 const RAVIN_INSPECTOR_PATH =
-  process.env.RAVIN_INSPECTOR_PATH?.trim() || "inspector2/page/tmp";
+  process.env.RAVIN_INSPECTOR_PATH?.trim() || "inspector-lite/page/tmp";
 const RAVIN_LINK_EXPIRE_IN = Number(
   process.env.RAVIN_LINK_EXPIRE_IN ??
     process.env.RAVIN_LINK_EXPIRED_IN ??
@@ -29,7 +29,7 @@ export function isRavinPartnerConfigured(): boolean {
   return Boolean(RAVIN_API_KEY && Number.isFinite(RAVIN_SITE_ID) && RAVIN_SITE_ID > 0);
 }
 
-/** Inspector mobile walkaround URL (Ravin MTA US — inspector2 flow). */
+/** Inspector Lite mobile walkaround (Site 49 consumer flow). */
 export function buildInspectorLiteUrl(code: string): string {
   const base = RAVIN_BASE_URL.replace(/\/$/, "");
   const path = RAVIN_INSPECTOR_PATH.replace(/^\/+/, "").replace(/\/+$/, "");
@@ -46,11 +46,36 @@ export function isRavinInspectorLiteUrl(url: string): boolean {
     const parsed = new URL(url.startsWith("http") ? url : `https://${url}`);
     return (
       parsed.hostname.includes("ravin-ai.com") &&
+      parsed.pathname.includes("inspector-lite")
+    );
+  } catch {
+    return false;
+  }
+}
+
+/** Any Ravin-hosted inspector URL (lite or legacy inspector2). */
+export function isRavinInspectorUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url.startsWith("http") ? url : `https://${url}`);
+    return (
+      parsed.hostname.includes("ravin-ai.com") &&
       parsed.pathname.includes("inspector")
     );
   } catch {
     return false;
   }
+}
+
+/** Rewrite legacy inspector2/tmp links to Inspector Lite walkthrough when we have a session code. */
+export function coerceRavinInspectorLiteUrl(url: string): string {
+  const normalized = normalizeInspectorUrl(url);
+  if (!isRavinInspectorUrl(normalized)) return url;
+  if (isRavinInspectorLiteUrl(normalized)) return normalized;
+
+  const code = parseInspectorLiteCodeFromUrl(normalized);
+  if (!code) return normalized;
+
+  return buildInspectorLiteUrl(code);
 }
 
 export function parseInspectorLiteCodeFromUrl(url: string): string | null {
@@ -404,10 +429,11 @@ export async function createRavinPartnerInvite(input: {
     throw new Error(message);
   }
 
-  const inviteUrl = extractInviteUrl(body);
-  if (!inviteUrl) {
+  const rawInviteUrl = extractInviteUrl(body);
+  if (!rawInviteUrl) {
     throw new Error("Ravin partner invite succeeded but no inspection link was returned.");
   }
+  const inviteUrl = coerceRavinInspectorLiteUrl(rawInviteUrl);
 
   return {
     invitationId: claimId,

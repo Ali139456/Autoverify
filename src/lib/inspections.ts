@@ -9,6 +9,7 @@ import {
 import { createServerClient } from "./supabase/server";
 import { isSupabaseServerConfigured } from "./supabase/server";
 import { mergeInspectionPhotosByAngle } from "./merge-inspection-photos";
+import { coerceRavinInspectorLiteUrl } from "./ravin-partner";
 import { InspectionPhoto, InspectionSession, InspectionStatus } from "./types";
 
 type InspectionRow = {
@@ -63,7 +64,10 @@ export function getInspectionOwnerUrl(
   baseUrl: string,
 ): string {
   const base = baseUrl.replace(/\/$/, "");
-  return session.ravinInviteUrl ?? `${base}/inspect/${session.accessToken}`;
+  if (session.ravinInviteUrl?.trim()) {
+    return coerceRavinInspectorLiteUrl(session.ravinInviteUrl);
+  }
+  return `${base}/inspect/${session.accessToken}`;
 }
 
 export async function createInspection(input: {

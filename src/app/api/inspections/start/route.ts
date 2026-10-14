@@ -10,7 +10,9 @@ import {
 } from "@/lib/inspections";
 import { isSupabaseServerConfigured } from "@/lib/supabase/server";
 import {
+  coerceRavinInspectorLiteUrl,
   createRavinPartnerInvite,
+  isRavinInspectorLiteUrl,
   isRavinPartnerConfigured,
 } from "@/lib/ravin-partner";
 import { hasDamageAnalysis } from "@/lib/pricing";
@@ -84,15 +86,29 @@ export async function POST(req: NextRequest) {
       baseUrl,
     );
 
-    let inspectUrl = getInspectionOwnerUrl(inspection, baseUrl);
-    let provider: "ravin" | "internal" = inspection.ravinInviteUrl ? "ravin" : "internal";
-    let ravinInviteUrl: string | null = inspection.ravinInviteUrl;
+    let ravinInviteUrl: string | null = inspection.ravinInviteUrl
+      ? coerceRavinInspectorLiteUrl(inspection.ravinInviteUrl)
+      : null;
+    if (
+      ravinInviteUrl &&
+      ravinInviteUrl !== inspection.ravinInviteUrl
+    ) {
+      await updateInspection(inspection.id, { ravinInviteUrl });
+    }
+
+    let inspectUrl = getInspectionOwnerUrl(
+      { accessToken: inspection.accessToken, ravinInviteUrl },
+      baseUrl,
+    );
+    let provider: "ravin" | "internal" = ravinInviteUrl ? "ravin" : "internal";
     let ravinWarning: string | null = null;
 
     const refreshRavinInvite = Boolean(body.refreshRavinInvite);
+    const storedRavinNeedsLite =
+      ravinInviteUrl !== null && !isRavinInspectorLiteUrl(ravinInviteUrl);
     if (
       isRavinPartnerConfigured() &&
-      (!inspection.ravinInviteUrl || refreshRavinInvite)
+      (!ravinInviteUrl || refreshRavinInvite || storedRavinNeedsLite)
     ) {
       try {
         const invite = await createRavinPartnerInvite({
@@ -100,8 +116,8 @@ export async function POST(req: NextRequest) {
           lp: report.vehicle.rego,
           state: report.vehicle.state,
         });
-        inspectUrl = invite.inviteUrl;
-        ravinInviteUrl = invite.inviteUrl;
+        ravinInviteUrl = coerceRavinInspectorLiteUrl(invite.inviteUrl);
+        inspectUrl = ravinInviteUrl;
         provider = "ravin";
 
         await updateInspection(inspection.id, {

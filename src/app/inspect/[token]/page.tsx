@@ -1,9 +1,10 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { InspectionCapture } from "@/components/InspectionCapture";
 import {
   getInspectionByToken,
   isInspectionExpired,
 } from "@/lib/inspections";
+import { coerceRavinInspectorLiteUrl } from "@/lib/ravin-partner";
 
 export default async function InspectPage({
   params,
@@ -14,6 +15,11 @@ export default async function InspectPage({
   const inspection = await getInspectionByToken(token);
 
   if (!inspection) notFound();
+
+  const ravinUrl = inspection.ravinInviteUrl?.trim();
+  if (ravinUrl) {
+    redirect(coerceRavinInspectorLiteUrl(ravinUrl));
+  }
 
   if (isInspectionExpired(inspection)) {
     return (
