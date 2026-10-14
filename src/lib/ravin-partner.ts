@@ -27,12 +27,21 @@ export type RavinLiteLinkConfig = {
   usesImageUpload: boolean;
 };
 
-export function getRavinLiteLinkConfig(): RavinLiteLinkConfig {
+const DEFAULT_LITE_INSPECTOR_PATH = "inspector-lite/page/tmp";
+
+/** Ravin email: Lite = inspector-lite + image-upload; inspector2 is full flow. */
+function effectiveLiteInspectorPath(): string {
   const path = RAVIN_INSPECTOR_PATH.replace(/^\/+/, "").replace(/\/+$/, "");
+  if (path.includes("inspector2")) return DEFAULT_LITE_INSPECTOR_PATH;
+  return path.includes("inspector-lite") ? path : DEFAULT_LITE_INSPECTOR_PATH;
+}
+
+export function getRavinLiteLinkConfig(): RavinLiteLinkConfig {
+  const path = effectiveLiteInspectorPath();
   return {
     appType: RAVIN_APP_TYPE || null,
     inspectorPath: path,
-    usesImageUpload: path.includes("inspector-lite"),
+    usesImageUpload: true,
   };
 }
 
@@ -61,7 +70,7 @@ export function isRavinPartnerConfigured(): boolean {
 /** Inspector Lite mobile walkaround (Site 49 consumer flow). */
 export function buildInspectorLiteUrl(code: string): string {
   const base = RAVIN_BASE_URL.replace(/\/$/, "");
-  const path = RAVIN_INSPECTOR_PATH.replace(/^\/+/, "").replace(/\/+$/, "");
+  const path = effectiveLiteInspectorPath();
   const url = new URL(`${base}/${path}/`);
   url.searchParams.set("code", code);
   applyLiteQueryParams(url);

@@ -1,4 +1,8 @@
-import { getInspectionByReportId } from "./inspections";
+import { getInspectionByReportId, updateInspection } from "./inspections";
+import {
+  coerceRavinInspectorLiteUrl,
+  isRavinInspectorLiteUrl,
+} from "./ravin-partner";
 import { getReport } from "./store";
 import { createServerClient, isSupabaseServerConfigured } from "./supabase/server";
 
@@ -23,6 +27,7 @@ export type RavinReportTrace = {
     matchedReportId: string | null;
     matchedInspectionId: string | null;
   }>;
+  nextSteps: string[];
 };
 
 function normalizeReportId(input: string): string {
@@ -43,7 +48,18 @@ export async function traceRavinReport(
 
   const base = baseUrl.replace(/\/$/, "");
   const report = await getReport(reportId);
-  const inspection = await getInspectionByReportId(reportId);
+  let inspection = await getInspectionByReportId(reportId);
+
+  if (
+    inspection?.ravinInviteUrl?.trim() &&
+    !isRavinInspectorLiteUrl(inspection.ravinInviteUrl)
+  ) {
+    const liteUrl = coerceRavinInspectorLiteUrl(inspection.ravinInviteUrl);
+    if (liteUrl !== inspection.ravinInviteUrl) {
+      await updateInspection(inspection.id, { ravinInviteUrl: liteUrl });
+      inspection = { ...inspection, ravinInviteUrl: liteUrl };
+    }
+  }
 
   let workflowStatus: string | null = null;
   const webhookEvents: RavinReportTrace["webhookEvents"] = [];
@@ -87,6 +103,34 @@ export async function traceRavinReport(
     );
   }
 
+  const nextSteps: string[] = [];
+  if (!report) {
+    nextSteps.push("No Auto Verifi report row for this id.");
+  } else if (workflowStatus === "awaiting_inspection") {
+    nextSteps.push(
+      "Owner must complete the Ravin Lite walkthrough using the invite link on the report.",
+    );
+  }
+  if (
+    inspection &&
+    inspection.status === "pending" &&
+    inspection.photos.length === 0
+  ) {
+    nextSteps.push("Inspection not completed yet (0 photos on Auto Verifi).");
+  }
+  if (webhookEvents.length === 0) {
+    nextSteps.push(
+      "No Ravin webhook received — ask Ravin to POST JSON to https://autoverifi.com.au/api/webhooks/ravin with claimId AV-… in the payload (or re-send test for this report).",
+    );
+  } else if (workflowStatus !== "complete") {
+    nextSteps.push("Webhooks arrived but report is not complete — check webhook matching logs.");
+  }
+  if (workflowStatus === "complete") {
+    nextSteps.push(`Open customer report: ${base}/report/${reportId}`);
+  }
+
+  const inviteUrl = inspection?.ravinInviteUrl ?? null;
+
   return {
     reportId,
     reportFound: Boolean(report),
@@ -98,11 +142,12 @@ export async function traceRavinReport(
           id: inspection.id,
           status: inspection.status,
           ravinInspectionId: inspection.ravinInspectionId,
-          ravinInviteUrl: inspection.ravinInviteUrl,
+          ravinInviteUrl: inviteUrl,
           completedAt: inspection.completedAt,
           photoCount: inspection.photos.length,
         }
       : null,
     webhookEvents,
+    nextSteps,
   };
 }
