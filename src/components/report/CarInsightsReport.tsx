@@ -110,6 +110,8 @@ export function CarInsightsReport({
 
   pageLabel,
 
+  keyInsightsPageLabel,
+
   deferValuations = true,
 
 }: {
@@ -119,6 +121,10 @@ export function CarInsightsReport({
   showUpgrade: boolean;
 
   pageLabel: string;
+
+  /** Footer label for the Key Insights sheet when valuations are deferred. */
+
+  keyInsightsPageLabel?: string;
 
   /** Present + future valuation blocks render on report page 2 (Insights+). */
 
@@ -157,26 +163,14 @@ export function CarInsightsReport({
 
     `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
 
+  const shellProps = {
+    reportId: report.id,
+    generatedAt: report.createdAt,
+    reportReference: formatReportReference(report.vehicle),
+  };
 
-
-  return (
-
-    <ReportShell
-
-      reportId={report.id}
-
-      generatedAt={report.createdAt}
-
-      reportReference={formatReportReference(report.vehicle)}
-
-      pageLabel={pageLabel}
-
-      className="report-shell-insights report-shell-insights-page1 !overflow-visible"
-
-    >
-
-      <div className="report-body space-y-8">
-
+  const overviewBody = (
+    <>
         <div className="report-title-block">
 
           <h1 className="report-main-title text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
@@ -315,7 +309,11 @@ export function CarInsightsReport({
           </div>
 
         </div>
+    </>
+  );
 
+  const keyInsightsBody = (
+    <>
         <div className="report-insights-section">
 
           <div className="report-insights-header mb-4">
@@ -341,7 +339,99 @@ export function CarInsightsReport({
         </div>
 
         <ReportManufacturersWarrantyNotice vehicle={vehicle} />
+    </>
+  );
 
+  const upgradeBlock =
+    showUpgrade ? (
+          <div className="report-upgrade-banner flex flex-col items-start gap-4 rounded-xl border border-slate-200 bg-slate-50 p-5 sm:flex-row sm:items-center sm:justify-between">
+
+            <div className="flex items-start gap-3">
+
+              <FileText className="mt-0.5 h-8 w-8 shrink-0 text-[#0073E3]" aria-hidden />
+
+              <div>
+
+                <p className="font-bold text-slate-900">
+
+                  Upgrade to Auto Verifi Insights+ for AI powered condition scan and more
+
+                  insights.
+
+                </p>
+
+                <p className="mt-1 text-sm text-slate-500">
+
+                  Get AI powered current condition insights of exterior body, tyres and
+
+                  interior + predicted future valuation.
+
+                </p>
+
+              </div>
+
+            </div>
+
+            <UpgradeToInsightsPlusButton
+              reportId={report.id}
+              vehicleTitle={[vehicle.year, vehicle.make, vehicle.model]
+                .filter(Boolean)
+                .join(" ")}
+              upgradePriceLabel={formatCents(INSIGHTS_PLUS_UPGRADE_PRICE_CENTS)}
+              defaultCustomerPhone={report.customerPhone}
+              defaultOwnerPhone={report.ownerPhone}
+            />
+
+          </div>
+        ) : null;
+
+  if (deferValuations && keyInsightsPageLabel) {
+    return (
+      <>
+        <div className="report-print-page-first">
+          <ReportShell
+            {...shellProps}
+            pageLabel={pageLabel}
+            className="report-shell-insights report-shell-insights-page1 !overflow-visible"
+          >
+            <div className="report-body space-y-8">{overviewBody}</div>
+          </ReportShell>
+        </div>
+        <div className="report-page-break">
+          <ReportShell
+            {...shellProps}
+            pageLabel={keyInsightsPageLabel}
+            className="report-shell-insights report-shell-insights-key-insights !overflow-visible"
+          >
+            <div className="report-body space-y-8">
+              {keyInsightsBody}
+              {upgradeBlock}
+            </div>
+          </ReportShell>
+        </div>
+      </>
+    );
+  }
+
+  return (
+
+    <ReportShell
+
+      reportId={report.id}
+
+      generatedAt={report.createdAt}
+
+      reportReference={formatReportReference(report.vehicle)}
+
+      pageLabel={pageLabel}
+
+      className="report-shell-insights report-shell-insights-page1 !overflow-visible"
+
+    >
+
+      <div className="report-body space-y-8">
+        {overviewBody}
+        {keyInsightsBody}
         {!deferValuations ? (
           <>
           <div className="report-supplementary report-present-value rounded-xl border border-slate-200 bg-slate-50 p-5">
@@ -466,49 +556,7 @@ export function CarInsightsReport({
 
 
 
-        {showUpgrade ? (
-
-          <div className="report-upgrade-banner flex flex-col items-start gap-4 rounded-xl border border-slate-200 bg-slate-50 p-5 sm:flex-row sm:items-center sm:justify-between">
-
-            <div className="flex items-start gap-3">
-
-              <FileText className="mt-0.5 h-8 w-8 shrink-0 text-[#0073E3]" aria-hidden />
-
-              <div>
-
-                <p className="font-bold text-slate-900">
-
-                  Upgrade to Auto Verifi Insights+ for AI powered condition scan and more
-
-                  insights.
-
-                </p>
-
-                <p className="mt-1 text-sm text-slate-500">
-
-                  Get AI powered current condition insights of exterior body, tyres and
-
-                  interior + predicted future valuation.
-
-                </p>
-
-              </div>
-
-            </div>
-
-            <UpgradeToInsightsPlusButton
-              reportId={report.id}
-              vehicleTitle={[vehicle.year, vehicle.make, vehicle.model]
-                .filter(Boolean)
-                .join(" ")}
-              upgradePriceLabel={formatCents(INSIGHTS_PLUS_UPGRADE_PRICE_CENTS)}
-              defaultCustomerPhone={report.customerPhone}
-              defaultOwnerPhone={report.ownerPhone}
-            />
-
-          </div>
-
-        ) : null}
+        {upgradeBlock}
 
       </div>
 
