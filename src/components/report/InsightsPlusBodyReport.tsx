@@ -94,7 +94,7 @@ function PhotoGroup({
         ))}
       </div>
       {hasRecordOnlyPhoto ? (
-        <p className="report-record-only-footnote mt-3 max-w-full text-left text-[10px] leading-snug text-slate-500">
+        <p className="report-record-only-footnote mt-3 mb-2 max-w-full text-left text-[10px] leading-snug text-slate-500">
           {INSPECTION_RECORD_ONLY_FOOTNOTE_WITH_STAR}
         </p>
       ) : null}

@@ -286,7 +286,9 @@ html.dark body {
 }
 
 .report-shell-ppsr,
-.report-shell-flow {
+.report-shell-flow,
+.report-shell-insights-plus-photos,
+.report-shell-insights-plus-damage {
   min-height: auto;
 }
 

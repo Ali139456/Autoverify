@@ -19,7 +19,9 @@ export function ReportShell({
   const shellClass = className ?? "";
   const pinFooterToSheetBottom =
     !shellClass.includes("report-shell-ppsr") &&
-    !shellClass.includes("report-shell-flow");
+    !shellClass.includes("report-shell-flow") &&
+    !shellClass.includes("report-shell-insights-plus-photos") &&
+    !shellClass.includes("report-shell-insights-plus-damage");
   const pinFooterFixedSheet =
     pinFooterToSheetBottom &&
     !shellClass.includes("report-shell-spec") &&
