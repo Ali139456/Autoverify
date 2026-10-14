@@ -31,7 +31,7 @@ const CHECKS = [
 const CONTACT_EMAIL = "info@autoverifi.com.au";
 const OFFICE_ADDRESS = "Level 35, 100 Barangaroo Avenue, Sydney NSW 2000";
 
-export function Footer() {
+export function Footer({ showPurchaseCta = true }: { showPurchaseCta?: boolean }) {
   return (
     <footer className="av-site-footer relative mt-auto w-full min-w-0 border-t border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-ink-950">
       <div
@@ -41,30 +41,34 @@ export function Footer() {
         <div className="absolute -top-32 left-1/2 h-[300px] w-[min(700px,100vw)] -translate-x-1/2 rounded-full bg-accent-600/10 blur-[120px]" />
       </div>
 
-      <div className="relative mx-auto w-full min-w-0 max-w-6xl px-5 pt-12 sm:px-6 sm:pt-16">
-        <div className="flex flex-col items-center gap-5 rounded-3xl border border-accent-500/25 bg-gradient-to-r from-blue-50 via-white to-white p-6 text-center dark:from-accent-700/25 dark:via-ink-800 dark:to-ink-800 sm:gap-6 sm:p-8 md:flex-row md:justify-between md:text-left lg:p-10">
-          <div>
-            <h2 className="text-xl font-extrabold text-slate-900 dark:text-white sm:text-2xl lg:text-3xl">
-              Ready to know what you&apos;re buying?
-            </h2>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 sm:text-base">
-              Past, present and future insights — in your hands in minutes.
-            </p>
+      {showPurchaseCta ? (
+        <div className="relative mx-auto w-full min-w-0 max-w-6xl px-5 pt-12 sm:px-6 sm:pt-16">
+          <div className="flex flex-col items-center gap-5 rounded-3xl border border-accent-500/25 bg-gradient-to-r from-blue-50 via-white to-white p-6 text-center dark:from-accent-700/25 dark:via-ink-800 dark:to-ink-800 sm:gap-6 sm:p-8 md:flex-row md:justify-between md:text-left lg:p-10">
+            <div>
+              <h2 className="text-xl font-extrabold text-slate-900 dark:text-white sm:text-2xl lg:text-3xl">
+                Ready to know what you&apos;re buying?
+              </h2>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 sm:text-base">
+                Past, present and future insights — in your hands in minutes.
+              </p>
+            </div>
+            <Link
+              href="/#check"
+              className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-accent-500 px-6 py-3 text-sm font-bold text-white transition hover:bg-accent-600 sm:px-8 sm:py-4 sm:text-base"
+            >
+              Buy Report
+              <ArrowRight
+                className="h-5 w-5 transition-transform group-hover:translate-x-0.5"
+                aria-hidden
+              />
+            </Link>
           </div>
-          <Link
-            href="/#check"
-            className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-accent-500 px-6 py-3 text-sm font-bold text-white transition hover:bg-accent-600 sm:px-8 sm:py-4 sm:text-base"
-          >
-            Buy Report
-            <ArrowRight
-              className="h-5 w-5 transition-transform group-hover:translate-x-0.5"
-              aria-hidden
-            />
-          </Link>
         </div>
-      </div>
+      ) : null}
 
-      <div className="relative mx-auto grid w-full min-w-0 max-w-6xl gap-10 px-5 py-14 sm:px-6 md:grid-cols-12">
+      <div
+        className={`relative mx-auto grid w-full min-w-0 max-w-6xl gap-10 px-5 py-14 sm:px-6 md:grid-cols-12 ${showPurchaseCta ? "" : "pt-12 sm:pt-16"}`}
+      >
         <div className="md:col-span-5">
           <Logo height={52} variant="auto" />
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-600 dark:text-slate-400">

@@ -15,6 +15,10 @@ export function ConditionalSiteChrome({
 }) {
   const pathname = usePathname();
   const hideMainFooter = pathname.startsWith("/vehicleinspections");
+  const hideFooterPurchaseCta =
+    pathname.startsWith("/check") ||
+    pathname.startsWith("/checkout") ||
+    pathname.startsWith("/report/");
   const isPreviewLogin = pathname === "/preview";
   const isComingSoonHome =
     pathname === "/" && comingSoonMode && !previewAccess;
@@ -30,7 +34,9 @@ export function ConditionalSiteChrome({
       <main className="flex-1 w-full min-w-0 overflow-x-clip bg-white pt-[5.75rem] dark:bg-ink-950 sm:pt-[6rem]">
         {children}
       </main>
-      {!hideMainFooter && <Footer />}
+      {!hideMainFooter && (
+        <Footer showPurchaseCta={!hideFooterPurchaseCta} />
+      )}
     </ThemeProvider>
   );
 }
