@@ -1438,8 +1438,7 @@ html.dark body {
     page-break-inside: avoid !important;
   }
 
-  #report-print-area > .report-insights-plus-walkaround-sheet.report-sheet-pin-footer,
-  #report-print-area > .report-insights-plus-additional-sheet.report-sheet-pin-footer {
+  #report-print-area > .report-insights-plus-walkaround-sheet.report-sheet-pin-footer {
     height: auto !important;
     min-height: 279.5mm !important;
     max-height: none !important;
@@ -1448,15 +1447,90 @@ html.dark body {
 
   #report-print-area
     > .report-insights-plus-walkaround-sheet.report-sheet-pin-footer
-    > .report-shell,
-  #report-print-area
-    > .report-insights-plus-additional-sheet.report-sheet-pin-footer
     > .report-shell {
     height: auto !important;
     min-height: 279.5mm !important;
     max-height: none !important;
     break-inside: auto !important;
     page-break-inside: auto !important;
+  }
+
+  /* Additional photos: one pinned A4 — larger tiles, less empty space at bottom. */
+  #report-print-area > .report-insights-plus-additional-sheet.report-sheet-pin-footer {
+    height: 279.5mm !important;
+    min-height: 279.5mm !important;
+    max-height: 279.5mm !important;
+    overflow: hidden !important;
+  }
+
+  #report-print-area
+    > .report-insights-plus-additional-sheet.report-sheet-pin-footer
+    > .report-shell {
+    height: 100% !important;
+    min-height: 100% !important;
+    max-height: 100% !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  #report-print-area
+    > .report-insights-plus-additional-sheet
+    .report-shell-pin-footer
+    .report-shell-body {
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .report-shell-insights-plus-photos-continued .report-insights-plus-photos-body {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .report-shell-insights-plus-photos-continued .report-inspection-photos {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .report-insights-plus-additional-sheet .report-photo-grid {
+    flex: 1 1 auto !important;
+    gap: 6px !important;
+    align-content: stretch !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-auto-rows: 1fr !important;
+    min-height: 0 !important;
+  }
+
+  .report-insights-plus-additional-sheet .report-photo-tile {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+    height: 100% !important;
+  }
+
+  .report-insights-plus-additional-sheet .report-photo-tile > div {
+    aspect-ratio: auto !important;
+    flex: 1 1 auto !important;
+    height: auto !important;
+    min-height: 58mm !important;
+    max-height: none !important;
+  }
+
+  .report-insights-plus-additional-sheet .report-photo-tile img {
+    object-fit: contain !important;
+    object-position: center !important;
+    background-color: #f1f5f9 !important;
+  }
+
+  .report-insights-plus-additional-sheet .report-record-only-footnote {
+    flex-shrink: 0 !important;
+    margin-top: auto !important;
+    padding-top: 6px !important;
   }
 
   .report-shell-insights-plus-damage .report-insights-plus-damage-body.space-y-6 > * + * {

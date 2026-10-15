@@ -1907,10 +1907,14 @@ function PdfPhotoGroup({
   title,
   photos,
   note,
+  photoImageHeight = 64,
+  photoObjectFit = "cover",
 }: {
   title: string;
   photos: InspectionPhoto[];
   note?: string;
+  photoImageHeight?: number;
+  photoObjectFit?: "cover" | "contain";
 }) {
   if (photos.length === 0) return null;
   const hasRecordOnlyPhoto = photos.some((photo) =>
@@ -1945,9 +1949,23 @@ function PdfPhotoGroup({
                   ]}
                 >
                   {url ? (
-                    <Image src={url} style={styles.photoImage} />
+                    <Image
+                      src={url}
+                      style={[
+                        styles.photoImage,
+                        {
+                          height: photoImageHeight,
+                          objectFit: photoObjectFit,
+                        },
+                      ]}
+                    />
                   ) : (
-                    <View style={[styles.photoImage, { backgroundColor: LIGHT }]} />
+                    <View
+                      style={[
+                        styles.photoImage,
+                        { height: photoImageHeight, backgroundColor: LIGHT },
+                      ]}
+                    />
                   )}
                   <Text style={styles.photoCaption}>{label}</Text>
                   {evidenceLines.map((line) => (
@@ -2049,6 +2067,8 @@ function InsightsPlusAdditionalPhotosPage({
           title="Additional Photos"
           photos={additionalPhotos}
           note="Wheels, interior, odometer, keys, and supporting records from the guided inspection."
+          photoImageHeight={92}
+          photoObjectFit="contain"
         />
       </View>
     </PdfPageShell>
