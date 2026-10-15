@@ -14,7 +14,6 @@ import {
   createRavinPartnerInvite,
   isRavinInspectorLiteUrl,
   isRavinPartnerConfigured,
-  useHostedRavinInspector,
 } from "@/lib/ravin-partner";
 import { hasDamageAnalysis } from "@/lib/pricing";
 import { normalizeAuMobile } from "@/lib/phone";
@@ -98,9 +97,7 @@ export async function POST(req: NextRequest) {
     }
 
     let inspectUrl = ownerEntryUrl;
-    const hostedRavin = useHostedRavinInspector();
-    let provider: "ravin" | "internal" =
-      hostedRavin && ravinInviteUrl ? "ravin" : "internal";
+    const provider: "internal" = "internal";
     let ravinWarning: string | null = null;
 
     const refreshRavinInvite = Boolean(body.refreshRavinInvite);
@@ -118,7 +115,6 @@ export async function POST(req: NextRequest) {
         });
         ravinInviteUrl = coerceRavinInspectorLiteUrl(invite.inviteUrl);
         inspectUrl = ownerEntryUrl;
-        provider = hostedRavin ? "ravin" : "internal";
 
         await updateInspection(inspection.id, {
           ravinInspectionId: invite.invitationId,
@@ -128,7 +124,6 @@ export async function POST(req: NextRequest) {
       } catch (ravinErr) {
         console.error("[inspections/start] Ravin partner invite failed:", ravinErr);
         inspectUrl = ownerEntryUrl;
-        provider = "internal";
         ravinWarning =
           ravinErr instanceof Error
             ? ravinErr.message

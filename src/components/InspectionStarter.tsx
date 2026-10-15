@@ -185,14 +185,6 @@ export function InspectionStarter({
             owner&apos;s phone to complete the AI condition scan.
           </p>
         )}
-        {provider === "ravin" && (
-          <p className="mt-3 text-sm font-medium text-amber-400">
-            Hosted Ravin Inspector is enabled — owners are sent to Ravin instead of Auto
-            Verifi capture. Set{" "}
-            <code className="text-amber-200">RAVIN_USE_HOSTED_INSPECTOR=false</code> on
-            Vercel for the branded walkaround.
-          </p>
-        )}
         {ravinWarning && (
           <p className="mt-2 text-sm text-amber-300" role="alert">
             {ravinWarning}

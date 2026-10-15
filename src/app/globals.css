@@ -1093,6 +1093,14 @@ html.dark body {
   .report-shell-insights-intro .report-insight-card p {
     font-size: 8px !important;
     line-height: 1.25 !important;
+    hyphens: none !important;
+    -webkit-hyphens: none !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+  }
+
+  .report-shell-insights-intro .report-insight-card p:not(.report-insight-card-title) {
+    font-weight: 400 !important;
   }
 
   .report-shell-insights-intro .report-insights-grid {
@@ -1241,6 +1249,15 @@ html.dark body {
   .report-shell-insights-key-insights .report-insight-card p {
     font-size: 9px !important;
     line-height: 1.3 !important;
+    hyphens: none !important;
+    -webkit-hyphens: none !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+  }
+
+  .report-shell-insights-page1 .report-insight-card p:not(.report-insight-card-title),
+  .report-shell-insights-key-insights .report-insight-card p:not(.report-insight-card-title) {
+    font-weight: 400 !important;
   }
 
   .report-shell-insights-page1 .report-supplementary .text-base {
@@ -1884,6 +1901,20 @@ html.dark body {
     line-height: 1.3 !important;
     hyphens: none !important;
     -webkit-hyphens: none !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+  }
+
+  .report-insight-card p:not(.report-insight-card-title) {
+    font-weight: 400 !important;
+  }
+
+  .report-insight-card li {
+    hyphens: none !important;
+    -webkit-hyphens: none !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+    font-weight: 400 !important;
   }
 
   .report-insight-card .report-insight-card-title {

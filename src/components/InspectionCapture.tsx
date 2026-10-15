@@ -17,6 +17,7 @@ import {
 import { readCaptureGeolocation } from "@/lib/capture-geolocation";
 import { mergeInspectionPhotosByAngle } from "@/lib/merge-inspection-photos";
 import { prepareInspectionPhoto } from "@/lib/prepare-inspection-photo";
+import { Logo } from "@/components/Logo";
 
 type UploadedPhoto = {
   angle: string;
@@ -312,8 +313,9 @@ export function InspectionCapture({
       }`}
     >
       <div className="mb-6">
+        <Logo variant="onDark" height={36} linked={false} className="mb-4" />
         <h1 className="text-2xl font-extrabold tracking-tight">
-          Auto Verifi AI condition assessment
+          AI condition assessment
         </h1>
         <p className="mt-2 text-sm text-slate-400">
           Step {stepIndex + 1} of {INSPECTION_ANGLES.length} · {completedCount} uploaded

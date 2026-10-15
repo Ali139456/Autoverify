@@ -338,11 +338,12 @@ const styles = StyleSheet.create({
   },
   insightTitle: {
     fontSize: PDF_INSIGHT_TITLE,
-    color: GREY,
+    color: "#0f172a",
     textAlign: "right",
     flex: 1,
     lineHeight: 1.35,
-    fontFamily: "Helvetica",
+    fontFamily: "Helvetica-Bold",
+    textTransform: "uppercase",
   },
   insightBottom: {
     marginTop: 5,
@@ -352,7 +353,7 @@ const styles = StyleSheet.create({
   insightStatusRow: { flexDirection: "row", alignItems: "flex-start", gap: 4 },
   insightStatus: {
     fontSize: PDF_INSIGHT_BODY,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Helvetica",
     lineHeight: PDF_INSIGHT_LINE,
   },
   clear: { color: "#15803d" },
@@ -689,10 +690,7 @@ function PdfInsightCard({
                           insight.id === "rideshare"
                             ? PDF_INSIGHT_BODY_SM
                             : PDF_INSIGHT_BODY,
-                        fontFamily:
-                          line.variant === "muted"
-                            ? "Helvetica"
-                            : "Helvetica-Bold",
+                        fontFamily: "Helvetica",
                         color: pdfRideShareLineColor(line.variant),
                         marginTop: lineIndex === 0 ? 0 : 2,
                         lineHeight: PDF_INSIGHT_LINE,

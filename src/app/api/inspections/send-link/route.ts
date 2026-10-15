@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   getInspectionByReportId,
   getInspectionOwnerUrl,
+  isAutoVerifiInspectEntryUrl,
   isInspectionExpired,
+  isRavinHostedInspectorUrl,
 } from "@/lib/inspections";
 import { hasDamageAnalysis } from "@/lib/pricing";
 import { sendInspectionLinkSms } from "@/lib/sms";
@@ -35,11 +37,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const baseUrl = getBaseUrl();
     const inspection = await getInspectionByReportId(reportId);
     let link = "";
     if (inspection && !isInspectionExpired(inspection)) {
-      link = getInspectionOwnerUrl(inspection, getBaseUrl());
-    } else if (inspectUrl) {
+      link = getInspectionOwnerUrl(inspection, baseUrl);
+    } else if (
+      inspectUrl &&
+      !isRavinHostedInspectorUrl(inspectUrl) &&
+      isAutoVerifiInspectEntryUrl(inspectUrl, baseUrl)
+    ) {
       link = inspectUrl;
     }
 

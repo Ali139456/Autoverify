@@ -17,13 +17,13 @@ const RIDE_SHARE_ORANGE = "#E87722";
 function rideShareLineClass(variant: ReportInsightLineVariant): string {
   switch (variant) {
     case "eligible":
-      return "text-xs font-bold leading-snug text-emerald-600";
+      return "text-xs font-normal leading-snug text-emerald-600";
     case "action":
-      return "text-xs font-bold leading-snug text-left";
+      return "text-xs font-normal leading-snug text-left";
     case "ineligible":
-      return "text-xs font-bold leading-snug text-amber-600";
+      return "text-xs font-normal leading-snug text-amber-600";
     default:
-      return "text-[11px] font-medium leading-snug text-slate-500";
+      return "text-[11px] font-normal leading-snug text-slate-500";
   }
 }
 
@@ -101,7 +101,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
 
   return (
 
-    <div className="report-insight-card flex h-full min-h-[104px] min-w-0 flex-col gap-3 overflow-hidden rounded-xl border border-slate-200 bg-slate-100 p-3.5 sm:p-4">
+    <div className="report-insight-card flex h-full min-h-[104px] min-w-0 flex-col gap-3 overflow-hidden rounded-xl border border-slate-200 bg-slate-100 p-3.5 sm:p-4 [&_li:not(.report-insight-card-title)]:break-normal [&_li:not(.report-insight-card-title)]:hyphens-none [&_p:not(.report-insight-card-title)]:break-normal [&_p:not(.report-insight-card-title)]:hyphens-none">
 
       <div className="flex items-start justify-between gap-2">
 
@@ -148,7 +148,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
               </p>
             ))}
             {insight.detail ? (
-              <p className="pt-0.5 text-[11px] font-medium text-slate-500">
+              <p className="pt-0.5 text-[11px] font-normal text-slate-500">
                 {insight.detail}
               </p>
             ) : null}
@@ -160,21 +160,21 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
               <div className="min-w-0">
                 {insight.status?.trim() ? (
                 <p
-                  className={`text-xs font-bold leading-snug break-words ${insightToneClass(insight.tone)}`}
+                  className={`text-xs font-normal leading-snug ${insightToneClass(insight.tone)}`}
                 >
                   {insight.status}
                 </p>
                 ) : insight.detail ? (
-                  <p className="text-[11px] font-medium leading-relaxed text-slate-600">
+                  <p className="text-[11px] font-normal leading-relaxed text-slate-600">
                     {insight.detail}
                   </p>
                 ) : null}
                 {insight.statusSubtext ? (
                   <p
-                    className={`mt-1 text-[11px] leading-snug break-words ${
+                    className={`mt-1 text-[11px] font-normal leading-snug ${
                       insight.id === "registration" || insight.id === "market"
-                        ? `font-bold ${insightToneClass(insight.tone)}`
-                        : "font-medium text-slate-500"
+                        ? insightToneClass(insight.tone)
+                        : "text-slate-500"
                     }`}
                   >
                     {insight.statusSubtext}
@@ -183,7 +183,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                 {insight.listItems?.length && insight.id !== "odometer" ? (
                   <ul className="mt-1.5 space-y-0.5 text-[11px] leading-snug text-slate-600">
                     {insight.listItems.map((item) => (
-                      <li key={item} className="break-words">
+                      <li key={item}>
                         {item}
                       </li>
                     ))}
@@ -191,13 +191,13 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                 ) : null}
                 {insight.id === "registration" && insight.detail ? (
                   <p
-                    className={`mt-1 text-[11px] leading-snug break-words font-bold ${insightToneClass(insight.tone)}`}
+                    className={`mt-1 text-[11px] font-normal leading-snug ${insightToneClass(insight.tone)}`}
                   >
                     {insight.detail}
                   </p>
                 ) : null}
                 {insight.id === "recall" && insight.status === "Clear" ? (
-                  <p className="mt-1 min-w-0 text-[11px] leading-relaxed break-words text-slate-600">
+                  <p className="mt-1 min-w-0 text-[11px] font-normal leading-relaxed text-slate-600">
                     Check for recall updates on{" "}
                     <a
                       href={VEHICLE_RECALLS_GOV_AU_URL}
@@ -226,7 +226,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                 </a>
               </p>
             ) : note && insight.id !== "service" ? (
-              <p className="mt-2 text-[11px] leading-relaxed text-slate-600">
+              <p className="mt-2 text-[11px] font-normal leading-relaxed text-slate-600">
                 {note}
               </p>
             ) : null}

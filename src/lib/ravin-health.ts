@@ -6,6 +6,7 @@ import {
 } from "./ravin-partner";
 
 export type RavinIntegrationStatus = {
+  ownerCapture: "autoverifi_inspect";
   partnerApiConfigured: boolean;
   s3IngestConfigured: boolean;
   webhookSecretConfigured: boolean;
@@ -30,7 +31,7 @@ export function getRavinIntegrationStatus(baseUrl: string): RavinIntegrationStat
   if (partnerApiConfigured) {
     demoReadiness = "ready_ravin_app";
     notes.push(
-      "Owner completes capture on the Ravin inspector-lite link (SMS/QR). Results arrive via webhook.",
+      "Owners complete capture on Auto Verifi /inspect/… (SMS/QR). Ravin partner invite + webhook handle AI analysis.",
     );
     if (!webhookSecretConfigured) {
       notes.push(
@@ -53,6 +54,7 @@ export function getRavinIntegrationStatus(baseUrl: string): RavinIntegrationStat
   }
 
   return {
+    ownerCapture: "autoverifi_inspect",
     partnerApiConfigured,
     s3IngestConfigured,
     webhookSecretConfigured,

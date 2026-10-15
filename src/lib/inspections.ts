@@ -57,13 +57,35 @@ export function isInspectionExpired(session: InspectionSession): boolean {
   return new Date(session.expiresAt).getTime() < Date.now();
 }
 
-/** Owner-facing entry URL — `/inspect/{token}` (Auto Verifi capture unless hosted Ravin is enabled). */
+/** Owner-facing entry URL — always Auto Verifi branded `/inspect/{token}`. */
 export function getInspectionOwnerUrl(
   session: Pick<InspectionSession, "accessToken">,
   baseUrl: string,
 ): string {
   const base = baseUrl.replace(/\/$/, "");
   return `${base}/inspect/${session.accessToken}`;
+}
+
+export function isRavinHostedInspectorUrl(url: string): boolean {
+  try {
+    const host = new URL(url.trim()).hostname.toLowerCase();
+    return host.includes("ravin-ai.com");
+  } catch {
+    return false;
+  }
+}
+
+export function isAutoVerifiInspectEntryUrl(url: string, baseUrl: string): boolean {
+  try {
+    const entry = new URL(url.trim());
+    const base = new URL(baseUrl.replace(/\/$/, "") || "https://autoverifi.com.au");
+    return (
+      entry.origin === base.origin &&
+      /^\/inspect\/[^/]+/.test(entry.pathname)
+    );
+  } catch {
+    return false;
+  }
 }
 
 export async function createInspection(input: {
