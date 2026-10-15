@@ -117,6 +117,7 @@ const PDF_INSIGHT_LINE = 1.45;
 const RIDE_SHARE_ORANGE = "#E87722";
 const LOGO_BLUE = publicPdfImage(REPORT_LOGO_PNG_PATH);
 
+const PDF_A4_WIDTH = 595.28;
 const PDF_A4_HEIGHT = 841.89;
 /** Fixed height of the status + hero panel on page 1 (keeps yoga layout stable). */
 const STATUS_PANEL_HEIGHT = 148;
@@ -130,17 +131,25 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     position: "relative",
   },
-  sampleWatermarkText: {
+  sampleWatermarkLayer: {
     position: "absolute",
-    top: 300,
-    left: 48,
+    top: 0,
+    left: 0,
+    width: PDF_A4_WIDTH,
+    height: PDF_A4_HEIGHT,
+    justifyContent: "center",
+    alignItems: "center",
     zIndex: 100,
-    fontSize: 76,
+  },
+  sampleWatermarkText: {
+    width: PDF_A4_WIDTH * 1.65,
+    textAlign: "center",
+    fontSize: 108,
     fontFamily: "Helvetica-Bold",
     color: "#94a3b8",
-    opacity: 0.26,
-    letterSpacing: 14,
-    transform: "rotate(-32deg)",
+    opacity: 0.24,
+    letterSpacing: 22,
+    transform: "rotate(-35deg)",
   },
   pageFrame: {
     height: PDF_A4_HEIGHT,
@@ -656,7 +665,11 @@ function PdfPageShell({
           </Text>
         </View>
       </View>
-      {isSample ? <Text style={styles.sampleWatermarkText}>SAMPLE</Text> : null}
+      {isSample ? (
+        <View style={styles.sampleWatermarkLayer}>
+          <Text style={styles.sampleWatermarkText}>SAMPLE</Text>
+        </View>
+      ) : null}
     </Page>
   );
 }

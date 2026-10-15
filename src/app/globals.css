@@ -293,20 +293,27 @@ html.dark body {
 .report-is-sample .report-shell {
   position: relative;
   isolation: isolate;
+  overflow: hidden;
 }
 
+/* Full-page diagonal: lower-left → upper-right (over content). */
 .report-is-sample .report-shell::after {
   content: "SAMPLE";
   position: absolute;
   left: 50%;
-  top: 46%;
+  top: 50%;
   z-index: 40;
-  transform: translate(-50%, -50%) rotate(-32deg);
-  font-size: clamp(3.5rem, 20vw, 6.75rem);
+  width: 170%;
+  max-width: none;
+  text-align: center;
+  line-height: 1;
+  transform: translate(-50%, -50%) rotate(-35deg);
+  transform-origin: center center;
+  font-size: clamp(5rem, 17vw, 11rem);
   font-weight: 800;
-  letter-spacing: 0.32em;
-  text-indent: 0.32em;
-  color: rgba(100, 116, 139, 0.28);
+  letter-spacing: 0.58em;
+  text-indent: 0.58em;
+  color: rgba(100, 116, 139, 0.24);
   pointer-events: none;
   user-select: none;
   white-space: nowrap;
