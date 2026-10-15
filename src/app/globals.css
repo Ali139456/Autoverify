@@ -289,6 +289,36 @@ html.dark body {
   min-height: auto;
 }
 
+/* Sample report: diagonal watermark on every page (screen + print). */
+.report-is-sample .report-shell {
+  position: relative;
+  isolation: isolate;
+}
+
+.report-is-sample .report-shell::before {
+  content: "SAMPLE";
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  z-index: 5;
+  transform: translate(-50%, -50%) rotate(-32deg);
+  font-size: clamp(3.5rem, 20vw, 6.75rem);
+  font-weight: 800;
+  letter-spacing: 0.32em;
+  text-indent: 0.32em;
+  color: rgba(100, 116, 139, 0.24);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.report-is-sample .report-shell-header,
+.report-is-sample .report-shell-body,
+.report-is-sample .report-shell-footer {
+  position: relative;
+  z-index: 10;
+}
+
 .report-shell-header {
   flex-shrink: 0;
 }
@@ -570,6 +600,12 @@ html.dark body {
   @page {
     size: A4 portrait;
     margin: 8mm;
+  }
+
+  .report-is-sample .report-shell::before {
+    color: rgba(100, 116, 139, 0.2) !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 
   html,

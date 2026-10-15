@@ -128,6 +128,18 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica",
     color: "#1e293b",
     backgroundColor: "#ffffff",
+    position: "relative",
+  },
+  sampleWatermarkText: {
+    position: "absolute",
+    top: 300,
+    left: 48,
+    fontSize: 76,
+    fontFamily: "Helvetica-Bold",
+    color: "#94a3b8",
+    opacity: 0.22,
+    letterSpacing: 14,
+    transform: "rotate(-32deg)",
   },
   pageFrame: {
     height: PDF_A4_HEIGHT,
@@ -628,8 +640,10 @@ function PdfPageShell({
   children: React.ReactNode;
 }) {
   const reportReference = formatReportReference(report.vehicle);
+  const isSample = report.id.startsWith("SAMPLE-");
   return (
     <Page size="A4" style={styles.page}>
+      {isSample ? <Text style={styles.sampleWatermarkText}>SAMPLE</Text> : null}
       <View style={styles.pageFrame}>
         <View style={styles.pageContent}>
           <ReportHeader report={report} />
