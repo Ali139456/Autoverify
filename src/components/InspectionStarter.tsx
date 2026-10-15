@@ -28,7 +28,17 @@ export function InspectionStarter({
   const [smsNotice, setSmsNotice] = useState<string | null>(null);
   const [ravinWarning, setRavinWarning] = useState<string | null>(null);
   const [provider, setProvider] = useState<"ravin" | "internal" | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(() => {
+    try {
+      const key = `autoverifi-inspection-submitted:${reportId}`;
+      if (sessionStorage.getItem(key)) {
+        sessionStorage.removeItem(key);
+      }
+    } catch {
+      // ignore
+    }
+    return false;
+  });
   const autoStarted = useRef(false);
 
   const dismissQrModalIfInspectionFinished = useCallback(() => {
@@ -42,10 +52,6 @@ export function InspectionStarter({
       // ignore
     }
   }, [reportId]);
-
-  useEffect(() => {
-    dismissQrModalIfInspectionFinished();
-  }, [dismissQrModalIfInspectionFinished]);
 
   useEffect(() => {
     const onVisible = () => {

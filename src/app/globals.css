@@ -1617,16 +1617,20 @@ html.dark body {
     line-height: 1.25 !important;
   }
 
-  .report-shell-spec-full .report-spec-factory-list {
-    padding: 6px 8px !important;
+  .report-shell-spec-full .report-spec-factory-list,
+  .report-shell-spec-factory-continued .report-spec-factory-list {
+    padding: 4px 6px !important;
     max-height: none !important;
+    column-count: 2 !important;
+    column-gap: 10px !important;
   }
 
-  .report-shell-spec-full .report-spec-factory-list li {
-    font-size: 7.5px !important;
-    line-height: 1.2 !important;
-    break-inside: auto !important;
-    page-break-inside: auto !important;
+  .report-shell-spec-full .report-spec-factory-list li,
+  .report-shell-spec-factory-continued .report-spec-factory-list li {
+    font-size: 7px !important;
+    line-height: 1.15 !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
   /* Vehicle spec: data + factory on separate pinned sheets (Insights+ print). */
@@ -1666,8 +1670,13 @@ html.dark body {
     margin-top: 0 !important;
   }
 
-  .report-shell-spec-full .report-spec-factory-list li + li {
-    margin-top: 2px !important;
+  .report-shell-spec-full .report-spec-factory-list li + li,
+  .report-shell-spec-factory-continued .report-spec-factory-list li + li {
+    margin-top: 1px !important;
+  }
+
+  .report-shell-spec-factory-continued .report-spec-factory-list li span.text-xs {
+    font-size: 6px !important;
   }
 
   .report-shell-valuations .report-shell-body {

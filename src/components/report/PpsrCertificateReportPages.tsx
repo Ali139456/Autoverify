@@ -14,15 +14,13 @@ import {
 import { ReportShell } from "./ReportShell";
 import { usePpsrCertificateImages } from "./usePpsrCertificateImages";
 
-export function PpsrCertificateReportPages({
+function PpsrCertificateReportPagesBody({
   report,
   pageLabels,
 }: {
   report: VehicleReport;
   pageLabels: string[];
 }) {
-  if (!hasPpsrCertificate(report)) return null;
-
   const proxyUrl = ppsrCertificateProxyPath(report);
   const directUrl = report.registration.ppsrCertificateUrl?.trim() ?? "";
   const { pageImages, error, loading } = usePpsrCertificateImages(proxyUrl);
@@ -118,5 +116,18 @@ export function PpsrCertificateReportPages({
         ),
       )}
     </>
+  );
+}
+
+export function PpsrCertificateReportPages({
+  report,
+  pageLabels,
+}: {
+  report: VehicleReport;
+  pageLabels: string[];
+}) {
+  if (!hasPpsrCertificate(report)) return null;
+  return (
+    <PpsrCertificateReportPagesBody report={report} pageLabels={pageLabels} />
   );
 }

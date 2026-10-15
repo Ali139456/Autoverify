@@ -101,7 +101,6 @@ const SPEC_LABEL_BG = "#f1f5f9";
 const TABLE_ROW_SHADE = "#eff6ff";
 /** Match Tailwind slate borders on the web report. */
 const BORDER_SLATE_200 = "#e2e8f0";
-const BORDER_SLATE_100 = "#f1f5f9";
 /** 1pt borders in react-pdf read darker/thicker than 1px on the web report. */
 const PDF_BORDER_OUTER = 0.75;
 const PDF_BORDER_INNER = 0.5;
@@ -506,7 +505,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: PDF_TABLE_PAD_H,
     justifyContent: "center",
   },
-  featureItem: { fontSize: 7.5, color: "#334155", marginBottom: 3 },
+  featureItem: { fontSize: 6.5, color: "#334155", marginBottom: 1.5, lineHeight: 1.2 },
   plusHeading: {
     marginTop: 4,
     borderLeftWidth: 3,
@@ -588,10 +587,10 @@ const money = (n: number) => `$${n.toLocaleString("en-AU")}`;
 
 const MAX_COMPARABLE_ROWS = 5;
 
-/** Factory options below the full-width vehicle data table on spec page 1. */
-const SPEC_FEATURES_ON_FIRST_SPEC_PAGE = 18;
-/** Factory options per continuation page (full width). */
-const SPEC_FEATURES_CONTINUATION = 16;
+/** Factory options below the vehicle data table on PDF spec page 1. */
+const SPEC_FEATURES_ON_FIRST_SPEC_PAGE = 12;
+/** Factory options per continuation page (full width, compact lines). */
+const SPEC_FEATURES_CONTINUATION = 28;
 
 function countVehicleSpecPdfPages(
   sheet: NonNullable<VehicleReport["vehicleSpec"]>,
@@ -1175,65 +1174,6 @@ function PdfRideShareSupplementContent() {
   );
 }
 
-function CarInsightsOverviewPage({
-  report,
-  pageLabel,
-}: {
-  report: VehicleReport;
-  pageLabel: string;
-}) {
-  const { vehicle } = report;
-  const specs = buildReportOverviewSpecs(vehicle, report);
-  const statusChecks = buildStatusChecks(report);
-  const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
-
-  return (
-    <PdfPageShell report={report} pageLabel={pageLabel}>
-      <View style={styles.bodyCompact}>
-        <Text style={styles.title}>{getVehicleReportMainTitle(report.tier)}</Text>
-        <Text style={styles.vehicleName}>{vehicleTitle}</Text>
-        <Text style={styles.subtitle}>
-          A comprehensive summary of your vehicle&apos;s history, status and key insights.
-        </Text>
-
-        <PdfOverviewSpecBar specs={specs} />
-
-        <View style={styles.statusPanel}>
-          <View style={styles.statusLeft}>
-            <Text style={styles.statusTitle}>Vehicle Status</Text>
-            {statusChecks.map((item) => (
-              <View key={item.label} style={styles.statusRow}>
-                <PdfCheckIcon
-                  ok={item.ok}
-                  issue={item.issue}
-                  muted={item.muted}
-                  advisory={item.advisory}
-                />
-                <Text
-                  style={{
-                    ...styles.statusText,
-                    color: item.issue
-                      ? "#dc2626"
-                      : item.advisory
-                        ? "#94a3b8"
-                        : item.muted
-                          ? "#94a3b8"
-                          : styles.statusText.color,
-                  }}
-                >
-                  {reportInsightCopy(item.label)}
-                </Text>
-              </View>
-            ))}
-          </View>
-          <PdfVehicleHero vehicle={vehicle} vehicleTitle={vehicleTitle} />
-        </View>
-
-      </View>
-    </PdfPageShell>
-  );
-}
-
 function CarInsightsIntroLeadPage({
   report,
   insights,
@@ -1304,52 +1244,6 @@ function CarInsightsIntroLeadPage({
             <PdfManufacturersWarrantyNotice vehicle={vehicle} />
           </View>
         ) : null}
-      </View>
-    </PdfPageShell>
-  );
-}
-
-function CarInsightsKeyInsightsPage({
-  report,
-  insights,
-  pageLabel,
-  includeWarranty = true,
-}: {
-  report: VehicleReport;
-  insights: ReportInsight[];
-  pageLabel: string;
-  includeWarranty?: boolean;
-}) {
-  const { vehicle } = report;
-
-  return (
-    <PdfPageShell report={report} pageLabel={pageLabel}>
-      <View style={styles.bodyCompact}>
-        <Text style={styles.sectionLabel}>Key Insights (continued)</Text>
-        <PdfInsightGrid insights={insights} />
-        {includeWarranty ? (
-          <View style={{ marginTop: 6 }}>
-            <PdfManufacturersWarrantyNotice vehicle={vehicle} />
-          </View>
-        ) : null}
-      </View>
-    </PdfPageShell>
-  );
-}
-
-function CarInsightsWarrantyPage({
-  report,
-  pageLabel,
-}: {
-  report: VehicleReport;
-  pageLabel: string;
-}) {
-  const { vehicle } = report;
-
-  return (
-    <PdfPageShell report={report} pageLabel={pageLabel}>
-      <View style={styles.bodyCompact}>
-        <PdfManufacturersWarrantyNotice vehicle={vehicle} />
       </View>
     </PdfPageShell>
   );
@@ -1435,55 +1329,6 @@ function PdfPresentAndFutureValuations({
       ) : null}
 
     </>
-  );
-}
-
-function PdfMarketDataPage({
-  report,
-  pageLabel,
-}: {
-  report: VehicleReport;
-  pageLabel: string;
-}) {
-  return (
-    <PdfPageShell report={report} pageLabel={pageLabel}>
-      <View style={styles.body}>
-        <PdfOdometerHistoryTable report={report} />
-        <PdfComparableVehiclesTable report={report} />
-      </View>
-    </PdfPageShell>
-  );
-}
-
-function PdfPPlateSupplementPage({
-  report,
-  pageLabel,
-}: {
-  report: VehicleReport;
-  pageLabel: string;
-}) {
-  return (
-    <PdfPageShell report={report} pageLabel={pageLabel}>
-      <View style={styles.body}>
-        <PdfPPlateSupplementContent report={report} />
-      </View>
-    </PdfPageShell>
-  );
-}
-
-function PdfRideShareSupplementPage({
-  report,
-  pageLabel,
-}: {
-  report: VehicleReport;
-  pageLabel: string;
-}) {
-  return (
-    <PdfPageShell report={report} pageLabel={pageLabel}>
-      <View style={styles.body}>
-        <PdfRideShareSupplementContent />
-      </View>
-    </PdfPageShell>
   );
 }
 

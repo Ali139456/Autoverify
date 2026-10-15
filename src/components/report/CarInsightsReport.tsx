@@ -15,7 +15,6 @@ import {
   buildKeyInsights,
 
   buildReportOverviewSpecs,
-  type ReportInsight,
 
   buildStatusChecks,
   reportInsightCopy,
@@ -111,12 +110,6 @@ export function CarInsightsReport({
   showUpgrade,
 
   pageLabel,
-
-  keyInsightsPageLabel,
-
-  insightPageLabels,
-
-  warrantyPageLabel,
 
   deferValuations = true,
 

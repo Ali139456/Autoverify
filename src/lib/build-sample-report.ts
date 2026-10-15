@@ -23,10 +23,6 @@ function sampleWalkaroundUrl(file: string): string {
   return samplePublicUrl(`/sample/walkaround/${file}`);
 }
 
-function sampleAssetUrl(file: string): string {
-  return samplePublicUrl(`/sample/${file}`);
-}
-
 function sampleDamageUrl(file: string): string {
   return samplePublicUrl(`/sample/damage/${file}`);
 }

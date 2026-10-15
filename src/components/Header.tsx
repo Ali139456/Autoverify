@@ -149,7 +149,7 @@ function HeaderMobileMenu({
   onBuyReport,
 }: {
   isInspectionPage: boolean;
-  links: typeof MAIN_LINKS | typeof INSPECTION_PAGE_LINKS;
+  links: ReadonlyArray<{ href: string; label: string }>;
   onBuyReport: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -279,9 +279,56 @@ function HeaderMobileMenu({
   );
 }
 
+function HeaderBuyReportActions({
+  isInspectionPage,
+  links,
+}: {
+  isInspectionPage: boolean;
+  links: ReadonlyArray<{ href: string; label: string }>;
+}) {
+  const [buyReportOpen, setBuyReportOpen] = useState(false);
+
+  return (
+    <>
+      <div className="flex shrink-0 items-center gap-2">
+        {isInspectionPage ? (
+          <Link href="#contact" className={buyReportClass}>
+            Request an inspection
+            <ArrowRight
+              className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+              aria-hidden
+            />
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setBuyReportOpen(true)}
+            className={buyReportClass}
+          >
+            Buy Report
+            <ArrowRight
+              className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+              aria-hidden
+            />
+          </button>
+        )}
+
+        <HeaderMobileMenu
+          isInspectionPage={isInspectionPage}
+          links={links}
+          onBuyReport={() => setBuyReportOpen(true)}
+        />
+      </div>
+      <BuyReportModal
+        open={buyReportOpen}
+        onClose={() => setBuyReportOpen(false)}
+      />
+    </>
+  );
+}
+
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
-  const [buyReportOpen, setBuyReportOpen] = useState(false);
   const pathname = usePathname();
   const isInspectionPage = pathname.startsWith("/vehicleinspections");
   const links = isInspectionPage ? INSPECTION_PAGE_LINKS : MAIN_LINKS;
@@ -292,10 +339,6 @@ export function Header() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  useEffect(() => {
-    setBuyReportOpen(false);
-  }, [pathname]);
 
   return (
     <header className="av-site-header fixed inset-x-0 top-0 z-50 bg-ink-950 px-3 py-3 sm:px-6">
@@ -328,41 +371,12 @@ export function Header() {
           {!isInspectionPage && <InspectionsDropdown />}
         </nav>
 
-        <div className="flex shrink-0 items-center gap-2">
-          {isInspectionPage ? (
-            <Link href="#contact" className={buyReportClass}>
-              Request an inspection
-              <ArrowRight
-                className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                aria-hidden
-              />
-            </Link>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setBuyReportOpen(true)}
-              className={buyReportClass}
-            >
-              Buy Report
-              <ArrowRight
-                className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                aria-hidden
-              />
-            </button>
-          )}
-
-          <HeaderMobileMenu
-            key={pathname}
-            isInspectionPage={isInspectionPage}
-            links={links}
-            onBuyReport={() => setBuyReportOpen(true)}
-          />
-        </div>
+        <HeaderBuyReportActions
+          key={pathname}
+          isInspectionPage={isInspectionPage}
+          links={links}
+        />
       </div>
-      <BuyReportModal
-        open={buyReportOpen}
-        onClose={() => setBuyReportOpen(false)}
-      />
     </header>
   );
 }
