@@ -295,18 +295,18 @@ html.dark body {
   isolation: isolate;
 }
 
-.report-is-sample .report-shell::before {
+.report-is-sample .report-shell::after {
   content: "SAMPLE";
   position: absolute;
   left: 50%;
   top: 46%;
-  z-index: 5;
+  z-index: 40;
   transform: translate(-50%, -50%) rotate(-32deg);
   font-size: clamp(3.5rem, 20vw, 6.75rem);
   font-weight: 800;
   letter-spacing: 0.32em;
   text-indent: 0.32em;
-  color: rgba(100, 116, 139, 0.24);
+  color: rgba(100, 116, 139, 0.28);
   pointer-events: none;
   user-select: none;
   white-space: nowrap;
@@ -316,7 +316,7 @@ html.dark body {
 .report-is-sample .report-shell-body,
 .report-is-sample .report-shell-footer {
   position: relative;
-  z-index: 10;
+  z-index: 1;
 }
 
 .report-shell-header {
@@ -602,8 +602,8 @@ html.dark body {
     margin: 8mm;
   }
 
-  .report-is-sample .report-shell::before {
-    color: rgba(100, 116, 139, 0.2) !important;
+  .report-is-sample .report-shell::after {
+    color: rgba(100, 116, 139, 0.24) !important;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }

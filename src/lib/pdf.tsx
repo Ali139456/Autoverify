@@ -134,10 +134,11 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 300,
     left: 48,
+    zIndex: 100,
     fontSize: 76,
     fontFamily: "Helvetica-Bold",
     color: "#94a3b8",
-    opacity: 0.22,
+    opacity: 0.26,
     letterSpacing: 14,
     transform: "rotate(-32deg)",
   },
@@ -643,7 +644,6 @@ function PdfPageShell({
   const isSample = report.id.startsWith("SAMPLE-");
   return (
     <Page size="A4" style={styles.page}>
-      {isSample ? <Text style={styles.sampleWatermarkText}>SAMPLE</Text> : null}
       <View style={styles.pageFrame}>
         <View style={styles.pageContent}>
           <ReportHeader report={report} />
@@ -656,6 +656,7 @@ function PdfPageShell({
           </Text>
         </View>
       </View>
+      {isSample ? <Text style={styles.sampleWatermarkText}>SAMPLE</Text> : null}
     </Page>
   );
 }
