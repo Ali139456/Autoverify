@@ -8,6 +8,7 @@ import { generateTaxInvoicePdfBuffer } from "./tax-invoice-pdf-buffer";
 import { buildPurchaseEmailContextFromSession } from "./stripe-purchase-email";
 import { getBaseUrl } from "./stripe";
 import type { VehicleReport } from "./types";
+import { buildReportPublicUrls } from "./ravin-report-trace";
 
 export type SendPurchaseConfirmationOptions = {
   stripeSessionId?: string | null;
@@ -36,8 +37,7 @@ export async function sendPurchaseConfirmationEmail(
           report.id,
         )
       : {
-          reportUrl: `${baseUrl}/report/${report.id}`,
-          pdfUrl: `${baseUrl}/api/report/${report.id}/pdf`,
+          ...buildReportPublicUrls(baseUrl, report.id),
           paidAt: new Date(),
         });
 
@@ -130,8 +130,7 @@ export async function sendInspectionPhotosUpdatedEmail(
     process.env.RESEND_FROM?.trim() ??
     "Auto Verifi <noreply@autoverifi.com.au>";
   const baseUrl = getBaseUrl();
-  const reportUrl = `${baseUrl}/report/${report.id}`;
-  const pdfUrl = `${baseUrl}/api/report/${report.id}/pdf`;
+  const { reportUrl, pdfUrl } = buildReportPublicUrls(baseUrl, report.id);
   const vehicleLabel = `${report.vehicle.year} ${report.vehicle.make} ${report.vehicle.model}`;
   const rego = report.vehicle.rego?.trim();
   const regoSuffix = rego ? ` (${rego})` : "";

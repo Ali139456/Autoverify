@@ -28,13 +28,13 @@ function PhotoTile({
   const isFrontRego = photo.angle === "front";
   return (
     <figure className="report-photo-tile overflow-hidden rounded-lg border border-slate-200 bg-white">
-      <div className="relative aspect-[4/3] bg-slate-100">
+      <div className="relative flex aspect-[4/3] items-center justify-center bg-slate-100">
         {url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={url}
             alt={photo.label}
-            className="h-full w-full object-cover object-center"
+            className="max-h-full max-w-full object-contain object-center"
           />
         ) : (
           <div className="flex h-full items-center justify-center text-slate-400">

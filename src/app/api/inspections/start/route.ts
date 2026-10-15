@@ -23,8 +23,17 @@ import {
   SMS_NOT_CONFIGURED_MESSAGE,
   sendInspectionLinkSms,
 } from "@/lib/sms";
+import { isAutoVerifiReportId } from "@/lib/ravin-report-trace";
+import {
+  clampText,
+  guardBrowserPost,
+  readBoundedJson,
+} from "@/lib/security";
 
 export async function POST(req: NextRequest) {
+  const blocked = guardBrowserPost(req, "inspections-start", 30, 60 * 60 * 1000);
+  if (blocked) return blocked;
+
   if (!isSupabaseServerConfigured()) {
     return NextResponse.json(
       { error: "Inspections require Supabase to be configured." },
@@ -33,10 +42,10 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const body = await req.json();
-    const reportId = String(body.reportId ?? "").trim();
+    const body = (await readBoundedJson(req)) as Record<string, unknown>;
+    const reportId = clampText(body.reportId, 64).toUpperCase();
 
-    if (!reportId) {
+    if (!reportId || !isAutoVerifiReportId(reportId)) {
       return NextResponse.json({ error: "Report ID is required." }, { status: 400 });
     }
 
@@ -217,6 +226,9 @@ export async function POST(req: NextRequest) {
       smsNotice,
     });
   } catch (err) {
+    if (err instanceof Error && err.message === "PAYLOAD_TOO_LARGE") {
+      return NextResponse.json({ error: "Request too large." }, { status: 413 });
+    }
     const message =
       err instanceof Error ? err.message : "Could not start inspection.";
     return NextResponse.json({ error: message }, { status: 500 });

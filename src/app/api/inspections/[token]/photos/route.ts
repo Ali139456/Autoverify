@@ -10,12 +10,36 @@ import {
   parseOptionalIsoTimestamp,
 } from "@/lib/inspection-photo-evidence";
 import { reverseGeocode } from "@/lib/reverse-geocode";
+import {
+  guardRateLimit,
+  isBoundedAccessToken,
+  rejectOversizedBody,
+} from "@/lib/security";
+
+const MAX_BODY = 15 * 1024 * 1024;
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ token: string }> },
 ) {
-  const { token } = await params;
+  const { token: rawToken } = await params;
+  const token = rawToken.trim();
+
+  const tooLarge = rejectOversizedBody(req, MAX_BODY);
+  if (tooLarge) return tooLarge;
+
+  const rateLimited = guardRateLimit(
+    req,
+    `inspection-photo:${token.slice(0, 32)}`,
+    120,
+    60 * 60 * 1000,
+  );
+  if (rateLimited) return rateLimited;
+
+  if (!isBoundedAccessToken(token)) {
+    return NextResponse.json({ error: "Inspection not found." }, { status: 404 });
+  }
+
   const inspection = await getInspectionByToken(token);
 
   if (!inspection) {

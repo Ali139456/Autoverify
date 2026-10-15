@@ -30,12 +30,34 @@ export type RavinReportTrace = {
   nextSteps: string[];
 };
 
+/** Strip Gmail/client junk appended into the path (e.g. `AV-…&source=gmail`). */
+export function parseReportIdFromRouteParam(raw: string): string {
+  let id = raw.trim();
+  try {
+    id = decodeURIComponent(id);
+  } catch {
+    // keep raw segment
+  }
+  const cut = id.search(/[&?#]/);
+  if (cut >= 0) id = id.slice(0, cut);
+  return id.trim().toUpperCase();
+}
+
 function normalizeReportId(input: string): string {
-  return input.trim().toUpperCase();
+  return parseReportIdFromRouteParam(input);
 }
 
 export function isAutoVerifiReportId(value: string): boolean {
-  return /^AV-[A-Z0-9-]{4,}$/i.test(value.trim());
+  return /^AV-[A-Z0-9-]{4,}$/i.test(parseReportIdFromRouteParam(value));
+}
+
+export function buildReportPublicUrls(baseUrl: string, reportId: string) {
+  const id = parseReportIdFromRouteParam(reportId);
+  const base = baseUrl.replace(/\/$/, "");
+  return {
+    reportUrl: `${base}/report/${encodeURIComponent(id)}`,
+    pdfUrl: `${base}/api/report/${encodeURIComponent(id)}/pdf`,
+  };
 }
 
 /** Lookup Auto Verifi report + inspection + recent Ravin webhook rows (production support). */

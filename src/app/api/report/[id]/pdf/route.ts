@@ -6,12 +6,25 @@ import {
 import { applyRegistrationExpiryInference } from "@/lib/registration-info";
 import { generateReportPdfBuffer } from "@/lib/report-pdf-buffer";
 import { getReport } from "@/lib/store";
+import {
+  isAutoVerifiReportId,
+  parseReportIdFromRouteParam,
+} from "@/lib/ravin-report-trace";
+import { guardRateLimit } from "@/lib/security";
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
+  const rateLimited = guardRateLimit(req, "report-pdf", 60, 60 * 60 * 1000);
+  if (rateLimited) return rateLimited;
+
+  const { id: rawId } = await params;
+  const id = parseReportIdFromRouteParam(rawId);
+  if (!isAutoVerifiReportId(id)) {
+    return NextResponse.json({ error: "Report not found." }, { status: 404 });
+  }
+
   const report = await getReport(id);
 
   if (!report) {

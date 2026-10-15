@@ -18,6 +18,12 @@ import {
 import { normalizeAuMobile } from "@/lib/phone";
 import { AustralianState, ReportTier, VehicleReport } from "@/lib/types";
 import { parseVehicleIdentifier } from "@/lib/vehicle-identifier";
+import {
+  clampText,
+  guardBrowserPost,
+  isReasonableEmail,
+  readBoundedJson,
+} from "@/lib/security";
 
 const STATES: AustralianState[] = ["ACT", "NSW", "NT", "QLD", "SA", "TAS", "VIC", "WA"];
 
@@ -40,15 +46,16 @@ function buildStripeLineItem(tier: ReportTier, unitAmountCents: number) {
 }
 
 export async function POST(req: NextRequest) {
+  const blocked = guardBrowserPost(req, "checkout", 20, 60 * 60 * 1000);
+  if (blocked) return blocked;
+
   try {
-    const body = await req.json();
-    const rawIdentifier = String(body.vin ?? body.rego ?? "")
-      .trim()
-      .toUpperCase();
-    const state = String(body.state ?? "").toUpperCase() as AustralianState;
+    const body = (await readBoundedJson(req)) as Record<string, unknown>;
+    const rawIdentifier = clampText(body.vin ?? body.rego ?? "", 17).toUpperCase();
+    const state = clampText(body.state ?? "", 3).toUpperCase() as AustralianState;
     const tier = parseReportTier(body.tier);
     const tierConfig = getReportTierConfig(tier);
-    const promoRaw = String(body.promoCode ?? "");
+    const promoRaw = clampText(body.promoCode, 64);
     const promo = lookupPromoCode(promoRaw);
     if (promoRaw.trim() && !promo) {
       return NextResponse.json(
@@ -68,11 +75,11 @@ export async function POST(req: NextRequest) {
       );
     }
     const marketingOptIn = body.marketingOptIn === true;
-    const customerEmail = String(body.customerEmail ?? "").trim().toLowerCase();
-    const customerFirstName = String(body.customerFirstName ?? "").trim();
-    const customerLastName = String(body.customerLastName ?? "").trim();
-    const customerPostcode = String(body.customerPostcode ?? "").trim();
-    const customerBirthDate = String(body.customerBirthDate ?? "").trim();
+    const customerEmail = clampText(body.customerEmail, 254).toLowerCase();
+    const customerFirstName = clampText(body.customerFirstName, 80);
+    const customerLastName = clampText(body.customerLastName, 80);
+    const customerPostcode = clampText(body.customerPostcode, 12);
+    const customerBirthDate = clampText(body.customerBirthDate, 32);
     const customerOdometer = Number(body.customerOdometer);
     const advertisedPrice = Number(body.advertisedPrice);
     const customerPhone = normalizeAuMobile(String(body.customerPhone ?? ""));
@@ -88,6 +95,13 @@ export async function POST(req: NextRequest) {
     if (parsed.kind === "rego" && !STATES.includes(state)) {
       return NextResponse.json(
         { error: "Please select a valid state." },
+        { status: 400 },
+      );
+    }
+
+    if (customerEmail && !isReasonableEmail(customerEmail)) {
+      return NextResponse.json(
+        { error: "Please enter a valid email address." },
         { status: 400 },
       );
     }
@@ -207,6 +221,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url: session.url });
   } catch (err) {
+    if (err instanceof Error && err.message === "PAYLOAD_TOO_LARGE") {
+      return NextResponse.json({ error: "Request too large." }, { status: 413 });
+    }
     const message =
       err instanceof Error ? err.message : "Something went wrong. Please try again.";
     return NextResponse.json({ error: message }, { status: 500 });

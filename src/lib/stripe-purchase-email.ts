@@ -1,14 +1,14 @@
 import type Stripe from "stripe";
 import { getStripe, isStripeConfigured } from "./stripe";
 import type { PurchaseEmailContext } from "./purchase-email-template";
+import { buildReportPublicUrls } from "./ravin-report-trace";
 
 export async function buildPurchaseEmailContextFromSession(
   sessionId: string,
   baseUrl: string,
   reportId: string,
 ): Promise<PurchaseEmailContext> {
-  const reportUrl = `${baseUrl}/report/${reportId}`;
-  const pdfUrl = `${baseUrl}/api/report/${reportId}/pdf`;
+  const { reportUrl, pdfUrl } = buildReportPublicUrls(baseUrl, reportId);
 
   if (!isStripeConfigured()) {
     return { reportUrl, pdfUrl, paidAt: new Date() };

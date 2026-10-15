@@ -33,6 +33,8 @@ import {
 } from "@/lib/autograb";
 import { applyRegistrationExpiryInference } from "@/lib/registration-info";
 import { isExteriorInspectionAngle } from "@/lib/inspection-angles";
+import { parseReportIdFromRouteParam } from "@/lib/ravin-report-trace";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Vehicle Report",
@@ -44,7 +46,11 @@ export default async function ReportPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
+  const { id: rawId } = await params;
+  const id = parseReportIdFromRouteParam(rawId);
+  if (rawId !== id && id.length > 0) {
+    redirect(`/report/${id}`);
+  }
   const stored = await getReport(id);
   if (!stored) notFound();
   let registration = applyRegistrationExpiryInference(

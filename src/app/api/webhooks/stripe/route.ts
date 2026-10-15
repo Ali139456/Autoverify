@@ -3,8 +3,12 @@ import Stripe from "stripe";
 import { sendPurchaseConfirmationEmail } from "@/lib/email";
 import { getStripe } from "@/lib/stripe";
 import { getReport, updateReport } from "@/lib/store";
+import { guardRateLimit } from "@/lib/security";
 
 export async function POST(req: NextRequest) {
+  const rateLimited = guardRateLimit(req, "webhook-stripe", 120, 60 * 60 * 1000);
+  if (rateLimited) return rateLimited;
+
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {
     return NextResponse.json(

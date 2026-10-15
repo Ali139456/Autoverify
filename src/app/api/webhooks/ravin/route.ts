@@ -13,6 +13,7 @@ import { resolveInspectionFromRavinWebhook } from "@/lib/inspections";
 import { saveRavinWebhookEvent, updateReportWorkflowStatus } from "@/lib/store-supabase";
 import { updateReport } from "@/lib/store";
 import { isSupabaseServerConfigured } from "@/lib/supabase/server";
+import { guardRateLimit } from "@/lib/security";
 
 export async function GET() {
   return NextResponse.json({
@@ -22,6 +23,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const rateLimited = guardRateLimit(req, "webhook-ravin", 120, 60 * 60 * 1000);
+  if (rateLimited) return rateLimited;
+
   if (!isSupabaseServerConfigured()) {
     return NextResponse.json(
       { error: "Supabase is required for Ravin webhooks." },

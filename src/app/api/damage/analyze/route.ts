@@ -6,14 +6,29 @@ import {
   RAVIN_DIRECT_ANALYSIS_UNAVAILABLE,
 } from "@/lib/ravin";
 import { getReport, updateReport } from "@/lib/store";
+import { isAutoVerifiReportId } from "@/lib/ravin-report-trace";
+import { guardBrowserPost, rejectOversizedBody } from "@/lib/security";
 
 const MAX_PHOTOS = MANUAL_DAMAGE_UPLOAD_MAX_PHOTOS;
 const MAX_SIZE = 12 * 1024 * 1024; // 12 MB per photo
+const MAX_BODY = 15 * 1024 * 1024;
 
 export async function POST(req: NextRequest) {
+  const blocked = guardBrowserPost(req, "damage-analyze", 12, 60 * 60 * 1000);
+  if (blocked) return blocked;
+
+  const tooLarge = rejectOversizedBody(req, MAX_BODY);
+  if (tooLarge) return tooLarge;
+
   try {
     const form = await req.formData();
-    const reportId = String(form.get("reportId") ?? "");
+    const reportId = String(form.get("reportId") ?? "")
+      .trim()
+      .toUpperCase();
+
+    if (!reportId || !isAutoVerifiReportId(reportId)) {
+      return NextResponse.json({ error: "Report not found." }, { status: 404 });
+    }
 
     const report = await getReport(reportId);
     if (!report) {

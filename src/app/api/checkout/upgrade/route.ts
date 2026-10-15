@@ -15,6 +15,12 @@ import {
 } from "@/lib/stripe";
 import { resolveFutureValue } from "@/lib/report-design";
 import type { VehicleReport } from "@/lib/types";
+import { isAutoVerifiReportId } from "@/lib/ravin-report-trace";
+import {
+  clampText,
+  guardBrowserPost,
+  readBoundedJson,
+} from "@/lib/security";
 
 /**
  * Upgrade a purchased Insights report to Insights+ without re-entering customer
@@ -22,10 +28,13 @@ import type { VehicleReport } from "@/lib/types";
  * data and customer fields, then takes payment for the upgrade amount only.
  */
 export async function POST(req: NextRequest) {
+  const blocked = guardBrowserPost(req, "checkout-upgrade", 15, 60 * 60 * 1000);
+  if (blocked) return blocked;
+
   try {
-    const body = await req.json();
-    const sourceReportId = String(body.reportId ?? "").trim();
-    if (!sourceReportId) {
+    const body = (await readBoundedJson(req)) as Record<string, unknown>;
+    const sourceReportId = clampText(body.reportId, 64).toUpperCase();
+    if (!sourceReportId || !isAutoVerifiReportId(sourceReportId)) {
       return NextResponse.json({ error: "Report ID is required." }, { status: 400 });
     }
 
@@ -65,7 +74,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const promoRaw = String(body.promoCode ?? "");
+    const promoRaw = clampText(body.promoCode, 64);
     const promo = lookupPromoCode(promoRaw);
     if (promoRaw.trim() && !promo) {
       return NextResponse.json(
@@ -157,6 +166,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url: session.url });
   } catch (err) {
+    if (err instanceof Error && err.message === "PAYLOAD_TOO_LARGE") {
+      return NextResponse.json({ error: "Request too large." }, { status: 413 });
+    }
     const message =
       err instanceof Error ? err.message : "Something went wrong. Please try again.";
     return NextResponse.json({ error: message }, { status: 500 });

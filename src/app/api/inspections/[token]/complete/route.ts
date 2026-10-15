@@ -13,12 +13,27 @@ import {
 } from "@/lib/email";
 import { getReport, updateReport } from "@/lib/store";
 import { submitInspectionToRavin } from "@/lib/ravin-ingest";
+import { guardRateLimit, isBoundedAccessToken } from "@/lib/security";
 
 export async function POST(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ token: string }> },
 ) {
-  const { token } = await params;
+  const { token: rawToken } = await params;
+  const token = rawToken.trim();
+
+  const rateLimited = guardRateLimit(
+    req,
+    `inspection-complete:${token.slice(0, 32)}`,
+    20,
+    60 * 60 * 1000,
+  );
+  if (rateLimited) return rateLimited;
+
+  if (!isBoundedAccessToken(token)) {
+    return NextResponse.json({ error: "Inspection not found." }, { status: 404 });
+  }
+
   const inspection = await getInspectionByToken(token);
 
   if (!inspection) {

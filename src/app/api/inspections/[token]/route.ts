@@ -5,12 +5,22 @@ import {
   isInspectionExpired,
 } from "@/lib/inspections";
 import { INSPECTION_ANGLES } from "@/lib/inspection-angles";
+import { guardRateLimit, isBoundedAccessToken } from "@/lib/security";
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ token: string }> },
 ) {
-  const { token } = await params;
+  const { token: rawToken } = await params;
+  const token = rawToken.trim();
+
+  const rateLimited = guardRateLimit(req, `inspection-get:${token.slice(0, 32)}`, 200, 60 * 60 * 1000);
+  if (rateLimited) return rateLimited;
+
+  if (!isBoundedAccessToken(token)) {
+    return NextResponse.json({ error: "Inspection not found." }, { status: 404 });
+  }
+
   const inspection = await getInspectionByToken(token);
 
   if (!inspection) {

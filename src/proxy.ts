@@ -6,6 +6,11 @@ import {
   isPublicWhileComingSoon,
 } from "@/lib/site-mode";
 import { hasPreviewAccess, PREVIEW_COOKIE_NAME } from "@/lib/site-preview";
+import { applySecurityHeaders } from "@/lib/security/headers";
+
+function secure(response: NextResponse) {
+  return applySecurityHeaders(response);
+}
 
 const INSPECTION_PATH_ALIASES: Record<string, string> = {
   "/vehicleinspection": "/vehicleinspections",
@@ -33,31 +38,35 @@ export async function proxy(request: NextRequest) {
   const inspectionRedirect = INSPECTION_PATH_ALIASES[pathname.toLowerCase()];
 
   if (inspectionRedirect) {
-    return NextResponse.redirect(new URL(inspectionRedirect, request.url), 308);
+    return secure(
+      NextResponse.redirect(new URL(inspectionRedirect, request.url), 308),
+    );
   }
 
   if (!isComingSoonMode(host)) {
-    return NextResponse.next();
+    return secure(NextResponse.next());
   }
 
   const previewToken = request.cookies.get(PREVIEW_COOKIE_NAME)?.value;
 
   if (await hasPreviewAccess(previewToken)) {
-    return NextResponse.next();
+    return secure(NextResponse.next());
   }
 
   if (isPublicWhileComingSoon(pathname)) {
-    return withNoCacheForLiveComingSoon(NextResponse.next(), host);
+    return secure(withNoCacheForLiveComingSoon(NextResponse.next(), host));
   }
 
   if (pathname !== "/") {
-    return withNoCacheForLiveComingSoon(
-      NextResponse.redirect(new URL("/", request.url)),
-      host,
+    return secure(
+      withNoCacheForLiveComingSoon(
+        NextResponse.redirect(new URL("/", request.url)),
+        host,
+      ),
     );
   }
 
-  return withNoCacheForLiveComingSoon(NextResponse.next(), host);
+  return secure(withNoCacheForLiveComingSoon(NextResponse.next(), host));
 }
 
 export const config = {

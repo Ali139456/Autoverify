@@ -1456,8 +1456,19 @@ html.dark body {
 
   .report-shell-insights-plus-photos .report-photo-tile > div {
     aspect-ratio: auto !important;
-    height: 22mm !important;
-    max-height: 22mm !important;
+    height: 24mm !important;
+    max-height: 24mm !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .report-shell-insights-plus-photos .report-photo-tile img {
+    width: auto !important;
+    height: auto !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain !important;
   }
 
   .report-shell-insights-plus-photos .report-photo-tile figcaption {
@@ -2046,7 +2057,7 @@ html.dark body {
   }
 
   .report-photo-tile img {
-    object-fit: cover !important;
+    object-fit: contain !important;
     object-position: center !important;
     background-color: #f1f5f9 !important;
   }
