@@ -14,6 +14,7 @@ import {
   createRavinPartnerInvite,
   isRavinInspectorLiteUrl,
   isRavinPartnerConfigured,
+  useHostedRavinInspector,
 } from "@/lib/ravin-partner";
 import { hasDamageAnalysis } from "@/lib/pricing";
 import { normalizeAuMobile } from "@/lib/phone";
@@ -97,7 +98,9 @@ export async function POST(req: NextRequest) {
     }
 
     let inspectUrl = ownerEntryUrl;
-    let provider: "ravin" | "internal" = ravinInviteUrl ? "ravin" : "internal";
+    const hostedRavin = useHostedRavinInspector();
+    let provider: "ravin" | "internal" =
+      hostedRavin && ravinInviteUrl ? "ravin" : "internal";
     let ravinWarning: string | null = null;
 
     const refreshRavinInvite = Boolean(body.refreshRavinInvite);
@@ -115,7 +118,7 @@ export async function POST(req: NextRequest) {
         });
         ravinInviteUrl = coerceRavinInspectorLiteUrl(invite.inviteUrl);
         inspectUrl = ownerEntryUrl;
-        provider = "ravin";
+        provider = hostedRavin ? "ravin" : "internal";
 
         await updateInspection(inspection.id, {
           ravinInspectionId: invite.invitationId,

@@ -912,7 +912,6 @@ function PdfOverviewSpecBar({ specs }: { specs: OverviewSpec[] }) {
         >
           {row.map((s, i) => {
             const iconIndex = index++;
-            const isVin = s.label === "VIN";
             return (
               <View
                 key={s.label}
@@ -925,15 +924,7 @@ function PdfOverviewSpecBar({ specs }: { specs: OverviewSpec[] }) {
                   <PdfSpecIcon index={iconIndex} size={12} />
                   <Text style={styles.specLabel}>{s.label}</Text>
                 </View>
-                <Text
-                  style={
-                    isVin
-                      ? [styles.specValue, { fontFamily: "Courier" }]
-                      : styles.specValue
-                  }
-                >
-                  {s.value}
-                </Text>
+                <Text style={styles.specValue}>{s.value}</Text>
               </View>
             );
           })}
@@ -1739,8 +1730,10 @@ function VehicleSpecPages({
             ) : null}
           </View>
 
-          <View style={[styles.section, { marginTop: 10 }]}>
-            <Text style={styles.sectionTitle}>Factory features &amp; options</Text>
+          <View style={[styles.section, { marginTop: 14 }]}>
+            <Text style={[styles.sectionTitle, { lineHeight: 1.35, paddingBottom: 4 }]}>
+              Factory features &amp; options
+            </Text>
             {sheet.factoryFeatures.length > 0 ? (
               <FactoryFeatureLines features={firstPageFeatures} />
             ) : (
@@ -1962,7 +1955,7 @@ function PdfPhotoGroup({
   );
 }
 
-function InsightsPlusPhotosPage({
+function InsightsPlusWalkaroundPhotosPage({
   report,
   photos,
   pageLabel,
@@ -1975,9 +1968,6 @@ function InsightsPlusPhotosPage({
   const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
   const walkaroundPhotos = photos.filter((photo) =>
     isExteriorInspectionAngle(photo.angle),
-  );
-  const additionalPhotos = photos.filter(
-    (photo) => !isExteriorInspectionAngle(photo.angle),
   );
 
   return (
@@ -2002,13 +1992,38 @@ function InsightsPlusPhotosPage({
           photos={walkaroundPhotos}
           note="Captured on the owner's device. Time and location are recorded beneath each photo when location access is granted; the front photo should show the registration plate."
         />
-        {additionalPhotos.length > 0 ? (
-          <PdfPhotoGroup
-            title="Additional Photos"
-            photos={additionalPhotos}
-            note="Wheels, interior, odometer, keys, and supporting records from the guided inspection."
-          />
-        ) : null}
+      </View>
+    </PdfPageShell>
+  );
+}
+
+function InsightsPlusAdditionalPhotosPage({
+  report,
+  photos,
+  pageLabel,
+}: {
+  report: VehicleReport;
+  photos: InspectionPhoto[];
+  pageLabel: string;
+}) {
+  const { vehicle } = report;
+  const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
+  const additionalPhotos = photos.filter(
+    (photo) => !isExteriorInspectionAngle(photo.angle),
+  );
+  if (additionalPhotos.length === 0) return null;
+
+  return (
+    <PdfPageShell report={report} pageLabel={pageLabel}>
+      <View style={styles.body}>
+        <Text style={[styles.para, { fontSize: 8, color: GREY }]}>
+          Auto Verifi Insights+ · {vehicleTitle}
+        </Text>
+        <PdfPhotoGroup
+          title="Additional Photos"
+          photos={additionalPhotos}
+          note="Wheels, interior, odometer, keys, and supporting records from the guided inspection."
+        />
       </View>
     </PdfPageShell>
   );
@@ -2113,7 +2128,12 @@ export function ReportPdf({
     includeSpec && report.vehicleSpec
       ? countVehicleSpecPdfPages(report.vehicleSpec)
       : 0;
-  const insightsPlusPageCount = isPlus ? 2 : 0;
+  const hasAdditionalInspectionPhotos = photos.some(
+    (photo) => !isExteriorInspectionAngle(photo.angle),
+  );
+  const insightsPlusPageCount = isPlus
+    ? 2 + (hasAdditionalInspectionPhotos ? 1 : 0)
+    : 0;
   const keyInsights = buildKeyInsights(report);
   const totalPages =
     1 + // Overview + all key insights + warranty
@@ -2148,21 +2168,28 @@ export function ReportPdf({
       ) : null}
       {isPlus ? (
         <>
-          <InsightsPlusPhotosPage
+          <InsightsPlusWalkaroundPhotosPage
             report={report}
             photos={photos}
-            pageLabel={`${pageNumber++} / ${totalPages}`}
+            pageLabel={nextPageLabel()}
           />
+          {hasAdditionalInspectionPhotos ? (
+            <InsightsPlusAdditionalPhotosPage
+              report={report}
+              photos={photos}
+              pageLabel={nextPageLabel()}
+            />
+          ) : null}
           <InsightsPlusDamagePage
             report={report}
             photos={photos}
-            pageLabel={`${pageNumber++} / ${totalPages}`}
+            pageLabel={nextPageLabel()}
           />
         </>
       ) : null}
       <CarBuyingChecklistPage
         report={report}
-        pageLabel={`${pageNumber++} / ${totalPages}`}
+        pageLabel={nextPageLabel()}
         trailing={<PdfGeneralDisclaimer />}
       />
     </Document>

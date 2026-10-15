@@ -57,7 +57,7 @@ export function isInspectionExpired(session: InspectionSession): boolean {
   return new Date(session.expiresAt).getTime() < Date.now();
 }
 
-/** Owner-facing entry URL — `/inspect/{token}` redirects to Inspector Lite when configured. */
+/** Owner-facing entry URL — `/inspect/{token}` (Auto Verifi capture unless hosted Ravin is enabled). */
 export function getInspectionOwnerUrl(
   session: Pick<InspectionSession, "accessToken">,
   baseUrl: string,

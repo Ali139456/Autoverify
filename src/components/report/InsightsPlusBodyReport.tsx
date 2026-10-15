@@ -127,6 +127,7 @@ export function InsightsPlusBodyReport({
   inspectUrl,
   showActions = false,
   photosPageLabel,
+  additionalPhotosPageLabel,
   damagePageLabel,
   trailingContent,
 }: {
@@ -135,6 +136,7 @@ export function InsightsPlusBodyReport({
   inspectUrl?: string | null;
   showActions?: boolean;
   photosPageLabel: string;
+  additionalPhotosPageLabel?: string;
   damagePageLabel: string;
   /** Rendered at the end of the damage page body (e.g. the general disclaimer). */
   trailingContent?: ReactNode;
@@ -161,11 +163,11 @@ export function InsightsPlusBodyReport({
 
   return (
     <>
-      <div className="report-page-break report-sheet-pin-footer">
+      <div className="report-page-break report-sheet-pin-footer report-insights-plus-walkaround-sheet">
         <ReportShell
           {...shellProps}
           pageLabel={photosPageLabel}
-          className="report-shell-insights-plus report-shell-insights-plus-photos report-insights-plus-all-photos !overflow-visible"
+          className="report-shell-insights-plus report-shell-insights-plus-photos !overflow-visible"
         >
           <div className="report-insights-plus-photos-body space-y-6">
             <InsightsPlusTitleBlock vehicleTitle={vehicleTitle} />
@@ -188,12 +190,12 @@ export function InsightsPlusBodyReport({
             )}
 
             {damage ? null : photos.length > 0 ? (
-              <p className="rounded-xl border border-dashed border-[#0073E3]/40 bg-[#0073E3]/5 px-4 py-4 text-sm text-slate-600">
+              <p className="report-no-print rounded-xl border border-dashed border-[#0073E3]/40 bg-[#0073E3]/5 px-4 py-4 text-sm text-slate-600">
                 {photos.length} photo(s) received. AI damage analysis is being
                 processed and will appear here automatically once complete.
               </p>
             ) : (
-              <p className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-500">
+              <p className="report-no-print rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-500">
                 Complete the guided mobile walkaround to populate AI damage analysis
                 and inspection photos in this report.
               </p>
@@ -205,17 +207,31 @@ export function InsightsPlusBodyReport({
               damageByPanel={damageByPanel}
               note="Captured on the owner's device. Time and location are recorded beneath each photo when location access is granted; the front photo should show the registration plate."
             />
-            {additionalPhotos.length > 0 ? (
+          </div>
+        </ReportShell>
+      </div>
+
+      {additionalPhotos.length > 0 && additionalPhotosPageLabel ? (
+        <div className="report-page-break report-sheet-pin-footer report-insights-plus-additional-sheet">
+          <ReportShell
+            {...shellProps}
+            pageLabel={additionalPhotosPageLabel}
+            className="report-shell-insights-plus report-shell-insights-plus-photos report-shell-insights-plus-photos-continued !overflow-visible"
+          >
+            <div className="report-insights-plus-photos-body space-y-4">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
+                Auto Verifi Insights+ · {vehicleTitle}
+              </p>
               <PhotoGroup
                 title="Additional photos"
                 photos={additionalPhotos}
                 damageByPanel={damageByPanel}
                 note="Wheels, interior, odometer, keys, and supporting records from the guided inspection."
               />
-            ) : null}
-          </div>
-        </ReportShell>
-      </div>
+            </div>
+          </ReportShell>
+        </div>
+      ) : null}
 
       <div className="report-page-break report-sheet-pin-footer">
         <ReportShell

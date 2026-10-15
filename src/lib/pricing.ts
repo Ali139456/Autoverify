@@ -117,6 +117,6 @@ export function resolveReportTier(tier: ReportTier | undefined): ReportTier {
 
 export function getVehicleReportMainTitle(tier: ReportTier | undefined): string {
   return resolveReportTier(tier) === "insights_plus"
-    ? "Auto Verifi – Vehicle Insights+ Report"
-    : "Auto Verifi – Vehicle Insights Report";
+    ? "Auto Verifi Insights+ Report"
+    : "Auto Verifi Insights Report";
 }

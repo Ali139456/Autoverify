@@ -125,7 +125,9 @@ function FactoryFeaturesBlock({
 }) {
   return (
     <>
-      <h3 className="report-section-heading">Factory features &amp; options</h3>
+      <h3 className="report-section-heading report-spec-factory-heading">
+        Factory features &amp; options
+      </h3>
       {sheet.factoryFeatures.length > 0 ? (
         <ul className="report-spec-factory-list mt-3 space-y-2 rounded-xl border border-slate-200 p-4">
           {sheet.factoryFeatures.map((feature) => (

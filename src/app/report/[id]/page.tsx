@@ -153,6 +153,11 @@ export default async function ReportPage({
             inspectUrl={inspectUrlForOwner}
             showActions
             photosPageLabel={`${reportPage++} / ${pageCount}`}
+            additionalPhotosPageLabel={
+              hasAdditionalInspectionPhotos
+                ? `${reportPage++} / ${pageCount}`
+                : undefined
+            }
             damagePageLabel={`${reportPage++} / ${pageCount}`}
           />
         )}

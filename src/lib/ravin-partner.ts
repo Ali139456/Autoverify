@@ -21,6 +21,14 @@ const RAVIN_LOGIN_EXPIRE_IN = Number(
 /** Ravin Lite routing: URL `app_type=lite` (future) + inspector-lite path (current). */
 const RAVIN_APP_TYPE = (process.env.RAVIN_APP_TYPE ?? "lite").trim().toLowerCase();
 
+/** When false (default), owners use Auto Verifi /inspect capture; Ravin runs in the background only. */
+export function useHostedRavinInspector(): boolean {
+  const raw = process.env.RAVIN_USE_HOSTED_INSPECTOR?.trim().toLowerCase();
+  if (raw === "1" || raw === "true" || raw === "yes") return true;
+  if (raw === "0" || raw === "false" || raw === "no") return false;
+  return false;
+}
+
 export type RavinLiteLinkConfig = {
   appType: string | null;
   inspectorPath: string;

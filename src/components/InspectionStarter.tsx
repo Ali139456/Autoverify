@@ -80,7 +80,7 @@ export function InspectionStarter({
       if (!data.inspectUrl) {
         throw new Error("Inspection link was not returned. Please try again.");
       }
-      setInspectUrl(data.inspectUrl ?? data.internalInspectUrl ?? null);
+      setInspectUrl(data.internalInspectUrl ?? data.inspectUrl ?? null);
       setProvider(data.provider ?? null);
       setRavinWarning(data.ravinWarning ?? null);
       setSmsSent(Boolean(data.smsSent));
@@ -179,14 +179,18 @@ export function InspectionStarter({
           <p className="mt-3 text-sm text-slate-400">{smsNotice}</p>
         )}
 
-        {provider === "ravin" && (
+        {provider === "internal" && (
           <p className="mt-3 text-sm font-medium text-emerald-400">
-            Ravin Inspector Lite link ready — use this for AI condition scan and your Ravin dashboard.
+            Auto Verifi guided photo walkaround — scan the QR code or open the link on the
+            owner&apos;s phone to complete the AI condition scan.
           </p>
         )}
-        {provider === "internal" && (
-          <p className="mt-3 text-sm text-amber-300">
-            Using Auto Verifi capture only. Ravin dashboard needs an inspector-lite link or S3 ingest on production.
+        {provider === "ravin" && (
+          <p className="mt-3 text-sm font-medium text-amber-400">
+            Hosted Ravin Inspector is enabled — owners are sent to Ravin instead of Auto
+            Verifi capture. Set{" "}
+            <code className="text-amber-200">RAVIN_USE_HOSTED_INSPECTOR=false</code> on
+            Vercel for the branded walkaround.
           </p>
         )}
         {ravinWarning && (
@@ -201,7 +205,7 @@ export function InspectionStarter({
             disabled={loading}
             className="mt-3 text-xs font-bold text-accent-400 underline hover:text-accent-300 disabled:opacity-50"
           >
-            Retry Ravin Inspector Lite link
+            Refresh inspection link
           </button>
         )}
 

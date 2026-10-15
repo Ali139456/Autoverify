@@ -27,6 +27,7 @@ import { hasVehicleSpecContent } from "@/lib/vehicle-spec-sheet";
 import { VehicleSpecReportPage } from "@/components/report/VehicleSpecReportPage";
 
 import { hasDamageAnalysis } from "@/lib/pricing";
+import { isExteriorInspectionAngle } from "@/lib/inspection-angles";
 
 import type { ReportTier } from "@/lib/types";
 
@@ -43,11 +44,16 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
   const hasVehicleSpecSheet = hasVehicleSpecContent(report.vehicleSpec);
   const hasFactoryFeatures =
     (report.vehicleSpec?.factoryFeatures.length ?? 0) > 0;
+  const samplePhotos = buildSampleInspectionPhotos();
+  const hasAdditionalInspectionPhotos = samplePhotos.some(
+    (photo) => !isExteriorInspectionAngle(photo.angle),
+  );
   const pageCount = countVehicleReportPages(
     includesDamage,
     hasPpsrAppendix,
     hasVehicleSpecSheet,
     hasFactoryFeatures,
+    hasAdditionalInspectionPhotos,
   );
 
   let reportPage = 1;
@@ -106,9 +112,14 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
         {includesDamage ? (
           <InsightsPlusBodyReport
             report={report}
-            photos={buildSampleInspectionPhotos()}
+            photos={samplePhotos}
             showActions={false}
             photosPageLabel={`${reportPage++} / ${pageCount}`}
+            additionalPhotosPageLabel={
+              hasAdditionalInspectionPhotos
+                ? `${reportPage++} / ${pageCount}`
+                : undefined
+            }
             damagePageLabel={`${reportPage++} / ${pageCount}`}
           />
         ) : null}

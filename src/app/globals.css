@@ -1378,50 +1378,25 @@ html.dark body {
     page-break-inside: avoid !important;
   }
 
-  /* Walkaround + additional photos on one A4 sheet (sample has 14 tiles). */
-  .report-insights-plus-all-photos.report-shell-insights-plus-photos
-    .report-insights-plus-title
-    h1 {
-    font-size: 16px !important;
+  #report-print-area > .report-insights-plus-walkaround-sheet.report-sheet-pin-footer,
+  #report-print-area > .report-insights-plus-additional-sheet.report-sheet-pin-footer {
+    height: auto !important;
+    min-height: 279.5mm !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
 
-  .report-insights-plus-all-photos.report-shell-insights-plus-photos
-    .report-insights-plus-photos-body.space-y-6
-    > *
-    + * {
-    margin-top: 5px !important;
-  }
-
-  .report-insights-plus-all-photos.report-shell-insights-plus-photos
-    .report-inspection-photos
-    + .report-inspection-photos {
-    margin-top: 4px !important;
-  }
-
-  .report-insights-plus-all-photos.report-shell-insights-plus-photos
-    .report-photo-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-    gap: 3px !important;
-  }
-
-  .report-insights-plus-all-photos.report-shell-insights-plus-photos
-    .report-photo-tile
-    > div {
-    height: 17mm !important;
-    max-height: 17mm !important;
-  }
-
-  .report-insights-plus-all-photos.report-shell-insights-plus-photos
-    .report-photo-tile
-    figcaption
-    p {
-    font-size: 6px !important;
-    line-height: 1.15 !important;
-  }
-
-  .report-insights-plus-all-photos.report-shell-insights-plus-photos
-    .report-shell-body {
-    padding-bottom: 4px !important;
+  #report-print-area
+    > .report-insights-plus-walkaround-sheet.report-sheet-pin-footer
+    > .report-shell,
+  #report-print-area
+    > .report-insights-plus-additional-sheet.report-sheet-pin-footer
+    > .report-shell {
+    height: auto !important;
+    min-height: 279.5mm !important;
+    max-height: none !important;
+    break-inside: auto !important;
+    page-break-inside: auto !important;
   }
 
   .report-shell-insights-plus-damage .report-insights-plus-damage-body.space-y-6 > * + * {
@@ -1435,13 +1410,28 @@ html.dark body {
 
   .report-shell-spec-full .report-spec-sheet .mt-6.grid {
     display: grid !important;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) !important;
-    gap: 8px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 12px !important;
     margin-top: 6px !important;
+  }
+
+  .report-shell-spec-full .report-spec-factory-column {
+    margin-top: 2px !important;
   }
 
   .report-shell-spec-full .report-section-heading {
     font-size: 9px !important;
+    line-height: 1.4 !important;
+    padding-bottom: 4px !important;
+    margin-bottom: 4px !important;
+    letter-spacing: 0.06em !important;
+  }
+
+  .report-shell-spec-full .report-spec-power-footnote {
+    margin-top: 4px !important;
+    margin-bottom: 2px !important;
+    line-height: 1.35 !important;
+    font-size: 7px !important;
   }
 
   .report-shell-spec-full .report-spec-data-table th,
@@ -2195,7 +2185,10 @@ html.dark body {
   #report-print-area .report-section-heading {
     font-size: 10px !important;
     font-weight: 700 !important;
+    line-height: 1.4 !important;
     color: #0f172a !important;
+    padding-bottom: 4px !important;
+    margin-bottom: 4px !important;
     border-bottom-width: 2px !important;
     border-bottom-style: solid !important;
     border-bottom-color: #0073e3 !important;

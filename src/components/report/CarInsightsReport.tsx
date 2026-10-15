@@ -230,11 +230,7 @@ export function CarInsightsReport({
 
                 className={`report-spec-value mt-1.5 text-sm font-medium text-slate-900 ${
 
-                  label === "VIN"
-
-                    ? "whitespace-nowrap font-mono text-xs sm:text-sm"
-
-                    : "break-words"
+                  label === "VIN" ? "whitespace-nowrap" : "break-words"
 
                 }`}
 

@@ -23,7 +23,8 @@ export function countVehicleReportPages(
   pages += 2; // Valuations + market data; P-plate & ride-share
   if (hasVehicleSpecSheet) pages += 1;
   if (includesDamage) {
-    pages += 2; // All inspection photos + damage
+    pages += 2; // Walkaround photos + damage
+    if (_hasAdditionalInspectionPhotos) pages += 1; // Additional photos (wheels, interior, records)
   }
   pages += 1; // Car buying checklist + general disclaimer
   if (hasPpsrAppendix) pages += PPSR_CERTIFICATE_SHEET_COUNT;

@@ -10,6 +10,7 @@ import {
   createRavinPartnerInvite,
   isRavinInspectorLiteUrl,
   isRavinPartnerConfigured,
+  useHostedRavinInspector,
 } from "@/lib/ravin-partner";
 import { getReport } from "@/lib/store";
 import type { InspectionSession } from "@/lib/types";
@@ -61,9 +62,11 @@ export default async function InspectPage({
 
   if (!inspection) notFound();
 
-  const ravinRedirect = await resolveRavinLiteRedirectUrl(inspection);
-  if (ravinRedirect) {
-    redirect(ravinRedirect);
+  if (useHostedRavinInspector()) {
+    const ravinRedirect = await resolveRavinLiteRedirectUrl(inspection);
+    if (ravinRedirect) {
+      redirect(ravinRedirect);
+    }
   }
 
   if (isInspectionExpired(inspection)) {
