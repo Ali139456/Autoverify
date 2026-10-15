@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
     }
 
     let inspectUrl = ownerEntryUrl;
-    const provider: "internal" = "internal";
+    const provider = "internal" as const;
     let ravinWarning: string | null = null;
 
     const refreshRavinInvite = Boolean(body.refreshRavinInvite);

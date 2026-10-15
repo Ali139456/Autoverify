@@ -121,7 +121,7 @@ export async function traceRavinReport(
   if (
     workflowStatus === "processing_ravin" &&
     inspection &&
-    inspection.photoCount > 0
+    inspection.photos.length > 0
   ) {
     nextSteps.push(
       "Photos submitted — waiting on Ravin AI damage analysis. Confirm S3 ingest used ravinInspectionId " +
