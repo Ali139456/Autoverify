@@ -547,9 +547,9 @@ const money = (n: number) => `$${n.toLocaleString("en-AU")}`;
 const MAX_COMPARABLE_ROWS = 5;
 
 /** Factory options below the full-width vehicle data table on spec page 1. */
-const SPEC_FEATURES_ON_FIRST_SPEC_PAGE = 28;
+const SPEC_FEATURES_ON_FIRST_SPEC_PAGE = 18;
 /** Factory options per continuation page (full width). */
-const SPEC_FEATURES_CONTINUATION = 40;
+const SPEC_FEATURES_CONTINUATION = 16;
 
 function countVehicleSpecPdfPages(
   sheet: NonNullable<VehicleReport["vehicleSpec"]>,

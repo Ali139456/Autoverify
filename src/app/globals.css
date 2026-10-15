@@ -1466,8 +1466,45 @@ html.dark body {
   .report-shell-spec-full .report-spec-factory-list li {
     font-size: 7.5px !important;
     line-height: 1.2 !important;
-    break-inside: avoid;
-    page-break-inside: avoid;
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+
+  /* Vehicle spec: data + factory on separate pinned sheets (Insights+ print). */
+  #report-print-area > .report-spec-data-sheet.report-sheet-pin-footer,
+  #report-print-area > .report-spec-factory-sheet.report-sheet-pin-footer {
+    height: 279.5mm !important;
+    min-height: 279.5mm !important;
+    max-height: 279.5mm !important;
+    overflow: hidden !important;
+    break-after: page !important;
+    page-break-after: always !important;
+  }
+
+  #report-print-area > .report-spec-data-sheet.report-sheet-pin-footer > .report-shell,
+  #report-print-area > .report-spec-factory-sheet.report-sheet-pin-footer > .report-shell {
+    height: 100% !important;
+    min-height: 100% !important;
+    max-height: 100% !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  #report-print-area
+    > .report-spec-factory-sheet.report-sheet-pin-footer
+    > .report-shell
+    .report-shell-body {
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .report-shell-spec-factory-continued .report-spec-sheet {
+    padding: 8px 10px !important;
+  }
+
+  .report-shell-spec-factory-continued .report-spec-factory-heading {
+    margin-top: 0 !important;
   }
 
   .report-shell-spec-full .report-spec-factory-list li + li {

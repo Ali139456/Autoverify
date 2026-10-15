@@ -11,17 +11,35 @@ export function countKeyInsightContinuationSheets(insightCount: number): number 
 
 import { PPSR_CERTIFICATE_SHEET_COUNT } from "./ppsr-certificate-public";
 
+/** Keep in sync with VehicleSpecReportPage factory chunk size (must fit one A4 with header + footer). */
+export const FACTORY_FEATURES_PER_PRINT_SHEET = 16;
+
+export function countVehicleSpecSheets(
+  hasVehicleSpecSheet: boolean,
+  factoryFeatureCount: number,
+): number {
+  if (!hasVehicleSpecSheet) return 0;
+  if (factoryFeatureCount <= 0) return 1;
+  return 1 + Math.ceil(factoryFeatureCount / FACTORY_FEATURES_PER_PRINT_SHEET);
+}
+
 export function countVehicleReportPages(
   includesDamage: boolean,
   hasPpsrAppendix: boolean,
   hasVehicleSpecSheet = false,
-  _hasFactoryFeatures = false,
+  hasFactoryFeatures = false,
   _hasAdditionalInspectionPhotos = true,
   keyInsightCount = KEY_INSIGHTS_PER_SHEET,
+  factoryFeatureCount = 0,
 ): number {
   let pages = 1; // Overview + all key insights + warranty (one sheet)
   pages += 2; // Valuations + market data; P-plate & ride-share
-  if (hasVehicleSpecSheet) pages += 1;
+  if (hasVehicleSpecSheet) {
+    pages += countVehicleSpecSheets(
+      true,
+      hasFactoryFeatures ? Math.max(factoryFeatureCount, 1) : 0,
+    );
+  }
   if (includesDamage) {
     pages += 2; // Walkaround photos + damage
     if (_hasAdditionalInspectionPhotos) pages += 1; // Additional photos (wheels, interior, records)

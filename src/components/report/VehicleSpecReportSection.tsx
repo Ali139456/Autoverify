@@ -13,9 +13,12 @@ export type VehicleSpecSectionPart = "full" | "data" | "factory";
 export function VehicleSpecReportSection({
   report,
   part = "full",
+  compactFactoryHeader = false,
 }: {
   report: VehicleReport;
   part?: VehicleSpecSectionPart;
+  /** Shorter header on factory continuation print sheets. */
+  compactFactoryHeader?: boolean;
 }) {
   const sheet = report.vehicleSpec;
   if (!hasVehicleSpecContent(sheet)) return null;
@@ -108,8 +111,10 @@ export function VehicleSpecReportSection({
           <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
             Vehicle data &amp; factory equipment (continued)
           </p>
-          <h2 className="mt-1 text-lg font-bold text-[#0073E3]">{vehicleTitle}</h2>
-          <div className="mt-4">
+          {compactFactoryHeader ? null : (
+            <h2 className="mt-1 text-lg font-bold text-[#0073E3]">{vehicleTitle}</h2>
+          )}
+          <div className={compactFactoryHeader ? "mt-2" : "mt-4"}>
             <FactoryFeaturesBlock sheet={sheet!} />
           </div>
         </div>

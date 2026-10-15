@@ -22,7 +22,10 @@ import {
 
 } from "@/lib/build-sample-report";
 
-import { countVehicleReportPages } from "@/lib/report-page-count";
+import {
+  countVehicleReportPages,
+  FACTORY_FEATURES_PER_PRINT_SHEET,
+} from "@/lib/report-page-count";
 import { hasVehicleSpecContent } from "@/lib/vehicle-spec-sheet";
 import { VehicleSpecReportPage } from "@/components/report/VehicleSpecReportPage";
 
@@ -48,12 +51,15 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
   const hasAdditionalInspectionPhotos = samplePhotos.some(
     (photo) => !isExteriorInspectionAngle(photo.angle),
   );
+  const factoryFeatureCount = report.vehicleSpec?.factoryFeatures.length ?? 0;
   const pageCount = countVehicleReportPages(
     includesDamage,
     hasPpsrAppendix,
     hasVehicleSpecSheet,
     hasFactoryFeatures,
     hasAdditionalInspectionPhotos,
+    undefined,
+    factoryFeatureCount,
   );
 
   let reportPage = 1;
@@ -104,6 +110,18 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
           <VehicleSpecReportPage
             report={report}
             pageLabel={`${reportPage++} / ${pageCount}`}
+            factoryPageLabels={
+              hasFactoryFeatures
+                ? Array.from(
+                    {
+                      length: Math.ceil(
+                        factoryFeatureCount / FACTORY_FEATURES_PER_PRINT_SHEET,
+                      ),
+                    },
+                    () => `${reportPage++} / ${pageCount}`,
+                  )
+                : undefined
+            }
           />
         ) : null}
 
