@@ -531,7 +531,9 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
     {
       id: "ppsr",
       title: "PPSR / Finance",
-      status: registration.financeOwing ? "Encumbered" : "Clear",
+      status: registration.financeOwing
+        ? "Encumbered - Finance owing"
+        : "Clear",
       tone: registration.financeOwing ? "warn" : "clear",
     },
     {
