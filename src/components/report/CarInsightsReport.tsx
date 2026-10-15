@@ -18,6 +18,7 @@ import {
   type ReportInsight,
 
   buildStatusChecks,
+  reportInsightCopy,
   formatReportReference,
 
   getFutureValueAtYears,
@@ -192,7 +193,7 @@ export function CarInsightsReport({
 
           </h1>
 
-          <p className="report-vehicle-title mt-2 text-lg font-bold text-[#0073E3]">
+          <p className="report-vehicle-title mt-2 font-bold text-[#0073E3]">
 
             {vehicleTitle}
 
@@ -218,9 +219,9 @@ export function CarInsightsReport({
 
             >
 
-              <div className="flex items-center gap-1.5 text-slate-500">
+              <div className="report-spec-label-row flex items-center gap-1.5 text-slate-900">
 
-                <SpecIcon index={i} className="h-4 w-4 shrink-0" />
+                <SpecIcon index={i} className="h-4 w-4 shrink-0 text-slate-700" />
 
                 <span className="text-[10px] font-bold uppercase tracking-wide">{label}</span>
 
@@ -228,7 +229,7 @@ export function CarInsightsReport({
 
               <p
 
-                className={`report-spec-value mt-1.5 text-sm font-medium text-slate-900 ${
+                className={`report-spec-value mt-1.5 font-medium text-slate-500 ${
 
                   label === "VIN" ? "whitespace-nowrap" : "break-words"
 
@@ -273,7 +274,7 @@ export function CarInsightsReport({
 
                     <span
 
-                      className={`text-sm font-medium ${
+                      className={`text-sm font-medium hyphens-none break-normal [overflow-wrap:normal] [word-break:normal] ${
 
                         item.issue
 
@@ -293,7 +294,7 @@ export function CarInsightsReport({
 
                     >
 
-                      {item.label}
+                      {reportInsightCopy(item.label)}
 
                     </span>
 
@@ -454,7 +455,7 @@ export function CarInsightsReport({
 
                   <p className="text-xs text-slate-500">{label}</p>
 
-                  <p className="mt-1 text-base font-extrabold text-[#0073E3]">
+                  <p className="report-currency mt-1">
 
                     ${(low as number).toLocaleString("en-AU")} – $
 
@@ -512,7 +513,7 @@ export function CarInsightsReport({
 
                     <p className="text-xs text-slate-500">{label}</p>
 
-                    <p className="mt-1 text-base font-extrabold text-[#0073E3]">
+                    <p className="report-currency mt-1">
 
                       {point ? `$${point.value.toLocaleString("en-AU")}` : "—"}
 
@@ -520,7 +521,7 @@ export function CarInsightsReport({
 
                     {point ? (
 
-                      <p className="report-future-kms mt-1 text-[10px] text-slate-400">
+                      <p className="report-future-kms report-metric mt-1 text-[10px] text-slate-400">
 
                         {point.odometer.toLocaleString()} km
 

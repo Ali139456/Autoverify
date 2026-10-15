@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   Camera,
   CheckCircle2,
@@ -84,27 +83,35 @@ function scrollToSubmitBar(submitBar: HTMLDivElement | null) {
   });
 }
 
-/** Public route — safe after inspection (no preview/login). */
-const INSPECTION_EXIT_PATH = "/vehicleinspections";
+const INSPECTION_SUBMITTED_KEY = (reportId: string) =>
+  `autoverifi-inspection-submitted:${reportId}`;
 
-function exitInspectionDoneScreen(router: ReturnType<typeof useRouter>) {
+function markInspectionSubmitted(reportId: string) {
+  try {
+    sessionStorage.setItem(INSPECTION_SUBMITTED_KEY(reportId), "1");
+  } catch {
+    // sessionStorage may be unavailable in strict private modes
+  }
+}
+
+function tryCloseInspectionTab(): boolean {
   try {
     window.close();
+    return true;
   } catch {
-    // window.close() is blocked unless this tab was opened by script
+    return false;
   }
-  // Never history.back() — in-app browsers often land on report/home and show auth errors.
-  router.replace(INSPECTION_EXIT_PATH);
 }
 
 export function InspectionCapture({
   token,
+  reportId,
   initialPhotos = [],
 }: {
   token: string;
+  reportId: string;
   initialPhotos?: UploadedPhoto[];
 }) {
-  const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const submitBarRef = useRef<HTMLDivElement>(null);
   const uploadingRef = useRef(false);
@@ -114,6 +121,7 @@ export function InspectionCapture({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [doneMessage, setDoneMessage] = useState<string | null>(null);
+  const [exitDismissed, setExitDismissed] = useState(false);
 
   const currentAngle = INSPECTION_ANGLES[stepIndex];
   const captureHint = getInspectionAngleHint(currentAngle.id);
@@ -264,6 +272,7 @@ export function InspectionCapture({
       }>(res, "Submission failed.");
       if (!res.ok) throw new Error(data.error ?? "Submission failed.");
 
+      markInspectionSubmitted(reportId);
       if (data.complete) {
         setDoneMessage(
           "Inspection complete. Your Auto Verifi report has been updated with AI damage analysis.",
@@ -289,16 +298,22 @@ export function InspectionCapture({
         <p className="mt-3 max-w-sm text-sm leading-relaxed text-slate-400">
           {doneMessage}
         </p>
-        <button
-          type="button"
-          onClick={() => exitInspectionDoneScreen(router)}
-          className="mt-10 inline-flex w-full max-w-xs items-center justify-center rounded-xl bg-accent-600 px-6 py-3.5 text-base font-bold text-white transition hover:bg-accent-500"
-        >
-          Exit
-        </button>
+        {!exitDismissed ? (
+          <button
+            type="button"
+            onClick={() => {
+              tryCloseInspectionTab();
+              setExitDismissed(true);
+            }}
+            className="mt-10 inline-flex w-full max-w-xs items-center justify-center rounded-xl bg-accent-600 px-6 py-3.5 text-base font-bold text-white transition hover:bg-accent-500"
+          >
+            Exit
+          </button>
+        ) : null}
         <p className="mt-3 max-w-xs text-[11px] leading-relaxed text-slate-500">
-          If Exit does not close the tab, switch back to your messages or close
-          this browser window manually.
+          {exitDismissed
+            ? "Inspection complete. Close this browser tab or return to your messages — there is nothing else to do on this link."
+            : "Tap Exit to finish. This screen stays here; we will not send you back to the report QR code."}
         </p>
       </div>
     );

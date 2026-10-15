@@ -72,7 +72,7 @@ export function PresentAndFutureValueReportPage({
                     className="rounded-lg bg-white p-4 ring-1 ring-slate-200"
                   >
                     <p className="text-xs text-slate-500">{label}</p>
-                    <p className="mt-1 text-base font-extrabold text-[#0073E3]">
+                    <p className="report-currency mt-1">
                       ${(low as number).toLocaleString("en-AU")} – $
                       {(high as number).toLocaleString("en-AU")}
                     </p>
@@ -105,11 +105,11 @@ export function PresentAndFutureValueReportPage({
                       className="rounded-lg bg-white p-4 ring-1 ring-slate-200"
                     >
                       <p className="text-xs text-slate-500">{label}</p>
-                      <p className="mt-1 text-base font-extrabold text-[#0073E3]">
+                      <p className="report-currency mt-1">
                         {point ? `$${point.value.toLocaleString("en-AU")}` : "—"}
                       </p>
                       {point ? (
-                        <p className="report-future-kms mt-1 text-[10px] text-slate-400">
+                        <p className="report-future-kms report-metric mt-1 text-[10px] text-slate-400">
                           {point.odometer.toLocaleString()} km
                         </p>
                       ) : null}

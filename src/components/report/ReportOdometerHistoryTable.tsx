@@ -55,7 +55,7 @@ export function ReportOdometerHistoryTable({ report }: { report: VehicleReport }
                 <td className="px-2 py-2 font-semibold tabular-nums text-slate-900 sm:px-4 sm:py-2.5">
                   {formatExpiryDate(entry.date)}
                 </td>
-                <td className="px-2 py-2 font-bold tabular-nums leading-snug text-[#0073E3] sm:px-4 sm:py-2.5">
+                <td className="report-currency px-2 py-2 leading-snug sm:px-4 sm:py-2.5">
                   {entry.odometer.toLocaleString("en-AU")} km
                 </td>
                 <td className="px-2 py-2 text-slate-700 break-words leading-snug sm:px-4 sm:py-2.5">

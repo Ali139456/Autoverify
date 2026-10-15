@@ -77,9 +77,14 @@ export async function POST(
       });
     }
 
+    const damageAnalysisReady =
+      submission.mode === "demo" && Boolean(submission.damage);
+
     const notifyEmails = getInspectionPhotoNotifyEmails(report);
     for (const notifyEmail of notifyEmails) {
-      void sendInspectionPhotosUpdatedEmail(report, notifyEmail).catch((err) => {
+      void sendInspectionPhotosUpdatedEmail(report, notifyEmail, {
+        damageAnalysisReady,
+      }).catch((err) => {
         console.error(
           `[inspections/complete] inspection update email failed (${notifyEmail}):`,
           err,

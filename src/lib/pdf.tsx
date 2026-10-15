@@ -60,6 +60,7 @@ import {
   getInspectionPhotoUrl,
   resolveDamageFindingImageUrl,
   presentValuationNote,
+  reportInsightCopy,
   resolveFutureValue,
   resolveValuation,
   type ReportInsight,
@@ -106,6 +107,10 @@ const PDF_BORDER_OUTER = 0.75;
 const PDF_BORDER_INNER = 0.5;
 const PDF_TABLE_FONT_BODY = 8;
 const PDF_TABLE_FONT_HEAD = 7.5;
+/** Primary $ amounts (forecast boxes + comparables price). */
+const PDF_REPORT_CURRENCY = 9;
+/** Secondary km / counts in valuation tables. */
+const PDF_REPORT_METRIC = 8;
 const PDF_TABLE_PAD_V = 7;
 const PDF_TABLE_PAD_H = 12;
 /** Page 1 insight cards — match web `ReportInsightCard` spacing (~p-4, text-xs). */
@@ -231,15 +236,15 @@ const styles = StyleSheet.create({
   specLabelRow: { flexDirection: "row", alignItems: "center", gap: 4 },
   specLabel: {
     fontSize: 7.5,
-    color: GREY,
+    color: "#0f172a",
     textTransform: "uppercase",
     fontFamily: "Helvetica-Bold",
   },
   specValue: {
     marginTop: 4,
-    fontSize: 10,
+    fontSize: 9,
     fontFamily: "Helvetica",
-    color: "#0f172a",
+    color: GREY,
     lineHeight: 1.25,
   },
   statusPanel: {
@@ -393,7 +398,22 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   valLabel: { fontSize: 7, color: GREY },
-  valAmount: { marginTop: 3, fontSize: 10, fontFamily: "Helvetica-Bold", color: BLUE },
+  valAmount: {
+    marginTop: 3,
+    fontSize: PDF_REPORT_CURRENCY,
+    fontFamily: "Helvetica-Bold",
+    color: BLUE,
+  },
+  reportCurrency: {
+    fontSize: PDF_REPORT_CURRENCY,
+    fontFamily: "Helvetica-Bold",
+    color: BLUE,
+  },
+  reportMetric: {
+    fontSize: PDF_REPORT_METRIC,
+    fontFamily: "Helvetica",
+    color: "#334155",
+  },
   section: { marginTop: 14 },
   sectionTitle: {
     fontSize: 9,
@@ -724,7 +744,7 @@ function PdfInsightCard({
                         lineHeight: PDF_INSIGHT_LINE,
                       }}
                     >
-                      {line.text}
+                      {reportInsightCopy(line.text)}
                     </Text>
                   ))}
                   {insight.detail ? (
@@ -747,7 +767,7 @@ function PdfInsightCard({
                 <View style={{ flex: 1, minWidth: 0 }}>
                   {insight.status?.trim() ? (
                   <Text style={[styles.insightStatus, toneStyle(insight.tone)]}>
-                    {insight.status}
+                    {reportInsightCopy(insight.status)}
                   </Text>
                   ) : insight.detail ? (
                     <Text
@@ -1201,7 +1221,7 @@ function CarInsightsOverviewPage({
                           : styles.statusText.color,
                   }}
                 >
-                  {item.label}
+                  {reportInsightCopy(item.label)}
                 </Text>
               </View>
             ))}
@@ -1264,7 +1284,7 @@ function CarInsightsIntroLeadPage({
                           : styles.statusText.color,
                   }}
                 >
-                  {item.label}
+                  {reportInsightCopy(item.label)}
                 </Text>
               </View>
             ))}
@@ -1396,7 +1416,14 @@ function PdfPresentAndFutureValuations({
                     {point ? money(point.value) : "—"}
                   </Text>
                   {point ? (
-                    <Text style={{ fontSize: 7, color: GREY, marginTop: 2 }}>
+                    <Text
+                      style={{
+                        fontSize: PDF_REPORT_METRIC,
+                        color: GREY,
+                        marginTop: 2,
+                        fontFamily: "Helvetica",
+                      }}
+                    >
                       {point.odometer.toLocaleString()} km
                     </Text>
                   ) : null}
@@ -1511,8 +1538,9 @@ function PdfOdometerHistoryTable({ report }: { report: VehicleReport }) {
             </Text>
             <Text
               style={[
+                styles.reportCurrency,
                 styles.pdfTableCellBold,
-                { width: "32%", color: BLUE },
+                { width: "32%" },
               ]}
             >
               {entry.odometer.toLocaleString()} km
@@ -1574,10 +1602,10 @@ function PdfComparableVehiclesTable({ report }: { report: VehicleReport }) {
             <Text style={[styles.pdfTableCellBold, { width: colVehicle }]}>
               {listing.title}
             </Text>
-            <Text style={[styles.pdfTableCellBold, { width: colPrice, color: BLUE }]}>
+            <Text style={[styles.reportCurrency, styles.pdfTableCellBold, { width: colPrice }]}>
               {money(listing.price)}
             </Text>
-            <Text style={[styles.pdfTableCell, { width: colOdometer }]}>
+            <Text style={[styles.reportMetric, styles.pdfTableCell, { width: colOdometer }]}>
               {listing.odometer.toLocaleString()} km
             </Text>
             <Text style={[styles.pdfTableCell, { width: colLocation }]}>

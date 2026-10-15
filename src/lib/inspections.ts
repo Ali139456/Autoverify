@@ -150,6 +150,21 @@ export async function getInspectionByReportId(
   return rowToSession(data as InspectionRow);
 }
 
+/** How many inspection sessions exist for a report (includes expired rows). */
+export async function countInspectionSessionsForReport(
+  reportId: string,
+): Promise<number> {
+  if (!isSupabaseServerConfigured()) return 0;
+  const supabase = createServerClient();
+  const { count, error } = await supabase
+    .from("inspections")
+    .select("id", { count: "exact", head: true })
+    .eq("report_id", reportId);
+
+  if (error) throw new Error(error.message);
+  return count ?? 0;
+}
+
 export async function getInspectionById(
   id: string,
 ): Promise<InspectionSession | null> {

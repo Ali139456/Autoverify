@@ -1,3 +1,4 @@
+import { compactStoredLocationLabel } from "./reverse-geocode";
 import type { InspectionPhoto } from "./types";
 
 export function resolveInspectionPhotoCapturedAt(photo: InspectionPhoto): string {
@@ -32,10 +33,10 @@ export function formatInspectionPhotoCoordinates(photo: InspectionPhoto): string
   return `${lat}, ${lng}${accuracy}`;
 }
 
-/** Human-readable place (reverse-geocoded) with coordinates as a fallback. */
+/** Human-readable place (suburb + state) with coordinates as a fallback. */
 export function formatInspectionPhotoLocation(photo: InspectionPhoto): string | null {
   const label = photo.locationLabel?.trim();
-  if (label) return label;
+  if (label) return compactStoredLocationLabel(label);
   return formatInspectionPhotoCoordinates(photo);
 }
 

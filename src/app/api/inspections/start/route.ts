@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getBaseUrl } from "@/lib/stripe";
 import { getReport, updateReport } from "@/lib/store";
 import {
+  countInspectionSessionsForReport,
   createInspection,
   getInspectionByReportId,
   getInspectionOwnerUrl,
@@ -143,9 +144,18 @@ export async function POST(req: NextRequest) {
     let smsError: string | null = null;
     let smsNotice: string | null = null;
 
+    const requestInitialSms = body.sendSms === true;
+    const inspectionSessionCount =
+      await countInspectionSessionsForReport(reportId);
+    const isFirstInspectionSessionEver = inspectionSessionCount <= 1;
+    const shouldSendInitialLinkSms =
+      requestInitialSms &&
+      createdNewInspection &&
+      isFirstInspectionSessionEver;
+
     if (!isSmsConfigured()) {
       smsError = SMS_NOT_CONFIGURED_MESSAGE;
-    } else if (createdNewInspection) {
+    } else if (shouldSendInitialLinkSms) {
       const vehicleLabel = `${report.vehicle.year} ${report.vehicle.make} ${report.vehicle.model}`;
       const sendToPurchaser =
         customerPhone !== null && customerPhone !== ownerPhone;
@@ -181,6 +191,9 @@ export async function POST(req: NextRequest) {
             : purchaserMsg;
         }
       }
+    } else if (createdNewInspection && requestInitialSms && !isFirstInspectionSessionEver) {
+      smsNotice =
+        "A new inspection link was created. Open the QR code and tap Send SMS link if the owner needs the text again.";
     } else {
       smsNotice =
         "An inspection link was already created for this report. Open the QR code and tap Send SMS link if the owner needs the text again.";

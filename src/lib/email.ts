@@ -116,6 +116,7 @@ export function getInspectionPhotoNotifyEmails(
 export async function sendInspectionPhotosUpdatedEmail(
   report: VehicleReport,
   email: string,
+  options?: { damageAnalysisReady?: boolean },
 ): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY?.trim();
   if (!apiKey) {
@@ -133,11 +134,23 @@ export async function sendInspectionPhotosUpdatedEmail(
   const pdfUrl = `${baseUrl}/api/report/${report.id}/pdf`;
   const vehicleLabel = `${report.vehicle.year} ${report.vehicle.make} ${report.vehicle.model}`;
   const rego = report.vehicle.rego?.trim();
+  const regoSuffix = rego ? ` (${rego})` : "";
+  const damageAnalysisReady =
+    options?.damageAnalysisReady ?? Boolean(report.damage);
 
-  const html = `<!DOCTYPE html><html><body style="font-family:sans-serif;color:#0f172a;line-height:1.5">
-<p>Inspection photos for <strong>${vehicleLabel}</strong>${rego ? ` (${rego})` : ""} have been added to your Auto Verifi Insights+ report.</p>
+  const subject = damageAnalysisReady
+    ? `Inspection photos added — ${vehicleLabel}${regoSuffix}`
+    : `AI damage analysis still processing — ${vehicleLabel}${regoSuffix}`;
+
+  const html = damageAnalysisReady
+    ? `<!DOCTYPE html><html><body style="font-family:sans-serif;color:#0f172a;line-height:1.5">
+<p>Inspection photos for <strong>${vehicleLabel}</strong>${regoSuffix} have been added to your Auto Verifi Insights+ report.</p>
 <p><a href="${reportUrl}">View your report online</a> · <a href="${pdfUrl}">Download PDF</a></p>
-<p style="color:#64748b;font-size:13px">AI damage analysis may take a little longer if Ravin is still processing the images.</p>
+</body></html>`
+    : `<!DOCTYPE html><html><body style="font-family:sans-serif;color:#0f172a;line-height:1.5">
+<p>Your guided inspection photos for <strong>${vehicleLabel}</strong>${regoSuffix} are saved on your Auto Verifi Insights+ report.</p>
+<p><strong>AI damage analysis is still processing.</strong> Damage detection results will appear on your report automatically when ready — we will not send a separate email when that finishes.</p>
+<p><a href="${reportUrl}">View your report online</a> · <a href="${pdfUrl}">Download PDF</a></p>
 </body></html>`;
 
   const response = await fetch("https://api.resend.com/emails", {
@@ -149,7 +162,7 @@ export async function sendInspectionPhotosUpdatedEmail(
     body: JSON.stringify({
       from,
       to: email,
-      subject: `Inspection photos added — ${vehicleLabel}${rego ? ` (${rego})` : ""}`,
+      subject,
       html,
     }),
   });

@@ -34,6 +34,7 @@ export default async function InspectPage({
   return (
     <InspectionCapture
       token={token}
+      reportId={inspection.reportId}
       initialPhotos={inspection.photos.map((photo) => ({
         angle: photo.angle,
         label: photo.label,

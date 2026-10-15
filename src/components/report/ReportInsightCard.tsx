@@ -9,6 +9,7 @@ import {
   insightToneClass,
   type ReportInsight,
   type ReportInsightLineVariant,
+  reportInsightCopy,
 } from "@/lib/report-design";
 import { InsightCategoryIcon } from "./ReportInsightIcon";
 
@@ -101,7 +102,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
 
   return (
 
-    <div className="report-insight-card flex h-full min-h-[104px] min-w-0 flex-col gap-3 overflow-hidden rounded-xl border border-slate-200 bg-slate-100 p-3.5 sm:p-4 [&_li:not(.report-insight-card-title)]:break-normal [&_li:not(.report-insight-card-title)]:hyphens-none [&_p:not(.report-insight-card-title)]:break-normal [&_p:not(.report-insight-card-title)]:hyphens-none">
+    <div className="report-insight-card flex h-full min-h-[104px] min-w-0 flex-col gap-3 overflow-hidden rounded-xl border border-slate-200 bg-slate-100 p-3.5 sm:p-4 [&_li:not(.report-insight-card-title)]:break-normal [&_li:not(.report-insight-card-title)]:hyphens-none [&_p:not(.report-insight-card-title)]:break-normal [&_p:not(.report-insight-card-title)]:hyphens-none [&_p:not(.report-insight-card-title)]:[overflow-wrap:normal] [&_p:not(.report-insight-card-title)]:[word-break:normal]">
 
       <div className="flex items-start justify-between gap-2">
 
@@ -135,16 +136,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                     : undefined
                 }
               >
-                {line.variant === "action" &&
-                line.text === "Check state-specific requirements" ? (
-                  <>
-                    Check state-specific
-                    <br />
-                    requirements
-                  </>
-                ) : (
-                  line.text
-                )}
+                {reportInsightCopy(line.text)}
               </p>
             ))}
             {insight.detail ? (
@@ -162,7 +154,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                 <p
                   className={`text-xs font-normal leading-snug ${insightToneClass(insight.tone)}`}
                 >
-                  {insight.status}
+                  {reportInsightCopy(insight.status)}
                 </p>
                 ) : insight.detail ? (
                   <p className="text-[11px] font-normal leading-relaxed text-slate-600">
@@ -177,14 +169,14 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                         : "text-slate-500"
                     }`}
                   >
-                    {insight.statusSubtext}
+                    {reportInsightCopy(insight.statusSubtext)}
                   </p>
                 ) : null}
                 {insight.listItems?.length && insight.id !== "odometer" ? (
                   <ul className="mt-1.5 space-y-0.5 text-[11px] leading-snug text-slate-600">
                     {insight.listItems.map((item) => (
                       <li key={item}>
-                        {item}
+                        {reportInsightCopy(item)}
                       </li>
                     ))}
                   </ul>

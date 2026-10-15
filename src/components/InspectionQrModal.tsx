@@ -147,15 +147,6 @@ function InspectionQrModalContent({
             <QrCodeImage value={inspectUrl} />
           </div>
 
-          <a
-            href={inspectUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-4 text-sm font-semibold text-accent-600 hover:text-accent-700"
-          >
-            Open inspection on this device
-          </a>
-
           <div className="mt-5 flex w-full flex-col gap-2 sm:flex-row">
             <button
               type="button"

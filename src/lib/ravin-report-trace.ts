@@ -118,12 +118,27 @@ export async function traceRavinReport(
   ) {
     nextSteps.push("Inspection not completed yet (0 photos on Auto Verifi).");
   }
+  if (
+    workflowStatus === "processing_ravin" &&
+    inspection &&
+    inspection.photoCount > 0
+  ) {
+    nextSteps.push(
+      "Photos submitted — waiting on Ravin AI damage analysis. Confirm S3 ingest used ravinInspectionId " +
+        `${inspection.ravinInspectionId ?? "(missing)"} and that Ravin Eye shows this invitation/claim.`,
+    );
+  }
   if (webhookEvents.length === 0) {
     nextSteps.push(
       "No Ravin webhook received — ask Ravin to POST JSON to https://autoverifi.com.au/api/webhooks/ravin with claimId AV-… in the payload (or re-send test for this report).",
     );
   } else if (workflowStatus !== "complete") {
     nextSteps.push("Webhooks arrived but report is not complete — check webhook matching logs.");
+  }
+  if (report && !report.damage && workflowStatus === "processing_ravin") {
+    nextSteps.push(
+      "Damage section empty — typical if Ravin has not finished or webhook did not match this inspection (check invitation id vs S3 path).",
+    );
   }
   if (workflowStatus === "complete") {
     nextSteps.push(`Open customer report: ${base}/report/${reportId}`);

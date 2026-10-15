@@ -28,12 +28,39 @@ export function InspectionStarter({
   const [smsNotice, setSmsNotice] = useState<string | null>(null);
   const [ravinWarning, setRavinWarning] = useState<string | null>(null);
   const [provider, setProvider] = useState<"ravin" | "internal" | null>(null);
-  const [modalOpen, setModalOpen] = useState(
-    () => Boolean(autoShowQr && initialInspectUrl),
-  );
+  const [modalOpen, setModalOpen] = useState(false);
   const autoStarted = useRef(false);
 
-  const startInspection = useCallback(async (openModal: boolean, refreshRavinInvite = false) => {
+  const dismissQrModalIfInspectionFinished = useCallback(() => {
+    try {
+      const key = `autoverifi-inspection-submitted:${reportId}`;
+      if (sessionStorage.getItem(key)) {
+        sessionStorage.removeItem(key);
+        setModalOpen(false);
+      }
+    } catch {
+      // ignore
+    }
+  }, [reportId]);
+
+  useEffect(() => {
+    dismissQrModalIfInspectionFinished();
+  }, [dismissQrModalIfInspectionFinished]);
+
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState !== "visible") return;
+      dismissQrModalIfInspectionFinished();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [dismissQrModalIfInspectionFinished]);
+
+  const startInspection = useCallback(async (
+    openModal: boolean,
+    refreshRavinInvite = false,
+    sendSms = false,
+  ) => {
     setLoading(true);
     setError(null);
     setSmsSent(false);
@@ -51,6 +78,7 @@ export function InspectionStarter({
           customerPhone,
           ownerPhone,
           refreshRavinInvite,
+          sendSms,
         }),
       });
       const raw = await res.text();
@@ -101,7 +129,7 @@ export function InspectionStarter({
     if (initialInspectUrl) return;
 
     const frame = requestAnimationFrame(() => {
-      void startInspection(true);
+      void startInspection(false, false, true);
     });
     return () => cancelAnimationFrame(frame);
   }, [autoShowQr, initialInspectUrl, startInspection]);

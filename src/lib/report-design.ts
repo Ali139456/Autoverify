@@ -66,6 +66,17 @@ export type StatusCheck = {
 
 export const ODOMETER_NO_HISTORY_LABEL = "No odometer history reported";
 
+/** Keep whole words on one line in narrow insight tiles (no require-ments / re-ported). */
+export function reportInsightCopy(text: string): string {
+  if (!text) return text;
+  return text
+    .replace(/\bhistory reported\b/gi, "history\u00A0reported")
+    .replace(/\bstate-specific requirements\b/gi, "state-specific\u00A0requirements")
+    .replace(/\breading reported\b/gi, "reading\u00A0reported")
+    .replace(/\bcheck requirements\b/gi, "check\u00A0requirements")
+    .replace(/\bSelf reported\b/g, "Self\u00A0reported");
+}
+
 export function hasOdometerHistory(vehicle: VehicleReport["vehicle"]): boolean {
   return Boolean(vehicle.odometerHistory && vehicle.odometerHistory.length > 0);
 }

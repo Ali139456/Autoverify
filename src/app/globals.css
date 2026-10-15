@@ -497,6 +497,48 @@ html.dark body {
   -webkit-print-color-adjust: exact;
 }
 
+/* Page 1 overview grid — match print/PDF sizing on screen (sample reference). */
+.report-view .report-vehicle-title {
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.report-view .report-spec-value {
+  font-size: 10px;
+  line-height: 1.25;
+}
+
+.report-view .report-insight-card p:not(.report-insight-card-title),
+.report-view .report-insight-card li {
+  hyphens: none;
+  -webkit-hyphens: none;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.report-view .report-status-items span {
+  hyphens: none;
+  -webkit-hyphens: none;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+/** Currency / counts — one weight & numeral style across forecast boxes and tables. */
+.report-view .report-currency {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 0.875rem;
+  line-height: 1.25;
+  color: #0073e3;
+  font-family: inherit;
+}
+
+.report-view .report-metric {
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+  font-family: inherit;
+}
+
 .report-spec-power-row,
 .report-spec-power-footnote {
   print-color-adjust: exact;
@@ -1271,7 +1313,7 @@ html.dark body {
   }
 
   .report-shell-insights-page1 .report-spec-value {
-    font-size: 11px !important;
+    font-size: 10px !important;
     font-weight: 500 !important;
     margin-top: 2px !important;
   }
@@ -1666,10 +1708,6 @@ html.dark body {
     page-break-inside: avoid;
   }
 
-  .report-shell-valuations .report-supplementary .text-base {
-    font-size: 14px !important;
-  }
-
   .report-shell-valuations .report-supplementary h3,
   .report-shell-valuations .report-section-heading {
     font-size: 10px !important;
@@ -1840,6 +1878,7 @@ html.dark body {
 
   .report-spec-bar span {
     font-size: 8px !important;
+    color: #0f172a !important;
   }
 
   .report-spec-bar svg {
@@ -1848,10 +1887,11 @@ html.dark body {
   }
 
   .report-spec-value {
-    font-size: 11px !important;
+    font-size: 10px !important;
     font-weight: 500 !important;
     margin-top: 4px !important;
     line-height: 1.25 !important;
+    color: #64748b !important;
   }
 
   .report-status-panel {
@@ -2150,8 +2190,25 @@ html.dark body {
     font-size: 7px !important;
   }
 
-  .report-supplementary .text-base {
-    font-size: 12px !important;
+  #report-print-area .report-currency {
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    line-height: 1.25 !important;
+    font-variant-numeric: tabular-nums !important;
+    color: #0073e3 !important;
+  }
+
+  #report-print-area .report-metric {
+    font-size: 9px !important;
+    font-weight: 400 !important;
+    font-variant-numeric: tabular-nums !important;
+  }
+
+  #report-print-area .report-comparables .report-currency,
+  #report-print-area .report-future-grid .report-currency,
+  #report-print-area .report-valuation-grid .report-currency {
+    font-size: 10px !important;
+    font-weight: 700 !important;
   }
 
   .report-upgrade-banner {
@@ -2426,6 +2483,15 @@ html.dark body {
     border-top-width: 1px !important;
     border-left-width: 1px !important;
     border-color: #e2e8f0 !important;
+  }
+
+  #report-print-area .report-spec-label-row {
+    color: #0f172a !important;
+  }
+
+  #report-print-area .report-spec-value {
+    color: #64748b !important;
+    font-size: 10px !important;
   }
 
   #report-print-area .report-shell-header {
