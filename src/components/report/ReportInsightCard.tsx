@@ -157,7 +157,13 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                   {reportInsightCopy(insight.status)}
                 </p>
                 ) : insight.detail ? (
-                  <p className="text-[11px] font-normal leading-relaxed text-slate-600">
+                  <p
+                    className={`text-[11px] font-normal leading-relaxed ${
+                      insight.id === "servicing-guidelines"
+                        ? "font-medium text-[#E87722]"
+                        : "text-slate-600"
+                    }`}
+                  >
                     {insight.detail}
                   </p>
                 ) : null}
@@ -220,13 +226,18 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                 </a>
               </p>
             ) : note &&
-              insight.id !== "service" &&
               !(
                 insight.id === "recall" &&
                 !insight.status?.trim() &&
                 insight.tone === "muted"
               ) ? (
-              <p className="mt-2 text-[11px] font-normal leading-relaxed text-slate-600">
+              <p
+                className={`mt-2 text-[11px] font-normal leading-relaxed ${
+                  insight.id === "servicing-guidelines"
+                    ? "font-medium text-[#E87722]"
+                    : "text-slate-600"
+                }`}
+              >
                 {note}
               </p>
             ) : null}

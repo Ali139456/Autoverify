@@ -95,7 +95,7 @@ function buildEmailFooterContactHtml(
   if (company.abn.trim()) {
     lines.push(formatEmailFooterPlainLine(`ABN ${formatAbnPlain(company.abn)}`));
   }
-  lines.push(formatEmailFooterPlainLine(company.address, BRAND_NAVY));
+  lines.push(formatEmailFooterPlainLine(company.address));
   lines.push(
     `<a href="mailto:${escapeHtml(company.email)}" style="color:${FOOTER_CONTACT_COLOR};text-decoration:none;">${escapeHtml(company.email)}</a>`,
   );
@@ -221,7 +221,7 @@ export function buildPurchaseConfirmationEmailHtml(
                   </td>
                   <td align="right" valign="top" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#64748b;line-height:1.6;">
                     Generated<br />${escapeHtml(generatedOn)}<br />
-                    <span style="font-weight:600;color:${BRAND_BLUE};">${escapeHtml(company.website)}</span>
+                    <a href="${escapeHtml(company.websiteUrl)}" style="color:${BRAND_BLUE} !important;font-weight:700;text-decoration:none;text-transform:none;letter-spacing:0;">${escapeHtml(company.website)}</a>
                   </td>
                 </tr>
               </table>

@@ -50,9 +50,6 @@ import {
   buildReportOverviewSpecs,
   buildStatusChecks,
   formatPPlateStatus,
-  MANUFACTURERS_WARRANTY_NOTICE,
-  SERVICE_HISTORY_DETAIL,
-  formatWarrantyRemainingDisplay,
   formatReportDate,
   formatReportReference,
   getFutureValueAtYears,
@@ -61,7 +58,6 @@ import {
   resolveDamageFindingImageUrl,
   presentValuationNote,
   reportInsightCopy,
-  rideShareInsightColumnIndex,
   resolveFutureValue,
   resolveValuation,
   type ReportInsight,
@@ -815,7 +811,9 @@ function PdfInsightCard({
                       style={{
                         fontSize: PDF_INSIGHT_BODY_SM,
                         color:
-                          insight.id === "service" ? "#475569" : GREY,
+                          insight.id === "servicing-guidelines"
+                            ? RIDE_SHARE_ORANGE
+                            : GREY,
                         fontFamily: "Helvetica",
                         lineHeight: PDF_INSIGHT_LINE,
                       }}
@@ -899,7 +897,6 @@ function PdfInsightCard({
                       </Link>
                     </Text>
                   ) : footnote &&
-                    insight.id !== "service" &&
                     !(
                       insight.id === "recall" &&
                       !insight.status?.trim() &&
@@ -909,7 +906,10 @@ function PdfInsightCard({
                       style={{
                         marginTop: 4,
                         fontSize: PDF_INSIGHT_BODY_SM,
-                        color: GREY,
+                        color:
+                          insight.id === "servicing-guidelines"
+                            ? RIDE_SHARE_ORANGE
+                            : GREY,
                         fontFamily: "Helvetica",
                         lineHeight: PDF_INSIGHT_LINE,
                       }}
@@ -1029,96 +1029,6 @@ function PdfOverviewSpecBar({ specs }: { specs: OverviewSpec[] }) {
   );
 }
 
-function PdfManufacturersWarrantyNotice({
-  vehicle,
-}: {
-  vehicle: VehicleReport["vehicle"];
-}) {
-  const warrantyExpiry = formatWarrantyRemainingDisplay(
-    vehicle.warrantyRemaining,
-  );
-
-  return (
-    <View
-      style={{
-        marginTop: 8,
-        padding: 10,
-        backgroundColor: LIGHT,
-        borderRadius: 8,
-        borderWidth: PDF_BORDER_OUTER,
-        borderColor: BORDER_SLATE_200,
-      }}
-      wrap={false}
-    >
-      <Text
-        style={{
-          fontSize: 8,
-          fontFamily: "Helvetica-Bold",
-          color: "#0f172a",
-          textTransform: "uppercase",
-          letterSpacing: 0.6,
-        }}
-      >
-        Manufacturer&apos;s warranty remaining
-      </Text>
-      {warrantyExpiry ? (
-        <Text
-          style={{
-            marginTop: 4,
-            fontSize: 8.5,
-            fontFamily: "Helvetica-Bold",
-            color: "#0f172a",
-          }}
-        >
-          Expiry {warrantyExpiry}
-        </Text>
-      ) : null}
-      <Text
-        style={{
-          marginTop: 4,
-          fontSize: 8,
-          fontFamily: "Helvetica",
-          color: RIDE_SHARE_ORANGE,
-          lineHeight: 1.45,
-        }}
-      >
-        {MANUFACTURERS_WARRANTY_NOTICE}
-      </Text>
-      <View
-        style={{
-          marginTop: 8,
-          paddingTop: 8,
-          borderTopWidth: PDF_BORDER_INNER,
-          borderTopColor: BORDER_SLATE_200,
-        }}
-      >
-        <Text
-          style={{
-            fontSize: 8,
-            fontFamily: "Helvetica-Bold",
-            color: "#0f172a",
-            textTransform: "uppercase",
-            letterSpacing: 0.6,
-          }}
-        >
-          Service History
-        </Text>
-        <Text
-          style={{
-            marginTop: 4,
-            fontSize: 8,
-            fontFamily: "Helvetica",
-            color: RIDE_SHARE_ORANGE,
-            lineHeight: 1.45,
-          }}
-        >
-          {SERVICE_HISTORY_DETAIL}
-        </Text>
-      </View>
-    </View>
-  );
-}
-
 const RIDE_SHARE_GREEN = "#059669";
 
 function pdfRideShareLineColor(variant: string): string {
@@ -1228,12 +1138,10 @@ function CarInsightsIntroLeadPage({
   report,
   insights,
   pageLabel,
-  includeWarranty = false,
 }: {
   report: VehicleReport;
   insights: ReportInsight[];
   pageLabel: string;
-  includeWarranty?: boolean;
 }) {
   const { vehicle } = report;
   const specs = buildReportOverviewSpecs(vehicle, report);
@@ -1289,25 +1197,6 @@ function CarInsightsIntroLeadPage({
           </View>
         ) : null}
 
-        {includeWarranty ? (
-          <View style={{ flexDirection: "row", marginTop: 6 }}>
-            {(() => {
-              const col = rideShareInsightColumnIndex(insights);
-              const slotWidth = 24.25;
-              const gap = 1;
-              return (
-                <>
-                  {col > 0 ? (
-                    <View style={{ width: `${col * (slotWidth + gap)}%` }} />
-                  ) : null}
-                  <View style={{ width: `${slotWidth}%` }}>
-                    <PdfManufacturersWarrantyNotice vehicle={vehicle} />
-                  </View>
-                </>
-              );
-            })()}
-          </View>
-        ) : null}
       </View>
     </PdfPageShell>
   );
@@ -2172,7 +2061,6 @@ export function ReportPdf({
         report={report}
         insights={keyInsights}
         pageLabel={introLeadLabel}
-        includeWarranty
       />
       <PdfValuationsPage report={report} pageLabel={valuationsLabel} />
       <PdfValuationSupplementsPage

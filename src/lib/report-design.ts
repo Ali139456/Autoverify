@@ -149,9 +149,6 @@ export const ANCAP_SAFETY_RATINGS_URL = "https://www.ancap.com.au/safety-ratings
 
 export const VEHICLE_RECALLS_GOV_AU_URL = "https://www.vehiclerecalls.gov.au";
 
-export const MANUFACTURERS_WARRANTY_NOTICE =
-  "Contact Authorised Dealer/service centre and quote VIN to confirm remaining Manufacturer's warranty.";
-
 export const SERVICE_HISTORY_DETAIL =
   "Contact the vehicle owner or selling dealer for service history records.";
 
@@ -446,41 +443,48 @@ function formatManufacturerWarrantyStatus(
 ): Pick<ReportInsight, "status" | "statusSubtext" | "tone" | "detail"> {
   if (!info) {
     return {
-      status: "",
+      status: "Not available",
       tone: "muted",
-      detail: MANUFACTURERS_WARRANTY_NOTICE,
     };
   }
-  const termParts: string[] = [];
-  if (info.warrantyYears != null) {
-    termParts.push(
-      `${info.warrantyYears} year${info.warrantyYears === 1 ? "" : "s"}`,
-    );
-  }
-  if (info.warrantyKm != null) {
-    termParts.push(`${info.warrantyKm.toLocaleString("en-AU")} km`);
-  }
-  const status = termParts.length ? termParts.join(" / ") : "See dealer";
+  const years =
+    info.warrantyYears != null
+      ? `${info.warrantyYears} year${info.warrantyYears === 1 ? "" : "s"}`
+      : null;
+  const km =
+    info.warrantyKm != null
+      ? `${info.warrantyKm.toLocaleString("en-AU")} km`
+      : null;
+  let status = "";
+  if (years && km) status = `${years}/${km}`;
+  else if (years) status = years;
+  else if (km) status = km;
   const anti =
     info.warrantyAntiCorrosionYears != null
-      ? `${info.warrantyAntiCorrosionYears} yr anti-corrosion`
+      ? `${info.warrantyAntiCorrosionYears} year${info.warrantyAntiCorrosionYears === 1 ? "" : "s"} anti corrosion`
       : undefined;
+  if (!status && !anti) {
+    return {
+      status: "Not available",
+      tone: "muted",
+    };
+  }
   return {
-    status,
-    statusSubtext: anti,
-    tone: termParts.length ? "clear" : "muted",
-    detail: termParts.length ? undefined : MANUFACTURERS_WARRANTY_NOTICE,
+    status: status || anti || "Not available",
+    statusSubtext: status && anti ? anti : undefined,
+    tone: "clear",
   };
 }
 
 function formatServicingGuidelines(
   info: ManufacturerWarrantyServiceInfo | null | undefined,
 ): Pick<ReportInsight, "status" | "statusSubtext" | "tone" | "detail"> {
+  const serviceHistoryNote = SERVICE_HISTORY_DETAIL;
   if (!info) {
     return {
       status: "",
       tone: "muted",
-      detail: SERVICE_HISTORY_DETAIL,
+      detail: serviceHistoryNote,
     };
   }
   const km =
@@ -495,13 +499,14 @@ function formatServicingGuidelines(
     return {
       status: "",
       tone: "muted",
-      detail: SERVICE_HISTORY_DETAIL,
+      detail: serviceHistoryNote,
     };
   }
   return {
     status: km ?? months ?? "",
     statusSubtext: km && months ? months : undefined,
     tone: "clear",
+    detail: serviceHistoryNote,
   };
 }
 
@@ -596,29 +601,6 @@ export function buildStatusChecks(report: VehicleReport): StatusCheck[] {
   ];
 }
 
-/** Place warranty/service box in the same grid column as Ride Share Eligibility. */
-export function warrantyAlignWithRideShareClasses(
-  insights: ReportInsight[],
-): string {
-  const idx = insights.findIndex((i) => i.id === "rideshare");
-  if (idx < 0) {
-    return "col-span-1 min-[480px]:col-span-1 lg:col-span-1";
-  }
-  const lgStart = (idx % 4) + 1;
-  const smStart = (idx % 2) + 1;
-  const lg =
-    lgStart === 1
-      ? "lg:col-start-1"
-      : lgStart === 2
-        ? "lg:col-start-2"
-        : lgStart === 3
-          ? "lg:col-start-3"
-          : "lg:col-start-4";
-  const sm =
-    smStart === 1 ? "min-[480px]:col-start-1" : "min-[480px]:col-start-2";
-  return `col-span-1 min-[480px]:col-span-1 lg:col-span-1 ${sm} ${lg}`;
-}
-
 export function rideShareInsightColumnIndex(insights: ReportInsight[]): number {
   const idx = insights.findIndex((i) => i.id === "rideshare");
   return idx >= 0 ? idx % 4 : 0;
@@ -698,13 +680,6 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
           : "neutral",
     },
     {
-      id: "service",
-      title: "Service History",
-      status: "",
-      tone: "muted",
-      detail: SERVICE_HISTORY_DETAIL,
-    },
-    {
       id: "future",
       title: "Future Value",
       status: inThreeYears
@@ -729,7 +704,7 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
     },
     {
       id: "servicing-guidelines",
-      title: "Servicing guidelines",
+      title: "Servicing Guidelines and Service History",
       ...formatServicingGuidelines(report.manufacturerWarrantyService),
     },
     buildRideShareKeyInsight(report),

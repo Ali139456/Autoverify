@@ -13,8 +13,6 @@ import {
 import {
 
   buildKeyInsights,
-  warrantyAlignWithRideShareClasses,
-
   buildReportOverviewSpecs,
 
   buildStatusChecks,
@@ -46,7 +44,6 @@ import { ReportInsightCard } from "./ReportInsightCard";
 
 import { ReportShell } from "./ReportShell";
 
-import { ReportManufacturersWarrantyNotice } from "./ReportManufacturersWarrantyNotice";
 import { ReportValuationSupplements } from "./ReportValuationSupplements";
 import { UpgradeToInsightsPlusButton } from "./UpgradeToInsightsPlusButton";
 import { VehicleHeroImage } from "./VehicleHeroImage";
@@ -327,9 +324,6 @@ export function CarInsightsReport({
         {insights.map((insight) => (
           <ReportInsightCard key={insight.id} insight={insight} />
         ))}
-        <div className={warrantyAlignWithRideShareClasses(insights)}>
-          <ReportManufacturersWarrantyNotice vehicle={vehicle} />
-        </div>
       </div>
     </div>
   );
