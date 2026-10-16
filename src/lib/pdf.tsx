@@ -61,6 +61,7 @@ import {
   resolveDamageFindingImageUrl,
   presentValuationNote,
   reportInsightCopy,
+  rideShareInsightColumnIndex,
   resolveFutureValue,
   resolveValuation,
   type ReportInsight,
@@ -823,12 +824,14 @@ function PdfInsightCard({
                       {insight.detail}
                     </Text>
                   ) : null}
-                  {insight.id === "recall" && insight.status === "Clear" ? (
+                  {insight.id === "recall" &&
+                  !insight.status?.trim() &&
+                  insight.tone === "muted" ? (
                     <Text
                       style={{
-                        marginTop: 4,
+                        marginTop: 0,
                         fontSize: PDF_INSIGHT_BODY_SM,
-                        color: GREY,
+                        color: "#475569",
                         fontFamily: "Helvetica",
                         lineHeight: PDF_INSIGHT_LINE,
                       }}
@@ -854,7 +857,13 @@ function PdfInsightCard({
                         www.ancap.com.au/safety-ratings
                       </Link>
                     </Text>
-                  ) : footnote && insight.id !== "service" ? (
+                  ) : footnote &&
+                    insight.id !== "service" &&
+                    !(
+                      insight.id === "recall" &&
+                      !insight.status?.trim() &&
+                      insight.tone === "muted"
+                    ) ? (
                     <Text
                       style={{
                         marginTop: 4,
@@ -1240,8 +1249,22 @@ function CarInsightsIntroLeadPage({
         ) : null}
 
         {includeWarranty ? (
-          <View style={{ marginTop: 6 }}>
-            <PdfManufacturersWarrantyNotice vehicle={vehicle} />
+          <View style={{ flexDirection: "row", marginTop: 6 }}>
+            {(() => {
+              const col = rideShareInsightColumnIndex(insights);
+              const slotWidth = 24.25;
+              const gap = 1;
+              return (
+                <>
+                  {col > 0 ? (
+                    <View style={{ width: `${col * (slotWidth + gap)}%` }} />
+                  ) : null}
+                  <View style={{ width: `${slotWidth}%` }}>
+                    <PdfManufacturersWarrantyNotice vehicle={vehicle} />
+                  </View>
+                </>
+              );
+            })()}
           </View>
         ) : null}
       </View>
@@ -1444,10 +1467,10 @@ function PdfComparableVehiclesTable({ report }: { report: VehicleReport }) {
               },
             ]}
           >
-            <Text style={[styles.pdfTableCellBold, { width: colVehicle }]}>
+            <Text style={[styles.pdfTableCell, { width: colVehicle, color: "#0f172a" }]}>
               {listing.title}
             </Text>
-            <Text style={[styles.reportCurrency, styles.pdfTableCellBold, { width: colPrice }]}>
+            <Text style={[styles.reportCurrency, { width: colPrice, paddingVertical: PDF_TABLE_PAD_V, paddingHorizontal: PDF_TABLE_PAD_H }]}>
               {money(listing.price)}
             </Text>
             <Text style={[styles.reportMetric, styles.pdfTableCell, { width: colOdometer }]}>

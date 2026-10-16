@@ -13,6 +13,7 @@ import type {
   FutureValueInfo,
   FutureValuePoint,
   InspectionPhoto,
+  ManufacturerWarrantyServiceInfo,
   MarketListing,
   ValuationInfo,
   VehicleIdentity,
@@ -440,6 +441,70 @@ export function futureValueConfidenceLabel(future: FutureValueInfo): string {
   return "Estimated";
 }
 
+function formatManufacturerWarrantyStatus(
+  info: ManufacturerWarrantyServiceInfo | null | undefined,
+): Pick<ReportInsight, "status" | "statusSubtext" | "tone" | "detail"> {
+  if (!info) {
+    return {
+      status: "",
+      tone: "muted",
+      detail: MANUFACTURERS_WARRANTY_NOTICE,
+    };
+  }
+  const termParts: string[] = [];
+  if (info.warrantyYears != null) {
+    termParts.push(
+      `${info.warrantyYears} year${info.warrantyYears === 1 ? "" : "s"}`,
+    );
+  }
+  if (info.warrantyKm != null) {
+    termParts.push(`${info.warrantyKm.toLocaleString("en-AU")} km`);
+  }
+  const status = termParts.length ? termParts.join(" / ") : "See dealer";
+  const anti =
+    info.warrantyAntiCorrosionYears != null
+      ? `${info.warrantyAntiCorrosionYears} yr anti-corrosion`
+      : undefined;
+  return {
+    status,
+    statusSubtext: anti,
+    tone: termParts.length ? "clear" : "muted",
+    detail: termParts.length ? undefined : MANUFACTURERS_WARRANTY_NOTICE,
+  };
+}
+
+function formatServicingGuidelines(
+  info: ManufacturerWarrantyServiceInfo | null | undefined,
+): Pick<ReportInsight, "status" | "statusSubtext" | "tone" | "detail"> {
+  if (!info) {
+    return {
+      status: "",
+      tone: "muted",
+      detail: SERVICE_HISTORY_DETAIL,
+    };
+  }
+  const km =
+    info.regularServiceKm != null
+      ? `Every ${info.regularServiceKm.toLocaleString("en-AU")} km`
+      : null;
+  const months =
+    info.regularServiceMonths != null
+      ? `Every ${info.regularServiceMonths} month${info.regularServiceMonths === 1 ? "" : "s"}`
+      : null;
+  if (!km && !months) {
+    return {
+      status: "",
+      tone: "muted",
+      detail: SERVICE_HISTORY_DETAIL,
+    };
+  }
+  return {
+    status: km ?? months ?? "",
+    statusSubtext: km && months ? months : undefined,
+    tone: "clear",
+  };
+}
+
 function buildRideShareKeyInsight(report: VehicleReport): ReportInsight {
   const check = evaluateRideShareQuickEligibility(
     report.vehicle,
@@ -531,6 +596,34 @@ export function buildStatusChecks(report: VehicleReport): StatusCheck[] {
   ];
 }
 
+/** Place warranty/service box in the same grid column as Ride Share Eligibility. */
+export function warrantyAlignWithRideShareClasses(
+  insights: ReportInsight[],
+): string {
+  const idx = insights.findIndex((i) => i.id === "rideshare");
+  if (idx < 0) {
+    return "col-span-1 min-[480px]:col-span-1 lg:col-span-1";
+  }
+  const lgStart = (idx % 4) + 1;
+  const smStart = (idx % 2) + 1;
+  const lg =
+    lgStart === 1
+      ? "lg:col-start-1"
+      : lgStart === 2
+        ? "lg:col-start-2"
+        : lgStart === 3
+          ? "lg:col-start-3"
+          : "lg:col-start-4";
+  const sm =
+    smStart === 1 ? "min-[480px]:col-start-1" : "min-[480px]:col-start-2";
+  return `col-span-1 min-[480px]:col-span-1 lg:col-span-1 ${sm} ${lg}`;
+}
+
+export function rideShareInsightColumnIndex(insights: ReportInsight[]): number {
+  const idx = insights.findIndex((i) => i.id === "rideshare");
+  return idx >= 0 ? idx % 4 : 0;
+}
+
 export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
   const { vehicle, market } = report;
   const valuation = resolveValuation(report);
@@ -590,15 +683,19 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
         registration.hasSafetyRecalls === true
           ? "Recalls found"
           : registration.hasSafetyRecalls === false
-            ? "Clear"
+            ? ""
             : "Check with Govt Database",
       statusSubtext:
         registration.hasSafetyRecalls === true
           ? "Safety recall flagged on PPSR / NEVDIS"
           : registration.hasSafetyRecalls === false
-            ? "No recalls on PPSR / NEVDIS certificate"
+            ? undefined
             : "Recall data unavailable for this vehicle",
-      tone: registration.hasSafetyRecalls ? "warn" : "clear",
+      tone: registration.hasSafetyRecalls
+        ? "warn"
+        : registration.hasSafetyRecalls === false
+          ? "muted"
+          : "neutral",
     },
     {
       id: "service",
@@ -626,12 +723,14 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
       tone: "clear",
     },
     {
-      id: "specs",
-      title: "Specifications",
-      status: [vehicle.bodyType, vehicle.engine, vehicle.fuelType]
-        .filter(Boolean)
-        .join(" · ") || "Available",
-      tone: "clear",
+      id: "warranty-status",
+      title: "Warranty Status",
+      ...formatManufacturerWarrantyStatus(report.manufacturerWarrantyService),
+    },
+    {
+      id: "servicing-guidelines",
+      title: "Servicing guidelines",
+      ...formatServicingGuidelines(report.manufacturerWarrantyService),
     },
     buildRideShareKeyInsight(report),
   ];

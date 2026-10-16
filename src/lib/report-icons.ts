@@ -62,6 +62,8 @@ export const INSIGHT_ICON_NAMES: Record<string, ReportIconName> = {
   usage: "car-front",
   market: "chart",
   specs: "sliders",
+  "warranty-status": "shield",
+  "servicing-guidelines": "wrench",
   future: "sparkles",
   risk: "search-doc",
   rideshare: "car-front",

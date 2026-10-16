@@ -13,6 +13,7 @@ import {
 import {
 
   buildKeyInsights,
+  warrantyAlignWithRideShareClasses,
 
   buildReportOverviewSpecs,
 
@@ -326,12 +327,11 @@ export function CarInsightsReport({
         {insights.map((insight) => (
           <ReportInsightCard key={insight.id} insight={insight} />
         ))}
+        <div className={warrantyAlignWithRideShareClasses(insights)}>
+          <ReportManufacturersWarrantyNotice vehicle={vehicle} />
+        </div>
       </div>
     </div>
-  );
-
-  const warrantySupplementBody = (
-    <ReportManufacturersWarrantyNotice vehicle={vehicle} />
   );
 
   const upgradeBlock =
@@ -388,7 +388,6 @@ export function CarInsightsReport({
           <div className="report-body space-y-8">
             {overviewBody}
             {keyInsightsBody}
-            {warrantySupplementBody}
             {upgradeBlock}
           </div>
         </ReportShell>
@@ -415,7 +414,6 @@ export function CarInsightsReport({
       <div className="report-body space-y-8">
         {overviewBody}
         {keyInsightsBody}
-        {warrantySupplementBody}
         {!deferValuations ? (
           <>
           <div className="report-supplementary report-present-value rounded-xl border border-slate-200 bg-slate-50 p-5">

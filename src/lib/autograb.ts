@@ -23,9 +23,17 @@ import {
   normalizeColourForStockPhoto,
   VEHICLE_HERO_IMAGE_DISCLAIMER,
 } from "./vehicle-hero-image";
-import type { VehicleSpecSheet } from "./types";
+import type {
+  ManufacturerWarrantyServiceInfo,
+  VehicleSpecSheet,
+} from "./types";
 import { mapSourcingHistoryPayload } from "./sourcing-odometer-history";
 import { applyRegistrationExpiryInference } from "./registration-info";
+import {
+  DEMO_MANUFACTURER_WARRANTY_SERVICE,
+  fetchManufacturerWarrantyService,
+  isInfoAgentConfigured,
+} from "./infoagent";
 
 const AUTOGRAB_API_KEY = process.env.AUTOGRAB_API_KEY;
 const AUTOGRAB_BASE_URL =
@@ -62,6 +70,7 @@ export interface VehicleLookupResult {
   market: MarketInfo;
   ai: AiInsights;
   vehicleSpec: VehicleSpecSheet;
+  manufacturerWarrantyService?: ManufacturerWarrantyServiceInfo | null;
 }
 
 type JsonRecord = Record<string, unknown>;
@@ -253,7 +262,26 @@ async function lookupViaAutograb(
     result.valuation,
     result.registration,
   );
+  await attachManufacturerWarrantyService(result, options.preview);
   return result;
+}
+
+async function attachManufacturerWarrantyService(
+  result: VehicleLookupResult,
+  preview?: boolean,
+): Promise<void> {
+  if (preview) return;
+  if (isInfoAgentConfigured()) {
+    result.manufacturerWarrantyService = await fetchManufacturerWarrantyService({
+      rego: result.vehicle.rego,
+      state: result.vehicle.state,
+      vin: result.vehicle.vin,
+    });
+    return;
+  }
+  if (!AUTOGRAB_API_KEY) {
+    result.manufacturerWarrantyService = DEMO_MANUFACTURER_WARRANTY_SERVICE;
+  }
 }
 
 function applyCustomerOdometer(
@@ -385,6 +413,7 @@ async function lookupViaVin(
     result.valuation,
     result.registration,
   );
+  await attachManufacturerWarrantyService(result, options.preview);
   return result;
 }
 
@@ -1629,6 +1658,7 @@ function buildDemoResult(
     market,
     ai,
     vehicleSpec,
+    manufacturerWarrantyService: DEMO_MANUFACTURER_WARRANTY_SERVICE,
   };
 }
 

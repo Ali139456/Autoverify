@@ -69,6 +69,15 @@ export interface VehicleSpecSheet {
   factoryFeatures: VehicleFactoryFeature[];
 }
 
+/** OEM warranty + service intervals (InfoAgent Warranty & Service API). */
+export interface ManufacturerWarrantyServiceInfo {
+  warrantyYears: number | null;
+  warrantyKm: number | null;
+  warrantyAntiCorrosionYears: number | null;
+  regularServiceKm: number | null;
+  regularServiceMonths: number | null;
+}
+
 export interface ValuationInfo {
   retailLow: number;
   retailHigh: number;
@@ -208,4 +217,5 @@ export interface VehicleReport {
   ai: AiInsights;
   damage: DamageAnalysis | null;
   vehicleSpec?: VehicleSpecSheet | null;
+  manufacturerWarrantyService?: ManufacturerWarrantyServiceInfo | null;
 }

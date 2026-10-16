@@ -163,6 +163,7 @@ export async function POST(req: NextRequest) {
       market: lookup.market,
       ai: lookup.ai,
       vehicleSpec: lookup.vehicleSpec,
+      manufacturerWarrantyService: lookup.manufacturerWarrantyService ?? null,
       damage: null,
     };
     report.futureValue = resolveFutureValue(report);

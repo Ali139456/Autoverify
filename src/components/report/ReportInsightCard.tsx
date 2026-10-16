@@ -188,8 +188,10 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                     {insight.detail}
                   </p>
                 ) : null}
-                {insight.id === "recall" && insight.status === "Clear" ? (
-                  <p className="mt-1 min-w-0 text-[11px] font-normal leading-relaxed text-slate-600">
+                {insight.id === "recall" &&
+                !insight.status?.trim() &&
+                insight.tone === "muted" ? (
+                  <p className="mt-0 min-w-0 text-[11px] font-normal leading-relaxed text-slate-600">
                     Check for recall updates on{" "}
                     <a
                       href={VEHICLE_RECALLS_GOV_AU_URL}
@@ -217,7 +219,13 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                   {ANCAP_SAFETY_RATINGS_URL}
                 </a>
               </p>
-            ) : note && insight.id !== "service" ? (
+            ) : note &&
+              insight.id !== "service" &&
+              !(
+                insight.id === "recall" &&
+                !insight.status?.trim() &&
+                insight.tone === "muted"
+              ) ? (
               <p className="mt-2 text-[11px] font-normal leading-relaxed text-slate-600">
                 {note}
               </p>

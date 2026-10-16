@@ -2224,11 +2224,17 @@ html.dark body {
     font-variant-numeric: tabular-nums !important;
   }
 
+  #report-print-area .report-comparables tbody td:first-child {
+    font-weight: 400 !important;
+    color: #334155 !important;
+  }
+
   #report-print-area .report-comparables .report-currency,
   #report-print-area .report-future-grid .report-currency,
   #report-print-area .report-valuation-grid .report-currency {
     font-size: 10px !important;
     font-weight: 700 !important;
+    color: #0073e3 !important;
   }
 
   .report-upgrade-banner {

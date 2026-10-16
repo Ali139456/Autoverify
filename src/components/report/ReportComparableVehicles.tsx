@@ -110,7 +110,7 @@ export function ReportComparableVehicles({ report }: { report: VehicleReport }) 
 
               >
 
-                <td className="px-3 py-2.5 font-semibold text-slate-900 sm:px-4">
+                <td className="px-3 py-2.5 font-normal text-slate-700 sm:px-4">
 
                   {listing.title}
 

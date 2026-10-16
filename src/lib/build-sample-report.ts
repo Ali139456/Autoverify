@@ -7,6 +7,7 @@ import {
   getInspectionAngleLabel,
 } from "./inspection-angles";
 import { buildVehicleSpecSheet } from "./vehicle-spec-sheet";
+import { DEMO_MANUFACTURER_WARRANTY_SERVICE } from "./infoagent";
 import type {
   DamageAnalysis,
   InspectionPhoto,
@@ -293,7 +294,16 @@ function buildMercedesSampleCore() {
     { code: "U35", label: "DIGITAL DISPLAY FOR TACHOMETER / SPEEDOMETER" },
   ];
 
-  return { vehicle, registration, valuation, market, futureValue, ai, vehicleSpec };
+  return {
+    vehicle,
+    registration,
+    valuation,
+    market,
+    futureValue,
+    ai,
+    vehicleSpec,
+    manufacturerWarrantyService: DEMO_MANUFACTURER_WARRANTY_SERVICE,
+  };
 }
 
 export function buildSampleReport(tier: ReportTier): VehicleReport {
