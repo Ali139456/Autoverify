@@ -7,6 +7,7 @@ import {
   shouldShowPowerToWeightFootnote,
   visibleSpecDataRows,
 } from "@/lib/vehicle-spec-sheet";
+import { FactoryEquipmentGridFromFeatures } from "./FactoryEquipmentGrid";
 
 export type VehicleSpecSectionPart = "full" | "data" | "factory";
 
@@ -45,7 +46,7 @@ export function VehicleSpecReportSection({
             </p>
           </div>
 
-          <div className={part === "full" ? "mt-6 grid gap-8 lg:grid-cols-[1.2fr_1fr]" : "mt-6"}>
+          <div className="mt-6 space-y-6">
             <div>
               <h3 className="report-section-heading">Vehicle data</h3>
               <div className="report-spec-data-table-wrap mt-3 overflow-hidden rounded-lg border border-slate-200 bg-white">
@@ -131,32 +132,12 @@ function FactoryFeaturesBlock({
   return (
     <>
       <h3 className="report-section-heading report-spec-factory-heading">
-        Factory features &amp; options
+        Vehicle equipment/options
       </h3>
-      {sheet.factoryFeatures.length > 0 ? (
-        <ul className="report-spec-factory-list mt-3 space-y-2 rounded-xl border border-slate-200 p-4">
-          {sheet.factoryFeatures.map((feature) => (
-            <li
-              key={`${feature.code ?? "opt"}-${feature.label}`}
-              className="flex gap-2 text-sm text-slate-700"
-            >
-              <span className="text-[#0073E3]" aria-hidden>
-                •
-              </span>
-              <span>
-                {feature.label}
-                {feature.code ? (
-                  <span className="ml-1 text-xs text-slate-400">({feature.code})</span>
-                ) : null}
-              </span>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="mt-3 rounded-xl border border-dashed border-slate-200 p-4 text-sm text-slate-500">
-          No factory option list was returned for this vehicle.
-        </p>
-      )}
+      <p className="mt-1 text-xs text-slate-500">
+        Standard equipment/options included with this vehicle.
+      </p>
+      <FactoryEquipmentGridFromFeatures features={sheet.factoryFeatures} />
     </>
   );
 }

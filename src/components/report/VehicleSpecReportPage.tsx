@@ -10,16 +10,10 @@ import { ReportShell } from "./ReportShell";
 
 import { VehicleSpecReportSection } from "./VehicleSpecReportSection";
 
-import { FACTORY_FEATURES_PER_PRINT_SHEET } from "@/lib/report-page-count";
-
-function chunkFactoryFeatures<T>(items: T[], size: number): T[][] {
-  if (items.length <= size) return [items];
-  const chunks: T[][] = [];
-  for (let i = 0; i < items.length; i += size) {
-    chunks.push(items.slice(i, i + size));
-  }
-  return chunks;
-}
+import {
+  chunkItems,
+  FACTORY_FEATURES_PER_PRINT_SHEET,
+} from "@/lib/factory-equipment-layout";
 
 export function VehicleSpecReportPage({
   report,
@@ -63,7 +57,7 @@ export function VehicleSpecReportPage({
     );
   }
 
-  const featureChunks = chunkFactoryFeatures(
+  const featureChunks = chunkItems(
     sheet.factoryFeatures,
     FACTORY_FEATURES_PER_PRINT_SHEET,
   );

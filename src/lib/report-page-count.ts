@@ -9,10 +9,10 @@ export function countKeyInsightContinuationSheets(insightCount: number): number 
   return insightCount > KEY_INSIGHTS_PER_SHEET ? 1 : 0;
 }
 
+import { FACTORY_FEATURES_PER_PRINT_SHEET } from "./factory-equipment-layout";
 import { PPSR_CERTIFICATE_SHEET_COUNT } from "./ppsr-certificate-public";
 
-/** Keep in sync with VehicleSpecReportPage factory chunk size (print uses 2 columns — see globals.css). */
-export const FACTORY_FEATURES_PER_PRINT_SHEET = 32;
+export { FACTORY_FEATURES_PER_PRINT_SHEET };
 
 export function countVehicleSpecSheets(
   hasVehicleSpecSheet: boolean,

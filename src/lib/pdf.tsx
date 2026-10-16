@@ -92,8 +92,14 @@ import {
 } from "./report-logo-size";
 import { publicPdfImage } from "./pdf-local-image";
 import { VEHICLE_HERO_IMAGE_DISCLAIMER } from "./vehicle-hero-image";
+import {
+  chunkItems,
+  FACTORY_EQUIPMENT_COLUMNS,
+  PDF_FACTORY_FEATURES_CONTINUATION,
+  PDF_FACTORY_FEATURES_FIRST_PAGE,
+} from "./factory-equipment-layout";
 import { VehicleReport } from "./types";
-import type { InspectionPhoto } from "./types";
+import type { InspectionPhoto, VehicleFactoryFeature } from "./types";
 
 const BLUE = "#0073E3";
 const GREY = "#64748b";
@@ -147,13 +153,13 @@ const styles = StyleSheet.create({
     zIndex: 100,
   },
   sampleWatermarkText: {
-    width: PDF_A4_WIDTH * 1.65,
+    width: PDF_A4_WIDTH * 1.85,
     textAlign: "center",
-    fontSize: 108,
+    fontSize: 118,
     fontFamily: "Helvetica-Bold",
     color: "#94a3b8",
     opacity: 0.24,
-    letterSpacing: 22,
+    letterSpacing: 26,
     transform: "rotate(-35deg)",
   },
   pageFrame: {
@@ -506,7 +512,42 @@ const styles = StyleSheet.create({
     paddingHorizontal: PDF_TABLE_PAD_H,
     justifyContent: "center",
   },
-  featureItem: { fontSize: 6.5, color: "#334155", marginBottom: 1.5, lineHeight: 1.2 },
+  factoryGridWrap: {
+    marginTop: 6,
+    borderWidth: PDF_BORDER_OUTER,
+    borderColor: BORDER_SLATE_200,
+    borderRadius: 6,
+    overflow: "hidden",
+  },
+  factoryGridRow: {
+    flexDirection: "row",
+    borderTopWidth: PDF_BORDER_INNER,
+    borderTopColor: BORDER_SLATE_200,
+  },
+  factoryGridRowFirst: {
+    borderTopWidth: 0,
+  },
+  factoryGridCell: {
+    flex: 1,
+    borderRightWidth: PDF_BORDER_INNER,
+    borderRightColor: BORDER_SLATE_200,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    minHeight: 14,
+    justifyContent: "center",
+  },
+  factoryGridCellLast: {
+    borderRightWidth: 0,
+  },
+  factoryGridCellText: {
+    fontSize: 6.75,
+    lineHeight: 1.25,
+    color: "#334155",
+  },
+  factoryGridCellCode: {
+    fontSize: 6,
+    color: GREY,
+  },
   plusHeading: {
     marginTop: 4,
     borderLeftWidth: 3,
@@ -588,10 +629,10 @@ const money = (n: number) => `$${n.toLocaleString("en-AU")}`;
 
 const MAX_COMPARABLE_ROWS = 5;
 
-/** Factory options below the vehicle data table on PDF spec page 1. */
-const SPEC_FEATURES_ON_FIRST_SPEC_PAGE = 12;
-/** Factory options per continuation page (full width, compact lines). */
-const SPEC_FEATURES_CONTINUATION = 28;
+/** Factory options below the vehicle data table on PDF spec page 1 (3-column grid). */
+const SPEC_FEATURES_ON_FIRST_SPEC_PAGE = PDF_FACTORY_FEATURES_FIRST_PAGE;
+/** Factory options per continuation page (full width, 3-column grid). */
+const SPEC_FEATURES_CONTINUATION = PDF_FACTORY_FEATURES_CONTINUATION;
 
 function countVehicleSpecPdfPages(
   sheet: NonNullable<VehicleReport["vehicleSpec"]>,
@@ -1531,10 +1572,10 @@ function PdfValuationSupplementsPage({
   );
 }
 
-function FactoryFeatureLines({
+function FactoryFeatureGrid({
   features,
 }: {
-  features: NonNullable<VehicleReport["vehicleSpec"]>["factoryFeatures"];
+  features: VehicleFactoryFeature[];
 }) {
   if (features.length === 0) {
     return (
@@ -1543,18 +1584,46 @@ function FactoryFeatureLines({
       </Text>
     );
   }
+  const rows = chunkItems(features, FACTORY_EQUIPMENT_COLUMNS);
   return (
-    <>
-      {features.map((feature) => (
-        <Text
-          key={`${feature.code ?? "f"}-${feature.label}`}
-          style={styles.featureItem}
+    <View style={styles.factoryGridWrap}>
+      {rows.map((row, rowIndex) => (
+        <View
+          key={`factory-pdf-row-${rowIndex}`}
+          style={[
+            styles.factoryGridRow,
+            rowIndex === 0 ? styles.factoryGridRowFirst : {},
+          ]}
+          wrap={false}
         >
-          • {feature.label}
-          {feature.code ? ` (${feature.code})` : ""}
-        </Text>
+          {Array.from({ length: FACTORY_EQUIPMENT_COLUMNS }, (_, colIndex) => {
+            const feature = row[colIndex];
+            const isLastCol = colIndex === FACTORY_EQUIPMENT_COLUMNS - 1;
+            return (
+              <View
+                key={`factory-pdf-cell-${rowIndex}-${colIndex}`}
+                style={[
+                  styles.factoryGridCell,
+                  isLastCol ? styles.factoryGridCellLast : {},
+                ]}
+              >
+                {feature ? (
+                  <Text style={styles.factoryGridCellText}>
+                    {feature.label}
+                    {feature.code ? (
+                      <Text style={styles.factoryGridCellCode}>
+                        {" "}
+                        ({feature.code})
+                      </Text>
+                    ) : null}
+                  </Text>
+                ) : null}
+              </View>
+            );
+          })}
+        </View>
       ))}
-    </>
+    </View>
   );
 }
 
@@ -1654,10 +1723,13 @@ function VehicleSpecPages({
 
           <View style={[styles.section, { marginTop: 14 }]}>
             <Text style={[styles.sectionTitle, { lineHeight: 1.35, paddingBottom: 4 }]}>
-              Factory features &amp; options
+              Vehicle equipment/options
+            </Text>
+            <Text style={{ fontSize: 7, color: GREY, marginTop: 2, marginBottom: 4 }}>
+              Standard equipment/options included with this vehicle.
             </Text>
             {sheet.factoryFeatures.length > 0 ? (
-              <FactoryFeatureLines features={firstPageFeatures} />
+              <FactoryFeatureGrid features={firstPageFeatures} />
             ) : (
               <Text style={[styles.para, { marginTop: 6 }]}>
                 No factory option list was returned for this vehicle.
@@ -1677,9 +1749,9 @@ function VehicleSpecPages({
           <View style={styles.body}>
             <Text style={styles.title}>Vehicle Data &amp; Factory Equipment</Text>
             <Text style={[styles.sectionTitle, { marginTop: 12 }]}>
-              Factory features &amp; options (continued)
+              Vehicle equipment/options (continued)
             </Text>
-            <FactoryFeatureLines features={chunk} />
+            <FactoryFeatureGrid features={chunk} />
             {index === continuationChunks.length - 1 ? trailing : null}
           </View>
         </PdfPageShell>
