@@ -93,17 +93,55 @@ Response includes photo count, Ravin session code, expected S3 key pattern, webh
 
 **Ask Ravin:** Same S3/webhook checks for `AV-MVBBQEZW-1RTE454R`; clarify whether lite link click is required on their side when `imageUpload: true` but upload is **server-side S3**.
 
-## Email to Ravin (template)
+## Email to Ravin (copy for Denise → Danny)
 
-> We use **custom front-end capture** at `autoverifi.com.au/inspect/…`. We call **partnerInvite** with **claimId = our report id** (`AV-…`). We **do not** require the owner to open the inspector-lite link — your logs may show “link not clicked”; that is expected.
->
-> On complete, our server calls **generateCompressedDataUpload** (same **claimId** + UTC **timestamp**), builds a **ZIP** (`metadata.json` + walkaround JPEGs), and POSTs to S3 expecting **HTTP 204**. Structured logs: Vercel lines prefixed `[ravin-ingest]` (JSON).
->
-> Please confirm ingest + processing for:
-> - **AV-MV9BM5AL-8DH8BW61** (session code `69be1468-40f1-708a-650e-54e7cbc2dbc5`, 18 images)
-> - **AV-MVBBQEZW-1RTE454R** (session code `b97ec488-1051-70aa-7155-c276deaa42fc`, 2 images)
->
-> Webhook endpoint: `https://www.autoverifi.com.au/api/webhooks/ravin` (shared secret configured). We have **zero** webhook rows for both claims.
+**Subject:** Auto Verifi — S3 compressed upload (deployed) + prod vs beta API host
+
+Hi Danny,
+
+Thanks for clarifying that the **inspector-lite session code** and the **S3 upload API** are separate — that matches our design. Vehicle owners capture on **Auto Verifi** (`https://www.autoverifi.com.au/inspect/{token}`). We call **partnerInvite** at inspection start with **claimId = our report id**; we do **not** require the owner to open the lite link (if Ravin Eye shows “link not clicked”, that is expected).
+
+**Important — API host (prod vs beta)**  
+Your note referenced  
+`https://beta.mtaus.ravin-ai.com/generateCompressedDataUpload`.  
+Our **production Vercel** env uses **`RAVIN_BASE_URL=https://inspect.mtaus.ravin-ai.com`**, so all **`generateCompressedDataUpload`**, **`getSignInToken`**, and **`partnerInvite`** calls go to **inspect**, not beta. If your team only monitors **beta** logs, you would not see our traffic. Can you please check **inspect** for **clientId `autoverifi`**, **siteId `49`**, and confirm which host Auto Verifi should use going forward?
+
+**What we do on inspection submit (server-side)**  
+After deploy **`e71ad6d`** (Oct 2026):
+
+1. `POST https://inspect.mtaus.ravin-ai.com/generateCompressedDataUpload`  
+   JSON: `clientId: "autoverifi"`, `siteId: 49`, `claimId: "<report id>"`, `timestamp: <UTC YYYYMMDDHHmmss number>`
+2. Build one **ZIP**: `metadata.json` + numbered JPEGs (`01-front_left.jpg`, …).
+3. Single multipart POST to S3 using fields from your JSON (SigV4 where returned). Success = **HTTP 204** (we also accept 200/201).
+4. Structured logs in Vercel: lines prefixed **`[ravin-ingest]`** (JSON: claimId, auth HTTP status, S3 status, object key, zip size, errors).
+
+**Production health (public probe, no secrets)**  
+`GET https://www.autoverifi.com.au/api/health/ravin?probe=1` → `partnerApiConfigured`, `s3IngestConfigured`, `webhookSecretConfigured` all **true**; `baseUrl` **https://inspect.mtaus.ravin-ai.com**; `siteId` **49**; `partnerSignIn.ok` **true**.
+
+**Claims to look up**
+
+| claimId | Ravin session code (partnerInvite) | Photos (Auto Verifi) | Webhooks to us |
+|--------|-------------------------------------|----------------------|----------------|
+| **AV-MV9BM5AL-8DH8BW61** | `69be1468-40f1-708a-650e-54e7cbc2dbc5` | 18 | **0** |
+| **AV-MVBBQEZW-1RTE454R** | `b97ec488-1051-70aa-7155-c276deaa42fc` | 2 (partial test) | **0** |
+
+Earlier submits may have used per-file JPEG upload; **new** completes use ZIP + metadata as above.
+
+**Webhook**  
+`POST https://www.autoverifi.com.au/api/webhooks/ravin` — header **`x-ravin-webhook-secret`** (shared secret configured on both sides).
+
+**Asks**
+
+1. On **inspect** (not only beta), do you see **`generateCompressedDataUpload`** for **`AV-MV9BM5AL-8DH8BW61`** / **`autoverifi`** / site **49**?  
+2. Can you share the required **`metadata.json`** schema (or a sample) so we match Ravin Eye exactly?  
+3. For a sandbox test, should we call **inspect** or **beta** with your params (`clientId: test`, `claimId: s3uploadtest`, `siteId: 49`)?  
+4. If ingest exists for **AV-MV9BM5AL-8DH8BW61**, can you reprocess or resend the webhook?
+
+We will forward **`[ravin-ingest]`** log lines from Vercel after the next test submit on request.
+
+Thanks,  
+Denise  
+Auto Verifi
 
 ## Environment (Vercel)
 
