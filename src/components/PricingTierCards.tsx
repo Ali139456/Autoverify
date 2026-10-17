@@ -104,17 +104,19 @@ function TierCard({
 
   return (
     <div className={`${cardShell} ${cardBg} ${cardSelected}`}>
-      <div className="flex min-h-0 flex-col gap-1.5 sm:min-h-[4.25rem] sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-        <div className="min-w-0 sm:flex-1 sm:pr-2">
+      <div className="flex min-h-0 items-start justify-between gap-3 sm:min-h-[4.25rem] sm:gap-4">
+        <div className="min-w-0 flex-1 pr-1">
           <TierProductTitle tier={tier} />
         </div>
         {isPlus ? (
-          <p className="inline-flex max-w-full shrink-0 items-center gap-0.5 text-pretty text-[10px] font-semibold leading-snug text-accent-500 sm:max-w-[10.5rem] sm:justify-end sm:text-right sm:text-[11px] sm:leading-tight">
+          <p className="inline-flex shrink-0 items-center gap-1 text-left text-[10px] font-semibold leading-tight text-accent-500 sm:text-[11px]">
             <Sparkles
-              className="-mr-px h-3 w-3 shrink-0 text-accent-500"
+              className="h-3 w-3 shrink-0 text-accent-500"
               aria-hidden
             />
-            <span>Includes AI powered condition scan</span>
+            <span className="whitespace-nowrap">
+              Includes AI powered condition scan
+            </span>
           </p>
         ) : null}
       </div>

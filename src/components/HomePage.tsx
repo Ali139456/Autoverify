@@ -106,7 +106,11 @@ const FAQS: FaqItem[] = [
 ];
 
 const featureCardClass =
-  "group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-accent-500/40 sm:p-7 dark:border-white/10 dark:bg-ink-800 dark:shadow-none";
+  "group relative flex h-full flex-col items-start overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-accent-500/40 sm:p-6 dark:border-white/10 dark:bg-ink-800 dark:shadow-none";
+
+const FEATURE_ITEMS = INSIGHT_PILLARS.flatMap((pillar) =>
+  pillar.items.map((item) => item),
+);
 
 const stepCardClass =
   "group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-accent-500/40 dark:border-white/10 dark:bg-ink-800 dark:shadow-none";
@@ -154,30 +158,25 @@ export function HomePage() {
               Report <span className="text-accent-500">Features</span>
             </h2>
           </Reveal>
-          <div className="mt-6 grid gap-4 sm:mt-8 sm:gap-6 lg:grid-cols-3 lg:gap-8">
-            {INSIGHT_PILLARS.map((pillar, pillarIndex) => (
-              <Reveal key={pillar.id} delay={pillarIndex * 120} className="space-y-4">
-                <ul className="space-y-4">
-                  {pillar.items.map(({ icon: Icon, title, text }) => (
-                    <li
-                      key={title}
-                      className={`${featureCardClass} !p-5 sm:!p-6`}
-                    >
-                      <span className="relative inline-flex rounded-2xl bg-gradient-to-br from-accent-500 to-accent-700 p-3 transition-transform duration-300 group-hover:scale-110">
-                        <Icon className="h-5 w-5 text-white" aria-hidden />
-                      </span>
-                      <h4 className="relative mt-4 text-base font-bold text-slate-900 dark:text-white">
-                        {title}
-                      </h4>
-                      <p className="relative mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                        {text}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-              </Reveal>
+          <ul className="mt-6 grid list-none grid-cols-1 gap-4 p-0 sm:mt-8 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:gap-8">
+            {FEATURE_ITEMS.map(({ icon: Icon, title, text }, index) => (
+              <li key={title} className="h-full min-h-0">
+                <Reveal delay={index * 80} className="h-full min-h-0">
+                  <div className={featureCardClass}>
+                    <span className="relative inline-flex w-fit shrink-0 rounded-xl bg-gradient-to-br from-accent-500 to-accent-700 p-2.5 transition-transform duration-300 group-hover:scale-105">
+                      <Icon className="h-4 w-4 text-white" aria-hidden />
+                    </span>
+                    <h4 className="relative mt-3 text-base font-bold text-slate-900 dark:text-white">
+                      {title}
+                    </h4>
+                    <p className="relative mt-1.5 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                      {text}
+                    </p>
+                  </div>
+                </Reveal>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </section>
 
