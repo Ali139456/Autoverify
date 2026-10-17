@@ -24,23 +24,6 @@ const inputClass =
 
 const labelClass = "mb-1.5 block font-medium text-slate-700 dark:text-slate-300";
 
-const BIRTH_MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-] as const;
-
-const dobSelectClass = `${inputClass} min-w-0 px-2.5 text-sm sm:px-4 sm:text-sm`;
-
 
 
 export function CheckoutBookingForm({
@@ -74,12 +57,6 @@ export function CheckoutBookingForm({
   const [postcode, setPostcode] = useState("");
 
   const [customerPhone, setCustomerPhone] = useState("");
-
-  const [birthDay, setBirthDay] = useState("");
-
-  const [birthMonth, setBirthMonth] = useState("");
-
-  const [birthYear, setBirthYear] = useState("");
 
   const [odometer, setOdometer] = useState("");
 
@@ -279,104 +256,6 @@ export function CheckoutBookingForm({
             />
 
           </label>
-
-          <fieldset className="min-w-0 sm:col-span-2">
-
-            <legend className={`${labelClass} text-sm`}>Date of birth *</legend>
-
-            <div className="mt-1 grid w-full min-w-0 grid-cols-[minmax(0,4.5rem)_minmax(0,1fr)_minmax(0,5.25rem)] gap-2 sm:grid-cols-[minmax(0,5.25rem)_minmax(0,1fr)_minmax(0,6.25rem)] sm:gap-3">
-
-              <select
-
-                value={birthDay}
-
-                onChange={(e) => setBirthDay(e.target.value)}
-
-                className={dobSelectClass}
-
-                required
-
-                aria-label="Day of birth"
-
-              >
-
-                <option value="">Day</option>
-
-                {Array.from({ length: 31 }, (_, i) => String(i + 1)).map((d) => (
-
-                  <option key={d} value={d}>
-
-                    {d}
-
-                  </option>
-
-                ))}
-
-              </select>
-
-              <select
-
-                value={birthMonth}
-
-                onChange={(e) => setBirthMonth(e.target.value)}
-
-                className={dobSelectClass}
-
-                required
-
-                aria-label="Month of birth"
-
-              >
-
-                <option value="">Month</option>
-
-                {BIRTH_MONTHS.map((m, i) => (
-
-                  <option key={m} value={String(i + 1)}>
-
-                    {m}
-
-                  </option>
-
-                ))}
-
-              </select>
-
-              <select
-
-                value={birthYear}
-
-                onChange={(e) => setBirthYear(e.target.value)}
-
-                className={`${dobSelectClass} tabular-nums`}
-
-                required
-
-                aria-label="Year of birth"
-
-              >
-
-                <option value="">Year</option>
-
-                {Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - i).map(
-
-                  (y) => (
-
-                    <option key={y} value={String(y)}>
-
-                      {y}
-
-                    </option>
-
-                  ),
-
-                )}
-
-              </select>
-
-            </div>
-
-          </fieldset>
 
         </div>
 
@@ -641,16 +520,6 @@ export function CheckoutBookingForm({
             customerPhone={requiresPhones ? customerPhone : customerPhone || undefined}
 
             ownerPhone={requiresPhones ? ownerPhone : undefined}
-
-            customerBirthDate={
-
-              birthDay && birthMonth && birthYear
-
-                ? `${birthYear}-${birthMonth.padStart(2, "0")}-${birthDay.padStart(2, "0")}`
-
-                : undefined
-
-            }
 
             customerOdometer={odometer ? Number(odometer) : undefined}
 

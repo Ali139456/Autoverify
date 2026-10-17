@@ -2,6 +2,7 @@ import { getInspectionByReportId, updateInspection } from "./inspections";
 import {
   coerceRavinInspectorLiteUrl,
   isRavinInspectorLiteUrl,
+  parseInspectorLiteCodeFromUrl,
 } from "./ravin-partner";
 import { getReport } from "./store";
 import { createServerClient, isSupabaseServerConfigured } from "./supabase/server";
@@ -16,10 +17,13 @@ export type RavinReportTrace = {
     id: string;
     status: string;
     ravinInspectionId: string | null;
+    ravinSessionCode: string | null;
     ravinInviteUrl: string | null;
     completedAt: string | null;
     photoCount: number;
+    expectedS3KeyPrefix: string | null;
   } | null;
+  integrationNotes: string[];
   webhookEvents: Array<{
     id: string;
     createdAt: string;
@@ -130,7 +134,7 @@ export async function traceRavinReport(
     nextSteps.push("No Auto Verifi report row for this id.");
   } else if (workflowStatus === "awaiting_inspection") {
     nextSteps.push(
-      "Owner must complete the Ravin Lite walkthrough using the invite link on the report.",
+      "Owner must complete photos on Auto Verifi /inspect/… (SMS/QR link). Ravin inspector-lite URL is registered via partnerInvite but is not opened in our flow.",
     );
   }
   if (
@@ -167,6 +171,22 @@ export async function traceRavinReport(
   }
 
   const inviteUrl = inspection?.ravinInviteUrl ?? null;
+  const ravinSessionCode = inviteUrl
+    ? parseInspectorLiteCodeFromUrl(inviteUrl)
+    : null;
+  const claimForS3 = inspection?.ravinInspectionId?.trim() || reportId;
+  const expectedS3KeyPrefix = inspection
+    ? `uploads/inspections/{date}/${claimForS3}/{angle}.jpg`
+    : null;
+
+  const integrationNotes = [
+    "Owner capture: Auto Verifi /inspect/{token} — not Ravin-hosted inspector-lite (lite link click is optional / unused).",
+    `partnerInvite claimId and S3 x-amz-meta-inspection-id use Auto Verifi report id (e.g. ${reportId}).`,
+    ravinSessionCode
+      ? `Ravin session code from partnerInvite (for Ravin Eye lookup): ${ravinSessionCode}`
+      : "No Ravin session code stored on inspection.",
+    "Damage analysis completes when Ravin ingests S3 objects and POSTs to /api/webhooks/ravin.",
+  ];
 
   return {
     reportId,
@@ -179,12 +199,15 @@ export async function traceRavinReport(
           id: inspection.id,
           status: inspection.status,
           ravinInspectionId: inspection.ravinInspectionId,
+          ravinSessionCode,
           ravinInviteUrl: inviteUrl,
           completedAt: inspection.completedAt,
           photoCount: inspection.photos.length,
+          expectedS3KeyPrefix,
         }
       : null,
     webhookEvents,
+    integrationNotes,
     nextSteps,
   };
 }

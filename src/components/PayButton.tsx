@@ -89,11 +89,6 @@ export function PayButton({
         setLoading(false);
         return;
       }
-      if (!customerBirthDate) {
-        setError("Please enter your date of birth.");
-        setLoading(false);
-        return;
-      }
       if (!customerOdometer || customerOdometer <= 0) {
         setError("Please enter the vehicle odometer reading.");
         setLoading(false);
