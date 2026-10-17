@@ -26,9 +26,8 @@ sequenceDiagram
   AV->>SB: Download all photos
   AV->>Ravin: POST /generateCompressedDataUpload (claimId=AV-…)
   Ravin-->>AV: S3 POST credentials
-  loop Each angle
-    AV->>S3: multipart POST (key uploads/inspections/{date}/{claimId}/{angle}.jpg)
-  end
+  AV->>AV: Build ZIP (metadata.json + 01-angle.jpg …)
+  AV->>S3: multipart POST application/zip (expect HTTP 204)
   AV->>AV: report.workflowStatus = processing_ravin
 
   Ravin->>Ravin: AI damage pipeline
@@ -43,7 +42,7 @@ sequenceDiagram
 | **claimId** | `AV-…` report id | Same string sent to `partnerInvite` and S3 metadata |
 | **ravinInspectionId** (DB) | Usually same as `claimId` | Not Ravin’s UUID `code` query param |
 | **Session `code`** | From invite URL | e.g. `?code=69be1468-…` — for Ravin Eye correlation only |
-| **S3 prefix** | `uploads/inspections/{YYYY-MM-DD}/{claimId}/` | One object per inspection angle |
+| **S3 object** | ZIP from `generateCompressedDataUpload` policy `key` | Contains `metadata.json` + numbered JPEGs; success = **HTTP 204** |
 
 ## Production health (no secrets)
 
@@ -98,7 +97,7 @@ Response includes photo count, Ravin session code, expected S3 key pattern, webh
 
 > We use **custom front-end capture** at `autoverifi.com.au/inspect/…`. We call **partnerInvite** with **claimId = our report id** (`AV-…`). We **do not** require the owner to open the inspector-lite link — your logs may show “link not clicked”; that is expected.
 >
-> On complete, our server uploads JPEGs to your S3 ingest using **generateCompressedDataUpload** with the same **claimId**, keys under `uploads/inspections/{date}/{claimId}/{angle}.jpg`, metadata **x-amz-meta-inspection-id**.
+> On complete, our server calls **generateCompressedDataUpload** (same **claimId** + UTC **timestamp**), builds a **ZIP** (`metadata.json` + walkaround JPEGs), and POSTs to S3 expecting **HTTP 204**. Structured logs: Vercel lines prefixed `[ravin-ingest]` (JSON).
 >
 > Please confirm ingest + processing for:
 > - **AV-MV9BM5AL-8DH8BW61** (session code `69be1468-40f1-708a-650e-54e7cbc2dbc5`, 18 images)
@@ -123,6 +122,8 @@ Response includes photo count, Ravin session code, expected S3 key pattern, webh
 | Create invite | `src/app/api/inspections/start/route.ts` → `createRavinPartnerInvite` |
 | Owner photos | `src/app/api/inspections/[token]/photos/route.ts` |
 | S3 ingest | `src/app/api/inspections/[token]/complete/route.ts` → `submitInspectionToRavin` |
+| ZIP package | `src/lib/ravin-compressed-zip.ts` |
+| Ingest logs | `src/lib/ravin-ingest-log.ts` (`[ravin-ingest]` JSON) |
 | Partner + S3 API | `src/lib/ravin-partner.ts`, `src/lib/ravin-ingest.ts` |
 | Webhook | `src/app/api/webhooks/ravin/route.ts` |
 | Ops trace | `src/lib/ravin-report-trace.ts`, `GET /api/health/ravin?reportId=` |

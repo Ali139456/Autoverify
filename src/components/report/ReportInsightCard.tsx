@@ -15,6 +15,10 @@ import { InsightCategoryIcon } from "./ReportInsightIcon";
 
 const RIDE_SHARE_ORANGE = "#E87722";
 
+function insightDetailUsesOrange(id: ReportInsight["id"]): boolean {
+  return id === "servicing-guidelines" || id === "warranty-status";
+}
+
 function rideShareLineClass(variant: ReportInsightLineVariant): string {
   switch (variant) {
     case "eligible":
@@ -159,7 +163,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                 ) : insight.detail ? (
                   <p
                     className={`text-[11px] font-normal leading-relaxed ${
-                      insight.id === "servicing-guidelines"
+                      insightDetailUsesOrange(insight.id)
                         ? "font-medium text-[#E87722]"
                         : "text-slate-600"
                     }`}
@@ -232,8 +236,8 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                 insight.tone === "muted"
               ) ? (
               <p
-                className={`mt-2 text-[11px] font-normal leading-relaxed ${
-                  insight.id === "servicing-guidelines"
+                className={`mt-1.5 text-[11px] font-normal leading-snug text-left ${
+                  insightDetailUsesOrange(insight.id)
                     ? "font-medium text-[#E87722]"
                     : "text-slate-600"
                 }`}

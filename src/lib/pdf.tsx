@@ -811,7 +811,8 @@ function PdfInsightCard({
                       style={{
                         fontSize: PDF_INSIGHT_BODY_SM,
                         color:
-                          insight.id === "servicing-guidelines"
+                          insight.id === "servicing-guidelines" ||
+                          insight.id === "warranty-status"
                             ? RIDE_SHARE_ORANGE
                             : GREY,
                         fontFamily: "Helvetica",
@@ -907,7 +908,8 @@ function PdfInsightCard({
                         marginTop: 4,
                         fontSize: PDF_INSIGHT_BODY_SM,
                         color:
-                          insight.id === "servicing-guidelines"
+                          insight.id === "servicing-guidelines" ||
+                          insight.id === "warranty-status"
                             ? RIDE_SHARE_ORANGE
                             : GREY,
                         fontFamily: "Helvetica",

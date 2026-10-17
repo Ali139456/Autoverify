@@ -130,6 +130,7 @@ export async function POST(
         complete: true,
         missingAngles: progress.missing,
         findings: submission.damage.findings.length,
+        ravinIngest: submission.ingestTrace,
       });
     }
 
@@ -146,6 +147,7 @@ export async function POST(
         mode: "pending",
         complete: false,
         missingAngles: progress.missing,
+        ravinIngest: submission.ingestTrace,
         message:
           "Photos saved to your Auto Verifi report. AI damage analysis will be added automatically once condition assessment is complete.",
       });
@@ -161,6 +163,7 @@ export async function POST(
       mode: submission.mode,
       complete: false,
       missingAngles: progress.missing,
+      ravinIngest: submission.ingestTrace,
       message:
         "Photos saved to your Auto Verifi report. AI damage analysis will be added automatically once condition assessment is complete.",
     });

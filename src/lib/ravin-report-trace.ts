@@ -176,7 +176,7 @@ export async function traceRavinReport(
     : null;
   const claimForS3 = inspection?.ravinInspectionId?.trim() || reportId;
   const expectedS3KeyPrefix = inspection
-    ? `uploads/inspections/{date}/${claimForS3}/{angle}.jpg`
+    ? `{clientId}_{siteId}_${claimForS3}_{timestamp}.zip (metadata.json + numbered JPEGs)`
     : null;
 
   const integrationNotes = [

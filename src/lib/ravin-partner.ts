@@ -160,12 +160,38 @@ function normalizeInspectorUrl(url: string): string {
   }
 }
 
+export type RavinS3PostFormat = "legacy" | "aws4";
+
 export type RavinS3PostCredentials = {
+  format: RavinS3PostFormat;
+  uploadUrl: string;
+  /** S3 object key from Ravin policy (required for compressed ZIP). */
+  objectKey?: string;
+  /** Form fields for multipart POST (excluding the file). */
+  formFields: Record<string, string>;
+  /** Legacy compatibility for env/static bundles. */
   accessKeyId: string;
   policy: string;
   signature: string;
-  uploadUrl?: string;
 };
+
+export type RavinCompressedUploadAuth = {
+  credentials: RavinS3PostCredentials;
+  timestamp: number;
+  claimId: string;
+};
+
+export function getRavinClientConfig(): {
+  clientId: string;
+  siteId: number;
+  baseUrl: string;
+} {
+  return {
+    clientId: RAVIN_CLIENT_ID,
+    siteId: RAVIN_SITE_ID,
+    baseUrl: RAVIN_BASE_URL,
+  };
+}
 
 export type RavinSignInResult = {
   token: string;
@@ -184,48 +210,144 @@ function readStringField(
   return null;
 }
 
-/** Pull S3 POST bundle fields from getSignInToken (or nested) responses. */
+function collectS3StringFields(
+  payload: unknown,
+  out: Record<string, string>,
+  depth = 0,
+): void {
+  if (depth > 6 || !payload || typeof payload !== "object") return;
+  const record = payload as Record<string, unknown>;
+  for (const [key, value] of Object.entries(record)) {
+    if (typeof value === "string" && value.trim()) {
+      if (!out[key]) out[key] = value.trim();
+    } else if (value && typeof value === "object" && !Array.isArray(value)) {
+      collectS3StringFields(value, out, depth + 1);
+    }
+  }
+}
+
+function resolveS3UploadUrl(fields: Record<string, string>): string {
+  const direct = readStringField(fields, [
+    "url",
+    "uploadUrl",
+    "s3UploadUrl",
+    "S3UploadUrl",
+    "bucketUrl",
+  ]);
+  if (direct?.startsWith("http")) return direct;
+  const bucket = fields.bucket || fields.Bucket;
+  if (bucket) return `https://${bucket}.s3.amazonaws.com/`;
+  return (
+    process.env.RAVIN_S3_UPLOAD_URL?.trim() ||
+    "https://ravin-eye-ingest.s3.amazonaws.com/"
+  );
+}
+
+function buildAws4FormFields(fields: Record<string, string>): Record<string, string> {
+  const form: Record<string, string> = {};
+  const copyKeys = [
+    "key",
+    "Key",
+    "bucket",
+    "Bucket",
+    "Policy",
+    "policy",
+    "X-Amz-Algorithm",
+    "X-Amz-Credential",
+    "X-Amz-Date",
+    "X-Amz-Security-Token",
+    "X-Amz-Signature",
+    "Content-Type",
+    "content-type",
+  ] as const;
+  for (const key of copyKeys) {
+    const value = fields[key];
+    if (!value) continue;
+    if (key === "Key") form.key = value;
+    else if (key === "policy") form.Policy = value;
+    else if (key === "content-type") form["Content-Type"] = value;
+    else if (key === "Bucket") form.bucket = value;
+    else form[key] = value;
+  }
+  if (!form.key && fields.key) form.key = fields.key;
+  if (!form.Policy && fields.Policy) form.Policy = fields.Policy;
+  if (!form["Content-Type"]) form["Content-Type"] = "application/zip";
+  return form;
+}
+
+function buildLegacyFormFields(
+  accessKeyId: string,
+  policy: string,
+  signature: string,
+  objectKey?: string,
+): Record<string, string> {
+  const form: Record<string, string> = {
+    AWSAccessKeyId: accessKeyId,
+    policy,
+    signature,
+    acl: "private",
+  };
+  if (objectKey) form.key = objectKey;
+  return form;
+}
+
+/** Pull S3 POST bundle fields from getSignInToken / generateCompressedDataUpload JSON. */
 export function extractRavinS3PostCredentials(
   payload: unknown,
 ): RavinS3PostCredentials | null {
   if (!payload || typeof payload !== "object") return null;
-  const record = payload as Record<string, unknown>;
+  const fields: Record<string, string> = {};
+  collectS3StringFields(payload, fields);
 
-  const accessKeyId = readStringField(record, [
+  const policy = fields.Policy || fields.policy;
+  const aws4Signature = fields["X-Amz-Signature"];
+  const algorithm = fields["X-Amz-Algorithm"];
+  const objectKey = fields.key || fields.Key;
+  const uploadUrl = resolveS3UploadUrl(fields);
+
+  if (algorithm && aws4Signature && policy) {
+    const formFields = buildAws4FormFields(fields);
+    return {
+      format: "aws4",
+      uploadUrl,
+      objectKey: formFields.key || objectKey,
+      formFields,
+      accessKeyId: fields.AWSAccessKeyId || fields["X-Amz-Credential"] || "",
+      policy,
+      signature: aws4Signature,
+    };
+  }
+
+  const accessKeyId = readStringField(fields, [
     "AWSAccessKeyId",
     "accessKeyId",
     "AccessKeyId",
     "s3AccessKeyId",
     "S3AccessKeyId",
   ]);
-  const policy = readStringField(record, ["policy", "Policy", "s3Policy", "S3Policy"]);
-  const signature = readStringField(record, [
+  const legacySignature = readStringField(fields, [
     "signature",
     "Signature",
     "s3Signature",
     "S3Signature",
   ]);
 
-  if (accessKeyId && policy && signature) {
-    const uploadUrl = readStringField(record, [
-      "uploadUrl",
-      "s3UploadUrl",
-      "S3UploadUrl",
-      "bucketUrl",
-    ]);
-    return {
+  if (accessKeyId && policy && legacySignature) {
+    const formFields = buildLegacyFormFields(
       accessKeyId,
       policy,
-      signature,
-      uploadUrl: uploadUrl ?? undefined,
+      legacySignature,
+      objectKey,
+    );
+    return {
+      format: "legacy",
+      uploadUrl,
+      objectKey,
+      formFields,
+      accessKeyId,
+      policy,
+      signature: legacySignature,
     };
-  }
-
-  for (const value of Object.values(record)) {
-    if (value && typeof value === "object") {
-      const nested = extractRavinS3PostCredentials(value);
-      if (nested) return nested;
-    }
   }
 
   return null;
@@ -273,7 +395,7 @@ async function getPartnerToken(): Promise<string> {
   return signIn.token;
 }
 
-function ravinCompressedUploadTimestamp(): number {
+export function ravinCompressedUploadTimestamp(): number {
   const d = new Date();
   const pad = (n: number) => String(n).padStart(2, "0");
   return Number(
@@ -284,10 +406,12 @@ function ravinCompressedUploadTimestamp(): number {
 /** S3 POST credentials for direct ingest (Auto Verifi site 49 — Appendix C). */
 export async function fetchRavinCompressedUploadCredentials(
   claimId: string,
-): Promise<RavinS3PostCredentials | null> {
+): Promise<RavinCompressedUploadAuth | null> {
   const trimmedClaim = claimId.trim();
   if (!trimmedClaim) return null;
 
+  const timestamp = ravinCompressedUploadTimestamp();
+  const started = Date.now();
   const response = await fetch(`${RAVIN_BASE_URL}/generateCompressedDataUpload`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -295,11 +419,13 @@ export async function fetchRavinCompressedUploadCredentials(
       clientId: RAVIN_CLIENT_ID,
       siteId: RAVIN_SITE_ID,
       claimId: trimmedClaim,
-      timestamp: ravinCompressedUploadTimestamp(),
+      timestamp,
     }),
   });
 
   const body = await response.json().catch(() => null);
+  const durationMs = Date.now() - started;
+
   if (!response.ok) {
     const message =
       (body &&
@@ -311,10 +437,48 @@ export async function fetchRavinCompressedUploadCredentials(
         typeof (body as Record<string, unknown>).error === "string" &&
         (body as Record<string, unknown>).error) ||
       `Ravin compressed upload auth failed (${response.status}).`;
+    console.info(
+      "[ravin-ingest]",
+      JSON.stringify({
+        at: new Date().toISOString(),
+        stage: "generateCompressedDataUpload",
+        claimId: trimmedClaim,
+        ok: false,
+        httpStatus: response.status,
+        clientId: RAVIN_CLIENT_ID,
+        siteId: RAVIN_SITE_ID,
+        ravinBaseUrl: RAVIN_BASE_URL,
+        timestamp,
+        durationMs,
+        error: String(message),
+      }),
+    );
     throw new Error(String(message));
   }
 
-  return extractRavinS3PostCredentials(body);
+  const credentials = extractRavinS3PostCredentials(body);
+  console.info(
+    "[ravin-ingest]",
+    JSON.stringify({
+      at: new Date().toISOString(),
+      stage: "generateCompressedDataUpload",
+      claimId: trimmedClaim,
+      ok: Boolean(credentials),
+      httpStatus: response.status,
+      clientId: RAVIN_CLIENT_ID,
+      siteId: RAVIN_SITE_ID,
+      ravinBaseUrl: RAVIN_BASE_URL,
+      timestamp,
+      durationMs,
+      credentialFormat: credentials?.format,
+      objectKey: credentials?.objectKey,
+      uploadUrl: credentials?.uploadUrl,
+      error: credentials ? undefined : "No S3 POST fields in JSON response",
+    }),
+  );
+
+  if (!credentials) return null;
+  return { credentials, timestamp, claimId: trimmedClaim };
 }
 
 /** S3 POST credentials — compressed-upload auth first, then getSignInToken fallback. */
@@ -324,7 +488,7 @@ export async function fetchRavinS3PostCredentials(
   if (claimId?.trim()) {
     try {
       const fromCompressed = await fetchRavinCompressedUploadCredentials(claimId);
-      if (fromCompressed) return fromCompressed;
+      if (fromCompressed?.credentials) return fromCompressed.credentials;
     } catch (err) {
       console.error("[ravin-partner] generateCompressedDataUpload failed:", err);
     }

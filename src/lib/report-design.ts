@@ -152,6 +152,9 @@ export const VEHICLE_RECALLS_GOV_AU_URL = "https://www.vehiclerecalls.gov.au";
 export const SERVICE_HISTORY_DETAIL =
   "Contact the vehicle owner or selling dealer for service history records.";
 
+export const MANUFACTURER_WARRANTY_CONFIRM_DETAIL =
+  "Contact Authorised Dealer/service centre and quote VIN to confirm remaining Manufacturer's warranty.";
+
 /** Warranty remaining / expiry line for the overview block (when AutoGrab supplies a value). */
 export function formatWarrantyRemainingDisplay(
   warrantyRemaining: string | null | undefined,
@@ -445,6 +448,7 @@ function formatManufacturerWarrantyStatus(
     return {
       status: "Not available",
       tone: "muted",
+      detail: MANUFACTURER_WARRANTY_CONFIRM_DETAIL,
     };
   }
   const years =
@@ -467,12 +471,14 @@ function formatManufacturerWarrantyStatus(
     return {
       status: "Not available",
       tone: "muted",
+      detail: MANUFACTURER_WARRANTY_CONFIRM_DETAIL,
     };
   }
   return {
     status: status || anti || "Not available",
     statusSubtext: status && anti ? anti : undefined,
     tone: "clear",
+    detail: MANUFACTURER_WARRANTY_CONFIRM_DETAIL,
   };
 }
 
