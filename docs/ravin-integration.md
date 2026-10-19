@@ -95,7 +95,7 @@ Response includes photo count, Ravin session code, expected S3 key pattern, webh
 
 ## Email to Ravin (copy for Denise → Danny)
 
-**Subject:** Auto Verifi — S3 compressed upload (deployed) + prod vs beta API host
+**Subject:** Auto Verifi — S3 compressed upload + prod vs beta API host
 
 Hi Danny,
 
@@ -107,10 +107,10 @@ Your note referenced
 Our **production Vercel** env uses **`RAVIN_BASE_URL=https://inspect.mtaus.ravin-ai.com`**, so all **`generateCompressedDataUpload`**, **`getSignInToken`**, and **`partnerInvite`** calls go to **inspect**, not beta. If your team only monitors **beta** logs, you would not see our traffic. Can you please check **inspect** for **clientId `autoverifi`**, **siteId `49`**, and confirm which host Auto Verifi should use going forward?
 
 **What we do on inspection submit (server-side)**  
-After deploy **`e71ad6d`** (Oct 2026):
+In production today:
 
 1. `POST https://inspect.mtaus.ravin-ai.com/generateCompressedDataUpload`  
-   JSON: `clientId: "autoverifi"`, `siteId: 49`, `claimId: "<report id>"`, `timestamp: <UTC YYYYMMDDHHmmss number>`
+   JSON: `clientId: "autoverifi"`, `siteId: 49`, `claimId: "AV-MV9BM5AL-8DH8BW61"` (report id), `timestamp: <UTC YYYYMMDDHHmmss number>` — same `claimId` inside `metadata.json` in the ZIP
 2. Build one **ZIP**: `metadata.json` + numbered JPEGs (`01-front_left.jpg`, …).
 3. Single multipart POST to S3 using fields from your JSON (SigV4 where returned). Success = **HTTP 204** (we also accept 200/201).
 4. Structured logs in Vercel: lines prefixed **`[ravin-ingest]`** (JSON: claimId, auth HTTP status, S3 status, object key, zip size, errors).

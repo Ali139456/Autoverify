@@ -5,6 +5,7 @@ import {
   fetchRavinSignIn,
   getRavinClientConfig,
   isRavinPartnerConfigured,
+  resolveRavinClaimId,
   type RavinCompressedUploadAuth,
   type RavinS3PostCredentials,
 } from "./ravin-partner";
@@ -284,11 +285,10 @@ export async function submitInspectionToRavin(input: {
   damage: DamageAnalysis | null;
   ingestTrace: RavinIngestTrace;
 }> {
-  const linkedRavinId = input.ravinInspectionId?.trim() || null;
-  const ingestId = linkedRavinId ?? input.reportId.trim();
-  const traceHelper = createRavinIngestTrace(ingestId);
+  const claimId = resolveRavinClaimId(input.reportId, input.ravinInspectionId);
+  const traceHelper = createRavinIngestTrace(claimId);
 
-  const upload = await resolveRavinUpload(ingestId, traceHelper);
+  const upload = await resolveRavinUpload(claimId, traceHelper);
   if (upload) {
     const useZip =
       upload.source === "compressed" ||
@@ -298,7 +298,7 @@ export async function submitInspectionToRavin(input: {
     try {
       if (useZip) {
         await uploadCompressedZipToRavinS3({
-          claimId: ingestId,
+          claimId,
           inspectionId: input.inspectionId,
           vin: input.vin,
           photos: input.photos,
@@ -306,18 +306,18 @@ export async function submitInspectionToRavin(input: {
           trace: traceHelper,
         });
         const ingestTrace = traceHelper.finish(true, "zip");
-        return { mode: "s3", ravinInspectionId: ingestId, damage: null, ingestTrace };
+        return { mode: "s3", ravinInspectionId: claimId, damage: null, ingestTrace };
       }
 
       await uploadLegacyJpegsToRavinS3({
-        inspectionId: ingestId,
+        inspectionId: claimId,
         vin: input.vin,
         photos: input.photos,
         credentials: upload.credentials,
         trace: traceHelper,
       });
       const ingestTrace = traceHelper.finish(true, "legacy-jpeg");
-      return { mode: "s3", ravinInspectionId: ingestId, damage: null, ingestTrace };
+      return { mode: "s3", ravinInspectionId: claimId, damage: null, ingestTrace };
     } catch (err) {
       traceHelper.push({
         stage: "s3Post",
@@ -334,7 +334,7 @@ export async function submitInspectionToRavin(input: {
   if (isRavinLiveAccount()) {
     return {
       mode: "pending",
-      ravinInspectionId: linkedRavinId ?? input.reportId,
+      ravinInspectionId: claimId,
       damage: null,
       ingestTrace: failedTrace,
     };

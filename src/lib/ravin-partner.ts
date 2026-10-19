@@ -193,6 +193,24 @@ export function getRavinClientConfig(): {
   };
 }
 
+/** Same value as partnerInvite `claimId` — always the Auto Verifi report id (`AV-…`). */
+export function resolveRavinClaimId(
+  reportId: string,
+  ravinInspectionId?: string | null,
+): string {
+  const claimId = reportId.trim();
+  if (!claimId) {
+    throw new Error("claimId is required (Auto Verifi report id, e.g. AV-…).");
+  }
+  const linked = ravinInspectionId?.trim();
+  if (linked && linked !== claimId) {
+    console.warn(
+      `[ravin-partner] ravinInspectionId "${linked}" differs from report claimId "${claimId}"; using report id for S3.`,
+    );
+  }
+  return claimId;
+}
+
 export type RavinSignInResult = {
   token: string;
   s3: RavinS3PostCredentials | null;
@@ -408,7 +426,9 @@ export async function fetchRavinCompressedUploadCredentials(
   claimId: string,
 ): Promise<RavinCompressedUploadAuth | null> {
   const trimmedClaim = claimId.trim();
-  if (!trimmedClaim) return null;
+  if (!trimmedClaim) {
+    throw new Error("claimId is required");
+  }
 
   const timestamp = ravinCompressedUploadTimestamp();
   const started = Date.now();

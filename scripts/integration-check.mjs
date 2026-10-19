@@ -165,13 +165,52 @@ async function run() {
     ok++;
   } else fail++;
 
-  const s3 =
-    process.env.RAVIN_S3_ACCESS_KEY_ID &&
-    process.env.RAVIN_S3_POLICY &&
-    process.env.RAVIN_S3_SIGNATURE;
-  console.log(s3 ? "OK   Ravin S3 ingest env" : "MISS Ravin S3 ingest (ask Ravin/Denise)");
-  if (!s3) fail++;
-  else ok++;
+  if (
+    await check("Ravin generateCompressedDataUpload", async () => {
+      const url = (process.env.RAVIN_BASE_URL ?? "https://inspect.mtaus.ravin-ai.com").replace(
+        /\/$/,
+        "",
+      );
+      const clientId = process.env.RAVIN_CLIENT_ID?.trim() || "autoverifi";
+      const siteId = Number(process.env.RAVIN_SITE_ID ?? "49");
+      const d = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+      const timestamp = Number(
+        `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}${pad(d.getUTCSeconds())}`,
+      );
+      const res = await fetch(`${url}/generateCompressedDataUpload`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clientId,
+          siteId,
+          claimId: "integration-probe-claim",
+          timestamp,
+        }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body?.error ?? body?.message ?? `HTTP ${res.status}`);
+      const fields = {};
+      const collect = (obj, depth = 0) => {
+        if (depth > 6 || !obj || typeof obj !== "object") return;
+        for (const [k, v] of Object.entries(obj)) {
+          if (typeof v === "string" && v.trim() && !fields[k]) fields[k] = v.trim();
+          else if (v && typeof v === "object" && !Array.isArray(v)) collect(v, depth + 1);
+        }
+      };
+      collect(body);
+      const hasS3 =
+        fields.Policy ||
+        fields.policy ||
+        fields["X-Amz-Algorithm"] ||
+        fields.AWSAccessKeyId;
+      if (!hasS3) throw new Error("no S3 POST fields in response");
+      const key = fields.key || fields.Key || "(unknown)";
+      return `S3 auth OK, key ${String(key).slice(0, 48)}…`;
+    })
+  ) {
+    ok++;
+  } else fail++;
 
   const webhookSecret = process.env.RAVIN_WEBHOOK_SECRET?.trim();
   console.log(
