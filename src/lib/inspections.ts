@@ -37,6 +37,7 @@ function rowToSession(row: InspectionRow): InspectionSession {
     photos: Array.isArray(row.photos) ? row.photos : [],
     ravinInspectionId: row.ravin_inspection_id,
     ravinInviteUrl: row.ravin_invite_url,
+    ravinPayload: row.ravin_payload ?? null,
     expiresAt: row.expires_at,
     completedAt: row.completed_at,
     createdAt: row.created_at,

@@ -4,6 +4,8 @@ import {
   isRavinInspectorLiteUrl,
   parseInspectorLiteCodeFromUrl,
 } from "./ravin-partner";
+import { readLastS3Ingest } from "./ravin-payload-store";
+import type { RavinIngestTrace } from "./ravin-ingest-log";
 import { getReport } from "./store";
 import { createServerClient, isSupabaseServerConfigured } from "./supabase/server";
 
@@ -32,6 +34,9 @@ export type RavinReportTrace = {
     matchedInspectionId: string | null;
   }>;
   nextSteps: string[];
+  /** Last Ravin S3 ingest attempt (same data as `[ravin-ingest]` logs). */
+  s3Ingest: RavinIngestTrace | null;
+  s3IngestError: string | null;
 };
 
 /** Strip Gmail/client junk appended into the path (e.g. `AV-…&source=gmail`). */
@@ -188,12 +193,33 @@ export async function traceRavinReport(
     "Damage analysis completes when Ravin ingests S3 objects and POSTs to /api/webhooks/ravin.",
   ];
 
+  const storedPayload = inspection?.ravinPayload;
+  const s3Ingest = readLastS3Ingest(storedPayload);
+  const s3IngestError =
+    storedPayload &&
+    typeof storedPayload === "object" &&
+    !Array.isArray(storedPayload) &&
+    typeof (storedPayload as Record<string, unknown>).lastS3IngestError ===
+      "string"
+      ? String((storedPayload as Record<string, unknown>).lastS3IngestError)
+      : null;
+
+  if (s3Ingest?.success) {
+    nextSteps.unshift(
+      "S3 ingest trace stored on inspection — share this JSON with Ravin (no Vercel log pull required).",
+    );
+  } else if (s3IngestError) {
+    nextSteps.unshift(`Last S3 ingest error: ${s3IngestError}`);
+  }
+
   return {
     reportId,
     reportFound: Boolean(report),
     reportUrl: report ? `${base}/report/${reportId}` : null,
     workflowStatus,
     tier: report?.tier ?? null,
+    s3Ingest,
+    s3IngestError,
     inspection: inspection
       ? {
           id: inspection.id,

@@ -186,6 +186,8 @@ export interface InspectionSession {
   photos: InspectionPhoto[];
   ravinInspectionId: string | null;
   ravinInviteUrl: string | null;
+  /** Webhook body + last S3 ingest trace (ops / Ravin support). */
+  ravinPayload?: unknown;
   expiresAt: string | null;
   completedAt: string | null;
   createdAt: string;

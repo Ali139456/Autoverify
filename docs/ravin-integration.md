@@ -56,6 +56,8 @@ Expect `partnerApiConfigured`, `s3IngestConfigured`, and `webhookSecretConfigure
 
 Requires `AUTOVERIFI_OPS_SECRET` on Vercel and header `x-autoverifi-ops-key`.
 
+Response includes **`s3Ingest`** (full `[ravin-ingest]` trace saved automatically on each inspection submit) and **`s3IngestError`** if the last upload failed — no manual Vercel log search needed for Ravin support.
+
 ```bash
 curl -s -H "x-autoverifi-ops-key: YOUR_OPS_SECRET" \
   "https://www.autoverifi.com.au/api/health/ravin?reportId=AV-MV9BM5AL-8DH8BW61"

@@ -13,6 +13,10 @@ import {
 } from "@/lib/email";
 import { getReport, updateReport } from "@/lib/store";
 import { submitInspectionToRavin } from "@/lib/ravin-ingest";
+import {
+  withRavinIngestError,
+  withRavinIngestTrace,
+} from "@/lib/ravin-payload-store";
 import { guardRateLimit, isBoundedAccessToken } from "@/lib/security";
 
 export async function POST(
@@ -79,14 +83,21 @@ export async function POST(
       });
     } catch (ravinErr) {
       console.error("[inspections/complete] Ravin ingest failed:", ravinErr);
-      await updateInspection(inspection.id, { status: "uploaded" });
+      const ingestErrorMessage =
+        ravinErr instanceof Error ? ravinErr.message : "Ravin ingest failed.";
+      await updateInspection(inspection.id, {
+        status: "uploaded",
+        ravinPayload: withRavinIngestError(
+          freshInspection.ravinPayload,
+          ingestErrorMessage,
+        ),
+      });
       return NextResponse.json({
         ok: true,
         mode: "pending",
         complete: false,
         missingAngles: progress.missing,
-        ravinIngestError:
-          ravinErr instanceof Error ? ravinErr.message : "Ravin ingest failed.",
+        ravinIngestError: ingestErrorMessage,
         message:
           "Photos saved to your Auto Verifi report. AI damage analysis will be added automatically once condition assessment is complete.",
       });
@@ -117,6 +128,10 @@ export async function POST(
         status: "complete",
         ravinInspectionId: submission.ravinInspectionId,
         completedAt: new Date().toISOString(),
+        ravinPayload: withRavinIngestTrace(
+          freshInspection.ravinPayload,
+          submission.ingestTrace,
+        ),
       });
 
       await updateReport(inspection.reportId, {
@@ -140,6 +155,10 @@ export async function POST(
       await updateInspection(inspection.id, {
         status: "uploaded",
         ravinInspectionId: submission.ravinInspectionId,
+        ravinPayload: withRavinIngestTrace(
+          freshInspection.ravinPayload,
+          submission.ingestTrace,
+        ),
       });
 
       return NextResponse.json({
@@ -156,6 +175,10 @@ export async function POST(
     await updateInspection(inspection.id, {
       status: "processing",
       ravinInspectionId: submission.ravinInspectionId,
+      ravinPayload: withRavinIngestTrace(
+        freshInspection.ravinPayload,
+        submission.ingestTrace,
+      ),
     });
 
     return NextResponse.json({
