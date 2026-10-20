@@ -23,8 +23,15 @@ const INSPECTION_PAGE_LINKS = [
   { href: "#contact", label: "Contact" },
 ];
 
+const navLinkClass = (active: boolean) =>
+  `inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded-full px-3 text-[13px] font-medium leading-none transition lg:px-4 lg:text-sm ${
+    active
+      ? "bg-accent-500 text-white"
+      : "text-slate-300 hover:bg-white/5 hover:text-white"
+  }`;
+
 const buyReportClass =
-  "group hidden items-center gap-2 whitespace-nowrap rounded-full bg-accent-500 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-accent-600 sm:inline-flex";
+  "group inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-accent-500 px-3 text-[13px] font-bold leading-none text-white transition hover:bg-accent-600 lg:gap-2 lg:px-4 lg:text-sm";
 
 function InspectionMenuItems({
   onNavigate,
@@ -117,7 +124,7 @@ function InspectionsDropdown({ onNavigate }: { onNavigate?: () => void }) {
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         aria-haspopup="true"
-        className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition ${
+        className={`inline-flex h-9 items-center gap-1 whitespace-nowrap rounded-full px-3 text-[13px] font-medium leading-none transition lg:px-4 lg:text-sm ${
           open
             ? "bg-accent-500 text-white"
             : "text-slate-300 hover:bg-white/5 hover:text-white"
@@ -291,9 +298,9 @@ function HeaderBuyReportActions({
 
   return (
     <>
-      <div className="flex shrink-0 items-center gap-2">
+      <div className="flex shrink-0 items-center gap-1.5 lg:gap-2">
         {isInspectionPage ? (
-          <Link href="#contact" className={buyReportClass}>
+          <Link href="#contact" className={`${buyReportClass} hidden md:inline-flex`}>
             Request an inspection
             <ArrowRight
               className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
@@ -304,7 +311,7 @@ function HeaderBuyReportActions({
           <button
             type="button"
             onClick={() => setBuyReportOpen(true)}
-            className={buyReportClass}
+            className={`${buyReportClass} hidden md:inline-flex`}
           >
             Buy Report
             <ArrowRight
@@ -350,35 +357,35 @@ export function Header() {
             : "shadow-[0_2px_16px_rgba(0,0,0,0.35)]"
         }`}
       >
-        <Logo height={48} priority variant="onDark" />
+        <Logo height={48} priority variant="onDark" className="shrink-0" />
 
-        <nav className="hidden items-center gap-1 rounded-full border border-white/10 bg-ink-800/80 p-1 md:flex">
-          {links.map((l) => {
-            const active =
-              (l.href === "/pricing" && pathname === "/pricing") ||
-              (l.href === "/contact" && pathname === "/contact");
-            return (
-              <Link
-                key={l.href}
-                href={l.href}
-                className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition ${
-                  active
-                    ? "bg-accent-500 text-white"
-                    : "text-slate-300 hover:bg-white/5 hover:text-white"
-                }`}
-              >
-                {l.label}
-              </Link>
-            );
-          })}
-          {!isInspectionPage && <InspectionsDropdown />}
-        </nav>
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
+          <nav className="hidden min-w-0 items-center gap-0.5 rounded-full border border-white/10 bg-ink-800/80 p-0.5 md:flex lg:gap-1 lg:p-1">
+            {links.map((l) => {
+              const active =
+                (l.href === "/pricing" && pathname === "/pricing") ||
+                (l.href === "/contact" && pathname === "/contact");
+              const contactOnDesktopOnly =
+                l.href === "/contact" ? "hidden xl:inline-flex" : "inline-flex";
+              return (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className={`${contactOnDesktopOnly} ${navLinkClass(active)}`}
+                >
+                  {l.label}
+                </Link>
+              );
+            })}
+            {!isInspectionPage && <InspectionsDropdown />}
+          </nav>
 
-        <HeaderBuyReportActions
-          key={pathname}
-          isInspectionPage={isInspectionPage}
-          links={links}
-        />
+          <HeaderBuyReportActions
+            key={pathname}
+            isInspectionPage={isInspectionPage}
+            links={links}
+          />
+        </div>
       </div>
     </header>
   );
