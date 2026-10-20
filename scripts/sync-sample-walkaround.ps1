@@ -48,6 +48,35 @@ foreach ($dest in $map.Keys) {
   Write-Host "OK $dest"
 }
 
+# Detail shots must be single car photos (not instruction screenshots). If missing or too small, derive from the main C300 set.
+$minBytes = 400000
+$derived = @{
+  "windscreen.jpg"        = "front.jpg"
+  "roof.jpg"              = "front-left.jpg"
+  "mirror-passenger.jpg"  = "left-side.jpg"
+  "mirror-driver.jpg"     = "front-right.jpg"
+  "boot-open.jpg"         = "rear.jpg"
+}
+foreach ($dest in $derived.Keys) {
+  $out = Join-Path $dst $dest
+  $replace = $false
+  if (Test-Path $out) {
+    if ((Get-Item $out).Length -lt $minBytes) {
+      Remove-Item $out -Force
+      $replace = $true
+    }
+  } else {
+    $replace = $true
+  }
+  if ($replace) {
+    $from = Join-Path $dst $derived[$dest]
+    if (Test-Path $from) {
+      Copy-Item $from $out -Force
+      Write-Host "Derived $dest from $($derived[$dest])"
+    }
+  }
+}
+
 $heroSrc = Join-Path $src "image.png"
 if (Test-Path $heroSrc) {
   Copy-Item $heroSrc $hero -Force

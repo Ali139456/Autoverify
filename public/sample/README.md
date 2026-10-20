@@ -6,7 +6,7 @@
 
 `powershell -File scripts/sync-sample-walkaround.ps1`
 
-`walkaround/roof.jpg`, `windscreen.jpg`, `mirror-passenger.jpg`, `mirror-driver.jpg`, `boot-open.jpg` — Denise C300 detail shots (also under `images/` when synced).
+`walkaround/roof.jpg`, `windscreen.jpg`, `mirror-passenger.jpg`, `mirror-driver.jpg`, `boot-open.jpg` — add dedicated files under `images/` when available; `sync-sample-walkaround.ps1` otherwise derives them from the main C300 front/side/rear set (never use instruction screenshots).
 
 `walkaround/keys.jpg`, `walkaround/registration-papers.jpg` — **# Keys** and **Registration papers** (sources: `image (13).png`, `image (11).png`).
 

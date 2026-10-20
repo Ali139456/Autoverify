@@ -770,6 +770,12 @@ function normalizePanelMatchText(value: string): string {
   return value.trim().toLowerCase().replace(/[_-]+/g, " ");
 }
 
+/** Prefer explicit panel → angle mapping so "Front bumper" does not tag every front corner shot. */
+const DAMAGE_PANEL_TO_ANGLE_IDS: Record<string, readonly string[]> = {
+  "front bumper": ["front"],
+  "rear left door": ["rear_left"],
+};
+
 function inspectionPhotoMatchesPanel(
   photo: InspectionPhoto,
   panel: string,
@@ -777,22 +783,17 @@ function inspectionPhotoMatchesPanel(
   const key = normalizePanelMatchText(panel);
   if (!key) return false;
 
+  const mapped = DAMAGE_PANEL_TO_ANGLE_IDS[key];
+  if (mapped) {
+    return mapped.includes(photo.angle);
+  }
+
   const label = normalizePanelMatchText(photo.label);
   const angle = normalizePanelMatchText(photo.angle);
   const angleLabel = normalizePanelMatchText(getInspectionAngleLabel(photo.angle));
 
   const candidates = [label, angle, angleLabel].filter(Boolean);
-  for (const candidate of candidates) {
-    if (candidate === key || candidate.includes(key) || key.includes(candidate)) {
-      return true;
-    }
-  }
-
-  const keyTokens = key.split(/\s+/).filter((token) => token.length > 2);
-  if (keyTokens.length === 0) return false;
-  return candidates.some((candidate) =>
-    keyTokens.some((token) => candidate.includes(token)),
-  );
+  return candidates.some((candidate) => candidate === key);
 }
 
 export function findInspectionPhotoForPanel(
