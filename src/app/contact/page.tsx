@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Mail } from "lucide-react";
+import { Clock, Mail, ShieldCheck } from "lucide-react";
 import { ContactForm } from "@/components/ContactForm";
 import {
   AUTOVERIFI_CONTACT_EMAIL,
@@ -18,44 +18,70 @@ export default function ContactPage() {
   return (
     <div className="relative min-h-[calc(100vh-6rem)] w-full min-w-0 overflow-x-clip bg-ink-950 text-white">
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#4da3ff]/30 to-transparent"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(0,115,227,0.22),transparent)]"
         aria-hidden
       />
       <div
-        className="pointer-events-none absolute -right-24 top-20 h-72 w-72 rounded-full bg-[#2563eb]/20 blur-[100px]"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute -left-32 bottom-0 h-80 w-80 rounded-full bg-[#0073E3]/10 blur-[120px]"
+        className="pointer-events-none absolute inset-0 opacity-[0.35] [background-image:linear-gradient(rgba(0,115,227,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(0,115,227,0.07)_1px,transparent_1px)] [background-size:48px_48px]"
         aria-hidden
       />
 
-      <div className="relative mx-auto w-full min-w-0 max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:py-20">
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.08fr)] lg:items-start lg:gap-14">
-          <div className="max-w-lg">
-            <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-[2.65rem] lg:leading-tight">
-              Contact us
-            </h1>
-            <p className="mt-5 text-base leading-relaxed text-slate-300 sm:text-lg">
-              Have a question? We&apos;d love to hear from you. Send us a message
-              and we&apos;ll respond as soon as possible.
-            </p>
-            <p className="mt-8 text-sm text-slate-400">Or reach us directly at:</p>
-            <a
-              href={`mailto:${inbox}`}
-              className="mt-2 inline-flex items-center gap-2 text-lg font-semibold text-[#93c5fd] transition hover:text-white"
-            >
-              <Mail className="h-5 w-5 shrink-0" aria-hidden />
-              {inbox}
-            </a>
-            <p className="mt-10 text-xs leading-relaxed text-slate-500">
-              For report access or payment issues, include your report reference
-              (AV-…) if you have one. Messages are sent securely to our team inbox (
-              {AUTOVERIFI_CONTACT_EMAIL}).
-            </p>
+      <div className="relative mx-auto w-full min-w-0 max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:py-16">
+        <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-[#0073E3]">
+          Auto Verifi
+        </p>
+
+        <div className="mt-8 overflow-hidden rounded-[1.75rem] border border-[#0073E3]/20 bg-gradient-to-br from-[#0c1222]/95 via-ink-900/90 to-[#061018]/95 shadow-[0_32px_80px_rgba(0,0,0,0.55)] backdrop-blur-sm">
+          <div className="h-1 w-full bg-gradient-to-r from-transparent via-[#0073E3] to-transparent opacity-80" />
+
+          <div className="grid gap-10 p-6 sm:p-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-12 lg:p-10 xl:p-12">
+            <div className="flex flex-col justify-center lg:max-w-md">
+              <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                Contact us
+              </h1>
+              <p className="mt-4 text-base leading-relaxed text-slate-300">
+                Have a question? We&apos;d love to hear from you. Send us a message
+                and we&apos;ll respond as soon as possible.
+              </p>
+
+              <div className="mt-8 space-y-4 border-t border-white/10 pt-8">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                  Or email us directly
+                </p>
+                <a
+                  href={`mailto:${inbox}`}
+                  className="inline-flex items-center gap-2.5 text-lg font-semibold text-[#0073E3] transition hover:text-white"
+                >
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full border border-[#0073E3]/30 bg-[#0073E3]/10">
+                    <Mail className="h-5 w-5 shrink-0" aria-hidden />
+                  </span>
+                  {inbox}
+                </a>
+              </div>
+
+              <ul className="mt-8 space-y-3 text-sm text-slate-400">
+                <li className="flex gap-2.5">
+                  <Clock className="mt-0.5 h-4 w-4 shrink-0 text-[#0073E3]" aria-hidden />
+                  <span>We aim to reply within one business day.</span>
+                </li>
+                <li className="flex gap-2.5">
+                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#0073E3]" aria-hidden />
+                  <span>
+                    Include your report reference (AV-…) for payment or report
+                    access questions.
+                  </span>
+                </li>
+              </ul>
+
+              <p className="mt-8 text-[11px] leading-relaxed text-slate-500">
+                Messages are delivered securely to {AUTOVERIFI_CONTACT_EMAIL}.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-white/[0.08] bg-[#050a14]/60 p-5 sm:p-6 lg:p-7">
+              <ContactForm />
+            </div>
           </div>
-
-          <ContactForm />
         </div>
       </div>
     </div>

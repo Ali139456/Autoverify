@@ -11,8 +11,9 @@ const SUBJECTS = [
   "Technical support",
 ] as const;
 
+const labelClass = "mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-400";
 const fieldClass =
-  "w-full rounded-xl border border-white/10 bg-[#010626] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-[#4da3ff]/50 focus:ring-2 focus:ring-[#2563eb]/40 disabled:opacity-60";
+  "w-full rounded-xl border border-white/[0.12] bg-[#070d1a]/80 px-4 py-3.5 text-[15px] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] outline-none transition placeholder:text-slate-500 focus:border-[#0073E3]/60 focus:ring-2 focus:ring-[#0073E3]/25 disabled:opacity-60";
 
 async function readJson<T extends object>(
   res: Response,
@@ -78,18 +79,18 @@ export function ContactForm() {
   if (status === "sent") {
     return (
       <div
-        className="rounded-2xl border border-emerald-500/30 bg-emerald-950/40 px-5 py-6 text-sm text-emerald-100 backdrop-blur-sm"
+        className="rounded-2xl border border-[#0073E3]/30 bg-[#0073E3]/10 px-6 py-8 text-center sm:text-left"
         role="status"
       >
-        <p className="font-semibold text-white">Message sent</p>
-        <p className="mt-2 leading-relaxed text-emerald-100/90">
-          Thanks for contacting Auto Verifi. We will reply to your email as soon
-          as we can.
+        <p className="text-lg font-bold text-white">Thanks — message sent</p>
+        <p className="mt-2 text-sm leading-relaxed text-slate-300">
+          We&apos;ll reply to your email as soon as we can, usually within one
+          business day.
         </p>
         <button
           type="button"
           onClick={() => setStatus("idle")}
-          className="mt-4 text-sm font-semibold text-[#93c5fd] hover:text-white"
+          className="mt-5 text-sm font-semibold text-[#0073E3] hover:underline"
         >
           Send another message
         </button>
@@ -98,10 +99,7 @@ export function ContactForm() {
   }
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className="rounded-2xl border border-white/10 bg-[#010626]/70 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.35)] backdrop-blur-md sm:p-6"
-    >
+    <form onSubmit={onSubmit} className="space-y-5">
       <input
         type="text"
         name="company"
@@ -111,76 +109,82 @@ export function ContactForm() {
         aria-hidden
       />
 
-      <label className="block text-sm">
-        <span className="mb-1.5 block text-slate-300">Name</span>
-        <input
-          name="name"
-          required
-          autoComplete="name"
-          placeholder="Name"
-          disabled={status === "sending"}
-          className={fieldClass}
-        />
-      </label>
+      <p className="text-sm font-semibold text-white">Send a message</p>
 
-      <label className="mt-4 block text-sm">
-        <span className="mb-1.5 block text-slate-300">Email</span>
-        <input
-          type="email"
-          name="email"
-          required
-          autoComplete="email"
-          placeholder="Email"
-          disabled={status === "sending"}
-          className={fieldClass}
-        />
-      </label>
+      <div className="grid gap-5 sm:grid-cols-2">
+        <label className="block sm:col-span-1">
+          <span className={labelClass}>Name</span>
+          <input
+            name="name"
+            required
+            autoComplete="name"
+            placeholder="Your name"
+            disabled={status === "sending"}
+            className={fieldClass}
+          />
+        </label>
 
-      <label className="mt-4 block text-sm">
-        <span className="mb-1.5 block text-slate-300">
-          Phone <span className="text-slate-500">(optional)</span>
-        </span>
-        <input
-          type="tel"
-          name="phone"
-          autoComplete="tel"
-          placeholder="Phone"
-          disabled={status === "sending"}
-          className={fieldClass}
-        />
-      </label>
+        <label className="block sm:col-span-1">
+          <span className={labelClass}>Email</span>
+          <input
+            type="email"
+            name="email"
+            required
+            autoComplete="email"
+            placeholder="you@example.com"
+            disabled={status === "sending"}
+            className={fieldClass}
+          />
+        </label>
+      </div>
 
-      <label className="mt-4 block text-sm">
-        <span className="mb-1.5 block text-slate-300">Topic</span>
-        <select
-          name="subject"
-          defaultValue={SUBJECTS[0]}
-          disabled={status === "sending"}
-          className={fieldClass}
-        >
-          {SUBJECTS.map((option) => (
-            <option key={option} value={option} className="bg-[#010626] text-white">
-              {option}
-            </option>
-          ))}
-        </select>
-      </label>
+      <div className="grid gap-5 sm:grid-cols-2">
+        <label className="block">
+          <span className={labelClass}>
+            Phone <span className="font-normal normal-case text-slate-500">(optional)</span>
+          </span>
+          <input
+            type="tel"
+            name="phone"
+            autoComplete="tel"
+            placeholder="04xx xxx xxx"
+            disabled={status === "sending"}
+            className={fieldClass}
+          />
+        </label>
 
-      <label className="mt-4 block text-sm">
-        <span className="mb-1.5 block text-slate-300">Message</span>
+        <label className="block">
+          <span className={labelClass}>Topic</span>
+          <select
+            name="subject"
+            defaultValue={SUBJECTS[0]}
+            disabled={status === "sending"}
+            className={fieldClass}
+          >
+            {SUBJECTS.map((option) => (
+              <option key={option} value={option} className="bg-[#070d1a] text-white">
+                {option}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      <label className="block">
+        <span className={labelClass}>Message</span>
         <textarea
           name="message"
           required
           minLength={10}
-          rows={5}
+          rows={6}
           disabled={status === "sending"}
           placeholder="How can we help?"
-          className={`${fieldClass} resize-y`}
+          className={`${fieldClass} min-h-[140px] resize-y`}
         />
       </label>
 
       {error ? (
-        <p className="mt-4 text-sm text-red-400" role="alert">
+        <p className="text-sm text-red-400" role="alert">
           {error}
         </p>
       ) : null}
@@ -188,7 +192,7 @@ export function ContactForm() {
       <button
         type="submit"
         disabled={status === "sending"}
-        className="btn-shine group mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#2563eb] to-[#3b82f6] px-6 py-3.5 text-sm font-bold text-white shadow-[0_10px_28px_rgba(37,99,235,0.35)] transition hover:from-[#1d4ed8] hover:to-[#2563eb] disabled:opacity-60"
+        className="btn-shine group inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#0073E3] px-6 py-4 text-sm font-bold text-white shadow-[0_12px_40px_rgba(0,115,227,0.35)] transition hover:bg-[#0062c2] disabled:opacity-60 sm:w-auto sm:min-w-[200px]"
       >
         {status === "sending" ? (
           <>
