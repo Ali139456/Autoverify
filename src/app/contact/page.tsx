@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
-import { Clock, Mail, ShieldCheck } from "lucide-react";
+import { Mail } from "lucide-react";
 import { ContactForm } from "@/components/ContactForm";
-import {
-  AUTOVERIFI_CONTACT_EMAIL,
-  getContactInboxEmail,
-} from "@/lib/site-contact";
+import { getContactInboxEmail } from "@/lib/site-contact";
 
 export const metadata: Metadata = {
   title: "Contact us — Auto Verifi",
@@ -40,8 +37,7 @@ export default function ContactPage() {
                 Contact us
               </h1>
               <p className="mt-4 text-base leading-relaxed text-slate-300">
-                Have a question? We&apos;d love to hear from you. Send us a message
-                and we&apos;ll respond as soon as possible.
+                Have a question? We&apos;d love to hear from you.
               </p>
 
               <div className="mt-8 space-y-4 border-t border-white/10 pt-8">
@@ -58,24 +54,6 @@ export default function ContactPage() {
                   {inbox}
                 </a>
               </div>
-
-              <ul className="mt-8 space-y-3 text-sm text-slate-400">
-                <li className="flex gap-2.5">
-                  <Clock className="mt-0.5 h-4 w-4 shrink-0 text-[#0073E3]" aria-hidden />
-                  <span>We aim to reply within one business day.</span>
-                </li>
-                <li className="flex gap-2.5">
-                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#0073E3]" aria-hidden />
-                  <span>
-                    Include your report reference (AV-…) for payment or report
-                    access questions.
-                  </span>
-                </li>
-              </ul>
-
-              <p className="mt-8 text-[11px] leading-relaxed text-slate-500">
-                Messages are delivered securely to {AUTOVERIFI_CONTACT_EMAIL}.
-              </p>
             </div>
 
             <div className="rounded-2xl border border-white/[0.08] bg-[#050a14]/60 p-5 sm:p-6 lg:p-7">
