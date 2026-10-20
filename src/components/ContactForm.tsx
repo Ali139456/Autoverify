@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Send } from "lucide-react";
+import { ChevronDown, Loader2, Send } from "lucide-react";
 
 const SUBJECTS = [
   "General enquiry",
@@ -14,6 +14,7 @@ const SUBJECTS = [
 const labelClass = "mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-400";
 const fieldClass =
   "w-full rounded-xl border border-white/[0.12] bg-[#070d1a]/80 px-4 py-3.5 text-[15px] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] outline-none transition placeholder:text-slate-500 focus:border-[#0073E3]/60 focus:ring-2 focus:ring-[#0073E3]/25 disabled:opacity-60";
+const selectFieldClass = `${fieldClass} cursor-pointer appearance-none pr-12`;
 
 async function readJson<T extends object>(
   res: Response,
@@ -155,18 +156,26 @@ export function ContactForm() {
 
         <label className="block">
           <span className={labelClass}>Topic</span>
-          <select
-            name="subject"
-            defaultValue={SUBJECTS[0]}
-            disabled={status === "sending"}
-            className={fieldClass}
-          >
-            {SUBJECTS.map((option) => (
-              <option key={option} value={option} className="bg-[#070d1a] text-white">
-                {option}
-              </option>
-            ))}
-          </select>
+          <div className="group/select relative">
+            <select
+              name="subject"
+              defaultValue={SUBJECTS[0]}
+              disabled={status === "sending"}
+              className={selectFieldClass}
+            >
+              {SUBJECTS.map((option) => (
+                <option key={option} value={option} className="bg-[#070d1a] text-white">
+                  {option}
+                </option>
+              ))}
+            </select>
+            <span
+              className="pointer-events-none absolute right-2.5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg border border-[#0073E3]/40 bg-gradient-to-b from-[#0073E3]/25 via-[#0073E3]/10 to-transparent shadow-[0_0_20px_rgba(0,115,227,0.2),inset_0_1px_0_rgba(255,255,255,0.12)] ring-1 ring-inset ring-white/10 transition-[transform,box-shadow,border-color] duration-200 group-focus-within/select:rotate-180 group-focus-within/select:border-[#0073E3]/70 group-focus-within/select:shadow-[0_0_24px_rgba(0,115,227,0.35),inset_0_1px_0_rgba(255,255,255,0.16)]"
+              aria-hidden
+            >
+              <ChevronDown className="h-[18px] w-[18px] text-[#5eb3ff] drop-shadow-[0_0_6px_rgba(0,115,227,0.6)]" strokeWidth={2.25} />
+            </span>
+          </div>
         </label>
       </div>
 
