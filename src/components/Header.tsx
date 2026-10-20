@@ -30,8 +30,18 @@ const navLinkClass = (active: boolean) =>
       : "text-slate-300 hover:bg-white/5 hover:text-white"
   }`;
 
+/** Desktop-only CTA — mobile/tablet use the menu (avoids overlapping the logo). */
 const buyReportClass =
-  "group inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-accent-500 px-3 text-[13px] font-bold leading-none text-white transition hover:bg-accent-600 lg:gap-2 lg:px-4 lg:text-sm";
+  "group hidden h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-accent-500 px-3 text-[13px] font-bold leading-none text-white transition hover:bg-accent-600 xl:inline-flex xl:gap-2 xl:px-4 xl:text-sm";
+
+function navLinkVisibility(href: string): string {
+  if (href === "/contact") return "hidden 2xl:inline-flex";
+  if (href === "/#about" || href === "/#faq") return "hidden xl:inline-flex";
+  if (href === "/#how-it-works" || href === "/#whats-included") {
+    return "hidden lg:inline-flex";
+  }
+  return "inline-flex";
+}
 
 function InspectionMenuItems({
   onNavigate,
@@ -300,8 +310,9 @@ function HeaderBuyReportActions({
     <>
       <div className="flex shrink-0 items-center gap-1.5 lg:gap-2">
         {isInspectionPage ? (
-          <Link href="#contact" className={`${buyReportClass} hidden md:inline-flex`}>
-            Request an inspection
+          <Link href="#contact" className={buyReportClass}>
+            <span className="hidden 2xl:inline">Request an inspection</span>
+            <span className="2xl:hidden">Request</span>
             <ArrowRight
               className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
               aria-hidden
@@ -311,9 +322,10 @@ function HeaderBuyReportActions({
           <button
             type="button"
             onClick={() => setBuyReportOpen(true)}
-            className={`${buyReportClass} hidden md:inline-flex`}
+            className={buyReportClass}
           >
-            Buy Report
+            <span className="hidden 2xl:inline">Buy Report</span>
+            <span className="2xl:hidden">Buy</span>
             <ArrowRight
               className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
               aria-hidden
@@ -351,27 +363,31 @@ export function Header() {
   return (
     <header className="av-site-header fixed inset-x-0 top-0 z-50 bg-ink-950 px-3 py-3 sm:px-6">
       <div
-        className={`mx-auto flex h-[4.25rem] max-w-6xl items-center justify-between gap-3 rounded-2xl border border-white/10 bg-ink-900 px-3 transition-shadow duration-300 sm:px-4 ${
+        className={`mx-auto flex h-14 max-w-6xl min-w-0 items-center gap-2 rounded-2xl border border-white/10 bg-ink-900 px-2.5 transition-shadow duration-300 sm:h-[4.25rem] sm:gap-3 sm:px-4 ${
           scrolled
             ? "shadow-[0_8px_30px_rgba(0,0,0,0.45)]"
             : "shadow-[0_2px_16px_rgba(0,0,0,0.35)]"
         }`}
       >
-        <Logo height={48} priority variant="onDark" className="shrink-0" />
+        <Logo
+          height={44}
+          priority
+          variant="onDark"
+          maxWidth="min(11.5rem, 50vw)"
+          className="min-w-0 shrink sm:h-12"
+        />
 
-        <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
-          <nav className="hidden min-w-0 items-center gap-0.5 rounded-full border border-white/10 bg-ink-800/80 p-0.5 md:flex lg:gap-1 lg:p-1">
+        <div className="ml-auto flex min-w-0 shrink-0 items-center gap-1.5 sm:gap-2">
+          <nav className="hidden min-w-0 max-w-[min(100%,36rem)] items-center gap-0.5 overflow-x-auto rounded-full border border-white/10 bg-ink-800/80 p-0.5 [-ms-overflow-style:none] [scrollbar-width:none] lg:flex lg:gap-1 lg:p-1 [&::-webkit-scrollbar]:hidden">
             {links.map((l) => {
               const active =
                 (l.href === "/pricing" && pathname === "/pricing") ||
                 (l.href === "/contact" && pathname === "/contact");
-              const contactOnDesktopOnly =
-                l.href === "/contact" ? "hidden xl:inline-flex" : "inline-flex";
               return (
                 <Link
                   key={l.href}
                   href={l.href}
-                  className={`${contactOnDesktopOnly} ${navLinkClass(active)}`}
+                  className={`${navLinkVisibility(l.href)} ${navLinkClass(active)}`}
                 >
                   {l.label}
                 </Link>
