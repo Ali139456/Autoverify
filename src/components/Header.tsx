@@ -36,7 +36,8 @@ const buyReportClass =
 
 function navLinkVisibility(href: string): string {
   if (href === "/contact") return "hidden 2xl:inline-flex";
-  if (href === "/#about" || href === "/#faq") return "hidden xl:inline-flex";
+  if (href === "/#faq") return "hidden 2xl:inline-flex";
+  if (href === "/#about") return "hidden xl:inline-flex";
   if (href === "/#how-it-works" || href === "/#whats-included") {
     return "hidden lg:inline-flex";
   }
@@ -128,13 +129,13 @@ function InspectionsDropdown({ onNavigate }: { onNavigate?: () => void }) {
   }, []);
 
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef} className="relative shrink-0">
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         aria-haspopup="true"
-        className={`inline-flex h-9 items-center gap-1 whitespace-nowrap rounded-full px-3 text-[13px] font-medium leading-none transition lg:px-4 lg:text-sm ${
+        className={`inline-flex h-9 shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-3 text-[13px] font-medium leading-none transition lg:px-4 lg:text-sm ${
           open
             ? "bg-accent-500 text-white"
             : "text-slate-300 hover:bg-white/5 hover:text-white"
@@ -188,7 +189,7 @@ function HeaderMobileMenu({
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? "Close menu" : "Open menu"}
         aria-expanded={open}
-        className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-ink-800 text-slate-200 transition hover:bg-white/5 md:hidden"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-ink-800 text-slate-200 transition hover:bg-white/5 lg:hidden"
       >
         {open ? (
           <X className="h-5 w-5" aria-hidden />
@@ -199,7 +200,7 @@ function HeaderMobileMenu({
 
       {open && (
         <div
-          className="fixed inset-x-0 bottom-0 top-[5.75rem] z-[60] flex min-h-0 flex-col bg-gradient-to-b from-ink-950 via-ink-950 to-[#060b14] md:hidden"
+          className="fixed inset-x-0 bottom-0 top-[5.75rem] z-[60] flex min-h-0 flex-col bg-gradient-to-b from-ink-950 via-ink-950 to-[#060b14] lg:hidden"
           role="dialog"
           aria-modal="true"
           aria-label="Main menu"
@@ -308,7 +309,7 @@ function HeaderBuyReportActions({
 
   return (
     <>
-      <div className="flex shrink-0 items-center gap-1.5 lg:gap-2">
+      <div className="flex shrink-0 items-center gap-2 xl:gap-3 xl:border-l xl:border-white/10 xl:pl-3">
         {isInspectionPage ? (
           <Link href="#contact" className={buyReportClass}>
             <span className="hidden 2xl:inline">Request an inspection</span>
@@ -377,8 +378,11 @@ export function Header() {
           className="min-w-0 shrink sm:h-12"
         />
 
-        <div className="ml-auto flex min-w-0 shrink-0 items-center gap-1.5 sm:gap-2">
-          <nav className="hidden min-w-0 max-w-[min(100%,36rem)] items-center gap-0.5 overflow-x-auto rounded-full border border-white/10 bg-ink-800/80 p-0.5 [-ms-overflow-style:none] [scrollbar-width:none] lg:flex lg:gap-1 lg:p-1 [&::-webkit-scrollbar]:hidden">
+        <div className="ml-auto flex min-w-0 items-center gap-2 sm:gap-3">
+          <nav
+            aria-label="Primary"
+            className="hidden min-w-0 items-center gap-1 rounded-full border border-white/10 bg-ink-800/80 p-1 lg:flex"
+          >
             {links.map((l) => {
               const active =
                 (l.href === "/pricing" && pathname === "/pricing") ||
@@ -393,8 +397,13 @@ export function Header() {
                 </Link>
               );
             })}
-            {!isInspectionPage && <InspectionsDropdown />}
           </nav>
+
+          {!isInspectionPage ? (
+            <div className="hidden shrink-0 lg:block">
+              <InspectionsDropdown />
+            </div>
+          ) : null}
 
           <HeaderBuyReportActions
             key={pathname}
