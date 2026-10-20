@@ -9,7 +9,9 @@ import {
   registrationDisplayStatus,
 } from "./registration-info";
 import { resolveVehicleDoorAndSeatCounts } from "./vehicle-door-seats";
+import { getInspectionAngleLabel } from "./inspection-angles";
 import type {
+  DamageFinding,
   FutureValueInfo,
   FutureValuePoint,
   InspectionPhoto,
@@ -150,7 +152,7 @@ export const ANCAP_SAFETY_RATINGS_URL = "https://www.ancap.com.au/safety-ratings
 export const VEHICLE_RECALLS_GOV_AU_URL = "https://www.vehiclerecalls.gov.au";
 
 export const SERVICE_HISTORY_DETAIL =
-  "Contact the vehicle owner or selling dealer for service history records.";
+  "Contact the vehicle owner or selling dealer for service history records and review owners manual/vehicle handbook for servicing intervals and guidelines.";
 
 export const MANUFACTURER_WARRANTY_CONFIRM_DETAIL =
   "Contact Authorised Dealer/service centre and quote VIN to confirm remaining Manufacturer's warranty.";
@@ -446,7 +448,7 @@ function formatManufacturerWarrantyStatus(
 ): Pick<ReportInsight, "status" | "statusSubtext" | "tone" | "detail"> {
   if (!info) {
     return {
-      status: "Not available",
+      status: "",
       tone: "muted",
       detail: MANUFACTURER_WARRANTY_CONFIRM_DETAIL,
     };
@@ -469,13 +471,13 @@ function formatManufacturerWarrantyStatus(
       : undefined;
   if (!status && !anti) {
     return {
-      status: "Not available",
+      status: "",
       tone: "muted",
       detail: MANUFACTURER_WARRANTY_CONFIRM_DETAIL,
     };
   }
   return {
-    status: status || anti || "Not available",
+    status: status || anti || "",
     statusSubtext: status && anti ? anti : undefined,
     tone: "clear",
     detail: MANUFACTURER_WARRANTY_CONFIRM_DETAIL,
@@ -648,8 +650,8 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
     {
       id: "ancap",
       title: "ANCAP Safety",
-      status: vehicle.ancapRating ?? "Not available",
-      tone: vehicle.ancapRating ? "clear" : "neutral",
+      status: vehicle.ancapRating ?? "",
+      tone: vehicle.ancapRating ? "clear" : "muted",
       detail: vehicle.ancapRating
         ? "ANCAP safety rating sourced from AutoGrab detailed vehicle specifications."
         : undefined,
@@ -764,25 +766,57 @@ export function getInspectionPhotoUrl(photo: InspectionPhoto): string | null {
 }
 
 /** Match a walkaround photo to a damage panel label when possible. */
+function normalizePanelMatchText(value: string): string {
+  return value.trim().toLowerCase().replace(/[_-]+/g, " ");
+}
+
+function inspectionPhotoMatchesPanel(
+  photo: InspectionPhoto,
+  panel: string,
+): boolean {
+  const key = normalizePanelMatchText(panel);
+  if (!key) return false;
+
+  const label = normalizePanelMatchText(photo.label);
+  const angle = normalizePanelMatchText(photo.angle);
+  const angleLabel = normalizePanelMatchText(getInspectionAngleLabel(photo.angle));
+
+  const candidates = [label, angle, angleLabel].filter(Boolean);
+  for (const candidate of candidates) {
+    if (candidate === key || candidate.includes(key) || key.includes(candidate)) {
+      return true;
+    }
+  }
+
+  const keyTokens = key.split(/\s+/).filter((token) => token.length > 2);
+  if (keyTokens.length === 0) return false;
+  return candidates.some((candidate) =>
+    keyTokens.some((token) => candidate.includes(token)),
+  );
+}
+
 export function findInspectionPhotoForPanel(
   photos: InspectionPhoto[],
   panel: string,
 ): InspectionPhoto | undefined {
-  const key = panel.trim().toLowerCase();
-  if (!key) return undefined;
+  return photos.find((photo) => inspectionPhotoMatchesPanel(photo, panel));
+}
 
-  return photos.find((photo) => {
-    const label = photo.label.trim().toLowerCase();
-    const angle = photo.angle.trim().toLowerCase();
-    return (
-      label === key ||
-      angle === key ||
-      label.includes(key) ||
-      key.includes(label) ||
-      angle.includes(key) ||
-      key.includes(angle)
-    );
-  });
+/** Maps each inspection photo angle to a damage caption when Ravin panel names differ from angle ids. */
+export function buildDamageCaptionByPhotoAngle(
+  findings: DamageFinding[],
+  photos: InspectionPhoto[],
+): Map<string, string> {
+  const map = new Map<string, string>();
+  for (const finding of findings) {
+    const caption = `${finding.type} · ${finding.severity}`;
+    map.set(finding.panel.trim().toLowerCase(), caption);
+    const matched = findInspectionPhotoForPanel(photos, finding.panel);
+    if (matched) {
+      map.set(matched.angle.trim().toLowerCase(), caption);
+    }
+  }
+  return map;
 }
 
 export function resolveDamageFindingImageUrl(

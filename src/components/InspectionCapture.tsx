@@ -87,7 +87,7 @@ function markInspectionSubmitted(reportId: string) {
 
 function tryCloseInspectionTab(): boolean {
   try {
-    window.close();
+    window.location.replace("https://www.google.com/");
     return true;
   } catch {
     return false;
@@ -169,6 +169,13 @@ export function InspectionCapture({
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [stepIndex, allPhotosComplete]);
 
+  useEffect(() => {
+    if (doneMessage) return;
+    if (allPhotosComplete && screen === "capture") {
+      setScreen("submit");
+    }
+  }, [allPhotosComplete, screen, doneMessage]);
+
   async function uploadPhoto(file: File) {
     setUploading(true);
     uploadingRef.current = true;
@@ -216,10 +223,10 @@ export function InspectionCapture({
       const uploaded = new Set(merged.map((photo) => photo.angle));
       uploaded.add(capturedAngleId);
       const complete = allAnglesUploaded(uploaded);
-      const nextStep = findNextStepIndex(uploaded, capturedStep);
-      setStepIndex(nextStep);
       if (complete) {
         setScreen("submit");
+      } else {
+        setStepIndex(findNextStepIndex(uploaded, capturedStep));
       }
     } catch (err) {
       setError(inspectionErrorMessage(err, "Upload failed."));

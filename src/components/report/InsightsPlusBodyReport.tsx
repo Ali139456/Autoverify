@@ -4,11 +4,13 @@ import {
   getInspectionPhotoUrl,
   formatReportReference,
   resolveDamageFindingImageUrl,
+  buildDamageCaptionByPhotoAngle,
 } from "@/lib/report-design";
 import {
   INSPECTION_RECORD_ONLY_FOOTNOTE_WITH_STAR,
   isExteriorInspectionAngle,
   formatInspectionPhotoTileLabel,
+  getInspectionAngleLabel,
   isRecordOnlyInspectionPhoto,
 } from "@/lib/inspection-angles";
 import type { InspectionPhoto, VehicleReport } from "@/lib/types";
@@ -44,7 +46,10 @@ function PhotoTile({
       </div>
       <figcaption className="border-t border-slate-200 px-2 py-1.5">
         <p className="text-[11px] font-bold leading-snug text-slate-700">
-          {formatInspectionPhotoTileLabel(photo.label, photo.angle)}
+          {formatInspectionPhotoTileLabel(
+            getInspectionAngleLabel(photo.angle),
+            photo.angle,
+          )}
           {isFrontRego ? (
             <span className="ml-1 font-normal text-slate-500">(rego visible)</span>
           ) : null}
@@ -86,10 +91,7 @@ function PhotoGroup({
           <PhotoTile
             key={`${photo.angle}-${photo.uploadedAt}`}
             photo={photo}
-            caption={
-              damageByPanel.get(photo.label.toLowerCase()) ??
-              damageByPanel.get(photo.angle.toLowerCase())
-            }
+            caption={damageByPanel.get(photo.angle.toLowerCase())}
           />
         ))}
       </div>
@@ -144,10 +146,10 @@ export function InsightsPlusBodyReport({
   const { vehicle, damage } = report;
   const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
 
-  const damageByPanel = new Map<string, string>();
-  damage?.findings.forEach((f) => {
-    damageByPanel.set(f.panel.toLowerCase(), `${f.type} · ${f.severity}`);
-  });
+  const damageByPanel =
+    damage?.findings.length && photos.length
+      ? buildDamageCaptionByPhotoAngle(damage.findings, photos)
+      : new Map<string, string>();
 
   const walkaroundPhotos = photos.filter((photo) =>
     isExteriorInspectionAngle(photo.angle),
@@ -226,7 +228,7 @@ export function InsightsPlusBodyReport({
                 title="Additional photos"
                 photos={additionalPhotos}
                 damageByPanel={damageByPanel}
-                note="Wheels, interior, odometer, keys, and supporting records from the guided inspection."
+                note="Wheels, interior, dash, keys, registration papers, and supporting records from the guided inspection."
               />
             </div>
           </ReportShell>

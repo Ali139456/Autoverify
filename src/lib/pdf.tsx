@@ -26,6 +26,7 @@ import {
 } from "./car-buying-checklist";
 import {
   formatInspectionPhotoTileLabel,
+  getInspectionAngleLabel,
   INSPECTION_RECORD_ONLY_FOOTNOTE_WITH_STAR,
   isExteriorInspectionAngle,
   isRecordOnlyInspectionPhoto,
@@ -665,6 +666,12 @@ function pdfInsightFootnote(insight: ReportInsight): string | undefined {
   if (insight.id === "registration") return undefined;
   const detail = insight.detail?.trim();
   if (!detail) return undefined;
+  if (
+    (insight.id === "servicing-guidelines" || insight.id === "warranty-status") &&
+    !insight.status?.trim()
+  ) {
+    return undefined;
+  }
   const sub = insight.statusSubtext?.trim();
   if (sub && detail === sub) return undefined;
   return detail;
@@ -882,17 +889,17 @@ function PdfInsightCard({
                       </Link>
                     </Text>
                   ) : null}
-                  {insight.id === "ancap" && insight.status === "Not available" ? (
+                  {insight.id === "ancap" && !insight.status?.trim() ? (
                     <Text
                       style={{
                         marginTop: 4,
                         fontSize: PDF_INSIGHT_BODY_SM,
-                        color: GREY,
+                        color: RIDE_SHARE_ORANGE,
                         fontFamily: "Helvetica",
                         lineHeight: PDF_INSIGHT_LINE,
                       }}
                     >
-                      Verify ANCAP{"\n"}rating here:{" "}
+                      Verify ANCAP rating here:{" "}
                       <Link src={ANCAP_SAFETY_RATINGS_URL}>
                         www.ancap.com.au/safety-ratings
                       </Link>
@@ -1792,7 +1799,7 @@ function PdfPhotoGroup({
               const url = resolvePdfImageSrc(getInspectionPhotoUrl(photo));
               const evidenceLines = formatInspectionPhotoEvidenceLines(photo);
               const baseLabel = formatInspectionPhotoTileLabel(
-                photo.label,
+                getInspectionAngleLabel(photo.angle),
                 photo.angle,
               );
               const label =

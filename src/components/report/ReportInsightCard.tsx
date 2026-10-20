@@ -94,6 +94,12 @@ function insightFootnote(insight: ReportInsight): string | undefined {
   if (insight.id === "registration") return undefined;
   const detail = insight.detail?.trim();
   if (!detail) return undefined;
+  if (
+    (insight.id === "servicing-guidelines" || insight.id === "warranty-status") &&
+    !insight.status?.trim()
+  ) {
+    return undefined;
+  }
   const sub = insight.statusSubtext?.trim();
   if (sub && detail === sub) return undefined;
   return detail;
@@ -215,16 +221,14 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                 ) : null}
               </div>
             </div>
-            {insight.id === "ancap" && insight.status === "Not available" ? (
-              <p className="report-insight-ancap-note mt-2 min-w-0 text-[11px] leading-relaxed text-slate-600 [hyphens:none]">
-                Verify ANCAP
-                <br />
-                rating here:{" "}
+            {insight.id === "ancap" && !insight.status?.trim() ? (
+              <p className="report-insight-ancap-note mt-2 min-w-0 text-[11px] font-medium leading-relaxed text-[#E87722] [hyphens:none]">
+                Verify ANCAP rating here:{" "}
                 <a
                   href={ANCAP_SAFETY_RATINGS_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-semibold text-[#0073E3] underline underline-offset-2 [overflow-wrap:anywhere]"
+                  className="font-semibold text-[#E87722] underline underline-offset-2 [overflow-wrap:anywhere]"
                 >
                   {ANCAP_SAFETY_RATINGS_URL}
                 </a>

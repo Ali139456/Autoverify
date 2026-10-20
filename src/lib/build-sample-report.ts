@@ -3,8 +3,8 @@ import {
   computeAiInsights,
 } from "./autograb";
 import {
-  EXTERIOR_INSPECTION_ANGLE_IDS,
   getInspectionAngleLabel,
+  INSPECTION_ANGLE_IDS,
 } from "./inspection-angles";
 import { buildVehicleSpecSheet } from "./vehicle-spec-sheet";
 import { DEMO_MANUFACTURER_WARRANTY_SERVICE } from "./infoagent";
@@ -33,36 +33,31 @@ function sampleDamageUrl(file: string): string {
  */
 const SAMPLE_WALKAROUND_FILES: Record<string, string> = {
   front_left: "front-left.jpg",
+  roof: "roof.jpg",
+  mirror_passenger: "mirror-passenger.jpg",
   front: "front.jpg",
+  windscreen: "windscreen.jpg",
   front_right: "front-right.jpg",
+  mirror_driver: "mirror-driver.jpg",
   right_side: "right-side.jpg",
   rear_right: "rear-right.jpg",
   rear: "rear.jpg",
+  boot_tray_opened: "boot-open.jpg",
   rear_left: "rear-left.jpg",
   left_side: "left-side.jpg",
   wheel_right_front: "wheel-right-front.jpg",
   wheel_right_rear: "wheel-right-rear.jpg",
   wheel_left_front: "wheel-left-front.jpg",
   wheel_left_rear: "wheel-left-rear.jpg",
+  interior_front: "interior-front.jpg",
   interior_driver_front: "interior-front.jpg",
   interior_rear: "interior-rear.jpg",
   dashboard: "odometer.jpg",
   keys: "keys.jpg",
-  service_record: "service-record.jpg",
+  service_record: "registration-papers.jpg",
 };
 
-const SAMPLE_WALKAROUND_ANGLES = [
-  ...EXTERIOR_INSPECTION_ANGLE_IDS,
-  "wheel_right_front",
-  "wheel_right_rear",
-  "wheel_left_rear",
-  "wheel_left_front",
-  "interior_driver_front",
-  "interior_rear",
-  "dashboard",
-  "keys",
-  "service_record",
-] as const;
+const SAMPLE_WALKAROUND_ANGLES = INSPECTION_ANGLE_IDS;
 
 const SAMPLE_DAMAGE: DamageAnalysis = {
   analyzedPhotos: SAMPLE_WALKAROUND_ANGLES.length,

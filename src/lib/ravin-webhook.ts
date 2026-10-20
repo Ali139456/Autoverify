@@ -9,6 +9,13 @@ type RavinDamageItem = {
   score?: number;
   cost?: number;
   currency?: { sign?: string; acronym?: string };
+  url?: string;
+  imageUrl?: string;
+  image_url?: string;
+  photoUrl?: string;
+  photo_url?: string;
+  thumbnailUrl?: string;
+  thumbnail_url?: string;
 };
 
 function mapSeverity(value: unknown): DamageFinding["severity"] {
@@ -68,14 +75,31 @@ export function parseRavinWebhookPayload(
   analyzedPhotos = 0,
 ): DamageAnalysis {
   const rawItems = collectDamageItems(payload);
-  const findings: DamageFinding[] = rawItems.map((item) => ({
-    panel: item.partName || item.locationName || "Unknown panel",
-    type: item.damageTypeName || "Damage",
-    severity: mapSeverity(item.severity ?? item.score),
-    confidence: Math.min(1, Math.max(0, Number(item.score ?? 0.85) / (Number(item.score) > 1 ? 100 : 1))),
-    repairEstimate: Number(item.cost ?? 0),
-    description: item.damageDescription || undefined,
-  }));
+  const findings: DamageFinding[] = rawItems.map((item) => {
+    const imageUrl =
+      item.imageUrl ||
+      item.image_url ||
+      item.url ||
+      item.photoUrl ||
+      item.photo_url ||
+      item.thumbnailUrl ||
+      item.thumbnail_url;
+    return {
+      panel: item.partName || item.locationName || "Unknown panel",
+      type: item.damageTypeName || "Damage",
+      severity: mapSeverity(item.severity ?? item.score),
+      confidence: Math.min(
+        1,
+        Math.max(
+          0,
+          Number(item.score ?? 0.85) / (Number(item.score) > 1 ? 100 : 1),
+        ),
+      ),
+      repairEstimate: Number(item.cost ?? 0),
+      description: item.damageDescription || undefined,
+      imageUrl: typeof imageUrl === "string" ? imageUrl : undefined,
+    };
+  });
 
   return {
     analyzedPhotos,

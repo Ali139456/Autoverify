@@ -6,7 +6,9 @@
 
 `powershell -File scripts/sync-sample-walkaround.ps1`
 
-`walkaround/keys.jpg`, `walkaround/service-record.jpg` — **# Keys** and last service invoice (sources: `image (13).png`, `image (11).png`).
+`walkaround/roof.jpg`, `windscreen.jpg`, `mirror-passenger.jpg`, `mirror-driver.jpg`, `boot-open.jpg` — Denise C300 detail shots (also under `images/` when synced).
+
+`walkaround/keys.jpg`, `walkaround/registration-papers.jpg` — **# Keys** and **Registration papers** (sources: `image (13).png`, `image (11).png`).
 
 `damage/*.jpg` — AI damage evidence for the sample report (**front bumper** scuff, **rear left door** dent). Sources: `images/image (10).png`, `images/image (9).png`.
 

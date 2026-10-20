@@ -6,11 +6,12 @@ import { Camera, Loader2, Upload } from "lucide-react";
 import { MANUAL_DAMAGE_UPLOAD_MAX_PHOTOS } from "@/lib/inspection-angles";
 
 const MANUAL_PHOTO_CHECKLIST = [
-  "Exterior walkaround (8 panels: front, sides, corners, rear)",
+  "Exterior walkaround (passenger/driver corners, roof, windscreen, mirrors, full body sides, boot open)",
   "Four tyre / wheel close-ups",
-  "Interior dash cluster with odometer (engine running)",
-  "Interior seats — driver & passenger front and rear interior",
-  "VIN identification photo (usually on the driver door jamb)",
+  "Dash cluster with odometer (engine running)",
+  "Front and rear interior",
+  "VIN identification photo",
+  "# Keys and registration papers",
 ] as const;
 
 async function readJsonResponse<T extends object>(
