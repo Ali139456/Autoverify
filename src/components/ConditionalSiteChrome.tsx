@@ -15,11 +15,13 @@ export function ConditionalSiteChrome({
 }) {
   const pathname = usePathname();
   const hideMainFooter = pathname.startsWith("/vehicleinspections");
+  const isContactPage = pathname === "/contact";
   const hideFooterPurchaseCta =
     pathname.startsWith("/check") ||
     pathname.startsWith("/checkout") ||
     pathname.startsWith("/report/") ||
-    pathname.startsWith("/sample-report");
+    pathname.startsWith("/sample-report") ||
+    isContactPage;
   const isPreviewLogin = pathname === "/preview";
   const isComingSoonHome =
     pathname === "/" && comingSoonMode && !previewAccess;
@@ -32,7 +34,11 @@ export function ConditionalSiteChrome({
   return (
     <ThemeProvider>
       <Header />
-      <main className="flex-1 w-full min-w-0 overflow-x-clip bg-white pt-[5.75rem] dark:bg-ink-950 sm:pt-[6rem]">
+      <main
+        className={`flex-1 w-full min-w-0 overflow-x-clip pt-[5.75rem] sm:pt-[6rem] ${
+          isContactPage ? "bg-ink-950" : "bg-white dark:bg-ink-950"
+        }`}
+      >
         {children}
       </main>
       {!hideMainFooter && (

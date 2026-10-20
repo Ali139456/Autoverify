@@ -11,6 +11,9 @@ const SUBJECTS = [
   "Technical support",
 ] as const;
 
+const fieldClass =
+  "w-full rounded-xl border border-white/10 bg-[#010626] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-[#4da3ff]/50 focus:ring-2 focus:ring-[#2563eb]/40 disabled:opacity-60";
+
 async function readJson<T extends object>(
   res: Response,
   fallback: string,
@@ -75,18 +78,18 @@ export function ContactForm() {
   if (status === "sent") {
     return (
       <div
-        className="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-6 text-sm text-emerald-900 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-100"
+        className="rounded-2xl border border-emerald-500/30 bg-emerald-950/40 px-5 py-6 text-sm text-emerald-100 backdrop-blur-sm"
         role="status"
       >
-        <p className="font-semibold">Message sent</p>
-        <p className="mt-2 leading-relaxed">
-          Thanks for contacting Auto Verifi. We will reply to your email as
-          soon as we can.
+        <p className="font-semibold text-white">Message sent</p>
+        <p className="mt-2 leading-relaxed text-emerald-100/90">
+          Thanks for contacting Auto Verifi. We will reply to your email as soon
+          as we can.
         </p>
         <button
           type="button"
           onClick={() => setStatus("idle")}
-          className="mt-4 text-sm font-semibold text-[#0073E3] hover:underline"
+          className="mt-4 text-sm font-semibold text-[#93c5fd] hover:text-white"
         >
           Send another message
         </button>
@@ -97,7 +100,7 @@ export function ContactForm() {
   return (
     <form
       onSubmit={onSubmit}
-      className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-ink-900/80 sm:p-6"
+      className="rounded-2xl border border-white/10 bg-[#010626]/70 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.35)] backdrop-blur-md sm:p-6"
     >
       <input
         type="text"
@@ -109,57 +112,54 @@ export function ContactForm() {
       />
 
       <label className="block text-sm">
-        <span className="mb-1.5 block font-medium text-slate-700 dark:text-slate-200">
-          Name
-        </span>
+        <span className="mb-1.5 block text-slate-300">Name</span>
         <input
           name="name"
           required
           autoComplete="name"
+          placeholder="Name"
           disabled={status === "sending"}
-          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-[#0073E3]/50 focus:ring-2 focus:ring-[#0073E3]/25 dark:border-white/10 dark:bg-ink-950 dark:text-white"
+          className={fieldClass}
         />
       </label>
 
       <label className="mt-4 block text-sm">
-        <span className="mb-1.5 block font-medium text-slate-700 dark:text-slate-200">
-          Email
-        </span>
+        <span className="mb-1.5 block text-slate-300">Email</span>
         <input
           type="email"
           name="email"
           required
           autoComplete="email"
+          placeholder="Email"
           disabled={status === "sending"}
-          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-[#0073E3]/50 focus:ring-2 focus:ring-[#0073E3]/25 dark:border-white/10 dark:bg-ink-950 dark:text-white"
+          className={fieldClass}
         />
       </label>
 
       <label className="mt-4 block text-sm">
-        <span className="mb-1.5 block font-medium text-slate-700 dark:text-slate-200">
-          Phone <span className="font-normal text-slate-500">(optional)</span>
+        <span className="mb-1.5 block text-slate-300">
+          Phone <span className="text-slate-500">(optional)</span>
         </span>
         <input
           type="tel"
           name="phone"
           autoComplete="tel"
+          placeholder="Phone"
           disabled={status === "sending"}
-          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-[#0073E3]/50 focus:ring-2 focus:ring-[#0073E3]/25 dark:border-white/10 dark:bg-ink-950 dark:text-white"
+          className={fieldClass}
         />
       </label>
 
       <label className="mt-4 block text-sm">
-        <span className="mb-1.5 block font-medium text-slate-700 dark:text-slate-200">
-          Topic
-        </span>
+        <span className="mb-1.5 block text-slate-300">Topic</span>
         <select
           name="subject"
           defaultValue={SUBJECTS[0]}
           disabled={status === "sending"}
-          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-[#0073E3]/50 focus:ring-2 focus:ring-[#0073E3]/25 dark:border-white/10 dark:bg-ink-950 dark:text-white"
+          className={fieldClass}
         >
           {SUBJECTS.map((option) => (
-            <option key={option} value={option}>
+            <option key={option} value={option} className="bg-[#010626] text-white">
               {option}
             </option>
           ))}
@@ -167,9 +167,7 @@ export function ContactForm() {
       </label>
 
       <label className="mt-4 block text-sm">
-        <span className="mb-1.5 block font-medium text-slate-700 dark:text-slate-200">
-          Message
-        </span>
+        <span className="mb-1.5 block text-slate-300">Message</span>
         <textarea
           name="message"
           required
@@ -177,12 +175,12 @@ export function ContactForm() {
           rows={5}
           disabled={status === "sending"}
           placeholder="How can we help?"
-          className="w-full resize-y rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-[#0073E3]/50 focus:ring-2 focus:ring-[#0073E3]/25 dark:border-white/10 dark:bg-ink-950 dark:text-white"
+          className={`${fieldClass} resize-y`}
         />
       </label>
 
       {error ? (
-        <p className="mt-4 text-sm text-red-600 dark:text-red-400" role="alert">
+        <p className="mt-4 text-sm text-red-400" role="alert">
           {error}
         </p>
       ) : null}
@@ -190,7 +188,7 @@ export function ContactForm() {
       <button
         type="submit"
         disabled={status === "sending"}
-        className="btn-shine mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#0073E3] px-6 py-3.5 text-sm font-bold text-white transition hover:bg-[#0062c2] disabled:opacity-60"
+        className="btn-shine group mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#2563eb] to-[#3b82f6] px-6 py-3.5 text-sm font-bold text-white shadow-[0_10px_28px_rgba(37,99,235,0.35)] transition hover:from-[#1d4ed8] hover:to-[#2563eb] disabled:opacity-60"
       >
         {status === "sending" ? (
           <>
@@ -200,7 +198,7 @@ export function ContactForm() {
         ) : (
           <>
             Send message
-            <Send className="h-4 w-4" aria-hidden />
+            <Send className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
           </>
         )}
       </button>
