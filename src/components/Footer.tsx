@@ -8,6 +8,7 @@ import {
   MapPin,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { AUTOVERIFI_CONTACT_EMAIL } from "@/lib/site-contact";
 
 const QUICK_LINKS = [
   { href: "/#check", label: "Check a vehicle" },
@@ -17,6 +18,7 @@ const QUICK_LINKS = [
   { href: "/#whats-included", label: "What's included" },
   { href: "/#about", label: "About us" },
   { href: "/#faq", label: "FAQ" },
+  { href: "/contact", label: "Contact us" },
 ];
 
 const CHECKS = [
@@ -28,7 +30,6 @@ const CHECKS = [
   "AI powered exterior, tyres and interior condition assessment",
 ];
 
-const CONTACT_EMAIL = "info@autoverifi.com.au";
 const OFFICE_ADDRESS = "Level 35, 100 Barangaroo Avenue, Sydney NSW 2000";
 
 export function Footer({ showPurchaseCta = true }: { showPurchaseCta?: boolean }) {
@@ -117,11 +118,11 @@ export function Footer({ showPurchaseCta = true }: { showPurchaseCta?: boolean }
             ))}
           </ul>
           <a
-            href={`mailto:${CONTACT_EMAIL}`}
+            href="/contact"
             className="mt-5 inline-flex items-center gap-2 text-sm text-slate-600 transition hover:text-accent-600 dark:text-slate-400 dark:hover:text-accent-400"
           >
             <Mail className="h-4 w-4" aria-hidden />
-            {CONTACT_EMAIL}
+            {AUTOVERIFI_CONTACT_EMAIL}
           </a>
         </div>
       </div>
@@ -142,13 +143,10 @@ export function Footer({ showPurchaseCta = true }: { showPurchaseCta?: boolean }
             <Link href="/privacy" className="hover:text-accent-400">
               Privacy Policy
             </Link>
-            <a
-              href={`mailto:${CONTACT_EMAIL}`}
-              className="inline-flex items-center gap-1.5 hover:text-accent-400"
-            >
+            <Link href="/contact" className="inline-flex items-center gap-1.5 hover:text-accent-400">
               <Mail className="h-3.5 w-3.5 text-accent-500" aria-hidden />
               Contact us
-            </a>
+            </Link>
             <span className="inline-flex items-center gap-1.5">
               <Lock className="h-3.5 w-3.5 text-accent-500" aria-hidden />
               SSL encrypted

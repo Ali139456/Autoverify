@@ -2,6 +2,7 @@ import {
   buildPurchaseConfirmationEmailHtml,
   type PurchaseEmailContext,
 } from "./purchase-email-template";
+import { getContactInboxEmail } from "./site-contact";
 import { fetchPpsrCertificateForPurchaseEmail } from "./ppsr-certificate";
 import { generateReportPdfBuffer } from "./report-pdf-buffer";
 import { generateTaxInvoicePdfBuffer } from "./tax-invoice-pdf-buffer";
@@ -170,6 +171,78 @@ export async function sendInspectionPhotosUpdatedEmail(
     const body = await response.text().catch(() => "");
     throw new Error(
       `Resend inspection email failed (${response.status}): ${body.slice(0, 200)}`,
+    );
+  }
+}
+
+function escapeContactHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+export type ContactFormPayload = {
+  name: string;
+  email: string;
+  phone?: string;
+  subject?: string;
+  message: string;
+};
+
+/** Delivers Contact us form submissions to the Auto Verifi inbox via Resend. */
+export async function sendContactFormEmail(
+  payload: ContactFormPayload,
+): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  if (!apiKey) {
+    throw new Error("Contact email is not configured.");
+  }
+
+  const from =
+    process.env.RESEND_FROM?.trim() ??
+    "Auto Verifi <noreply@autoverifi.com.au>";
+  const to = getContactInboxEmail();
+  const name = escapeContactHtml(payload.name);
+  const email = escapeContactHtml(payload.email);
+  const phone = payload.phone?.trim()
+    ? escapeContactHtml(payload.phone.trim())
+    : "";
+  const topic = payload.subject?.trim()
+    ? escapeContactHtml(payload.subject.trim())
+    : "General enquiry";
+  const message = escapeContactHtml(payload.message).replace(/\n/g, "<br/>");
+
+  const html = `<!DOCTYPE html><html><body style="font-family:sans-serif;color:#0f172a;line-height:1.55">
+<p><strong>Contact form — Auto Verifi website</strong></p>
+<p><strong>Name:</strong> ${name}<br/>
+<strong>Email:</strong> <a href="mailto:${email}">${email}</a><br/>
+${phone ? `<strong>Phone:</strong> ${phone}<br/>` : ""}
+<strong>Topic:</strong> ${topic}</p>
+<p><strong>Message:</strong></p>
+<p>${message}</p>
+</body></html>`;
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from,
+      to,
+      reply_to: payload.email.trim(),
+      subject: `Auto Verifi contact — ${payload.subject?.trim() || payload.name.trim()}`,
+      html,
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => "");
+    throw new Error(
+      `Resend contact email failed (${response.status}): ${body.slice(0, 200)}`,
     );
   }
 }

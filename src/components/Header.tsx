@@ -14,6 +14,7 @@ const MAIN_LINKS = [
   { href: "/pricing", label: "Pricing" },
   { href: "/#about", label: "About us" },
   { href: "/#faq", label: "FAQ" },
+  { href: "/contact", label: "Contact" },
 ] as const;
 
 const INSPECTION_PAGE_LINKS = [
@@ -353,7 +354,9 @@ export function Header() {
 
         <nav className="hidden items-center gap-1 rounded-full border border-white/10 bg-ink-800/80 p-1 md:flex">
           {links.map((l) => {
-            const active = l.href === "/pricing" && pathname === "/pricing";
+            const active =
+              (l.href === "/pricing" && pathname === "/pricing") ||
+              (l.href === "/contact" && pathname === "/contact");
             return (
               <Link
                 key={l.href}
