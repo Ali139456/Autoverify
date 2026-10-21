@@ -151,7 +151,7 @@ function buildMercedesSampleCore() {
 
   const registration = {
     status: "Registered" as const,
-    expiryDate: "2027-02-16",
+    expiryDate: "2027-09-01",
     stolen: false,
     writtenOff: false,
     writeOffDetails: null,

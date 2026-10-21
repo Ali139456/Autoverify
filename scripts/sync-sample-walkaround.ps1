@@ -128,7 +128,7 @@ $map = @(
 
   @{ Dest = "keys.jpg"; Sources = @("image (13).png") },
 
-  @{ Dest = "registration-papers.jpg"; Sources = @("sample-sources\registration-papers.png", "image (11).png") }
+  @{ Dest = "registration-papers.jpg"; Sources = @("sample-sources\registration-papers.jpg", "sample-sources\registration-papers.png", "image (11).png") }
 
 )
 
