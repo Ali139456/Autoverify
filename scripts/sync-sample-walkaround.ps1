@@ -86,7 +86,9 @@ function Copy-WalkaroundFile {
 
 $map = @(
 
-  @{ Dest = "front.jpg"; Sources = @("image (10).png", "sample-sources\front-centre.jpg") },
+  @{ Dest = "front.jpg"; Sources = @("image.png", "sample-sources\front-centre.jpg", "image (10).png") },
+
+  @{ Dest = "vin-plate.jpg"; Sources = @("sample-sources\vin-plate.jpg", "mercedes_driver_interior_under_500kb.jpg") },
 
   @{ Dest = "front-left.jpg"; Sources = @("image (2).png", "sample-sources\front-passenger.jpg") },
 

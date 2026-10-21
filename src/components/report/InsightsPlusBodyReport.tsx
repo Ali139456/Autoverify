@@ -233,7 +233,7 @@ export function InsightsPlusBodyReport({
                 title="Additional photos"
                 photos={additionalPhotos}
                 damageByPanel={damageByPanel}
-                note="Wheels, interior, dash, keys, registration papers, and supporting records from the guided inspection."
+                note="Keys and Registration paper records from the guided inspection."
               />
             </div>
           </ReportShell>

@@ -1969,7 +1969,7 @@ function InsightsPlusAdditionalPhotosPage({
         <PdfPhotoGroup
           title="Additional Photos"
           photos={additionalPhotos}
-          note="Wheels, interior, odometer, keys, and supporting records from the guided inspection."
+          note="Keys and Registration paper records from the guided inspection."
           photoImageHeight={92}
           photoObjectFit="contain"
         />
