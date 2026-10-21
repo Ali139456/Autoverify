@@ -568,12 +568,33 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     overflow: "hidden",
   },
+  photoImageWrap: {
+    position: "relative",
+    width: "100%",
+    overflow: "hidden",
+  },
   photoImage: {
     width: "100%",
     height: 64,
     objectFit: "cover",
     objectPosition: "center",
     backgroundColor: "#f1f5f9",
+  },
+  photoImageLabelBar: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: 3,
+    paddingTop: 8,
+    paddingBottom: 2,
+    backgroundColor: "rgba(15, 23, 42, 0.82)",
+  },
+  photoImageLabelText: {
+    fontSize: 5.5,
+    fontFamily: "Helvetica-Bold",
+    color: "#ffffff",
+    lineHeight: 1.25,
   },
   photoCaption: {
     paddingHorizontal: 4,
@@ -1814,26 +1835,35 @@ function PdfPhotoGroup({
                     i === row.length - 1 ? { marginRight: 0 } : {},
                   ]}
                 >
-                  {url ? (
-                    <Image
-                      src={url}
-                      style={[
-                        styles.photoImage,
-                        {
-                          height: photoImageHeight,
-                          objectFit: photoObjectFit,
-                        },
-                      ]}
-                    />
-                  ) : (
-                    <View
-                      style={[
-                        styles.photoImage,
-                        { height: photoImageHeight, backgroundColor: LIGHT },
-                      ]}
-                    />
-                  )}
-                  <Text style={styles.photoCaption}>{label}</Text>
+                  <View
+                    style={[
+                      styles.photoImageWrap,
+                      { height: photoImageHeight },
+                    ]}
+                  >
+                    {url ? (
+                      <Image
+                        src={url}
+                        style={[
+                          styles.photoImage,
+                          {
+                            height: photoImageHeight,
+                            objectFit: photoObjectFit,
+                          },
+                        ]}
+                      />
+                    ) : (
+                      <View
+                        style={[
+                          styles.photoImage,
+                          { height: photoImageHeight, backgroundColor: LIGHT },
+                        ]}
+                      />
+                    )}
+                    <View style={styles.photoImageLabelBar}>
+                      <Text style={styles.photoImageLabelText}>{label}</Text>
+                    </View>
+                  </View>
                   {evidenceLines.map((line) => (
                     <Text key={line} style={styles.photoEvidenceCaption}>
                       {line}

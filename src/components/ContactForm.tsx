@@ -85,8 +85,7 @@ export function ContactForm() {
       >
         <p className="text-lg font-bold text-white">Thanks — message sent</p>
         <p className="mt-2 text-sm leading-relaxed text-slate-300">
-          We&apos;ll reply to your email as soon as we can, usually within one
-          business day.
+          We&apos;ll reply to your email shortly.
         </p>
         <button
           type="button"

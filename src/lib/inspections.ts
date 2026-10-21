@@ -5,6 +5,7 @@ import {
   INSPECTION_PHOTO_BUCKET,
   getInspectionAngleLabel,
   isValidInspectionAngleId,
+  sortInspectionPhotos,
 } from "./inspection-angles";
 import { createServerClient } from "./supabase/server";
 import { isSupabaseServerConfigured } from "./supabase/server";
@@ -394,14 +395,15 @@ const INSPECTION_PHOTO_SIGNED_URL_TTL_SEC = 60 * 60 * 24;
 export async function resolveInspectionPhotoUrls(
   photos: InspectionPhoto[],
 ): Promise<InspectionPhoto[]> {
-  if (photos.length === 0 || !isSupabaseServerConfigured()) {
-    return photos;
+  const ordered = sortInspectionPhotos(photos);
+  if (ordered.length === 0 || !isSupabaseServerConfigured()) {
+    return ordered;
   }
 
   const supabase = createServerClient();
 
   return Promise.all(
-    photos.map(async (photo) => {
+    ordered.map(async (photo) => {
       if (photo.externalUrl?.startsWith("http")) {
         return photo;
       }

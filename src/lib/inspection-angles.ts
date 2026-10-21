@@ -150,3 +150,35 @@ export function formatInspectionPhotoTileLabel(
   }
   return label;
 }
+
+const LEGACY_INSPECTION_PHOTO_SORT_INDEX: Record<string, number> = {
+  odometer: 900,
+  wheels: 901,
+  interior: 902,
+  interior_passenger_rear: 903,
+  interior_driver_rear: 903,
+  interior_rear_boot: 904,
+  interior_driver_front: 905,
+  interior_passenger_front: 905,
+};
+
+/** Stable walkthrough order for report/PDF grids (matches guided capture steps). */
+export function sortInspectionPhotos<T extends { angle: string }>(
+  photos: T[],
+): T[] {
+  const order = new Map<string, number>(
+    INSPECTION_ANGLE_IDS.map((id, index) => [id, index]),
+  );
+  return [...photos].sort((a, b) => {
+    const ai =
+      order.get(a.angle) ??
+      LEGACY_INSPECTION_PHOTO_SORT_INDEX[a.angle] ??
+      9999;
+    const bi =
+      order.get(b.angle) ??
+      LEGACY_INSPECTION_PHOTO_SORT_INDEX[b.angle] ??
+      9999;
+    if (ai !== bi) return ai - bi;
+    return a.angle.localeCompare(b.angle);
+  });
+}

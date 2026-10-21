@@ -28,6 +28,10 @@ function PhotoTile({
 }) {
   const url = getInspectionPhotoUrl(photo);
   const isFrontRego = photo.angle === "front";
+  const tileLabel = formatInspectionPhotoTileLabel(
+    getInspectionAngleLabel(photo.angle),
+    photo.angle,
+  );
   return (
     <figure className="report-photo-tile overflow-hidden rounded-lg border border-slate-200 bg-white">
       <div className="relative flex aspect-[4/3] items-center justify-center bg-slate-100">
@@ -35,25 +39,27 @@ function PhotoTile({
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={url}
-            alt={photo.label}
+            alt={tileLabel}
             className="max-h-full max-w-full object-contain object-center"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-slate-400">
+          <div className="flex h-full w-full items-center justify-center text-slate-400">
             <Camera className="h-6 w-6" aria-hidden />
           </div>
         )}
+        <div
+          className="report-photo-tile-label pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/55 to-transparent px-2 pb-1.5 pt-6"
+          aria-hidden
+        >
+          <p className="text-[10px] font-bold leading-snug text-white drop-shadow-sm sm:text-[11px]">
+            {tileLabel}
+            {isFrontRego ? (
+              <span className="font-normal text-white/85"> (rego visible)</span>
+            ) : null}
+          </p>
+        </div>
       </div>
       <figcaption className="border-t border-slate-200 px-2 py-1.5">
-        <p className="text-[11px] font-bold leading-snug text-slate-700">
-          {formatInspectionPhotoTileLabel(
-            getInspectionAngleLabel(photo.angle),
-            photo.angle,
-          )}
-          {isFrontRego ? (
-            <span className="ml-1 font-normal text-slate-500">(rego visible)</span>
-          ) : null}
-        </p>
         <InspectionPhotoEvidenceCaption photo={photo} />
         {caption ? (
           <p className="mt-0.5 text-[10px] text-red-600">{caption}</p>

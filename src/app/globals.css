@@ -2066,6 +2066,11 @@ html.dark body {
     background-color: #f1f5f9 !important;
   }
 
+  .report-photo-tile-label {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
   .report-insights-section {
     flex: 1 1 auto !important;
     display: flex !important;
