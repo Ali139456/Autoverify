@@ -13,6 +13,7 @@ import { PaymentTermsModal } from "@/components/PaymentTermsModal";
 import { formatCents, getReportTierConfig } from "@/lib/pricing";
 import { applyPercentDiscount, lookupPromoCode } from "@/lib/promo-codes";
 import type { ReportTier } from "@/lib/types";
+import type { AutograbAssetCategory } from "@/lib/autograb-catalogue";
 
 
 
@@ -36,6 +37,10 @@ export function CheckoutBookingForm({
 
   tier,
 
+  catalogueVehicleId,
+
+  assetCategory = "conventional",
+
 }: {
 
   identifier: string;
@@ -45,6 +50,10 @@ export function CheckoutBookingForm({
   isVin?: boolean;
 
   tier: ReportTier;
+
+  catalogueVehicleId?: string;
+
+  assetCategory?: AutograbAssetCategory;
 
 }) {
 
@@ -524,6 +533,10 @@ export function CheckoutBookingForm({
             customerOdometer={odometer ? Number(odometer) : undefined}
 
             advertisedPrice={salePrice ? Number(salePrice) : undefined}
+
+            catalogueVehicleId={catalogueVehicleId}
+
+            assetCategory={assetCategory}
 
             agreedTerms={agreedTerms}
 

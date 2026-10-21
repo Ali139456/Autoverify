@@ -4,17 +4,22 @@ import { useEffect, useState } from "react";
 import { CheckoutBookingForm } from "@/components/CheckoutBookingForm";
 import { PricingTierCards } from "@/components/PricingTierCards";
 import type { ReportTier } from "@/lib/types";
+import type { AutograbAssetCategory } from "@/lib/autograb-catalogue";
 
 export function CheckPageCheckout({
   identifier,
   state,
   isVin,
   initialTier = "insights",
+  catalogueVehicleId,
+  assetCategory = "conventional",
 }: {
   identifier: string;
   state: string;
   isVin: boolean;
   initialTier?: ReportTier;
+  catalogueVehicleId?: string;
+  assetCategory?: AutograbAssetCategory;
 }) {
   const [selectedTier, setSelectedTier] = useState<ReportTier>(initialTier);
 
@@ -54,6 +59,8 @@ export function CheckPageCheckout({
             state={state}
             isVin={isVin}
             tier={selectedTier}
+            catalogueVehicleId={catalogueVehicleId}
+            assetCategory={assetCategory}
           />
       </div>
     </>

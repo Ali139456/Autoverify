@@ -2,14 +2,20 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import { lookupVehicle } from "@/lib/autograb";
+import { parseAssetCategory } from "@/lib/autograb-catalogue";
 import { AustralianState } from "@/lib/types";
 import {
   formatVehicleIdentifierLabel,
   parseVehicleIdentifier,
 } from "@/lib/vehicle-identifier";
 import { CheckPageCheckout } from "@/components/CheckPageCheckout";
+import { CheckVehicleMismatch } from "@/components/CheckVehicleMismatch";
 import { parseReportTier } from "@/lib/pricing";
 import { RegoSearchForm } from "@/components/RegoSearchForm";
+import {
+  isVehicleLookupMismatchError,
+  type VehicleLookupMismatchKind,
+} from "@/lib/vehicle-lookup-errors";
 
 export const metadata: Metadata = {
   title: "Vehicle Preview",
@@ -29,10 +35,14 @@ export default async function CheckPage({
     state?: string;
     cancelled?: string;
     tier?: string;
+    category?: string;
+    vehicleId?: string;
   }>;
 }) {
   const params = await searchParams;
   const initialTier = parseReportTier(params.tier);
+  const assetCategory = parseAssetCategory(params.category);
+  const catalogueVehicleId = params.vehicleId?.trim() || undefined;
   const rawIdentifier = (params.vin ?? params.rego ?? "").trim();
   const state = (params.state ?? "NSW").toUpperCase() as AustralianState;
   const cancelled = params.cancelled === "1";
@@ -59,15 +69,32 @@ export default async function CheckPage({
 
   let lookup;
   let lookupError: string | null = null;
+  let lookupMismatch: {
+    kind: VehicleLookupMismatchKind;
+    message: string;
+    upstreamVehicle?: string;
+  } | null = null;
   try {
     lookup = await lookupVehicle(
       parsed.value,
       parsed.kind === "rego" ? state : validState ? state : undefined,
-      { preview: true },
+      {
+        preview: true,
+        category: assetCategory,
+        catalogueVehicleId,
+      },
     );
   } catch (err) {
-    lookupError =
-      err instanceof Error ? err.message : "We couldn't find that vehicle.";
+    if (isVehicleLookupMismatchError(err)) {
+      lookupMismatch = {
+        kind: err.kind,
+        message: err.message,
+        upstreamVehicle: err.details.upstreamVehicle,
+      };
+    } else {
+      lookupError =
+        err instanceof Error ? err.message : "We couldn't find that vehicle.";
+    }
   }
 
   const identifierLabel = formatVehicleIdentifierLabel(parsed, state);
@@ -75,18 +102,34 @@ export default async function CheckPage({
   if (!lookup) {
     return (
       <div className={pageShellClass}>
-        <div className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Vehicle not found</h1>
-          <p className="mt-2 text-slate-600 dark:text-slate-400">{lookupError}</p>
-          <div className="mx-auto mt-8 max-w-xl">
-            <RegoSearchForm
-              defaultRego={parsed.kind === "rego" ? parsed.value : ""}
-              defaultVin={parsed.kind === "vin" ? parsed.value : ""}
-              defaultState={state}
-              compact
-            />
+        {lookupMismatch ? (
+          <CheckVehicleMismatch
+            kind={lookupMismatch.kind}
+            message={lookupMismatch.message}
+            upstreamVehicle={lookupMismatch.upstreamVehicle}
+            rego={parsed.kind === "rego" ? parsed.value : undefined}
+            vin={parsed.kind === "vin" ? parsed.value : undefined}
+            state={state}
+            tier={initialTier}
+          />
+        ) : (
+          <div className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+              Vehicle not found
+            </h1>
+            <p className="mt-2 text-slate-600 dark:text-slate-400">
+              {lookupError}
+            </p>
+            <div className="mx-auto mt-8 max-w-xl">
+              <RegoSearchForm
+                defaultRego={parsed.kind === "rego" ? parsed.value : ""}
+                defaultVin={parsed.kind === "vin" ? parsed.value : ""}
+                defaultState={state}
+                compact
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     );
   }
@@ -150,6 +193,8 @@ export default async function CheckPage({
             state={checkoutState}
             isVin={parsed.kind === "vin"}
             initialTier={initialTier}
+            catalogueVehicleId={catalogueVehicleId}
+            assetCategory={assetCategory}
           />
         </div>
 

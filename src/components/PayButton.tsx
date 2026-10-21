@@ -32,6 +32,8 @@ export function PayButton({
   customerOdometer,
   advertisedPrice,
   promoCode,
+  catalogueVehicleId,
+  assetCategory = "conventional",
 }: {
   identifier?: string;
   /** @deprecated Use `identifier` instead. */
@@ -55,6 +57,8 @@ export function PayButton({
   customerOdometer?: number;
   advertisedPrice?: number;
   promoCode?: string;
+  catalogueVehicleId?: string;
+  assetCategory?: string;
 }) {
   const vehicleId = identifier ?? rego ?? "";
   const router = useRouter();
@@ -135,6 +139,8 @@ export function PayButton({
           agreedTerms: true,
           marketingOptIn,
           promoCode: promoCode?.trim() || undefined,
+          catalogueVehicleId: catalogueVehicleId || undefined,
+          category: assetCategory || undefined,
         }),
       });
       const data = await res.json();

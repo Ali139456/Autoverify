@@ -11,6 +11,12 @@ import {
 } from "@/lib/vehicle-identifier";
 import { VEHICLE_SEARCH_INPUT_ID } from "@/lib/scroll-to-vehicle-search";
 import { VehicleSearchLoading } from "@/components/VehicleSearchLoading";
+import {
+  AUTOGRAB_ASSET_CATEGORY_LABELS,
+  DEFAULT_ASSET_CATEGORY,
+  isPurchaseAssetCategory,
+  type AutograbAssetCategory,
+} from "@/lib/autograb-catalogue";
 
 const STATES = ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "ACT", "NT"];
 
@@ -43,6 +49,8 @@ export function RegoSearchForm({
   const router = useRouter();
   const [query, setQuery] = useState(defaultVin || defaultRego);
   const [state, setState] = useState(defaultState);
+  const [assetCategory, setAssetCategory] =
+    useState<AutograbAssetCategory>(DEFAULT_ASSET_CATEGORY);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const vinMode = isVin(query);
@@ -63,19 +71,27 @@ export function RegoSearchForm({
       setError("Please select a valid state.");
       return;
     }
+    if (!isPurchaseAssetCategory(assetCategory)) {
+      setError(
+        "Auto Verifi is currently only available for cars (bikes, caravans, trucks and boats are coming soon).",
+      );
+      return;
+    }
 
     setError(null);
     setLoading(true);
 
+    const categoryParam = `category=${assetCategory}`;
+
     if (parsed.kind === "vin") {
-      const params = new URLSearchParams({ vin: parsed.value });
+      const params = new URLSearchParams({ vin: parsed.value, category: assetCategory });
       if (state) params.set("state", state);
       router.push(`/check?${params.toString()}`);
       return;
     }
 
     router.push(
-      `/check?rego=${encodeURIComponent(parsed.value)}&state=${state}`,
+      `/check?rego=${encodeURIComponent(parsed.value)}&state=${state}&${categoryParam}`,
     );
   }
 
@@ -122,6 +138,9 @@ export function RegoSearchForm({
             State{vinMode ? " (optional)" : ""}
           </span>
         </div>
+        <div className="mb-1.5 text-left">
+          <span className={labelClass}>Vehicle type</span>
+        </div>
 
         <div className="flex gap-1.5 sm:gap-2">
           <div className="relative min-w-0 flex-1">
@@ -153,6 +172,38 @@ export function RegoSearchForm({
               <ChevronDown className="h-3 w-3 text-accent-500 dark:text-accent-400" aria-hidden />
             </span>
           </div>
+        </div>
+
+        <div className="relative mt-1.5">
+          <select
+            value={assetCategory}
+            onChange={(e) =>
+              setAssetCategory(e.target.value as AutograbAssetCategory)
+            }
+            aria-label="Vehicle type"
+            className={`${fieldClass} cursor-pointer appearance-none pl-2.5 pr-8 text-left sm:pl-3`}
+          >
+            {(
+              Object.entries(AUTOGRAB_ASSET_CATEGORY_LABELS) as [
+                AutograbAssetCategory,
+                string,
+              ][]
+            ).map(([value, label]) => (
+              <option
+                key={value}
+                value={value}
+                disabled={!isPurchaseAssetCategory(value)}
+              >
+                {label}
+              </option>
+            ))}
+          </select>
+          <span className="pointer-events-none absolute right-1.5 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5">
+            <ChevronDown
+              className="h-3 w-3 text-accent-500 dark:text-accent-400"
+              aria-hidden
+            />
+          </span>
         </div>
 
         <div

@@ -34,6 +34,17 @@ import {
   fetchManufacturerWarrantyService,
   isInfoAgentConfigured,
 } from "./infoagent";
+import {
+  AutograbAssetCategory,
+  buildRegistrationLookupQuery,
+  buildVinLookupQuery,
+  CARS_ONLY_AVAILABILITY_NOTE,
+  DEFAULT_ASSET_CATEGORY,
+  FACET_MANUAL_SELECT_HINT,
+  isPurchaseAssetCategory,
+  upstreamIndicatesNonCarAsset,
+} from "./autograb-catalogue";
+import { VehicleLookupMismatchError } from "./vehicle-lookup-errors";
 
 const AUTOGRAB_API_KEY = process.env.AUTOGRAB_API_KEY;
 const AUTOGRAB_BASE_URL =
@@ -88,6 +99,10 @@ export type VehicleLookupOptions = {
   customerOdometer?: number | null;
   /** Advertised / listing price (AUD) — sent as AutoGrab `rrp_overwrite` on residual valuations. */
   listingPrice?: number | null;
+  /** AutoGrab catalogue to match against (default `conventional` — cars / light commercial). */
+  category?: AutograbAssetCategory;
+  /** When set, skip plate/VIN catalogue matching and load this AutoGrab vehicle ID instead. */
+  catalogueVehicleId?: string | null;
 };
 
 export async function lookupVehicle(
@@ -99,6 +114,29 @@ export async function lookupVehicle(
   if (!parsed) {
     throw new Error(
       "Enter a valid registration plate or 17-character VIN.",
+    );
+  }
+
+  const category = options.category ?? DEFAULT_ASSET_CATEGORY;
+  if (!isPurchaseAssetCategory(category)) {
+    throw new VehicleLookupMismatchError(
+      "unsupported_asset_category",
+      CARS_ONLY_AVAILABILITY_NOTE,
+      { requestedCategory: category },
+    );
+  }
+
+  const catalogueVehicleId = options.catalogueVehicleId?.trim();
+  if (catalogueVehicleId && AUTOGRAB_API_KEY) {
+    const contextState = state ?? "NSW";
+    if (parsed.kind === "rego" && !state) {
+      throw new Error("Please select a state for registration plate lookup.");
+    }
+    return lookupViaCatalogueVehicleId(
+      catalogueVehicleId,
+      parsed,
+      parsed.kind === "rego" ? state! : contextState,
+      { ...options, category },
     );
   }
 
@@ -143,14 +181,72 @@ async function autograbPost(path: string, body: JsonRecord): Promise<Response> {
   });
 }
 
+function assertRegistrationMatchQuality(
+  registrationData: JsonRecord,
+  vehicleRecord: JsonRecord,
+  category: AutograbAssetCategory,
+): void {
+  const confidence = stringFromRecord(registrationData.confidence);
+  const vehicleCategory = stringFromRecord(vehicleRecord.category);
+  const upstream = stringFromRecord(registrationData.upstream_vehicle);
+
+  if (
+    upstreamIndicatesNonCarAsset(upstream) ||
+    (category === "conventional" &&
+      vehicleCategory &&
+      vehicleCategory !== "conventional")
+  ) {
+    throw new VehicleLookupMismatchError(
+      "non_car_asset",
+      CARS_ONLY_AVAILABILITY_NOTE,
+      {
+        upstreamVehicle: upstream ?? undefined,
+        confidence: confidence ?? undefined,
+        vehicleCategory: vehicleCategory ?? undefined,
+      },
+    );
+  }
+
+  if (confidence === "reduced") {
+    throw new VehicleLookupMismatchError(
+      "reduced_confidence",
+      FACET_MANUAL_SELECT_HINT,
+      {
+        upstreamVehicle: upstream ?? undefined,
+        confidence: confidence ?? undefined,
+        vehicleCategory: vehicleCategory ?? undefined,
+      },
+    );
+  }
+}
+
+function assertCatalogueVehicleCategory(
+  vehicleRecord: JsonRecord,
+  category: AutograbAssetCategory,
+): void {
+  const vehicleCategory = stringFromRecord(vehicleRecord.category);
+  if (
+    category === "conventional" &&
+    vehicleCategory &&
+    vehicleCategory !== "conventional"
+  ) {
+    throw new VehicleLookupMismatchError(
+      "non_car_asset",
+      CARS_ONLY_AVAILABILITY_NOTE,
+      { vehicleCategory: vehicleCategory ?? undefined },
+    );
+  }
+}
+
 async function lookupViaAutograb(
   rego: string,
   state: AustralianState,
   options: VehicleLookupOptions = {},
 ): Promise<VehicleLookupResult> {
   const plate = rego.toUpperCase();
+  const category = options.category ?? DEFAULT_ASSET_CATEGORY;
   const registrationRes = await autograbGet(
-    `/vehicles/registrations/${encodeURIComponent(plate)}?region=au&state=${state}&features=${REGISTRATION_FEATURES}`,
+    `/vehicles/registrations/${encodeURIComponent(plate)}?${buildRegistrationLookupQuery(state, { category, features: REGISTRATION_FEATURES })}`,
   );
 
   if (registrationRes.status === 404) {
@@ -180,6 +276,8 @@ async function lookupViaAutograb(
         : `No vehicle found for registration ${plate} (${state}). Check the plate and try again.`,
     );
   }
+
+  assertRegistrationMatchQuality(registrationData, vehicleRecord, category);
 
   const vehicle = mapVehicleIdentity(
     plate,
@@ -304,8 +402,9 @@ async function lookupViaVin(
   state: AustralianState,
   options: VehicleLookupOptions = {},
 ): Promise<VehicleLookupResult> {
+  const category = options.category ?? DEFAULT_ASSET_CATEGORY;
   const res = await autograbGet(
-    `/vehicles/vins/${encodeURIComponent(vin)}?region=au&features=${REGISTRATION_FEATURES}`,
+    `/vehicles/vins/${encodeURIComponent(vin)}?${buildVinLookupQuery({ category, features: REGISTRATION_FEATURES })}`,
   );
 
   if (res.status === 404) {
@@ -335,6 +434,8 @@ async function lookupViaVin(
         : `No vehicle found for VIN ${vin}. Check the VIN and try again.`,
     );
   }
+
+  assertRegistrationMatchQuality(vinData, vehicleRecord, category);
 
   const vehicle = mapVehicleIdentityFromVin(vin, state, vehicleRecord, vinData);
 
@@ -393,6 +494,150 @@ async function lookupViaVin(
     registration,
     vehicleRecord,
     registrationData: vinData,
+    detailedSpecs,
+  });
+
+  const result: VehicleLookupResult = {
+    vehicle,
+    registration,
+    valuation: resolvedValuation,
+    futureValue: resolvedFutureValue,
+    market: market ?? demo.market,
+    ai: demo.ai,
+    vehicleSpec,
+  };
+
+  await attachSourcingOdometerHistory(vehicle, options.preview);
+
+  result.ai = computeAiInsights(
+    result.vehicle,
+    result.valuation,
+    result.registration,
+  );
+  await attachManufacturerWarrantyService(result, options.preview);
+  return result;
+}
+
+async function lookupViaCatalogueVehicleId(
+  catalogueVehicleId: string,
+  parsed: NonNullable<ReturnType<typeof parseVehicleIdentifier>>,
+  state: AustralianState,
+  options: VehicleLookupOptions,
+): Promise<VehicleLookupResult> {
+  const category = options.category ?? DEFAULT_ASSET_CATEGORY;
+  const res = await autograbGet(
+    `/vehicles/${encodeURIComponent(catalogueVehicleId)}?region=au`,
+  );
+
+  if (!res.ok) {
+    throw new Error(
+      "We couldn't load that vehicle from the catalogue. Please search again.",
+    );
+  }
+
+  const data = (await res.json()) as JsonRecord;
+  const vehicleRecord = data.vehicle as JsonRecord | undefined;
+  if (!vehicleRecord) {
+    throw new Error(
+      "We couldn't load that vehicle from the catalogue. Please search again.",
+    );
+  }
+
+  assertCatalogueVehicleCategory(vehicleRecord, category);
+
+  const vehicleId =
+    stringFromRecord(vehicleRecord.id) ?? catalogueVehicleId;
+
+  let registrationData: JsonRecord = { confidence: "standard" };
+  const plate = parsed.kind === "rego" ? parsed.value.toUpperCase() : "";
+
+  if (parsed.kind === "rego") {
+    const registrationRes = await autograbGet(
+      `/vehicles/registrations/${encodeURIComponent(plate)}?${buildRegistrationLookupQuery(state, { category, features: REGISTRATION_FEATURES })}`,
+    );
+    if (registrationRes.ok) {
+      registrationData = (await registrationRes.json()) as JsonRecord;
+    }
+  } else {
+    registrationData = { vin: parsed.value, confidence: "standard" };
+  }
+
+  const vehicle =
+    parsed.kind === "rego"
+      ? mapVehicleIdentity(plate, state, vehicleRecord, registrationData)
+      : mapVehicleIdentityFromVin(
+          parsed.value,
+          state,
+          vehicleRecord,
+          registrationData,
+        );
+
+  applyCustomerOdometer(vehicle, options.customerOdometer);
+
+  const [detailedSpecs, market] = await Promise.all([
+    options.preview
+      ? Promise.resolve(null)
+      : enrichVehicleFromAutograb(
+          vehicle,
+          vehicleId,
+          vehicleRecord,
+          registrationData,
+        ),
+    fetchMarketOverlay(vehicleId, vehicle),
+  ]);
+
+  if (!options.customerOdometer && market?.averageOdometer) {
+    vehicle.odometer = market.averageOdometer;
+    vehicle.odometerSource =
+      "Average odometer from comparable vehicles currently listed on the market (AutoGrab).";
+  }
+  await applyHeroImage(vehicle, vehicleId, market, {
+    skipStockPhotos: options.preview,
+  });
+
+  const writeoffFromFeatures =
+    parseWriteoffFromRegistrationData(registrationData);
+  const [registrationStatus, valuation, ppsr, futureValue] = await Promise.all([
+    plate
+      ? fetchRegistrationStatus(plate, state)
+      : Promise.resolve(null),
+    fetchValuation(vehicleId, vehicle),
+    options.preview
+      ? Promise.resolve(null)
+      : fetchPpsrLookup({
+          vin: vehicle.vin,
+          rego: plate || undefined,
+          state,
+        }),
+    fetchResidualValuation(vehicleId, vehicle, options.listingPrice).then(
+      (value) => value ?? null,
+    ),
+  ]);
+
+  applyPpsrPlateToVehicle(vehicle, ppsr);
+
+  const demo =
+    parsed.kind === "rego"
+      ? buildDemoResult(plate, state)
+      : buildDemoResult(parsed.value, state, { vin: parsed.value });
+  const resolvedValuation = valuation ?? demo.valuation;
+  const resolvedFutureValue =
+    futureValue ??
+    buildEstimatedFutureValue(vehicle, resolvedValuation, options.listingPrice);
+
+  const registration = mergeRegistrationInfo({
+    status: registrationStatus,
+    writeoff: writeoffFromFeatures,
+    ppsr,
+    vehicleFound: true,
+    registrationPayload: registrationData,
+  });
+
+  const vehicleSpec = buildVehicleSpecSheet({
+    vehicle,
+    registration,
+    vehicleRecord,
+    registrationData,
     detailedSpecs,
   });
 
@@ -1017,7 +1262,7 @@ async function fetchRegistrationPayloadSummary(
   state: AustralianState,
 ): Promise<Pick<RegistrationInfo, "status" | "expiryDate"> | null> {
   const res = await autograbGet(
-    `/vehicles/registrations/${encodeURIComponent(plate)}?region=au&state=${state}&features=${REGISTRATION_FEATURES}`,
+    `/vehicles/registrations/${encodeURIComponent(plate)}?${buildRegistrationLookupQuery(state, { category: DEFAULT_ASSET_CATEGORY, features: REGISTRATION_FEATURES })}`,
   );
   if (!res.ok) return null;
   const data = (await res.json()) as JsonRecord;
@@ -1028,6 +1273,46 @@ async function fetchRegistrationPayloadSummary(
     expiryDate: expiryDate ?? null,
     status: status ?? "Registered",
   };
+}
+
+/** Proxy AutoGrab facet lists for manual vehicle selection (server-side only). */
+export async function fetchAutograbFacets(
+  query: URLSearchParams,
+): Promise<JsonRecord> {
+  if (!AUTOGRAB_API_KEY?.trim()) {
+    return { success: false, message: "Vehicle search is not configured." };
+  }
+  query.set("region", query.get("region") ?? "au");
+  const res = await autograbGet(`/vehicles/facets?${query.toString()}`);
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(
+      typeof body?.message === "string"
+        ? body.message
+        : `Facet lookup failed (${res.status}).`,
+    );
+  }
+  return (await res.json()) as JsonRecord;
+}
+
+/** Proxy AutoGrab facet search for manual vehicle selection (server-side only). */
+export async function fetchAutograbFacetSearch(
+  query: URLSearchParams,
+): Promise<JsonRecord> {
+  if (!AUTOGRAB_API_KEY?.trim()) {
+    return { success: false, vehicles: [] };
+  }
+  query.set("region", query.get("region") ?? "au");
+  const res = await autograbGet(`/vehicles/facets/search?${query.toString()}`);
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(
+      typeof body?.message === "string"
+        ? body.message
+        : `Vehicle search failed (${res.status}).`,
+    );
+  }
+  return (await res.json()) as JsonRecord;
 }
 
 function mergeLiveRegistrationFields(

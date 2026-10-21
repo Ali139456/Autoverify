@@ -5,10 +5,21 @@ type RavinDamageItem = {
   partName?: string;
   locationName?: string;
   damageDescription?: string;
+  aiDescription?: string;
+  ai_description?: string;
+  issueType?: string;
+  issueTypeId?: number;
+  issueId?: number;
+  issueDataItemTypeId?: number;
+  severityId?: number;
+  severityName?: string;
   severity?: number | string;
   score?: number;
-  cost?: number;
+  confidenceScore?: number;
+  cost?: number | null;
   currency?: { sign?: string; acronym?: string };
+  issueImagesUrls?: string[];
+  issueCrops?: { origin?: string }[];
   url?: string;
   imageUrl?: string;
   image_url?: string;
@@ -17,6 +28,35 @@ type RavinDamageItem = {
   thumbnailUrl?: string;
   thumbnail_url?: string;
 };
+
+/** Ravin `sendEventReport` / repair-plan severity ids (MT AU export). */
+function mapRavinSeverityId(
+  severityId: unknown,
+  severityName?: string,
+): DamageFinding["severity"] {
+  if (severityName) {
+    const text = severityName.toLowerCase();
+    if (text.includes("severe") || text.includes("major") || text.includes("heavy")) {
+      return "Severe";
+    }
+    if (text.includes("medium") || text.includes("moderate")) {
+      return "Moderate";
+    }
+    if (text.includes("polish") || text.includes("light") || text.includes("minor")) {
+      return "Minor";
+    }
+  }
+
+  const numeric = Number(severityId);
+  if (Number.isFinite(numeric)) {
+    if (numeric === 2) return "Moderate";
+    if (numeric === 1 || numeric === 5 || numeric === 7) return "Minor";
+    if (numeric >= 3 && numeric !== 5 && numeric !== 7) return "Severe";
+    return "Minor";
+  }
+
+  return mapSeverity(severityId);
+}
 
 function mapSeverity(value: unknown): DamageFinding["severity"] {
   const numeric = Number(value);
@@ -32,6 +72,64 @@ function mapSeverity(value: unknown): DamageFinding["severity"] {
   return "Minor";
 }
 
+function isRavinDamageRecord(record: Record<string, unknown>): boolean {
+  const issueType = String(record.issueType ?? "");
+  if (issueType === "exterior-walkaround" || issueType === "review") {
+    return false;
+  }
+  const itemType = Number(record.issueDataItemTypeId);
+  if (itemType === 44) return false;
+  if (String(record.partName ?? "").toLowerCase() === "car") return false;
+  if (String(record.partName ?? "").toLowerCase() === "review") return false;
+
+  if ("issueId" in record && itemType === 8) return true;
+
+  if (
+    typeof record.ai_description === "string" &&
+    "damageTypeName" in record &&
+    !("issueId" in record)
+  ) {
+    return false;
+  }
+
+  if ("damageDescription" in record) return true;
+  if ("damageTypeName" in record && !record.issueType) return true;
+
+  return false;
+}
+
+function damageFindingKey(item: RavinDamageItem): string {
+  if (item.issueId != null) return `issue:${item.issueId}`;
+  const panel = item.partName || item.locationName || "panel";
+  const type = item.damageTypeName || item.issueType || "damage";
+  return `${panel}:${type}:${item.aiDescription ?? item.ai_description ?? ""}`.slice(
+    0,
+    120,
+  );
+}
+
+function firstDamageImageUrl(item: RavinDamageItem): string | undefined {
+  const fromList = item.issueImagesUrls?.find(
+    (url) => typeof url === "string" && isImageUrl(url),
+  );
+  if (fromList) return fromList;
+
+  const crop = item.issueCrops?.find(
+    (entry) => typeof entry?.origin === "string" && isImageUrl(entry.origin),
+  );
+  if (crop?.origin) return crop.origin;
+
+  return (
+    item.imageUrl ||
+    item.image_url ||
+    item.url ||
+    item.photoUrl ||
+    item.photo_url ||
+    item.thumbnailUrl ||
+    item.thumbnail_url
+  );
+}
+
 function collectDamageItems(payload: unknown, items: RavinDamageItem[] = []): RavinDamageItem[] {
   if (!payload || typeof payload !== "object") return items;
 
@@ -42,7 +140,7 @@ function collectDamageItems(payload: unknown, items: RavinDamageItem[] = []): Ra
 
   const record = payload as Record<string, unknown>;
 
-  if ("damageTypeName" in record || "partName" in record || "damageDescription" in record) {
+  if (isRavinDamageRecord(record)) {
     items.push(record as RavinDamageItem);
   }
 
@@ -63,6 +161,52 @@ function collectDamageItems(payload: unknown, items: RavinDamageItem[] = []): Ra
   return items;
 }
 
+function dedupeDamageItems(items: RavinDamageItem[]): RavinDamageItem[] {
+  const seen = new Set<string>();
+  const out: RavinDamageItem[] = [];
+  for (const item of items) {
+    const key = damageFindingKey(item);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(item);
+  }
+  return out;
+}
+
+function sumRepairPlanTotals(payload: unknown): number | null {
+  let total = 0;
+  let found = false;
+
+  function walk(node: unknown, depth = 0, skip = false): void {
+    if (depth > 16 || node == null || typeof node !== "object") return;
+
+    if (Array.isArray(node)) {
+      for (const entry of node) walk(entry, depth + 1, skip);
+      return;
+    }
+
+    const record = node as Record<string, unknown>;
+    if (!skip && Array.isArray(record.actions)) {
+      for (const action of record.actions) {
+        if (!action || typeof action !== "object") continue;
+        const cost = Number((action as Record<string, unknown>).totalCost);
+        if (Number.isFinite(cost) && cost > 0) {
+          total += cost;
+          found = true;
+        }
+      }
+    }
+
+    for (const [key, value] of Object.entries(record)) {
+      if (key === "_origin") continue;
+      if (value && typeof value === "object") walk(value, depth + 1, skip);
+    }
+  }
+
+  walk(payload);
+  return found ? Math.round(total) : null;
+}
+
 function deriveCondition(findings: DamageFinding[]): DamageAnalysis["overallCondition"] {
   if (findings.some((finding) => finding.severity === "Severe")) return "Poor";
   if (findings.some((finding) => finding.severity === "Moderate")) return "Fair";
@@ -70,42 +214,72 @@ function deriveCondition(findings: DamageFinding[]): DamageAnalysis["overallCond
   return "Excellent";
 }
 
+function formatPanelLabel(item: RavinDamageItem): string {
+  const part = item.partName?.trim();
+  const location = item.locationName?.trim();
+  if (part && location && part.toLowerCase() !== location.toLowerCase()) {
+    return `${location} ${part}`;
+  }
+  return part || location || "Unknown panel";
+}
+
+function formatDamageType(item: RavinDamageItem): string {
+  const raw =
+    item.damageTypeName ||
+    item.issueType ||
+    "Damage";
+  return raw
+    .split(/[-_]/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
 export function parseRavinWebhookPayload(
   payload: unknown,
   analyzedPhotos = 0,
 ): DamageAnalysis {
-  const rawItems = collectDamageItems(payload);
+  const rawItems = dedupeDamageItems(collectDamageItems(payload));
   const findings: DamageFinding[] = rawItems.map((item) => {
-    const imageUrl =
-      item.imageUrl ||
-      item.image_url ||
-      item.url ||
-      item.photoUrl ||
-      item.photo_url ||
-      item.thumbnailUrl ||
-      item.thumbnail_url;
-    return {
-      panel: item.partName || item.locationName || "Unknown panel",
-      type: item.damageTypeName || "Damage",
-      severity: mapSeverity(item.severity ?? item.score),
-      confidence: Math.min(
-        1,
-        Math.max(
-          0,
-          Number(item.score ?? 0.85) / (Number(item.score) > 1 ? 100 : 1),
-        ),
+    const imageUrl = firstDamageImageUrl(item);
+    const confidenceRaw =
+      item.confidenceScore ?? item.score ?? (item.issueId ? 0.85 : 0.75);
+    const confidence = Math.min(
+      1,
+      Math.max(
+        0,
+        Number(confidenceRaw) / (Number(confidenceRaw) > 1 ? 100 : 1),
       ),
-      repairEstimate: Number(item.cost ?? 0),
-      description: item.damageDescription || undefined,
+    );
+
+    return {
+      panel: formatPanelLabel(item),
+      type: formatDamageType(item),
+      severity: mapRavinSeverityId(
+        item.severityId ?? item.severity,
+        item.severityName,
+      ),
+      confidence,
+      repairEstimate: Number(item.cost ?? 0) || 0,
+      description:
+        item.aiDescription ||
+        item.ai_description ||
+        item.damageDescription ||
+        undefined,
       imageUrl: typeof imageUrl === "string" ? imageUrl : undefined,
     };
   });
+
+  const lineItemTotal = findings.reduce(
+    (sum, finding) => sum + finding.repairEstimate,
+    0,
+  );
+  const repairPlanTotal = sumRepairPlanTotals(payload);
 
   return {
     analyzedPhotos,
     findings,
     overallCondition: deriveCondition(findings),
-    totalRepairEstimate: findings.reduce((sum, finding) => sum + finding.repairEstimate, 0),
+    totalRepairEstimate: lineItemTotal > 0 ? lineItemTotal : repairPlanTotal ?? 0,
   };
 }
 
@@ -129,6 +303,63 @@ function isImageUrl(value: unknown): value is string {
   );
 }
 
+function formatWalkaroundLabel(locationName: string, index: number): string {
+  const base = locationName
+    .split("-")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+  return index === 0 ? base : `${base} (${index + 1})`;
+}
+
+function collectWalkaroundPhotoRefs(
+  payload: unknown,
+  refs: RavinPhotoRef[] = [],
+): RavinPhotoRef[] {
+  if (!payload || typeof payload !== "object") return refs;
+
+  if (Array.isArray(payload)) {
+    for (const entry of payload) collectWalkaroundPhotoRefs(entry, refs);
+    return refs;
+  }
+
+  const record = payload as Record<string, unknown>;
+  const issueType = String(record.issueType ?? "");
+  const itemType = Number(record.issueDataItemTypeId);
+  const isWalkaround =
+    issueType === "exterior-walkaround" || itemType === 44;
+
+  if (isWalkaround && Array.isArray(record.issueImagesUrls)) {
+    const location =
+      (typeof record.locationName === "string" && record.locationName) ||
+      "walkaround";
+    record.issueImagesUrls.forEach((url, index) => {
+      if (typeof url === "string" && isImageUrl(url)) {
+        refs.push({
+          angle: location,
+          label: formatWalkaroundLabel(location, index),
+          url,
+        });
+      }
+    });
+  }
+
+  if (Array.isArray(record.value)) {
+    for (const entry of record.value) {
+      if (entry && typeof entry === "object") {
+        collectWalkaroundPhotoRefs(entry, refs);
+      }
+    }
+  }
+
+  for (const value of Object.values(record)) {
+    if (value && typeof value === "object") {
+      collectWalkaroundPhotoRefs(value, refs);
+    }
+  }
+
+  return refs;
+}
+
 function collectPhotoRefs(payload: unknown, refs: RavinPhotoRef[] = []): RavinPhotoRef[] {
   if (!payload || typeof payload !== "object") return refs;
 
@@ -148,6 +379,16 @@ function collectPhotoRefs(payload: unknown, refs: RavinPhotoRef[] = []): RavinPh
   }
 
   const record = payload as Record<string, unknown>;
+  const itemType = Number(record.issueDataItemTypeId);
+  if (itemType === 8) {
+    for (const value of Object.values(record)) {
+      if (value && typeof value === "object") {
+        collectPhotoRefs(value, refs);
+      }
+    }
+    return refs;
+  }
+
   const urlCandidates = [
     record.url,
     record.imageUrl,
@@ -188,16 +429,21 @@ function collectPhotoRefs(payload: unknown, refs: RavinPhotoRef[] = []): RavinPh
   return refs;
 }
 
-/** Pull image URLs from Ravin webhook / inspector-lite payloads. */
-export function extractRavinPhotos(payload: unknown): RavinPhotoRef[] {
-  const refs = collectPhotoRefs(payload, []);
+function dedupePhotoRefs(refs: RavinPhotoRef[]): RavinPhotoRef[] {
   const seen = new Set<string>();
-
   return refs.filter((ref) => {
     if (seen.has(ref.url)) return false;
     seen.add(ref.url);
     return true;
   });
+}
+
+/** Pull image URLs from Ravin webhook / inspector-lite payloads. */
+export function extractRavinPhotos(payload: unknown): RavinPhotoRef[] {
+  const walkaround = dedupePhotoRefs(collectWalkaroundPhotoRefs(payload, []));
+  if (walkaround.length > 0) return walkaround;
+
+  return dedupePhotoRefs(collectPhotoRefs(payload, []));
 }
 
 const AUTO_VERIFI_REPORT_ID = /\bAV-[A-Z0-9-]{4,}\b/gi;

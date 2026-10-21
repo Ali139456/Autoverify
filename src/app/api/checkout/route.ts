@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { lookupVehicle } from "@/lib/autograb";
+import { parseAssetCategory } from "@/lib/autograb-catalogue";
 import { resolveFutureValue } from "@/lib/report-design";
 import {
   getReportTierConfig,
@@ -18,6 +19,7 @@ import {
 import { normalizeAuMobile } from "@/lib/phone";
 import { AustralianState, ReportTier, VehicleReport } from "@/lib/types";
 import { parseVehicleIdentifier } from "@/lib/vehicle-identifier";
+import { isVehicleLookupMismatchError } from "@/lib/vehicle-lookup-errors";
 import {
   clampText,
   guardBrowserPost,
@@ -126,6 +128,11 @@ export async function POST(req: NextRequest) {
         ? advertisedPrice
         : null;
 
+    const category = parseAssetCategory(
+      clampText(body.category, 32) || undefined,
+    );
+    const catalogueVehicleId = clampText(body.catalogueVehicleId, 32);
+
     const lookup = await lookupVehicle(
       parsed.value,
       parsed.kind === "rego" ? state : STATES.includes(state) ? state : undefined,
@@ -135,6 +142,8 @@ export async function POST(req: NextRequest) {
             ? customerOdometer
             : null,
         listingPrice,
+        category,
+        catalogueVehicleId: catalogueVehicleId || undefined,
       },
     );
     const reportId = generateReportId();
@@ -224,6 +233,9 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     if (err instanceof Error && err.message === "PAYLOAD_TOO_LARGE") {
       return NextResponse.json({ error: "Request too large." }, { status: 413 });
+    }
+    if (isVehicleLookupMismatchError(err)) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
     }
     const message =
       err instanceof Error ? err.message : "Something went wrong. Please try again.";
