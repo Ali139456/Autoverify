@@ -30,7 +30,7 @@ import { hasVehicleSpecContent } from "@/lib/vehicle-spec-sheet";
 import { VehicleSpecReportPage } from "@/components/report/VehicleSpecReportPage";
 
 import { hasDamageAnalysis } from "@/lib/pricing";
-import { isExteriorInspectionAngle } from "@/lib/inspection-angles";
+import { isRecordOnlyInspectionPhoto } from "@/lib/inspection-angles";
 
 import type { ReportTier } from "@/lib/types";
 
@@ -49,7 +49,7 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
     (report.vehicleSpec?.factoryFeatures.length ?? 0) > 0;
   const samplePhotos = buildSampleInspectionPhotos();
   const hasAdditionalInspectionPhotos = samplePhotos.some(
-    (photo) => !isExteriorInspectionAngle(photo.angle),
+    (photo) => isRecordOnlyInspectionPhoto(photo.angle),
   );
   const factoryFeatureCount = report.vehicleSpec?.factoryFeatures.length ?? 0;
   const pageCount = countVehicleReportPages(

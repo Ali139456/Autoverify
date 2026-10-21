@@ -33,7 +33,7 @@ import {
   refreshRegistrationIfMissing,
 } from "@/lib/autograb";
 import { applyRegistrationExpiryInference } from "@/lib/registration-info";
-import { isExteriorInspectionAngle } from "@/lib/inspection-angles";
+import { isRecordOnlyInspectionPhoto } from "@/lib/inspection-angles";
 import { parseReportIdFromRouteParam } from "@/lib/ravin-report-trace";
 import { redirect } from "next/navigation";
 
@@ -94,7 +94,7 @@ export default async function ReportPage({
   const hasFactoryFeatures =
     (report.vehicleSpec?.factoryFeatures.length ?? 0) > 0;
   const hasAdditionalInspectionPhotos = inspectionPhotos.some(
-    (photo) => !isExteriorInspectionAngle(photo.angle),
+    (photo) => isRecordOnlyInspectionPhoto(photo.angle),
   );
   const factoryFeatureCount = report.vehicleSpec?.factoryFeatures.length ?? 0;
   const pageCount = countVehicleReportPages(

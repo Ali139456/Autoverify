@@ -1,29 +1,34 @@
 /**
- * Guided capture order (Australian RHD): front centre and windscreen first, then
- * passenger/driver corners, roof, mirrors, full body, boot, interior, wheels, documents.
+ * Guided capture order (Australian RHD) — Denise sample report sequence.
  */
 export const INSPECTION_ANGLES = [
   { id: "front", label: "Front centre" },
   { id: "windscreen", label: "Windscreen" },
   { id: "front_left", label: "Front passenger side" },
-  { id: "roof", label: "Roof" },
-  { id: "mirror_passenger", label: "Passenger side exterior door mirror" },
-  { id: "front_right", label: "Front driver side" },
-  { id: "mirror_driver", label: "Driver side exterior door mirror" },
-  { id: "right_side", label: "Full body — driver side" },
-  { id: "rear_right", label: "Rear right" },
+  {
+    id: "mirror_passenger",
+    label: "Front passenger exterior door mirror",
+  },
+  { id: "wheel_left_front", label: "Passenger side front tyre" },
+  { id: "left_side", label: "Passenger side (full body)" },
+  { id: "wheel_left_rear", label: "Passenger side rear tyre" },
   { id: "rear", label: "Rear centre" },
   { id: "boot_tray_opened", label: "Boot open" },
-  { id: "rear_left", label: "Rear left" },
-  { id: "left_side", label: "Full body — passenger side" },
-  { id: "dashboard", label: "Odometer reading with engine running" },
-  { id: "interior_front", label: "Front interior" },
-  { id: "interior_rear", label: "Rear interior" },
-  { id: "wheel_right_front", label: "Driver side front wheel" },
-  { id: "wheel_right_rear", label: "Driver side rear wheel" },
-  { id: "wheel_left_rear", label: "Passenger side rear wheel" },
-  { id: "wheel_left_front", label: "Passenger side front wheel" },
-  { id: "vin_plate", label: "VIN identification photo" },
+  { id: "wheel_right_rear", label: "Driver side rear tyre" },
+  { id: "right_side", label: "Driver side (full body)" },
+  {
+    id: "mirror_driver",
+    label: "Front driver side exterior door mirror",
+  },
+  { id: "front_right", label: "Front driver side" },
+  { id: "roof", label: "Roof" },
+  { id: "vin_plate", label: "Interior VIN identification" },
+  {
+    id: "dashboard",
+    label: "Interior odometer reading (with engine running)",
+  },
+  { id: "interior_front", label: "Interior front" },
+  { id: "interior_rear", label: "Interior rear" },
   { id: "keys", label: "# Keys" },
   {
     id: "service_record",
@@ -33,31 +38,27 @@ export const INSPECTION_ANGLES = [
 
 export type InspectionAngleId = (typeof INSPECTION_ANGLES)[number]["id"];
 
-/** Exterior walk-around shots; everything else is grouped as "additional photos". */
-export const EXTERIOR_INSPECTION_ANGLE_IDS: readonly string[] = [
-  "front",
-  "windscreen",
-  "front_left",
-  "roof",
-  "mirror_passenger",
-  "front_right",
-  "mirror_driver",
-  "right_side",
-  "rear_right",
-  "rear",
-  "boot_tray_opened",
-  "rear_left",
-  "left_side",
-];
+/** @deprecated Use {@link isPrimaryWalkaroundInspectionAngle} — kept for older call sites. */
+export const EXTERIOR_INSPECTION_ANGLE_IDS: readonly string[] =
+  INSPECTION_ANGLES.filter(
+    (a) => a.id !== "keys" && a.id !== "service_record",
+  ).map((a) => a.id);
 
 export function isExteriorInspectionAngle(id: string): boolean {
   return EXTERIOR_INSPECTION_ANGLE_IDS.includes(id);
+}
+
+/** Main inspection grid (everything except keys + registration papers). */
+export function isPrimaryWalkaroundInspectionAngle(id: string): boolean {
+  return isExteriorInspectionAngle(id);
 }
 
 export const INSPECTION_ANGLE_IDS = INSPECTION_ANGLES.map((angle) => angle.id);
 
 /** Still accepted on upload for older inspection links. */
 export const LEGACY_INSPECTION_ANGLE_IDS = [
+  "rear_right",
+  "rear_left",
   "odometer",
   "wheels",
   "interior",
@@ -79,6 +80,8 @@ export function getInspectionAngleLabel(id: string): string {
   if (id === "odometer") return "Odometer";
   if (id === "wheels") return "Wheels";
   if (id === "interior") return "Interior";
+  if (id === "rear_right") return "Rear right";
+  if (id === "rear_left") return "Rear left";
   if (id === "interior_passenger_rear" || id === "interior_driver_rear") {
     return "Rear interior";
   }
@@ -152,6 +155,8 @@ export function formatInspectionPhotoTileLabel(
 }
 
 const LEGACY_INSPECTION_PHOTO_SORT_INDEX: Record<string, number> = {
+  rear_right: 850,
+  rear_left: 851,
   odometer: 900,
   wheels: 901,
   interior: 902,

@@ -83,9 +83,8 @@ export function ContactForm() {
         className="rounded-2xl border border-[#0073E3]/30 bg-[#0073E3]/10 px-6 py-8 text-center sm:text-left"
         role="status"
       >
-        <p className="text-lg font-bold text-white">Thanks — message sent</p>
-        <p className="mt-2 text-sm leading-relaxed text-slate-300">
-          We&apos;ll reply to your email shortly.
+        <p className="text-lg font-bold leading-snug text-white">
+          Thanks for your message. The Auto Verifi team will be in touch shortly.
         </p>
         <button
           type="button"

@@ -458,9 +458,11 @@ function formatManufacturerWarrantyStatus(
       ? `${info.warrantyYears} year${info.warrantyYears === 1 ? "" : "s"}`
       : null;
   const km =
-    info.warrantyKm != null
-      ? `${info.warrantyKm.toLocaleString("en-AU")} km`
-      : null;
+    info.warrantyKmUnlimited
+      ? "unlimited kilometres"
+      : info.warrantyKm != null
+        ? `${info.warrantyKm.toLocaleString("en-AU")} km`
+        : null;
   let status = "";
   if (years && km) status = `${years}/${km}`;
   else if (years) status = years;
@@ -510,9 +512,13 @@ function formatServicingGuidelines(
       detail: serviceHistoryNote,
     };
   }
+  const combined =
+    km && months
+      ? `${km} or ${months}, whichever comes first.`
+      : (km ?? months ?? "");
   return {
-    status: km ?? months ?? "",
-    statusSubtext: km && months ? months : undefined,
+    status: combined,
+    statusSubtext: undefined,
     tone: "clear",
     detail: serviceHistoryNote,
   };

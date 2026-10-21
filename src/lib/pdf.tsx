@@ -28,7 +28,6 @@ import {
   formatInspectionPhotoTileLabel,
   getInspectionAngleLabel,
   INSPECTION_RECORD_ONLY_FOOTNOTE_WITH_STAR,
-  isExteriorInspectionAngle,
   isRecordOnlyInspectionPhoto,
 } from "./inspection-angles";
 import {
@@ -892,7 +891,22 @@ function PdfInsightCard({
                       {insight.detail}
                     </Text>
                   ) : null}
-                  {insight.id === "recall" &&
+                  {insight.id === "ancap" && !insight.status?.trim() ? (
+                    <Text
+                      style={{
+                        marginTop: 0,
+                        fontSize: PDF_INSIGHT_BODY_SM,
+                        color: RIDE_SHARE_ORANGE,
+                        fontFamily: "Helvetica",
+                        lineHeight: PDF_INSIGHT_LINE,
+                      }}
+                    >
+                      Verify ANCAP rating here:{" "}
+                      <Link src={ANCAP_SAFETY_RATINGS_URL}>
+                        www.ancap.com.au/safety-ratings
+                      </Link>
+                    </Text>
+                  ) : insight.id === "recall" &&
                   !insight.status?.trim() &&
                   insight.tone === "muted" ? (
                     <Text
@@ -907,22 +921,6 @@ function PdfInsightCard({
                       Check for recall updates on{" "}
                       <Link src={VEHICLE_RECALLS_GOV_AU_URL}>
                         www.vehiclerecalls.gov.au
-                      </Link>
-                    </Text>
-                  ) : null}
-                  {insight.id === "ancap" && !insight.status?.trim() ? (
-                    <Text
-                      style={{
-                        marginTop: 4,
-                        fontSize: PDF_INSIGHT_BODY_SM,
-                        color: RIDE_SHARE_ORANGE,
-                        fontFamily: "Helvetica",
-                        lineHeight: PDF_INSIGHT_LINE,
-                      }}
-                    >
-                      Verify ANCAP rating here:{" "}
-                      <Link src={ANCAP_SAFETY_RATINGS_URL}>
-                        www.ancap.com.au/safety-ratings
                       </Link>
                     </Text>
                   ) : footnote &&
@@ -1906,8 +1904,8 @@ function InsightsPlusWalkaroundPhotosPage({
 }) {
   const { vehicle, damage } = report;
   const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
-  const walkaroundPhotos = photos.filter((photo) =>
-    isExteriorInspectionAngle(photo.angle),
+  const walkaroundPhotos = photos.filter(
+    (photo) => !isRecordOnlyInspectionPhoto(photo.angle),
   );
 
   return (
@@ -1951,7 +1949,7 @@ function InsightsPlusAdditionalPhotosPage({
   const { vehicle } = report;
   const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
   const additionalPhotos = photos.filter(
-    (photo) => !isExteriorInspectionAngle(photo.angle),
+    (photo) => isRecordOnlyInspectionPhoto(photo.angle),
   );
   if (additionalPhotos.length === 0) return null;
 
@@ -2022,7 +2020,10 @@ function InsightsPlusDamagePage({
                       ]}
                     >
                       {damageImageUrl ? (
-                        <Image src={damageImageUrl} style={styles.photoImage} />
+                        <Image
+                          src={damageImageUrl}
+                          style={[styles.photoImage, { objectFit: "contain" }]}
+                        />
                       ) : null}
                       <Text
                         style={{
@@ -2073,7 +2074,7 @@ export function ReportPdf({
       ? countVehicleSpecPdfPages(report.vehicleSpec)
       : 0;
   const hasAdditionalInspectionPhotos = photos.some(
-    (photo) => !isExteriorInspectionAngle(photo.angle),
+    (photo) => isRecordOnlyInspectionPhoto(photo.angle),
   );
   const insightsPlusPageCount = isPlus
     ? 2 + (hasAdditionalInspectionPhotos ? 1 : 0)

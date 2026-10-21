@@ -159,8 +159,20 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
           <>
             <div className="flex items-start gap-1.5">
               <InsightStatusBadge tone={insight.tone} />
-              <div className="min-w-0">
-                {insight.status?.trim() ? (
+              <div className="min-w-0 flex-1">
+                {insight.id === "ancap" && !insight.status?.trim() ? (
+                  <p className="min-w-0 text-[11px] font-medium leading-snug text-[#E87722] [hyphens:none]">
+                    Verify ANCAP rating here:{" "}
+                    <a
+                      href={ANCAP_SAFETY_RATINGS_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold text-[#E87722] underline underline-offset-2 [overflow-wrap:anywhere]"
+                    >
+                      {ANCAP_SAFETY_RATINGS_URL}
+                    </a>
+                  </p>
+                ) : insight.status?.trim() ? (
                 <p
                   className={`text-xs font-normal leading-snug ${insightToneClass(insight.tone)}`}
                 >
@@ -221,19 +233,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                 ) : null}
               </div>
             </div>
-            {insight.id === "ancap" && !insight.status?.trim() ? (
-              <p className="report-insight-ancap-note mt-2 min-w-0 text-[11px] font-medium leading-relaxed text-[#E87722] [hyphens:none]">
-                Verify ANCAP rating here:{" "}
-                <a
-                  href={ANCAP_SAFETY_RATINGS_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-semibold text-[#E87722] underline underline-offset-2 [overflow-wrap:anywhere]"
-                >
-                  {ANCAP_SAFETY_RATINGS_URL}
-                </a>
-              </p>
-            ) : note &&
+            {note &&
               !(
                 insight.id === "recall" &&
                 !insight.status?.trim() &&

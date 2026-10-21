@@ -73,6 +73,8 @@ export interface VehicleSpecSheet {
 export interface ManufacturerWarrantyServiceInfo {
   warrantyYears: number | null;
   warrantyKm: number | null;
+  /** When true, display “unlimited kilometres” instead of a numeric km cap. */
+  warrantyKmUnlimited?: boolean;
   warrantyAntiCorrosionYears: number | null;
   regularServiceKm: number | null;
   regularServiceMonths: number | null;

@@ -77,7 +77,7 @@ export function BuyReportModal({
           id="buy-report-modal-title"
           className="mt-4 text-xl font-bold text-white sm:text-2xl"
         >
-          Buy a vehicle report
+          Buy an Auto Verifi Report
         </h2>
         <p className="mt-2 text-sm text-slate-400">
           Enter the registration plate (or VIN) and state to get started. Reports

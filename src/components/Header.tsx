@@ -9,7 +9,6 @@ import { Logo } from "@/components/Logo";
 import { INSPECTION_MENU_ITEMS } from "@/lib/inspection-menu";
 
 const MAIN_LINKS = [
-  { href: "/#how-it-works", label: "How it works" },
   { href: "/#whats-included", label: "What's included" },
   { href: "/pricing", label: "Pricing" },
   { href: "/#about", label: "About us" },
@@ -38,7 +37,7 @@ function navLinkVisibility(href: string): string {
   if (href === "/contact") return "hidden 2xl:inline-flex";
   if (href === "/#faq") return "hidden 2xl:inline-flex";
   if (href === "/#about") return "hidden xl:inline-flex";
-  if (href === "/#how-it-works" || href === "/#whats-included") {
+  if (href === "/#whats-included") {
     return "hidden lg:inline-flex";
   }
   return "inline-flex";
@@ -325,8 +324,7 @@ function HeaderBuyReportActions({
             onClick={() => setBuyReportOpen(true)}
             className={buyReportClass}
           >
-            <span className="hidden 2xl:inline">Buy Report</span>
-            <span className="2xl:hidden">Buy</span>
+            Buy Report
             <ArrowRight
               className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
               aria-hidden

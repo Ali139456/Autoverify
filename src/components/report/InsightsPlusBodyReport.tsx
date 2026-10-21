@@ -8,10 +8,9 @@ import {
 } from "@/lib/report-design";
 import {
   INSPECTION_RECORD_ONLY_FOOTNOTE_WITH_STAR,
-  isExteriorInspectionAngle,
+  isRecordOnlyInspectionPhoto,
   formatInspectionPhotoTileLabel,
   getInspectionAngleLabel,
-  isRecordOnlyInspectionPhoto,
 } from "@/lib/inspection-angles";
 import type { InspectionPhoto, VehicleReport } from "@/lib/types";
 import { InspectionStarter } from "@/components/InspectionStarter";
@@ -157,11 +156,11 @@ export function InsightsPlusBodyReport({
       ? buildDamageCaptionByPhotoAngle(damage.findings, photos)
       : new Map<string, string>();
 
-  const walkaroundPhotos = photos.filter((photo) =>
-    isExteriorInspectionAngle(photo.angle),
+  const walkaroundPhotos = photos.filter(
+    (photo) => !isRecordOnlyInspectionPhoto(photo.angle),
   );
-  const additionalPhotos = photos.filter(
-    (photo) => !isExteriorInspectionAngle(photo.angle),
+  const additionalPhotos = photos.filter((photo) =>
+    isRecordOnlyInspectionPhoto(photo.angle),
   );
   const shellProps = {
     reportId: report.id,
@@ -278,12 +277,12 @@ export function InsightsPlusBodyReport({
                         className="report-damage-card flex overflow-hidden rounded-lg border border-red-100 bg-red-50/50"
                       >
                         {damageImageUrl ? (
-                          <div className="relative w-[42%] shrink-0 bg-slate-100">
+                          <div className="relative flex w-[42%] shrink-0 items-center justify-center bg-slate-100">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={damageImageUrl}
                               alt={`${finding.panel} — ${finding.type}`}
-                              className="h-full w-full object-cover"
+                              className="max-h-full w-full object-contain object-center"
                             />
                           </div>
                         ) : null}
