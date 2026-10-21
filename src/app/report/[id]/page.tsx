@@ -8,6 +8,7 @@ import { PpsrCertificateReportPages } from "@/components/report/PpsrCertificateR
 import { PPSR_CERTIFICATE_SHEET_COUNT } from "@/lib/ppsr-certificate-public";
 import { hasPpsrCertificate } from "@/lib/ppsr-certificate";
 import { ReportPrintActions } from "@/components/report/ReportPrintActions";
+import { ReportInsightsPoller } from "@/components/report/ReportInsightsPoller";
 import { getReport } from "@/lib/store";
 import { hasDamageAnalysis, resolveReportTier } from "@/lib/pricing";
 import {
@@ -137,6 +138,10 @@ export default async function ReportPage({
         <div className="report-no-print w-full min-w-0 sm:flex sm:justify-end">
           <ReportPrintActions />
         </div>
+
+        {includesDamage && inspectionPhotos.length > 0 && !report.damage ? (
+          <ReportInsightsPoller reportId={report.id} enabled />
+        ) : null}
 
         <CarInsightsReport
           report={report}

@@ -1,17 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getInspectionByInvitationId } from "@/lib/inspections";
 import {
-  getInspectionByInvitationId,
-  updateInspection,
-} from "@/lib/inspections";
-import {
-  parseRavinWebhookPayload,
-  extractRavinPhotos,
   collectInvitationIds,
   extractAutoVerifiReportIds,
 } from "@/lib/ravin-webhook";
 import { resolveInspectionFromRavinWebhook } from "@/lib/inspections";
-import { saveRavinWebhookEvent, updateReportWorkflowStatus } from "@/lib/store-supabase";
-import { updateReport } from "@/lib/store";
+import { applyRavinWebhookPayload } from "@/lib/ravin-apply-webhook";
+import { saveRavinWebhookEvent } from "@/lib/store-supabase";
 import { isSupabaseServerConfigured } from "@/lib/supabase/server";
 import { guardRateLimit } from "@/lib/security";
 
@@ -70,39 +65,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, matched: false });
   }
 
-  const ravinPhotos = extractRavinPhotos(payload);
-  const mergedPhotos =
-    ravinPhotos.length > 0
-      ? ravinPhotos.map((photo) => ({
-          angle: photo.angle,
-          label: photo.label,
-          storagePath: photo.url,
-          externalUrl: photo.url,
-          uploadedAt: new Date().toISOString(),
-        }))
-      : inspection.photos;
-
-  const damage = parseRavinWebhookPayload(payload, mergedPhotos.length);
-
-  await updateInspection(inspection.id, {
-    status: "complete",
-    photos: mergedPhotos,
-    ravinPayload: payload,
-    completedAt: new Date().toISOString(),
-  });
-
-  await updateReport(inspection.reportId, {
-    damage,
-    workflowStatus: "complete",
-    ravin_payload: payload,
-  });
-
-  await updateReportWorkflowStatus(inspection.reportId, "complete");
+  const { findings } = await applyRavinWebhookPayload(inspection, payload);
 
   return NextResponse.json({
     ok: true,
     matched: true,
     reportId: inspection.reportId,
-    findings: damage.findings.length,
+    findings,
   });
 }
