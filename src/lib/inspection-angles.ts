@@ -1,13 +1,13 @@
 /**
- * Clockwise walk-around from the front passenger corner (Australian RHD: passenger = left),
- * then roof, mirrors, full body sides, boot, interior, wheels and documents.
+ * Guided capture order (Australian RHD): front centre and windscreen first, then
+ * passenger/driver corners, roof, mirrors, full body, boot, interior, wheels, documents.
  */
 export const INSPECTION_ANGLES = [
+  { id: "front", label: "Front centre" },
+  { id: "windscreen", label: "Windscreen" },
   { id: "front_left", label: "Front passenger side" },
   { id: "roof", label: "Roof" },
   { id: "mirror_passenger", label: "Passenger side exterior door mirror" },
-  { id: "front", label: "Front centre" },
-  { id: "windscreen", label: "Windscreen" },
   { id: "front_right", label: "Front driver side" },
   { id: "mirror_driver", label: "Driver side exterior door mirror" },
   { id: "right_side", label: "Full body — driver side" },
@@ -16,13 +16,13 @@ export const INSPECTION_ANGLES = [
   { id: "boot_tray_opened", label: "Boot open" },
   { id: "rear_left", label: "Rear left" },
   { id: "left_side", label: "Full body — passenger side" },
-  { id: "dashboard", label: "Dash cluster with engine running" },
+  { id: "dashboard", label: "Odometer reading with engine running" },
   { id: "interior_front", label: "Front interior" },
   { id: "interior_rear", label: "Rear interior" },
-  { id: "wheel_right_front", label: "Right front wheel" },
-  { id: "wheel_right_rear", label: "Right rear wheel" },
-  { id: "wheel_left_rear", label: "Left rear wheel" },
-  { id: "wheel_left_front", label: "Left front wheel" },
+  { id: "wheel_right_front", label: "Driver side front wheel" },
+  { id: "wheel_right_rear", label: "Driver side rear wheel" },
+  { id: "wheel_left_rear", label: "Passenger side rear wheel" },
+  { id: "wheel_left_front", label: "Passenger side front wheel" },
   { id: "vin_plate", label: "VIN identification photo" },
   { id: "keys", label: "# Keys" },
   {
@@ -35,11 +35,11 @@ export type InspectionAngleId = (typeof INSPECTION_ANGLES)[number]["id"];
 
 /** Exterior walk-around shots; everything else is grouped as "additional photos". */
 export const EXTERIOR_INSPECTION_ANGLE_IDS: readonly string[] = [
+  "front",
+  "windscreen",
   "front_left",
   "roof",
   "mirror_passenger",
-  "front",
-  "windscreen",
   "front_right",
   "mirror_driver",
   "right_side",
@@ -103,7 +103,7 @@ export function getInspectionAngleHint(id: string): string | undefined {
     return "Close-up of the exterior door mirror including the mirror housing.";
   }
   if (id === "dashboard") {
-    return "Ignition on — odometer and warning lights visible.";
+    return "Ignition on — odometer reading and warning lights visible.";
   }
   if (id === "vin_plate") {
     return "Location either: Driver door jam · Lower windscreen dashboard · Engine bay";

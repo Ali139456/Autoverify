@@ -8,7 +8,7 @@ import { MANUAL_DAMAGE_UPLOAD_MAX_PHOTOS } from "@/lib/inspection-angles";
 const MANUAL_PHOTO_CHECKLIST = [
   "Exterior walkaround (passenger/driver corners, roof, windscreen, mirrors, full body sides, boot open)",
   "Four tyre / wheel close-ups",
-  "Dash cluster with odometer (engine running)",
+  "Odometer reading with engine running",
   "Front and rear interior",
   "VIN identification photo",
   "# Keys and registration papers",

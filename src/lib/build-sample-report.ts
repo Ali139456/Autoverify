@@ -87,20 +87,13 @@ const SAMPLE_DAMAGE: DamageAnalysis = {
 
 const SAMPLE_PHOTO_TIMESTAMP = "2026-01-15T10:30:00.000Z";
 
-const SAMPLE_WHEEL_LABELS: Partial<Record<string, string>> = {
-  wheel_right_front: "Wheels & Tyres - Front right",
-  wheel_right_rear: "Wheels & Tyres - Rear right",
-  wheel_left_rear: "Wheels & Tyres - Rear left",
-  wheel_left_front: "Wheels & Tyres - Front left",
-};
-
 export function buildSampleInspectionPhotos(): InspectionPhoto[] {
   return SAMPLE_WALKAROUND_ANGLES.map((angle) => {
     const file = SAMPLE_WALKAROUND_FILES[angle] ?? "front-left.jpg";
     const url = sampleWalkaroundUrl(file);
     return {
       angle,
-      label: SAMPLE_WHEEL_LABELS[angle] ?? getInspectionAngleLabel(angle),
+      label: getInspectionAngleLabel(angle),
       storagePath: url,
       externalUrl: url,
       uploadedAt: SAMPLE_PHOTO_TIMESTAMP,
