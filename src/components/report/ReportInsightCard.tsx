@@ -161,13 +161,13 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
               <InsightStatusBadge tone={insight.tone} />
               <div className="min-w-0 flex-1">
                 {insight.id === "ancap" && !insight.status?.trim() ? (
-                  <p className="min-w-0 text-[11px] font-medium leading-snug text-[#E87722] [hyphens:none]">
+                  <p className="min-w-0 text-[11px] font-medium leading-snug text-slate-600 [hyphens:none]">
                     Verify ANCAP rating here:{" "}
                     <a
                       href={ANCAP_SAFETY_RATINGS_URL}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-semibold text-[#E87722] underline underline-offset-2 [overflow-wrap:anywhere]"
+                      className="font-semibold text-[#0073E3] underline underline-offset-2 [overflow-wrap:anywhere]"
                     >
                       {ANCAP_SAFETY_RATINGS_URL}
                     </a>
@@ -219,8 +219,10 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                 {insight.id === "recall" &&
                 !insight.status?.trim() &&
                 insight.tone === "muted" ? (
-                  <p className="mt-0 min-w-0 text-[11px] font-normal leading-relaxed text-slate-600">
-                    Check for recall updates on{" "}
+                  <p className="mt-0 min-w-0 text-[11px] font-normal leading-relaxed [hyphens:none]">
+                    <span className="font-medium text-[#E87722]">
+                      Check for recall updates on{" "}
+                    </span>
                     <a
                       href={VEHICLE_RECALLS_GOV_AU_URL}
                       target="_blank"

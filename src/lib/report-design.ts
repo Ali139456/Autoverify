@@ -74,7 +74,7 @@ export function reportInsightCopy(text: string): string {
   if (!text) return text;
   return text
     .replace(/\bhistory reported\b/gi, "history\u00A0reported")
-    .replace(/\bstate-specific requirements\b/gi, "state-specific\u00A0requirements")
+    .replace(/\bstate specific requirements\b/gi, "state\u00A0specific\u00A0requirements")
     .replace(/\breading reported\b/gi, "reading\u00A0reported")
     .replace(/\bcheck requirements\b/gi, "check\u00A0requirements")
     .replace(/\bSelf reported\b/g, "Self\u00A0reported");
@@ -555,7 +555,7 @@ function buildRideShareKeyInsight(report: VehicleReport): ReportInsight {
         { text: "Doors — eligible", variant: "eligible" },
         { text: "Passenger capacity — eligible", variant: "eligible" },
         {
-          text: "Check state-specific requirements",
+          text: "Check state specific requirements",
           variant: "action",
         },
         { text: "Refer table below.", variant: "action" },
@@ -573,7 +573,7 @@ function buildRideShareKeyInsight(report: VehicleReport): ReportInsight {
       quickLine("Doors", check.doorsCheck),
       quickLine("Passenger capacity", check.passengersCheck),
       {
-        text: "Check state-specific requirements",
+        text: "Check state specific requirements",
         variant: "action",
       },
     ],

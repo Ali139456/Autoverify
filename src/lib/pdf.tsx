@@ -896,13 +896,16 @@ function PdfInsightCard({
                       style={{
                         marginTop: 0,
                         fontSize: PDF_INSIGHT_BODY_SM,
-                        color: RIDE_SHARE_ORANGE,
+                        color: "#475569",
                         fontFamily: "Helvetica",
                         lineHeight: PDF_INSIGHT_LINE,
                       }}
                     >
                       Verify ANCAP rating here:{" "}
-                      <Link src={ANCAP_SAFETY_RATINGS_URL}>
+                      <Link
+                        src={ANCAP_SAFETY_RATINGS_URL}
+                        style={{ color: BLUE }}
+                      >
                         www.ancap.com.au/safety-ratings
                       </Link>
                     </Text>
@@ -913,13 +916,17 @@ function PdfInsightCard({
                       style={{
                         marginTop: 0,
                         fontSize: PDF_INSIGHT_BODY_SM,
-                        color: "#475569",
                         fontFamily: "Helvetica",
                         lineHeight: PDF_INSIGHT_LINE,
                       }}
                     >
-                      Check for recall updates on{" "}
-                      <Link src={VEHICLE_RECALLS_GOV_AU_URL}>
+                      <Text style={{ color: RIDE_SHARE_ORANGE }}>
+                        Check for recall updates on{" "}
+                      </Text>
+                      <Link
+                        src={VEHICLE_RECALLS_GOV_AU_URL}
+                        style={{ color: BLUE }}
+                      >
                         www.vehiclerecalls.gov.au
                       </Link>
                     </Text>
