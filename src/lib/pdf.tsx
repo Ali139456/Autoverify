@@ -827,7 +827,13 @@ function PdfInsightCard({
                 </View>
               ) : (
               <View style={styles.insightStatusRow}>
-                <PdfStatusBadge tone={insight.tone} />
+                {!(
+                  (insight.id === "servicing-guidelines" ||
+                    insight.id === "warranty-status") &&
+                  !insight.status?.trim()
+                ) ? (
+                  <PdfStatusBadge tone={insight.tone} />
+                ) : null}
                 <View style={{ flex: 1, minWidth: 0 }}>
                   {insight.status?.trim() ? (
                   <Text style={[styles.insightStatus, toneStyle(insight.tone)]}>

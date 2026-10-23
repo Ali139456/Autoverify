@@ -451,83 +451,24 @@ export function futureValueConfidenceLabel(future: FutureValueInfo): string {
 }
 
 function formatManufacturerWarrantyStatus(
-  info: ManufacturerWarrantyServiceInfo | null | undefined,
+  _info: ManufacturerWarrantyServiceInfo | null | undefined,
 ): Pick<ReportInsight, "status" | "statusSubtext" | "tone" | "detail"> {
-  if (!info) {
-    return {
-      status: "",
-      tone: "muted",
-      detail: MANUFACTURER_WARRANTY_CONFIRM_DETAIL,
-    };
-  }
-  const years =
-    info.warrantyYears != null
-      ? `${info.warrantyYears} year${info.warrantyYears === 1 ? "" : "s"}`
-      : null;
-  const km =
-    info.warrantyKmUnlimited
-      ? "unlimited kilometres"
-      : info.warrantyKm != null
-        ? `${info.warrantyKm.toLocaleString("en-AU")} km`
-        : null;
-  let status = "";
-  if (years && km) status = `${years}/${km}`;
-  else if (years) status = years;
-  else if (km) status = km;
-  const anti =
-    info.warrantyAntiCorrosionYears != null
-      ? `${info.warrantyAntiCorrosionYears} year${info.warrantyAntiCorrosionYears === 1 ? "" : "s"} anti corrosion`
-      : undefined;
-  if (!status && !anti) {
-    return {
-      status: "",
-      tone: "muted",
-      detail: MANUFACTURER_WARRANTY_CONFIRM_DETAIL,
-    };
-  }
   return {
-    status: status || anti || "",
-    statusSubtext: status && anti ? anti : undefined,
-    tone: "clear",
+    status: "",
+    statusSubtext: undefined,
+    tone: "muted",
     detail: MANUFACTURER_WARRANTY_CONFIRM_DETAIL,
   };
 }
 
 function formatServicingGuidelines(
-  info: ManufacturerWarrantyServiceInfo | null | undefined,
+  _info: ManufacturerWarrantyServiceInfo | null | undefined,
 ): Pick<ReportInsight, "status" | "statusSubtext" | "tone" | "detail"> {
-  const serviceHistoryNote = SERVICE_HISTORY_DETAIL;
-  if (!info) {
-    return {
-      status: "",
-      tone: "muted",
-      detail: serviceHistoryNote,
-    };
-  }
-  const km =
-    info.regularServiceKm != null
-      ? `Every ${info.regularServiceKm.toLocaleString("en-AU")} km`
-      : null;
-  const months =
-    info.regularServiceMonths != null
-      ? `Every ${info.regularServiceMonths} month${info.regularServiceMonths === 1 ? "" : "s"}`
-      : null;
-  if (!km && !months) {
-    return {
-      status: "",
-      tone: "muted",
-      detail: serviceHistoryNote,
-    };
-  }
-  const combined =
-    km && months
-      ? `${km} or ${months}, whichever comes first.`
-      : (km ?? months ?? "");
   return {
-    status: combined,
+    status: "",
     statusSubtext: undefined,
-    tone: "clear",
-    detail: serviceHistoryNote,
+    tone: "muted",
+    detail: SERVICE_HISTORY_DETAIL,
   };
 }
 

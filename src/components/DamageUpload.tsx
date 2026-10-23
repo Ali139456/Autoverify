@@ -91,7 +91,7 @@ export function DamageUpload({ reportId }: { reportId: string }) {
           <li key={item}>{item}</li>
         ))}
       </ul>
-      <p className="mt-3 text-xs text-slate-500">
+      <p className="mt-3 text-xs font-medium leading-relaxed text-slate-200">
         The report updates automatically after AI analysis completes.
       </p>
       <input

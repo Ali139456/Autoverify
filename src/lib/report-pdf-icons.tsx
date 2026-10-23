@@ -251,12 +251,9 @@ export function PdfStatusBadge({ tone }: { tone: InsightStatus }) {
           i
         </SvgText>
       ) : tone === "warn" ? (
-        <Path
-          d="M3.4 3.4l3.2 3.2M6.6 3.4l-3.2 3.2"
-          stroke="#ffffff"
-          strokeWidth={1.2}
-          fill="none"
-        />
+        <SvgText x="5" y="7.2" style={{ fontSize: 7, fill: "#ffffff", textAnchor: "middle", fontFamily: "Helvetica-Bold" }}>
+          !
+        </SvgText>
       ) : tone === "neutral" || tone === "muted" ? (
         <Path d="M3 5h4" stroke="#ffffff" strokeWidth={1.2} />
       ) : (

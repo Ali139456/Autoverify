@@ -73,7 +73,7 @@ function InsightStatusBadge({ tone }: { tone: ReportInsight["tone"] }) {
         className="inline-flex h-3 w-3 shrink-0 items-center justify-center rounded-full bg-red-500 text-[8px] font-black leading-none text-white"
         aria-hidden
       >
-        ×
+        !
       </span>
 
     );
@@ -158,7 +158,11 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
         ) : (
           <>
             <div className="flex items-start gap-1.5">
-              <InsightStatusBadge tone={insight.tone} />
+              {!(
+                insightDetailUsesOrange(insight.id) && !insight.status?.trim()
+              ) ? (
+                <InsightStatusBadge tone={insight.tone} />
+              ) : null}
               <div className="min-w-0 flex-1">
                 {insight.id === "ancap" && !insight.status?.trim() ? (
                   <p className="min-w-0 text-[11px] font-medium leading-snug [hyphens:none] [overflow-wrap:normal] [word-break:normal]">
