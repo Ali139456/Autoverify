@@ -73,10 +73,17 @@ export const ODOMETER_NO_HISTORY_LABEL = "No odometer history reported";
 export function reportInsightCopy(text: string): string {
   if (!text) return text;
   return text
+    .replace(/\bVerify ANCAP rating here:/gi, "Verify\u00A0ANCAP\u00A0rating\u00A0here:")
+    .replace(
+      /\bContact the vehicle owner or selling dealer for service history records and review owners manual\/vehicle handbook for servicing intervals and guidelines\./gi,
+      "Contact the vehicle\u00A0owner or selling\u00A0dealer for service\u00A0history records and review owners\u00A0manual/vehicle\u00A0handbook for servicing\u00A0intervals and\u00A0guidelines.",
+    )
     .replace(/\bhistory reported\b/gi, "history\u00A0reported")
     .replace(/\bstate specific requirements\b/gi, "state\u00A0specific\u00A0requirements")
     .replace(/\breading reported\b/gi, "reading\u00A0reported")
     .replace(/\bcheck requirements\b/gi, "check\u00A0requirements")
+    .replace(/\bPassenger capacity\b/g, "Passenger\u00A0capacity")
+    .replace(/\bRefer table below\./g, "Refer\u00A0table\u00A0below.")
     .replace(/\bSelf reported\b/g, "Self\u00A0reported");
 }
 

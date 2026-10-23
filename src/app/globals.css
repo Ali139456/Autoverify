@@ -519,11 +519,20 @@ html.dark body {
   line-height: 1.25;
 }
 
-.report-view .report-insight-card p:not(.report-insight-card-title),
-.report-view .report-insight-card li {
+.report-view .report-insight-card,
+.report-view .report-insight-card * {
   hyphens: none;
   -webkit-hyphens: none;
+}
+
+.report-view .report-insight-card p:not(.report-insight-card-title),
+.report-view .report-insight-card li {
   overflow-wrap: normal;
+  word-break: normal;
+}
+
+.report-view .report-insight-card a {
+  overflow-wrap: break-word;
   word-break: normal;
 }
 
@@ -2147,8 +2156,9 @@ html.dark body {
   }
 
   .report-insight-card a {
-    overflow-wrap: anywhere !important;
-    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+    hyphens: none !important;
   }
 
   .report-insight-card .mt-3 {

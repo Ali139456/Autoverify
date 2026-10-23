@@ -112,7 +112,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
 
   return (
 
-    <div className="report-insight-card flex h-full min-h-[104px] min-w-0 flex-col gap-3 overflow-hidden rounded-xl border border-slate-200 bg-slate-100 p-3.5 sm:p-4 [&_li:not(.report-insight-card-title)]:break-normal [&_li:not(.report-insight-card-title)]:hyphens-none [&_p:not(.report-insight-card-title)]:break-normal [&_p:not(.report-insight-card-title)]:hyphens-none [&_p:not(.report-insight-card-title)]:[overflow-wrap:normal] [&_p:not(.report-insight-card-title)]:[word-break:normal]">
+    <div className="report-insight-card flex h-full min-h-[104px] min-w-0 flex-col gap-3 rounded-xl border border-slate-200 bg-slate-100 p-3.5 sm:p-4 [hyphens:none] [&_*]:[hyphens:none] [&_a]:break-normal [&_a]:[overflow-wrap:break-word] [&_a]:[word-break:normal] [&_li:not(.report-insight-card-title)]:break-normal [&_li:not(.report-insight-card-title)]:hyphens-none [&_p:not(.report-insight-card-title)]:break-normal [&_p:not(.report-insight-card-title)]:hyphens-none [&_p:not(.report-insight-card-title)]:[overflow-wrap:normal] [&_p:not(.report-insight-card-title)]:[word-break:normal]">
 
       <div className="flex items-start justify-between gap-2">
 
@@ -124,7 +124,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
 
         />
 
-        <p className="report-insight-card-title flex-1 text-right text-xs font-bold uppercase leading-snug text-slate-900">
+        <p className="report-insight-card-title flex-1 text-right text-xs font-bold uppercase leading-snug text-slate-900 [hyphens:none] [overflow-wrap:normal] [word-break:normal]">
 
           {insight.title}
 
@@ -149,9 +149,9 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                 {reportInsightCopy(line.text)}
               </p>
             ))}
-            {insight.detail ? (
-              <p className="pt-0.5 text-[11px] font-normal text-slate-500">
-                {insight.detail}
+                {insight.detail ? (
+              <p className="pt-0.5 text-[11px] font-normal text-slate-500 [hyphens:none]">
+                {reportInsightCopy(insight.detail)}
               </p>
             ) : null}
           </div>
@@ -161,13 +161,15 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
               <InsightStatusBadge tone={insight.tone} />
               <div className="min-w-0 flex-1">
                 {insight.id === "ancap" && !insight.status?.trim() ? (
-                  <p className="min-w-0 text-[11px] font-medium leading-snug text-slate-600 [hyphens:none]">
-                    Verify ANCAP rating here:{" "}
+                  <p className="min-w-0 text-[11px] font-medium leading-snug [hyphens:none] [overflow-wrap:normal] [word-break:normal]">
+                    <span className="text-[#E87722]">
+                      {reportInsightCopy("Verify ANCAP rating here:")}{" "}
+                    </span>
                     <a
                       href={ANCAP_SAFETY_RATINGS_URL}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-semibold text-[#0073E3] underline underline-offset-2 [overflow-wrap:anywhere]"
+                      className="font-semibold text-[#0073E3] underline underline-offset-2"
                     >
                       {ANCAP_SAFETY_RATINGS_URL}
                     </a>
@@ -186,7 +188,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                         : "text-slate-600"
                     }`}
                   >
-                    {insight.detail}
+                    {reportInsightCopy(insight.detail)}
                   </p>
                 ) : null}
                 {insight.statusSubtext ? (
@@ -213,7 +215,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                   <p
                     className={`mt-1 text-[11px] font-normal leading-snug ${insightToneClass(insight.tone)}`}
                   >
-                    {insight.detail}
+                    {reportInsightCopy(insight.detail)}
                   </p>
                 ) : null}
                 {insight.id === "recall" &&
@@ -248,7 +250,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                     : "text-slate-600"
                 }`}
               >
-                {note}
+                {reportInsightCopy(note)}
               </p>
             ) : null}
           </>

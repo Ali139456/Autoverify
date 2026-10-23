@@ -821,7 +821,7 @@ function PdfInsightCard({
                         lineHeight: PDF_INSIGHT_LINE,
                       }}
                     >
-                      {insight.detail}
+                      {reportInsightCopy(insight.detail)}
                     </Text>
                   ) : null}
                 </View>
@@ -846,7 +846,7 @@ function PdfInsightCard({
                         lineHeight: PDF_INSIGHT_LINE,
                       }}
                     >
-                      {insight.detail}
+                      {reportInsightCopy(insight.detail)}
                     </Text>
                   ) : null}
                   {insight.statusSubtext ? (
@@ -859,7 +859,7 @@ function PdfInsightCard({
                         { marginTop: 3 },
                       ]}
                     >
-                      {insight.statusSubtext}
+                      {reportInsightCopy(insight.statusSubtext)}
                     </Text>
                   ) : null}
                   {insight.listItems?.length && insight.id !== "odometer" ? (
@@ -875,7 +875,7 @@ function PdfInsightCard({
                             marginTop: itemIndex === 0 ? 0 : 2,
                           }}
                         >
-                          {item}
+                          {reportInsightCopy(item)}
                         </Text>
                       ))}
                     </View>
@@ -888,7 +888,7 @@ function PdfInsightCard({
                         { marginTop: 3 },
                       ]}
                     >
-                      {insight.detail}
+                      {reportInsightCopy(insight.detail)}
                     </Text>
                   ) : null}
                   {insight.id === "ancap" && !insight.status?.trim() ? (
@@ -896,12 +896,13 @@ function PdfInsightCard({
                       style={{
                         marginTop: 0,
                         fontSize: PDF_INSIGHT_BODY_SM,
-                        color: "#475569",
                         fontFamily: "Helvetica",
                         lineHeight: PDF_INSIGHT_LINE,
                       }}
                     >
-                      Verify ANCAP rating here:{" "}
+                      <Text style={{ color: RIDE_SHARE_ORANGE }}>
+                        {reportInsightCopy("Verify ANCAP rating here:")}{" "}
+                      </Text>
                       <Link
                         src={ANCAP_SAFETY_RATINGS_URL}
                         style={{ color: BLUE }}
@@ -949,7 +950,7 @@ function PdfInsightCard({
                         lineHeight: PDF_INSIGHT_LINE,
                       }}
                     >
-                      {footnote}
+                      {reportInsightCopy(footnote)}
                     </Text>
                   ) : null}
                 </View>
