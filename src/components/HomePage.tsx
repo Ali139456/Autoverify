@@ -29,7 +29,7 @@ const INSIGHT_PILLARS = [
       {
         icon: FileText,
         title: "Registration data, Odometer and Vehicle spec",
-        text: "Registration status from official sources, Odometer information review, and vehicle spec, factory fitted and optional feature validation where data is available.",
+        text: "Registration status, Odometer review, vehicle spec and full factory fitted and optional feature validation.",
       },
     ],
   },
