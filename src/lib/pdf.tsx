@@ -3,6 +3,7 @@ import React from "react";
 import path from "path";
 import {
   Document,
+  Font,
   Image,
   Link,
   Page,
@@ -10,6 +11,9 @@ import {
   Text,
   View,
 } from "@react-pdf/renderer";
+
+/** Avoid Deal-er / Manufac-turer style breaks in narrow insight tiles. */
+Font.registerHyphenationCallback((word) => [word]);
 import {
   RIDE_SHARE_ELIGIBILITY_ROWS,
   RIDE_SHARE_TABLE_HEADING,
@@ -1984,7 +1988,7 @@ function InsightsPlusAdditionalPhotosPage({
           title="Additional Photos"
           photos={additionalPhotos}
           note="Keys and Registration paper records from the guided inspection."
-          photoImageHeight={110}
+          photoImageHeight={80}
           photoObjectFit="contain"
         />
       </View>

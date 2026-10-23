@@ -625,6 +625,16 @@ html.dark body {
   mix-blend-mode: multiply;
 }
 
+/* Additional photos — same visual weight as walkaround tiles (not full-page). */
+.report-insights-plus-additional-sheet .report-photo-tile > div {
+  min-height: 140px !important;
+  max-height: 160px !important;
+}
+
+.report-insights-plus-additional-sheet .report-photo-tile img {
+  max-height: 150px !important;
+}
+
 @media print {
   .report-hero-image-photo {
     mix-blend-mode: normal;
@@ -1594,13 +1604,20 @@ html.dark body {
 
   .report-insights-plus-additional-sheet .report-photo-tile > div {
     aspect-ratio: auto !important;
-    flex: 1 1 auto !important;
-    height: auto !important;
-    min-height: 58mm !important;
-    max-height: none !important;
+    flex: 0 0 auto !important;
+    height: 24mm !important;
+    min-height: 24mm !important;
+    max-height: 24mm !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 
   .report-insights-plus-additional-sheet .report-photo-tile img {
+    width: auto !important;
+    height: auto !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
     object-fit: contain !important;
     object-position: center !important;
     background-color: #f1f5f9 !important;

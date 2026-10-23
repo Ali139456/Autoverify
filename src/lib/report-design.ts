@@ -84,7 +84,13 @@ export function reportInsightCopy(text: string): string {
     .replace(/\bcheck requirements\b/gi, "check\u00A0requirements")
     .replace(/\bPassenger capacity\b/g, "Passenger\u00A0capacity")
     .replace(/\bRefer table below\./g, "Refer\u00A0table\u00A0below.")
-    .replace(/\bSelf reported\b/g, "Self\u00A0reported");
+    .replace(/\bSelf reported\b/g, "Self\u00A0reported")
+    .replace(/\bAuthorised Dealer\b/gi, "Authorised\u00A0Dealer")
+    .replace(/\bservice centre\b/gi, "service\u00A0centre")
+    .replace(/\bManufacturer's warranty\b/gi, "Manufacturer's\u00A0warranty")
+    .replace(/\bFinance owing\b/gi, "Finance\u00A0owing")
+    .replace(/\bEncumbered\b/g, "Encumbered")
+    .replace(/\bCheck state specific\b/gi, "Check\u00A0state\u00A0specific");
 }
 
 export function hasOdometerHistory(vehicle: VehicleReport["vehicle"]): boolean {
