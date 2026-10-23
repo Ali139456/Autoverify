@@ -149,7 +149,9 @@ function TierCard({
               aria-hidden
             />
             <span className={compact ? "text-pretty sm:whitespace-nowrap" : "whitespace-nowrap"}>
-              {compact ? "AI condition scan" : "Includes AI powered condition scan"}
+              {compact
+                ? "Includes AI condition scan"
+                : "Includes AI powered condition scan"}
             </span>
           </p>
         ) : null}
