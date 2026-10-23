@@ -360,9 +360,10 @@ export function Header() {
   }, []);
 
   return (
-    <header className="av-site-header fixed inset-x-0 top-0 z-50 bg-ink-950 px-3 py-3 sm:px-6">
+    <header className="av-site-header fixed inset-x-0 top-0 z-50 bg-ink-950 py-3">
+      <div className="av-site-container">
       <div
-        className={`mx-auto flex h-14 max-w-6xl min-w-0 items-center gap-2 rounded-2xl border border-white/10 bg-ink-900 px-2.5 transition-shadow duration-300 sm:h-[4.25rem] sm:gap-3 sm:px-4 ${
+        className={`flex h-14 min-w-0 items-center gap-2 rounded-2xl border border-white/10 bg-ink-900 px-2.5 transition-shadow duration-300 sm:h-[4.25rem] sm:gap-3 sm:px-4 ${
           scrolled
             ? "shadow-[0_8px_30px_rgba(0,0,0,0.45)]"
             : "shadow-[0_2px_16px_rgba(0,0,0,0.35)]"
@@ -409,6 +410,7 @@ export function Header() {
             links={links}
           />
         </div>
+      </div>
       </div>
     </header>
   );

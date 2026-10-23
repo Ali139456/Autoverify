@@ -441,10 +441,6 @@ export function InspectionCapture({
               ? "Photo uploaded for this angle."
               : "Use your phone camera to capture this angle clearly."}
           </p>
-          <p className="mt-2 max-w-sm text-[11px] leading-relaxed text-slate-500">
-            Each photo is time-stamped on your Insights+ report. Allow location
-            access when prompted so we can record where the inspection was taken.
-          </p>
 
           <input
             ref={inputRef}

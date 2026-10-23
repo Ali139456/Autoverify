@@ -287,12 +287,18 @@ export function PdfCheckIcon({
     return (
       <Svg width={11} height={11} viewBox="0 0 11 11">
         <Circle cx="5.5" cy="5.5" r="5.5" fill="#ef4444" />
-        <Path
-          d="M3.8 3.8l3.4 3.4M7.2 3.8l-3.4 3.4"
-          stroke="#ffffff"
-          strokeWidth={1.1}
-          fill="none"
-        />
+        <SvgText
+          x="5.5"
+          y="7.8"
+          style={{
+            fontSize: 7,
+            fill: "#ffffff",
+            textAnchor: "middle",
+            fontFamily: "Helvetica-Bold",
+          }}
+        >
+          !
+        </SvgText>
       </Svg>
     );
   }

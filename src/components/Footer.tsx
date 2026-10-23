@@ -43,7 +43,7 @@ export function Footer({ showPurchaseCta = true }: { showPurchaseCta?: boolean }
       </div>
 
       {showPurchaseCta ? (
-        <div className="relative mx-auto w-full min-w-0 max-w-6xl px-5 pt-12 sm:px-6 sm:pt-16">
+        <div className="av-site-container relative w-full pt-12 sm:pt-16">
           <div className="flex flex-col items-center gap-5 rounded-3xl border border-accent-500/25 bg-gradient-to-r from-blue-50 via-white to-white p-6 text-center dark:from-accent-700/25 dark:via-ink-800 dark:to-ink-800 sm:gap-6 sm:p-8 md:flex-row md:justify-between md:text-left lg:p-10">
             <div>
               <h2 className="text-xl font-extrabold text-slate-900 dark:text-white sm:text-2xl lg:text-3xl">
@@ -68,7 +68,7 @@ export function Footer({ showPurchaseCta = true }: { showPurchaseCta?: boolean }
       ) : null}
 
       <div
-        className={`relative mx-auto grid w-full min-w-0 max-w-6xl gap-10 px-5 py-14 sm:px-6 md:grid-cols-12 ${showPurchaseCta ? "" : "pt-12 sm:pt-16"}`}
+        className={`av-site-container relative grid w-full gap-10 py-14 md:grid-cols-12 ${showPurchaseCta ? "" : "pt-12 sm:pt-16"}`}
       >
         <div className="md:col-span-5">
           <Logo height={52} variant="auto" />
@@ -128,7 +128,7 @@ export function Footer({ showPurchaseCta = true }: { showPurchaseCta?: boolean }
       </div>
 
       <div className="relative border-t border-slate-200 dark:border-white/10">
-        <div className="mx-auto flex w-full min-w-0 max-w-6xl flex-col items-center justify-between gap-4 px-5 py-6 text-xs text-slate-500 sm:flex-row sm:px-6">
+        <div className="av-site-container flex w-full flex-col items-center justify-between gap-4 py-6 text-xs text-slate-500 sm:flex-row">
           <div className="flex flex-col items-center gap-2 sm:items-start">
             <p>© {new Date().getFullYear()} Auto Verifi. All rights reserved.</p>
             <p className="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-400">

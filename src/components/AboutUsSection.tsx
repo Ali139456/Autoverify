@@ -13,7 +13,7 @@ export function AboutUsSection() {
     >
       <div className="pointer-events-none absolute -top-40 right-0 h-[400px] w-[min(400px,100vw)] rounded-full bg-accent-600/10 blur-[120px]" />
 
-      <div className="relative mx-auto w-full min-w-0 max-w-6xl px-4 sm:px-6">
+      <div className="av-site-container relative w-full">
         <Reveal className="max-w-3xl text-left">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent-500 dark:text-accent-400">
             About us

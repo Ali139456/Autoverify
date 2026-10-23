@@ -125,7 +125,7 @@ export function HomePage() {
         <ScrollToCheckOnHash />
         <div className="pointer-events-none absolute -top-40 left-1/2 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-accent-500/15 blur-[140px]" />
 
-        <div className="relative mx-auto max-w-6xl px-4 pb-8 pt-8 sm:px-6 sm:pb-10 sm:pt-14 lg:pb-12 lg:pt-20">
+        <div className="av-site-container relative pb-8 pt-8 sm:pb-10 sm:pt-14 lg:pb-12 lg:pt-20">
           <div className="grid items-center gap-8 sm:gap-10 lg:grid-cols-2 lg:gap-12">
             <HeroCheckLead />
 
@@ -151,8 +151,8 @@ export function HomePage() {
         </div>
       </section>
 
-      <section id="whats-included" className="relative scroll-mt-24 bg-white px-4 pb-12 pt-6 dark:bg-ink-950 sm:px-6 sm:pb-14 sm:pt-8 lg:pb-16 lg:pt-10">
-        <div className="relative mx-auto max-w-6xl">
+      <section id="whats-included" className="relative scroll-mt-24 bg-white pb-12 pt-6 dark:bg-ink-950 sm:pb-14 sm:pt-8 lg:pb-16 lg:pt-10">
+        <div className="av-site-container relative">
           <Reveal className="mx-auto max-w-2xl text-center">
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
               Report <span className="text-accent-500">Features</span>
@@ -184,7 +184,7 @@ export function HomePage() {
         id="comparison"
         className="relative scroll-mt-24 overflow-x-clip border-t border-slate-200 bg-white py-12 dark:border-white/10 dark:bg-ink-950 sm:py-16 lg:py-20"
       >
-        <div className="relative mx-auto w-full min-w-0 max-w-6xl px-4 sm:px-6">
+        <div className="av-site-container relative w-full">
           <Reveal className="mx-auto max-w-2xl text-center">
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl lg:text-4xl">
               The Auto Verifi <span className="text-accent-500">Advantage</span>
@@ -208,7 +208,7 @@ export function HomePage() {
         className="relative scroll-mt-24 overflow-hidden border-y border-slate-200 bg-slate-50 py-12 dark:border-white/10 dark:bg-ink-900 sm:py-16 lg:py-20"
       >
         <div className="pointer-events-none absolute -bottom-52 left-1/2 h-[400px] w-[800px] -translate-x-1/2 rounded-full bg-accent-600/10 blur-[120px]" />
-        <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="av-site-container relative">
           <Reveal className="mx-auto max-w-2xl text-center">
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
               How it <span className="text-accent-400">works</span>
@@ -253,8 +253,9 @@ export function HomePage() {
 
       <AboutUsSection />
 
-      <section id="faq" className="scroll-mt-24 bg-white px-4 py-12 dark:bg-ink-950 sm:px-6 sm:py-16 lg:py-20">
-        <div className="mx-auto max-w-3xl">
+      <section id="faq" className="scroll-mt-24 bg-white py-12 dark:bg-ink-950 sm:py-16 lg:py-20">
+        <div className="av-site-container">
+          <div className="mx-auto max-w-3xl">
           <Reveal>
             <h2 className="text-center text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
               Frequently asked <span className="text-accent-400">questions</span>
@@ -284,6 +285,7 @@ export function HomePage() {
                 </details>
               </Reveal>
             ))}
+          </div>
           </div>
         </div>
       </section>
