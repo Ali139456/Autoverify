@@ -138,9 +138,6 @@ export function RegoSearchForm({
             State{vinMode ? " (optional)" : ""}
           </span>
         </div>
-        <div className="mb-1.5 text-left">
-          <span className={labelClass}>Vehicle type</span>
-        </div>
 
         <div className="flex gap-1.5 sm:gap-2">
           <div className="relative min-w-0 flex-1">
@@ -174,7 +171,10 @@ export function RegoSearchForm({
           </div>
         </div>
 
-        <div className="relative mt-1.5">
+        <div className="mb-1 mt-2 text-left">
+          <span className={labelClass}>Vehicle type</span>
+        </div>
+        <div className="relative">
           <select
             value={assetCategory}
             onChange={(e) =>

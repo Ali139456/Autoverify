@@ -1796,6 +1796,13 @@ function PdfGeneralDisclaimer() {
   );
 }
 
+function pdfPhotoTileWidth(countInRow: number): string {
+  if (countInRow <= 1) return "100%";
+  if (countInRow === 2) return "48%";
+  if (countInRow === 3) return "31%";
+  return "23.5%";
+}
+
 function PdfPhotoGroup({
   title,
   photos,
@@ -1833,11 +1840,13 @@ function PdfPhotoGroup({
                 photo.angle === "front"
                   ? `${baseLabel} (rego visible)`
                   : baseLabel;
+              const tileWidth = pdfPhotoTileWidth(row.length);
               return (
                 <View
                   key={`${photo.angle}-${photo.uploadedAt}`}
                   style={[
                     styles.photoTile,
+                    { width: tileWidth },
                     i === row.length - 1 ? { marginRight: 0 } : {},
                   ]}
                 >
@@ -1866,10 +1875,8 @@ function PdfPhotoGroup({
                         ]}
                       />
                     )}
-                    <View style={styles.photoImageLabelBar}>
-                      <Text style={styles.photoImageLabelText}>{label}</Text>
-                    </View>
                   </View>
+                  <Text style={styles.photoCaption}>{label}</Text>
                   {evidenceLines.map((line) => (
                     <Text key={line} style={styles.photoEvidenceCaption}>
                       {line}
@@ -1937,7 +1944,7 @@ function InsightsPlusWalkaroundPhotosPage({
           title="Walkaround Photos"
           photos={walkaroundPhotos}
           note="Captured on the owner's device. Time and location are recorded beneath each photo when location access is granted; the front photo should show the registration plate."
-          photoImageHeight={72}
+          photoImageHeight={80}
           photoObjectFit="contain"
         />
       </View>
@@ -1971,7 +1978,7 @@ function InsightsPlusAdditionalPhotosPage({
           title="Additional Photos"
           photos={additionalPhotos}
           note="Keys and Registration paper records from the guided inspection."
-          photoImageHeight={92}
+          photoImageHeight={110}
           photoObjectFit="contain"
         />
       </View>

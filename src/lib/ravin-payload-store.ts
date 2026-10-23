@@ -5,6 +5,8 @@ export type StoredRavinPayload = Record<string, unknown> & {
   lastS3IngestAt?: string;
   lastS3IngestError?: string;
   lastS3IngestErrorAt?: string;
+  /** Ops alert sent when Ravin webhook missing long after S3 ingest. */
+  ravinStuckNotifiedAt?: string;
 };
 
 export function normalizeRavinPayload(existing: unknown): StoredRavinPayload {
@@ -37,6 +39,19 @@ export function withRavinIngestError(
     lastS3IngestError: message,
     lastS3IngestErrorAt: new Date().toISOString(),
   };
+}
+
+export function withRavinStuckNotified(existing: unknown): StoredRavinPayload {
+  return {
+    ...normalizeRavinPayload(existing),
+    ravinStuckNotifiedAt: new Date().toISOString(),
+  };
+}
+
+export function readRavinStuckNotifiedAt(payload: unknown): string | null {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return null;
+  const at = (payload as StoredRavinPayload).ravinStuckNotifiedAt;
+  return typeof at === "string" && at.trim() ? at.trim() : null;
 }
 
 export function readLastS3Ingest(payload: unknown): RavinIngestTrace | null {

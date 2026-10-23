@@ -1574,13 +1574,15 @@ html.dark body {
     flex-direction: column !important;
   }
 
-  .report-insights-plus-additional-sheet .report-photo-grid {
+  .report-insights-plus-additional-sheet .report-photo-grid,
+  .report-insights-plus-additional-sheet .report-photo-grid-additional {
     flex: 1 1 auto !important;
-    gap: 6px !important;
-    align-content: stretch !important;
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-    grid-auto-rows: 1fr !important;
+    gap: 10px !important;
+    align-content: start !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-auto-rows: auto !important;
     min-height: 0 !important;
+    max-width: 100% !important;
   }
 
   .report-insights-plus-additional-sheet .report-photo-tile {

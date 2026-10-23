@@ -13,6 +13,7 @@ export {
   payloadTooLargeResponse,
   readBoundedJson,
   rejectOversizedBody,
+  requireCronAuth,
   requireOpsAuth,
   safeInternalPath,
 } from "./api-guard";

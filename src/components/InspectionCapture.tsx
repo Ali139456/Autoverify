@@ -12,6 +12,7 @@ import {
 import {
   getInspectionAngleHint,
   INSPECTION_ANGLES,
+  splitInspectionAngleLabelLines,
 } from "@/lib/inspection-angles";
 import { readCaptureGeolocation } from "@/lib/capture-geolocation";
 import { mergeInspectionPhotosByAngle } from "@/lib/merge-inspection-photos";
@@ -121,6 +122,7 @@ export function InspectionCapture({
   const [exitDismissed, setExitDismissed] = useState(false);
 
   const currentAngle = INSPECTION_ANGLES[stepIndex];
+  const captureAngleLabel = splitInspectionAngleLabelLines(currentAngle.label);
   const captureHint = getInspectionAngleHint(currentAngle.id);
   const uploadedAngles = useMemo(
     () => new Set(photos.map((photo) => photo.angle)),
@@ -366,6 +368,9 @@ export function InspectionCapture({
           AI condition assessment
         </h1>
         <p className="mt-2 text-sm text-slate-400">
+          This takes about 5–10 minutes to complete.
+        </p>
+        <p className="mt-1 text-sm text-slate-400">
           Step {stepIndex + 1} of {INSPECTION_ANGLES.length} · {completedCount} uploaded
         </p>
         <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
@@ -394,7 +399,17 @@ export function InspectionCapture({
             <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
               Capture
             </p>
-            <p className="mt-1 text-lg font-bold">{currentAngle.label}</p>
+            <p className="mt-1 text-lg font-bold leading-snug">
+              {captureAngleLabel.primary}
+              {captureAngleLabel.secondary ? (
+                <>
+                  <br />
+                  <span className="text-base font-semibold text-slate-300">
+                    {captureAngleLabel.secondary}
+                  </span>
+                </>
+              ) : null}
+            </p>
             {captureHint ? (
               <p className="mt-1 text-xs font-medium text-slate-400">{captureHint}</p>
             ) : null}

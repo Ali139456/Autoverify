@@ -170,6 +170,19 @@ Thanks,
 Denise  
 Auto Verifi
 
+## Auto Verifi automation (no Ravin pull API)
+
+| Mechanism | What it does |
+|-----------|----------------|
+| **POST `/api/webhooks/ravin`** | Applies damage when Ravin pushes `sendEventReport`. |
+| **GET `/api/report/[id]/insights-sync`** | Replays **stored** webhooks when the customer opens the report. |
+| **Vercel Cron** `GET /api/cron/ravin-sync` every **10 min** | Replays stored webhooks for all `processing_ravin` reports; sends **one** ops email per inspection if still no damage after **`RAVIN_STUCK_ALERT_HOURS`** (default 2). |
+| **Inspection complete** | After S3 upload, tries webhook replay once in the background. |
+
+Cron auth: set **`CRON_SECRET`** on Vercel (Vercel sends `Authorization: Bearer …` on cron invocations). Manual run: same bearer or `x-autoverifi-ops-key`.
+
+Damage data still **cannot** be invented without Ravin — automation only applies webhooks Ravin has already sent (or alerts ops when none arrive).
+
 ## Environment (Vercel)
 
 | Variable | Purpose |
@@ -179,6 +192,8 @@ Auto Verifi
 | `RAVIN_WEBHOOK_SECRET` | Validates Ravin POST body |
 | `RAVIN_S3_*` or dynamic creds | S3 POST via `generateCompressedDataUpload` |
 | `AUTOVERIFI_OPS_SECRET` | Ops trace header |
+| `CRON_SECRET` | Secures `/api/cron/ravin-sync` |
+| `RAVIN_STUCK_ALERT_HOURS` | Delay before Ravin stuck ops email (default 2) |
 
 ## Code map
 

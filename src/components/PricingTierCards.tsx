@@ -33,6 +33,7 @@ export function PricingTierCards({
 }: PricingTierCardsProps) {
   const checkoutId = identifier ?? rego;
   const checkoutReady = Boolean(checkoutId && (isVin || state));
+  const checkoutFlow = Boolean(onSelectTier);
 
   return (
     <div className="w-full min-w-0 max-w-full">
@@ -46,7 +47,13 @@ export function PricingTierCards({
         </div>
       )}
 
-      <div className="mt-8 grid w-full min-w-0 grid-cols-1 gap-5 sm:mt-10 sm:grid-cols-2 sm:items-stretch sm:gap-6">
+      <div
+        className={
+          checkoutFlow
+            ? "mt-6 grid w-full min-w-0 grid-cols-2 items-stretch gap-2 sm:mt-10 sm:gap-6"
+            : "mt-8 grid w-full min-w-0 grid-cols-1 gap-5 sm:mt-10 sm:grid-cols-2 sm:items-stretch sm:gap-6"
+        }
+      >
         {REPORT_TIER_ORDER.map((tier) => (
           <TierCard
             key={tier}
@@ -57,6 +64,7 @@ export function PricingTierCards({
             checkoutReady={checkoutReady}
             onSelectTier={onSelectTier}
             selectedTier={selectedTier}
+            compact={checkoutFlow}
           />
         ))}
       </div>
@@ -64,13 +72,24 @@ export function PricingTierCards({
   );
 }
 
-function TierProductTitle({ tier }: { tier: ReportTier }) {
+function TierProductTitle({
+  tier,
+  compact,
+}: {
+  tier: ReportTier;
+  compact?: boolean;
+}) {
   const isPlus = tier === "insights_plus";
 
   return (
-    <h3 className="text-balance text-base font-semibold leading-snug text-slate-900 dark:text-white sm:text-lg">
+    <h3
+      className={`text-balance font-semibold leading-snug text-slate-900 dark:text-white ${
+        compact ? "text-[11px] sm:text-lg" : "text-base sm:text-lg"
+      }`}
+    >
       <span className="block">Auto Verifi</span>
-      <span className="block">{isPlus ? "Insights+ Report" : "Insights Report"}</span>
+      <span className="block">{isPlus ? "Insights+" : "Insights"}</span>
+      <span className="block">Report</span>
     </h3>
   );
 }
@@ -83,6 +102,7 @@ function TierCard({
   checkoutReady,
   onSelectTier,
   selectedTier,
+  compact = false,
 }: {
   tier: ReportTier;
   identifier?: string;
@@ -91,12 +111,14 @@ function TierCard({
   checkoutReady: boolean;
   onSelectTier?: (tier: ReportTier) => void;
   selectedTier?: ReportTier | null;
+  compact?: boolean;
 }) {
   const config = getReportTierConfig(tier);
   const isPlus = tier === "insights_plus";
   const isSelected = selectedTier === tier;
-  const cardShell =
-    "relative box-border flex h-full w-full min-w-0 max-w-full flex-col overflow-hidden rounded-2xl border border-accent-500 px-4 py-5 shadow-sm sm:border-2 sm:px-8 sm:py-8 dark:shadow-none";
+  const cardShell = compact
+    ? "relative box-border flex h-full w-full min-w-0 max-w-full flex-col overflow-hidden rounded-xl border border-accent-500 px-2.5 py-3 shadow-sm sm:rounded-2xl sm:border-2 sm:px-8 sm:py-8 dark:shadow-none"
+    : "relative box-border flex h-full w-full min-w-0 max-w-full flex-col overflow-hidden rounded-2xl border border-accent-500 px-4 py-5 shadow-sm sm:border-2 sm:px-8 sm:py-8 dark:shadow-none";
   const cardBg = isPlus
     ? "bg-gradient-to-b from-blue-50 to-white dark:from-accent-700/40 dark:to-ink-950"
     : "bg-white dark:bg-ink-800";
@@ -104,30 +126,56 @@ function TierCard({
 
   return (
     <div className={`${cardShell} ${cardBg} ${cardSelected}`}>
-      <div className="flex min-h-0 items-start justify-between gap-3 sm:min-h-[4.25rem] sm:gap-4">
+      <div
+        className={
+          compact
+            ? "flex min-h-0 flex-col gap-1 sm:min-h-[4.25rem] sm:flex-row sm:items-start sm:justify-between sm:gap-4"
+            : "flex min-h-0 items-start justify-between gap-3 sm:min-h-[4.25rem] sm:gap-4"
+        }
+      >
         <div className="min-w-0 flex-1 pr-1">
-          <TierProductTitle tier={tier} />
+          <TierProductTitle tier={tier} compact={compact} />
         </div>
         {isPlus ? (
-          <p className="inline-flex shrink-0 items-center gap-1 text-left text-[10px] font-semibold leading-tight text-accent-500 sm:text-[11px]">
+          <p
+            className={`inline-flex items-center gap-1 text-left font-semibold leading-tight text-accent-500 ${
+              compact
+                ? "text-[9px] sm:text-[11px]"
+                : "shrink-0 text-[10px] sm:text-[11px]"
+            }`}
+          >
             <Sparkles
-              className="h-3 w-3 shrink-0 text-accent-500"
+              className={`shrink-0 text-accent-500 ${compact ? "h-2.5 w-2.5 sm:h-3 sm:w-3" : "h-3 w-3"}`}
               aria-hidden
             />
-            <span className="whitespace-nowrap">
-              Includes AI powered condition scan
+            <span className={compact ? "text-pretty sm:whitespace-nowrap" : "whitespace-nowrap"}>
+              {compact ? "AI condition scan" : "Includes AI powered condition scan"}
             </span>
           </p>
         ) : null}
       </div>
-      <p className="mt-3 text-3xl font-extrabold tabular-nums text-accent-500 sm:text-4xl lg:text-5xl">
+      <p
+        className={`mt-2 font-extrabold tabular-nums text-accent-500 sm:mt-3 ${
+          compact ? "text-xl sm:text-4xl lg:text-5xl" : "text-3xl sm:text-4xl lg:text-5xl"
+        }`}
+      >
         {formatTierPrice(tier)}
       </p>
-      <p className="mt-2 text-pretty text-sm leading-relaxed text-slate-900 dark:text-slate-300">
+      <p
+        className={`text-pretty leading-relaxed text-slate-900 dark:text-slate-300 ${
+          compact ? "mt-1 hidden text-sm sm:mt-2 sm:block" : "mt-2 text-sm"
+        }`}
+      >
         {config.tagline}
       </p>
 
-      <ul className="mt-5 flex-1 space-y-2.5 text-sm text-slate-700 dark:text-slate-300">
+      <ul
+        className={`flex-1 text-slate-700 dark:text-slate-300 ${
+          compact
+            ? "mt-2 hidden space-y-1.5 text-xs sm:mt-5 sm:block sm:space-y-2.5 sm:text-sm"
+            : "mt-5 space-y-2.5 text-sm"
+        }`}
+      >
         {config.highlights.map((item) => {
           const text = typeof item === "string" ? item : item.text;
           const accent = typeof item === "object" && item.accent;
@@ -150,15 +198,17 @@ function TierCard({
         })}
       </ul>
 
-      <div className="mt-6 space-y-3 pt-2">
+      <div className={`space-y-2 pt-1 sm:space-y-3 sm:pt-2 ${compact ? "mt-3 sm:mt-6" : "mt-6"}`}>
         {checkoutReady && onSelectTier ? (
           <button
             type="button"
             onClick={() => onSelectTier(tier)}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent-600 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-accent-500 sm:text-base"
+            className={`inline-flex w-full items-center justify-center gap-1 rounded-lg bg-accent-600 font-bold text-white transition hover:bg-accent-500 sm:gap-2 sm:rounded-xl sm:px-6 sm:py-3.5 sm:text-base ${
+              compact ? "px-2 py-2.5 text-[11px]" : "px-6 py-3.5 text-sm"
+            }`}
           >
             Buy report
-            <ArrowRight className="h-4 w-4" aria-hidden />
+            <ArrowRight className={compact ? "h-3 w-3 sm:h-4 sm:w-4" : "h-4 w-4"} aria-hidden />
           </button>
         ) : checkoutReady ? (
           <PayButton
@@ -178,7 +228,11 @@ function TierCard({
             <ArrowRight className="h-4 w-4" aria-hidden />
           </HomeCheckLink>
         )}
-        <SampleReportLink tier={tier} variant="outline" />
+        <SampleReportLink
+          tier={tier}
+          variant="outline"
+          className={compact ? "hidden sm:inline-flex" : undefined}
+        />
       </div>
     </div>
   );

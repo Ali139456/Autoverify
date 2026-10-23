@@ -5,6 +5,7 @@ import {
   extractAutoVerifiReportIds,
 } from "@/lib/ravin-webhook";
 import { resolveInspectionFromRavinWebhook } from "@/lib/inspections";
+import { syncRavinReportIfPending } from "@/lib/ravin-background-sync";
 import { applyRavinWebhookPayload } from "@/lib/ravin-apply-webhook";
 import { saveRavinWebhookEvent } from "@/lib/store-supabase";
 import { isSupabaseServerConfigured } from "@/lib/supabase/server";
@@ -62,6 +63,11 @@ export async function POST(req: NextRequest) {
   });
 
   if (!inspection) {
+    for (const id of extractAutoVerifiReportIds(payload)) {
+      void syncRavinReportIfPending(id).catch((err) => {
+        console.error(`[webhooks/ravin] sync after unmatched (${id}):`, err);
+      });
+    }
     return NextResponse.json({ ok: true, matched: false });
   }
 

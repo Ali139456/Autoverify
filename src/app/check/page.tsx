@@ -187,7 +187,7 @@ export default async function CheckPage({
           </dl>
         </div>
 
-        <div className="mt-10 w-full min-w-0">
+        <div className="mt-6 w-full min-w-0 sm:mt-10">
           <CheckPageCheckout
             identifier={checkoutIdentifier}
             state={checkoutState}

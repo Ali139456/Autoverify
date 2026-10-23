@@ -128,6 +128,35 @@ export async function updateReportWorkflowStatus(
   if (error) throw new Error(error.message);
 }
 
+export async function listReportIdsByWorkflowStatus(
+  status: string,
+  limit = 40,
+): Promise<string[]> {
+  const supabase = createServerClient();
+  const { data, error } = await supabase
+    .from("reports")
+    .select("id")
+    .eq("status", status)
+    .order("updated_at", { ascending: true })
+    .limit(limit);
+
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row) => String((row as { id: string }).id));
+}
+
+export async function countRavinWebhookEventsForReport(
+  reportId: string,
+): Promise<number> {
+  const supabase = createServerClient();
+  const { count, error } = await supabase
+    .from("ravin_webhook_events")
+    .select("id", { count: "exact", head: true })
+    .eq("report_id", reportId);
+
+  if (error) throw new Error(error.message);
+  return count ?? 0;
+}
+
 export async function saveRavinWebhookEvent(input: {
   reportId?: string | null;
   inspectionId?: string | null;

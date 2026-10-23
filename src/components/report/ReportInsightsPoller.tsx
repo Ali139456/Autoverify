@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-const POLL_MS = 12_000;
-const MAX_POLLS = 45;
+const POLL_MS = 15_000;
+/** ~75 minutes while the report tab stays open. */
+const MAX_POLLS = 300;
 
 export function ReportInsightsPoller({
   reportId,
@@ -74,8 +75,8 @@ export function ReportInsightsPoller({
       role="status"
     >
       <Loader2 className="h-4 w-4 shrink-0 animate-spin text-[#0073E3]" aria-hidden />
-      AI damage analysis is processing — this page will update automatically (usually within a
-      few minutes).
+      AI damage analysis is processing — this page will update automatically when Ravin
+      delivers results (often within a few minutes).
     </p>
   );
 }

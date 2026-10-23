@@ -12,6 +12,7 @@ import {
   sendInspectionPhotosUpdatedEmail,
 } from "@/lib/email";
 import { getReport, updateReport } from "@/lib/store";
+import { syncRavinReportIfPending } from "@/lib/ravin-background-sync";
 import { submitInspectionToRavin } from "@/lib/ravin-ingest";
 import {
   withRavinIngestError,
@@ -161,6 +162,10 @@ export async function POST(
         ),
       });
 
+      void syncRavinReportIfPending(inspection.reportId).catch((err) => {
+        console.error("[inspections/complete] Ravin sync after S3:", err);
+      });
+
       return NextResponse.json({
         ok: true,
         mode: "pending",
@@ -179,6 +184,10 @@ export async function POST(
         freshInspection.ravinPayload,
         submission.ingestTrace,
       ),
+    });
+
+    void syncRavinReportIfPending(inspection.reportId).catch((err) => {
+      console.error("[inspections/complete] Ravin sync after S3:", err);
     });
 
     return NextResponse.json({

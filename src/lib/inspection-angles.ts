@@ -9,12 +9,9 @@ export const INSPECTION_ANGLES = [
     id: "mirror_passenger",
     label: "Front passenger exterior door mirror",
   },
-  { id: "wheel_left_front", label: "Passenger side front tyre" },
   { id: "left_side", label: "Passenger side (full body)" },
-  { id: "wheel_left_rear", label: "Passenger side rear tyre" },
   { id: "rear", label: "Rear centre" },
   { id: "boot_tray_opened", label: "Boot open" },
-  { id: "wheel_right_rear", label: "Driver side rear tyre" },
   { id: "right_side", label: "Driver side (full body)" },
   {
     id: "mirror_driver",
@@ -22,7 +19,11 @@ export const INSPECTION_ANGLES = [
   },
   { id: "front_right", label: "Front driver side" },
   { id: "roof", label: "Roof" },
-  { id: "vin_plate", label: "Interior VIN identification" },
+  { id: "wheel_left_front", label: "Passenger side front tyre" },
+  { id: "wheel_left_rear", label: "Passenger side rear tyre" },
+  { id: "wheel_right_rear", label: "Driver side rear tyre" },
+  { id: "wheel_right_front", label: "Driver side front tyre" },
+  { id: "vin_plate", label: "VIN identification image" },
   {
     id: "dashboard",
     label: "Interior odometer reading (with engine running)",
@@ -74,6 +75,18 @@ export function isValidInspectionAngleId(id: string): boolean {
     INSPECTION_ANGLE_IDS.includes(id as (typeof INSPECTION_ANGLE_IDS)[number]) ||
     (LEGACY_INSPECTION_ANGLE_IDS as readonly string[]).includes(id)
   );
+}
+
+/** Capture UI: put “(full body)” on its own line under the side name. */
+export function splitInspectionAngleLabelLines(label: string): {
+  primary: string;
+  secondary?: string;
+} {
+  const match = label.match(/^(.+?) \((full body)\)$/i);
+  if (match) {
+    return { primary: match[1].trim(), secondary: `(${match[2]})` };
+  }
+  return { primary: label };
 }
 
 export function getInspectionAngleLabel(id: string): string {

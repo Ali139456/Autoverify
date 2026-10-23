@@ -119,6 +119,36 @@ export function getOpsSecret(): string | null {
 }
 
 /** Protects support/trace endpoints that expose customer report metadata. */
+/** Vercel Cron (`Authorization: Bearer CRON_SECRET`) or ops key for manual runs. */
+export function requireCronAuth(req: NextRequest): NextResponse | null {
+  const secret =
+    process.env.CRON_SECRET?.trim() ??
+    process.env.AUTOVERIFI_CRON_SECRET?.trim() ??
+    getOpsSecret();
+  if (!secret) {
+    return applySecurityHeaders(
+      NextResponse.json({ error: "Not found." }, { status: 404 }),
+    );
+  }
+
+  const authHeader = req.headers.get("authorization")?.trim();
+  const bearer =
+    authHeader?.toLowerCase().startsWith("bearer ")
+      ? authHeader.slice(7).trim()
+      : null;
+  const provided =
+    bearer ??
+    req.headers.get("x-autoverifi-ops-key")?.trim() ??
+    req.nextUrl.searchParams.get("opsKey")?.trim();
+
+  if (!provided || provided !== secret) {
+    return applySecurityHeaders(
+      NextResponse.json({ error: "Unauthorized." }, { status: 401 }),
+    );
+  }
+  return null;
+}
+
 export function requireOpsAuth(req: NextRequest): NextResponse | null {
   const secret = getOpsSecret();
   if (!secret) {

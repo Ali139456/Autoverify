@@ -8,8 +8,9 @@ import { generateReportPdfBuffer } from "./report-pdf-buffer";
 import { generateTaxInvoicePdfBuffer } from "./tax-invoice-pdf-buffer";
 import { buildPurchaseEmailContextFromSession } from "./stripe-purchase-email";
 import { getBaseUrl } from "./stripe";
-import type { VehicleReport } from "./types";
+import { parseInspectorLiteCodeFromUrl } from "./ravin-partner";
 import { buildReportPublicUrls } from "./ravin-report-trace";
+import type { InspectionSession, VehicleReport } from "./types";
 
 export type SendPurchaseConfirmationOptions = {
   stripeSessionId?: string | null;
@@ -171,6 +172,67 @@ export async function sendInspectionPhotosUpdatedEmail(
     const body = await response.text().catch(() => "");
     throw new Error(
       `Resend inspection email failed (${response.status}): ${body.slice(0, 200)}`,
+    );
+  }
+}
+
+/** Ops inbox when Ravin damage is still missing long after S3 ingest. */
+export async function sendRavinStuckOpsAlert(input: {
+  report: VehicleReport;
+  inspection: InspectionSession;
+  webhookCount: number;
+}): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  const to =
+    process.env.AUTOVERIFI_SUPPORT_EMAIL?.trim() ||
+    getContactInboxEmail();
+  if (!apiKey || !to) {
+    console.warn(
+      "[email] RESEND_API_KEY or support inbox missing — skipping Ravin stuck alert.",
+    );
+    return;
+  }
+
+  const from =
+    process.env.RESEND_FROM?.trim() ??
+    "Auto Verifi <noreply@autoverifi.com.au>";
+  const baseUrl = getBaseUrl();
+  const { reportUrl } = buildReportPublicUrls(baseUrl, input.report.id);
+  const vehicleLabel = `${input.report.vehicle.year} ${input.report.vehicle.make} ${input.report.vehicle.model}`;
+  const rego = input.report.vehicle.rego?.trim();
+  const sessionCode = input.inspection.ravinInviteUrl
+    ? parseInspectorLiteCodeFromUrl(input.inspection.ravinInviteUrl)
+    : null;
+
+  const html = `<!DOCTYPE html><html><body style="font-family:sans-serif;color:#0f172a;line-height:1.55">
+<p><strong>Ravin damage still missing</strong> (automatic ops alert)</p>
+<p><strong>Report:</strong> <a href="${reportUrl}">${input.report.id}</a><br/>
+<strong>Vehicle:</strong> ${vehicleLabel}${rego ? ` (${rego})` : ""}<br/>
+<strong>Inspection completed:</strong> ${input.inspection.completedAt ?? "—"}<br/>
+<strong>Ravin claimId:</strong> ${input.inspection.ravinInspectionId ?? input.report.id}<br/>
+<strong>Ravin session code:</strong> ${sessionCode ?? "—"}<br/>
+<strong>Webhooks stored for this report:</strong> ${input.webhookCount}</p>
+<p>Auto Verifi already uploaded photos to Ravin S3. Ask Ravin to confirm ingest and re-send <code>sendEventReport</code> to <code>${baseUrl}/api/webhooks/ravin</code>.</p>
+</body></html>`;
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from,
+      to,
+      subject: `Ravin stuck — ${input.report.id} (${vehicleLabel})`,
+      html,
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => "");
+    throw new Error(
+      `Resend Ravin stuck alert failed (${response.status}): ${body.slice(0, 200)}`,
     );
   }
 }

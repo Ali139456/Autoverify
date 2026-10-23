@@ -33,32 +33,27 @@ function PhotoTile({
   );
   return (
     <figure className="report-photo-tile overflow-hidden rounded-lg border border-slate-200 bg-white">
-      <div className="relative flex aspect-[4/3] items-center justify-center bg-slate-100">
+      <div className="relative flex min-h-[180px] items-center justify-center bg-slate-100 sm:min-h-[220px]">
         {url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={url}
             alt={tileLabel}
-            className="max-h-full max-w-full object-contain object-center"
+            className="max-h-[200px] w-full max-w-full object-contain object-center sm:max-h-[240px]"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-slate-400">
+          <div className="flex h-full min-h-[180px] w-full items-center justify-center text-slate-400 sm:min-h-[220px]">
             <Camera className="h-6 w-6" aria-hidden />
           </div>
         )}
-        <div
-          className="report-photo-tile-label pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/55 to-transparent px-2 pb-1.5 pt-6"
-          aria-hidden
-        >
-          <p className="text-[10px] font-bold leading-snug text-white drop-shadow-sm sm:text-[11px]">
-            {tileLabel}
-            {isFrontRego ? (
-              <span className="font-normal text-white/85"> (rego visible)</span>
-            ) : null}
-          </p>
-        </div>
       </div>
       <figcaption className="border-t border-slate-200 px-2 py-1.5">
+        <p className="text-[10px] font-bold leading-snug text-slate-900 sm:text-[11px]">
+          {tileLabel}
+          {isFrontRego ? (
+            <span className="font-normal text-slate-600"> (rego visible)</span>
+          ) : null}
+        </p>
         <InspectionPhotoEvidenceCaption photo={photo} />
         {caption ? (
           <p className="mt-0.5 text-[10px] text-red-600">{caption}</p>
@@ -73,11 +68,14 @@ function PhotoGroup({
   photos,
   damageByPanel,
   note,
+  gridClassName,
 }: {
   title: string;
   photos: InspectionPhoto[];
   damageByPanel: Map<string, string>;
   note?: string;
+  /** Additional photos: two-up layout (matches PDF / print). */
+  gridClassName?: string;
 }) {
   if (photos.length === 0) return null;
   const hasRecordOnlyPhoto = photos.some((photo) =>
@@ -91,7 +89,12 @@ function PhotoGroup({
       {note ? (
         <p className="mt-1 text-[11px] leading-relaxed text-slate-500">{note}</p>
       ) : null}
-      <div className="report-photo-grid mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      <div
+        className={
+          gridClassName ??
+          "report-photo-grid mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
+        }
+      >
         {photos.map((photo) => (
           <PhotoTile
             key={`${photo.angle}-${photo.uploadedAt}`}
@@ -234,6 +237,7 @@ export function InsightsPlusBodyReport({
                 photos={additionalPhotos}
                 damageByPanel={damageByPanel}
                 note="Keys and Registration paper records from the guided inspection."
+                gridClassName="report-photo-grid report-photo-grid-additional mt-3 grid grid-cols-2 gap-4"
               />
             </div>
           </ReportShell>
