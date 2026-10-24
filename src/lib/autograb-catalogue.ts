@@ -3,7 +3,7 @@ export const AUTOGRAB_ASSET_CATEGORY_LABELS = {
   conventional: "Car / light commercial",
   powersports: "Motorbike or scooter (coming soon)",
   camping: "Caravan or camper (coming soon)",
-  heavy_trucks: "Heavy truck (coming soon)",
+  heavy_trucks: "Heavy Vehicles (coming soon)",
 } as const;
 
 export type AutograbAssetCategory = keyof typeof AUTOGRAB_ASSET_CATEGORY_LABELS;
