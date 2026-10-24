@@ -78,6 +78,18 @@ export function reportInsightCopy(text: string): string {
       /\bContact the vehicle owner or selling dealer for service history records and review owners manual\/vehicle handbook for servicing intervals and guidelines\./gi,
       "Contact the vehicle\u00A0owner or selling\u00A0dealer for service\u00A0history records and review owners\u00A0manual/vehicle\u00A0handbook for servicing\u00A0intervals and\u00A0guidelines.",
     )
+    .replace(
+      /\bContact Authorised Dealer\/service centre and quote VIN to confirm remaining Manufacturer's warranty\./gi,
+      "Contact\u00A0Authorised\u00A0Dealer/service\u00A0centre and quote\u00A0VIN to confirm remaining Manufacturer's\u00A0warranty.",
+    )
+    .replace(
+      /\bCheck state specific requirements\. Refer table below\./gi,
+      "Check\u00A0state\u00A0specific\u00A0requirements. Refer\u00A0table\u00A0below.",
+    )
+    .replace(
+      /\bCheck state specific requirements\b/gi,
+      "Check\u00A0state\u00A0specific\u00A0requirements",
+    )
     .replace(/\bhistory reported\b/gi, "history\u00A0reported")
     .replace(/\bstate specific requirements\b/gi, "state\u00A0specific\u00A0requirements")
     .replace(/\breading reported\b/gi, "reading\u00A0reported")
@@ -509,10 +521,9 @@ function buildRideShareKeyInsight(report: VehicleReport): ReportInsight {
         { text: "Doors — eligible", variant: "eligible" },
         { text: "Passenger capacity — eligible", variant: "eligible" },
         {
-          text: "Check state specific requirements",
+          text: "Check state specific requirements. Refer table below.",
           variant: "action",
         },
-        { text: "Refer table below.", variant: "action" },
       ],
     };
   }

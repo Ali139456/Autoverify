@@ -47,13 +47,7 @@ export function PricingTierCards({
         </div>
       )}
 
-      <div
-        className={
-          checkoutFlow
-            ? "mt-6 grid w-full min-w-0 grid-cols-2 items-stretch gap-2 sm:mt-10 sm:gap-6"
-            : "mt-8 grid w-full min-w-0 grid-cols-1 gap-5 sm:mt-10 sm:grid-cols-2 sm:items-stretch sm:gap-6"
-        }
-      >
+      <div className="mt-6 grid w-full min-w-0 grid-cols-2 items-stretch gap-2 sm:mt-10 sm:gap-6">
         {REPORT_TIER_ORDER.map((tier) => (
           <TierCard
             key={tier}
@@ -64,7 +58,7 @@ export function PricingTierCards({
             checkoutReady={checkoutReady}
             onSelectTier={onSelectTier}
             selectedTier={selectedTier}
-            compact={checkoutFlow}
+            compact
           />
         ))}
       </div>
