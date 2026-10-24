@@ -112,7 +112,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
 
   return (
 
-    <div className="report-insight-card flex h-full min-h-[104px] min-w-0 flex-col gap-3 rounded-xl border border-slate-200 bg-slate-100 p-3.5 sm:p-4 [hyphens:none] [&_*]:[hyphens:none] [&_a]:break-normal [&_a]:[overflow-wrap:break-word] [&_a]:[word-break:normal] [&_li:not(.report-insight-card-title)]:break-normal [&_li:not(.report-insight-card-title)]:hyphens-none [&_p:not(.report-insight-card-title)]:break-normal [&_p:not(.report-insight-card-title)]:hyphens-none [&_p:not(.report-insight-card-title)]:[overflow-wrap:normal] [&_p:not(.report-insight-card-title)]:[word-break:normal]">
+    <div className="report-insight-card flex h-full min-h-[104px] min-w-0 max-w-full flex-col gap-3 overflow-hidden rounded-xl border border-slate-200 bg-slate-100 p-3.5 sm:p-4 [hyphens:none] [&_*]:[hyphens:none] [&_a]:[overflow-wrap:break-word] [&_li:not(.report-insight-card-title)]:min-w-0 [&_li:not(.report-insight-card-title)]:hyphens-none [&_li:not(.report-insight-card-title)]:break-words [&_p:not(.report-insight-card-title)]:min-w-0 [&_p:not(.report-insight-card-title)]:hyphens-none [&_p:not(.report-insight-card-title)]:break-words">
 
       <div className="flex items-start justify-between gap-2">
 
@@ -139,7 +139,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
             {insight.lines.map((line) => (
               <p
                 key={line.text}
-                className={`${rideShareLineClass(line.variant)} [hyphens:none]`}
+                className={`min-w-0 break-words ${rideShareLineClass(line.variant)} [hyphens:none]`}
                 style={
                   line.variant === "action"
                     ? { color: RIDE_SHARE_ORANGE }
@@ -186,7 +186,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                 </p>
                 ) : insight.detail ? (
                   <p
-                    className={`text-[11px] font-normal leading-relaxed ${
+                    className={`min-w-0 break-words text-[11px] font-normal leading-relaxed ${
                       insightDetailUsesOrange(insight.id)
                         ? "font-medium text-[#E87722]"
                         : "text-slate-600"
@@ -248,7 +248,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                 insight.tone === "muted"
               ) ? (
               <p
-                className={`mt-1.5 text-[11px] font-normal leading-snug text-left ${
+                className={`mt-1.5 min-w-0 break-words text-[11px] font-normal leading-snug text-left ${
                   insightDetailUsesOrange(insight.id)
                     ? "font-medium text-[#E87722]"
                     : "text-slate-600"

@@ -80,7 +80,7 @@ export function reportInsightCopy(text: string): string {
     )
     .replace(
       /\bContact Authorised Dealer\/service centre and quote VIN to confirm remaining Manufacturer's warranty\./gi,
-      "Contact\u00A0Authorised\u00A0Dealer/service\u00A0centre and quote\u00A0VIN to confirm remaining Manufacturer's\u00A0warranty.",
+      "Contact\u00A0Authorised\u00A0Dealer/service centre and quote VIN to confirm remaining Manufacturer's warranty.",
     )
     .replace(
       /\bCheck state specific requirements\. Refer table below\./gi,

@@ -544,6 +544,11 @@ html.dark body {
   line-height: 1.25;
 }
 
+.report-view .report-insight-card {
+  overflow: hidden;
+  max-width: 100%;
+}
+
 .report-view .report-insight-card,
 .report-view .report-insight-card * {
   hyphens: none;
@@ -552,8 +557,9 @@ html.dark body {
 
 .report-view .report-insight-card p:not(.report-insight-card-title),
 .report-view .report-insight-card li {
-  overflow-wrap: normal;
-  word-break: normal;
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .report-view .report-insight-card a {
@@ -2158,6 +2164,8 @@ html.dark body {
   .report-insight-card {
     min-height: 0 !important;
     height: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
     box-shadow: none !important;
     padding: 10px !important;
     border-radius: 8px !important;
@@ -2175,10 +2183,11 @@ html.dark body {
   .report-insight-card p {
     font-size: 9px !important;
     line-height: 1.3 !important;
+    min-width: 0 !important;
     hyphens: none !important;
     -webkit-hyphens: none !important;
-    overflow-wrap: normal !important;
-    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
   }
 
   .report-insight-card p:not(.report-insight-card-title) {
@@ -2186,10 +2195,11 @@ html.dark body {
   }
 
   .report-insight-card li {
+    min-width: 0 !important;
     hyphens: none !important;
     -webkit-hyphens: none !important;
-    overflow-wrap: normal !important;
-    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
     font-weight: 400 !important;
   }
 
