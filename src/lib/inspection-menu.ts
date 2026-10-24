@@ -12,7 +12,10 @@ export type InspectionMenuItem =
 export const INSPECTION_MENU_ITEMS: InspectionMenuItem[] = [
   { label: "Pre Purchase Inspections", status: "coming_soon" },
   { label: "EV Battery Health Checks", status: "coming_soon" },
-  { label: "Lender Asset Verification", status: "coming_soon" },
+  {
+    label: "Lender Asset Verification",
+    href: "/inspections/lender-asset-verification",
+  },
   { label: "Ride Share Inspections", status: "coming_soon" },
   { label: "End of Lease Inspections", status: "coming_soon" },
   {

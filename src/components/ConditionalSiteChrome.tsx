@@ -15,6 +15,9 @@ export function ConditionalSiteChrome({
 }) {
   const pathname = usePathname();
   const hideMainFooter = pathname.startsWith("/vehicleinspections");
+  const isLenderAssetPage = pathname.startsWith(
+    "/inspections/lender-asset-verification",
+  );
   const isContactPage = pathname === "/contact";
   const hideFooterPurchaseCta =
     pathname.startsWith("/check") ||
@@ -36,7 +39,9 @@ export function ConditionalSiteChrome({
       <Header />
       <main
         className={`flex-1 w-full min-w-0 overflow-x-clip pt-[5.75rem] sm:pt-[6rem] ${
-          isContactPage ? "bg-ink-950" : "bg-white dark:bg-ink-950"
+          isContactPage || isLenderAssetPage
+            ? "bg-ink-950"
+            : "bg-white dark:bg-ink-950"
         }`}
       >
         {children}
