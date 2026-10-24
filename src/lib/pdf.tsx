@@ -362,6 +362,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: PDF_INSIGHT_PAD,
     backgroundColor: "#f1f5f9",
+    overflow: "hidden",
   },
   insightTop: {
     flexDirection: "row",
