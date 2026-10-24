@@ -49,17 +49,18 @@ export function PricingTierCards({
 
       <div className="mt-6 grid w-full min-w-0 grid-cols-2 items-stretch gap-2 sm:mt-10 sm:gap-6">
         {REPORT_TIER_ORDER.map((tier) => (
-          <TierCard
-            key={tier}
-            tier={tier}
-            identifier={checkoutId}
-            state={state}
-            isVin={isVin}
-            checkoutReady={checkoutReady}
-            onSelectTier={onSelectTier}
-            selectedTier={selectedTier}
-            compact
-          />
+          <div key={tier} className="flex min-h-0 h-full min-w-0">
+            <TierCard
+              tier={tier}
+              identifier={checkoutId}
+              state={state}
+              isVin={isVin}
+              checkoutReady={checkoutReady}
+              onSelectTier={onSelectTier}
+              selectedTier={selectedTier}
+              compact
+            />
+          </div>
         ))}
       </div>
     </div>
@@ -148,6 +149,14 @@ function TierCard({
                 : "Includes AI powered condition scan"}
             </span>
           </p>
+        ) : compact ? (
+          <p
+            className="pointer-events-none inline-flex items-center gap-1 text-left text-[9px] font-semibold leading-tight opacity-0 sm:hidden"
+            aria-hidden
+          >
+            <Sparkles className="h-2.5 w-2.5 shrink-0" />
+            <span>Includes AI condition scan</span>
+          </p>
         ) : null}
       </div>
       <p
@@ -194,7 +203,13 @@ function TierCard({
         })}
       </ul>
 
-      <div className={`space-y-2 pt-1 sm:space-y-3 sm:pt-2 ${compact ? "mt-3 sm:mt-6" : "mt-6"}`}>
+      <div
+        className={
+          compact
+            ? "mt-auto space-y-2 pt-1 sm:mt-6 sm:space-y-3 sm:pt-2"
+            : "mt-6 space-y-2 pt-1 sm:space-y-3 sm:pt-2"
+        }
+      >
         {checkoutReady && onSelectTier ? (
           <button
             type="button"
