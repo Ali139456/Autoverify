@@ -1,4 +1,6 @@
 .lav {
+  overflow-x: clip;
+  max-width: 100%;
   /* Match main Auto Verifi marketing site (Geist + carsales blue). */
   --bg: #030407;
   --bg-2: #06080f;
@@ -69,47 +71,57 @@
 .lav .nav .btn{padding:10px 18px;font-size:.95rem}
 @media(max-width:820px){.nav ul{display:none}}
 .lav /* Hero */
-.lav .hero{background:radial-gradient(1200px 600px at 85% 30%,rgba(0,115,227,.16),transparent 60%),linear-gradient(180deg,var(--bg-2),var(--bg));padding:48px 0 72px;overflow:hidden}
-.lav .hero-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:36px;align-items:center}
+.lav .hero{background:radial-gradient(1200px 600px at 85% 30%,rgba(0,115,227,.16),transparent 60%),linear-gradient(180deg,var(--bg-2),var(--bg));padding-top:clamp(2rem,7vw,5rem);padding-bottom:2rem;overflow:hidden}
+@media (min-width:640px){.lav .hero{padding-top:clamp(3.5rem,8vw,5rem);padding-bottom:2.5rem}}
+@media (min-width:1024px){.lav .hero{padding-top:5rem;padding-bottom:3rem}}
+.lav .hero-grid{display:grid;grid-template-columns:1fr;gap:2rem;align-items:center}
+@media (min-width:640px){.lav .hero-grid{gap:2.5rem}}
+@media (min-width:1024px){.lav .hero-grid{grid-template-columns:1fr 1fr;gap:3rem}}
 .lav .hero h1{font-size:clamp(2.3rem,4.6vw,3.8rem)}
-.lav .hero h1 .line{display:block;white-space:nowrap}
+.lav .hero h1 .line{display:block;text-wrap:balance}
+.lav .hero h1 .line--nowrap{white-space:nowrap}
 .lav .hero p.lead{font-size:1.15rem;color:var(--muted);max-width:560px}
 .lav .hero .prices{margin-top:22px;display:flex;flex-direction:column;gap:6px;color:var(--muted);font-size:1rem}
 .lav .hero .prices b{color:var(--ink);margin-left:6px}
 .lav .hero .ctas{display:flex;gap:14px;flex-wrap:wrap;margin-top:28px}
 .lav .ticks{display:flex;flex-wrap:wrap;gap:10px 24px;margin-top:28px;padding:0;list-style:none;font-size:.95rem;color:var(--muted)}
 .lav .ticks li::before{content:"✓";color:var(--blue);font-weight:800;margin-right:8px}
-.lav .frame{position:relative;padding:60px 48px;max-width:720px;min-width:0;margin-left:auto;width:100%;background:radial-gradient(circle at 50% 75%,rgba(0,115,227,.35),transparent 55%),#01040a;border-radius:8px;display:grid;place-items:center;overflow:hidden}
-.lav .frame .c{position:absolute;width:64px;height:64px;border:0 solid var(--blue);filter:drop-shadow(0 0 6px var(--blue-glow))}
+.lav .hero-visual .frame{position:relative;padding:clamp(22px,4.5vw,32px) clamp(16px,3.5vw,24px);max-width:100%;min-width:0;width:100%;margin:0;background:radial-gradient(circle at 50% 75%,rgba(0,115,227,.35),transparent 55%),#01040a;border-radius:8px;display:grid;place-items:center;overflow:hidden}
+.lav .hero-visual .frame .c{position:absolute;width:40px;height:40px;border:0 solid var(--blue);filter:drop-shadow(0 0 6px var(--blue-glow))}
+@media (min-width:640px){.lav .hero-visual .frame .c{width:48px;height:48px}}
+@media (min-width:1024px){.lav .hero-visual .frame .c{width:56px;height:56px}}
 .lav .frame .tl{top:0;left:0;border-top-width:4px;border-left-width:4px;border-top-left-radius:14px}
 .lav .frame .tr{top:0;right:0;border-top-width:4px;border-right-width:4px;border-top-right-radius:14px}
 .lav .frame .bl{bottom:0;left:0;border-bottom-width:4px;border-left-width:4px;border-bottom-left-radius:14px}
 .lav .frame .br{bottom:0;right:0;border-bottom-width:4px;border-right-width:4px;border-bottom-right-radius:14px}
-.lav .ring{position:absolute;width:78%;aspect-ratio:1;border-radius:50%;top:8%;border:5px solid #5aa8ff;box-shadow:0 0 24px 6px var(--blue-glow),inset 0 0 24px 4px var(--blue-glow);-webkit-mask:linear-gradient(#000 60%,transparent 92%);mask:linear-gradient(#000 60%,transparent 92%)}
+.lav .hero-visual .ring{position:absolute;width:72%;aspect-ratio:1;border-radius:50%;top:10%;border:4px solid #5aa8ff;box-shadow:0 0 20px 5px var(--blue-glow),inset 0 0 20px 3px var(--blue-glow);-webkit-mask:linear-gradient(#000 60%,transparent 92%);mask:linear-gradient(#000 60%,transparent 92%)}
 .lav .floor{position:absolute;bottom:0;left:0;right:0;height:30%;background:linear-gradient(180deg,transparent,rgba(0,115,227,.18));}
-.lav .mini-report{position:relative;z-index:1;width:100%;background:rgba(10,19,34,.88);border:1px solid var(--line-2);border-radius:14px;padding:20px;font-size:.92rem;box-shadow:0 20px 60px rgba(0,0,0,.6)}
-.lav .mini-report .t{white-space:nowrap;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:8px}
-.lav .mini-report .row{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:9px 0;border-bottom:1px solid var(--line)}
-.lav .mini-report .row>span:first-child{color:var(--muted);flex:none}
-.lav .mini-report .v{font-weight:700;text-align:right;min-width:0}
-.lav .mini-report .pill{white-space:nowrap}
+.lav .hero-visual .mini-report{position:relative;z-index:1;width:100%;background:rgba(10,19,34,.88);border:1px solid var(--line-2);border-radius:12px;padding:14px 16px;font-size:.84rem;box-shadow:0 16px 48px rgba(0,0,0,.55)}
+@media (min-width:640px){.lav .hero-visual .mini-report{padding:16px 18px;font-size:.88rem}}
+@media (min-width:1024px){.lav .hero-visual .mini-report{padding:18px 20px;font-size:.9rem}}
+.lav .mini-report .t{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:8px;line-height:1.35;text-wrap:balance}
+.lav .mini-report .row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:8px 14px;padding:9px 0;border-bottom:1px solid var(--line)}
+.lav .mini-report .row>span:first-child{color:var(--muted);flex:1 1 auto;min-width:0}
+.lav .mini-report .v{font-weight:700;text-align:right;min-width:0;flex:1 1 100%;max-width:100%;word-break:break-word}
+.lav .mini-report .pill{white-space:normal;text-align:right;max-width:100%}
 .lav .mini-report .row:last-child{border:0}
 .lav .pill{font-size:.75rem;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--blue-soft);color:var(--blue-h);border:1px solid rgba(0,115,227,.35)}
-@media(max-width:1180px){.frame{padding:48px 28px}}
-@media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:48px}.frame{margin:0 auto;max-width:640px}}
-@media(max-width:560px){.frame{padding:36px 18px}.mini-report .t{font-size:.6rem;letter-spacing:.05em}}
-@media(max-width:380px){.mini-report .t{font-size:.54rem;letter-spacing:.03em}.mini-report{padding:14px}.logo .wm{font-size:1.2rem}.logo .mark{width:28px;height:28px}.nav .btn{padding:8px 12px;font-size:.85rem}.hero h1{font-size:2rem}.frame{padding:32px 12px}}
-@media(max-width:340px){.mini-report .t{white-space:normal}.mini-report{width:100%;padding:16px;font-size:.86rem}.mini-report .pill{white-space:normal;text-align:center}}
 .lav /* Sections */
-.lav section{padding:88px 0}
+/* Match HomePage section rhythm: py-12 sm:py-16 lg:py-20 */
+.lav section:not(.hero){padding-top:3rem;padding-bottom:3rem}
+@media (min-width:640px){.lav section:not(.hero){padding-top:4rem;padding-bottom:4rem}}
+@media (min-width:1024px){.lav section:not(.hero){padding-top:5rem;padding-bottom:5rem}}
+/* First section after hero — tighter top like Report Features (pt-6 sm:pt-8 lg:pt-10) */
+.lav section.hero + section{padding-top:1.5rem}
+@media (min-width:640px){.lav section.hero + section{padding-top:2rem}}
+@media (min-width:1024px){.lav section.hero + section{padding-top:2.5rem}}
 .lav .alt{background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.lav .sec-head{text-align:center;max-width:700px;margin:0 auto 46px}
+.lav .sec-head{text-align:center;max-width:700px;margin:0 auto clamp(2.5rem,5vw,3.5rem)}
+.lav .lav-sample-pdf-cta{margin-top:clamp(2rem,4vw,2.75rem);margin-bottom:0}
 .lav .sec-head p{color:var(--muted)}
 .lav .grid{display:grid;gap:20px}
 .lav .g3{grid-template-columns:repeat(3,1fr)}
 .lav .g4{grid-template-columns:repeat(4,1fr)}
-@media(max-width:900px){.g3,.g4{grid-template-columns:1fr 1fr}}
-@media(max-width:560px){.g3,.g4{grid-template-columns:1fr}}
 .lav .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:26px;transition:.2s}
 .lav .card:hover{border-color:var(--line-2)}
 .lav .card .ico{width:46px;height:46px;border-radius:12px;background:var(--blue-soft);border:1px solid rgba(0,115,227,.3);display:grid;place-items:center;margin-bottom:16px;font-size:1.35rem}
@@ -135,13 +147,11 @@
 .lav #book{background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .lav .booking{max-width:900px;margin:0 auto}
 .lav #bookingForm{background:var(--panel);border:1px solid var(--line-2);border-radius:20px;padding:32px}
-@media(max-width:560px){#bookingForm{padding:20px}}
 .lav .progress{display:flex;gap:6px;margin-bottom:28px}
 .lav .progress div{flex:1;text-align:center;font-size:.74rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
 .lav .progress div::before{content:"";display:block;height:4px;border-radius:99px;background:var(--line-2);margin-bottom:10px}
 .lav .progress div.on{color:var(--ink)}
 .lav .progress div.on::before{background:var(--blue);box-shadow:0 0 10px var(--blue-glow)}
-@media(max-width:560px){.progress div span{display:none}}
 .lav .panel{display:none;animation:fade .25s}
 .lav .panel.active{display:block}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
@@ -149,7 +159,6 @@
 .lav .panel .sub{color:var(--muted);margin-bottom:24px}
 .lav .fields{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .lav .fields .full{grid-column:1/-1}
-@media(max-width:620px){.fields{grid-template-columns:1fr}}
 .lav label{display:block;font-weight:700;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
 .lav label .req{color:var(--blue-h)}
 .lav input,select,textarea{width:100%;padding:14px 16px;border:1px solid var(--line-2);border-radius:10px;font:inherit;font-size:1rem;font-weight:600;background:var(--field);color:var(--ink);color-scheme:dark}
@@ -160,7 +169,6 @@
 .lav .invalid{border-color:var(--err)!important}
 .lav textarea{min-height:96px;resize:vertical}
 .lav .choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media(max-width:620px){.choice-grid{grid-template-columns:1fr}}
 .lav .choice{border:1px solid var(--line-2);border-radius:12px;padding:20px;cursor:pointer;display:block;transition:.15s;text-transform:none;letter-spacing:0;font-size:1rem;background:var(--field)}
 .lav .choice:hover{border-color:var(--dim)}
 .lav .choice input{display:none}
@@ -180,7 +188,6 @@
 .lav .summary dl{display:grid;grid-template-columns:180px 1fr;gap:4px 12px;margin:0}
 .lav .summary dt{color:var(--muted)}
 .lav .summary dd{margin:0;font-weight:600}
-@media(max-width:560px){.summary dl{grid-template-columns:1fr}.summary dd{margin-bottom:6px}}
 .lav .total{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);margin-top:16px;padding-top:14px;font-weight:800;font-size:1.1rem}
 .lav .done{text-align:center;padding:40px 10px}
 .lav .done .big{width:76px;height:76px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-size:2rem;margin:0 auto 20px;box-shadow:0 0 36px var(--blue-glow)}
@@ -247,6 +254,150 @@
 .lav .gridph{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .lav .gridph div{height:54px;border-radius:6px;background:linear-gradient(135deg,var(--line-2),var(--panel))}
 .lav .feats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-@media(max-width:900px){.feats{grid-template-columns:repeat(2,1fr)}}
 .lav .feat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;font-weight:600;display:flex;gap:12px;align-items:center}
 .lav .feat span{font-size:1.25rem}
+
+/* ——— Responsive (scoped to .lav) ——— */
+@media (max-width: 1024px) {
+  .lav .hero h1 .line--nowrap {
+    white-space: normal;
+  }
+
+  .lav .g3,
+  .lav .g4 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .lav .feats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .lav .hero h1 {
+    font-size: clamp(1.75rem, 7vw, 2.35rem);
+  }
+
+  .lav .hero p.lead {
+    font-size: 1rem;
+  }
+
+  .lav .g3,
+  .lav .g4 {
+    grid-template-columns: 1fr;
+  }
+
+  .lav .opt {
+    padding: 22px;
+  }
+
+  .lav .opt .tag {
+    position: static;
+    margin-bottom: 12px;
+    width: fit-content;
+  }
+
+  .lav .opt h3 {
+    font-size: 1.2rem;
+  }
+
+  .lav .price b {
+    font-size: 2rem;
+  }
+
+  .lav .form-nav {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .lav .form-nav .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .lav .form-nav .btn-back {
+    visibility: visible !important;
+  }
+
+  .lav .split {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .lav .split.rev > div:first-child {
+    order: 0;
+  }
+
+  .lav .flow {
+    grid-template-columns: 1fr;
+  }
+
+  .lav .flow::before {
+    display: none;
+  }
+
+  .lav .foot {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .lav #bookingForm {
+    padding: 20px;
+    border-radius: 16px;
+  }
+
+  .lav .progress div span {
+    display: none;
+  }
+
+  .lav .fields {
+    grid-template-columns: 1fr;
+  }
+
+  .lav .choice-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lav .panel h3 {
+    font-size: 1.25rem;
+  }
+
+  .lav .summary dl {
+    grid-template-columns: 1fr;
+  }
+
+  .lav .summary dd {
+    margin-bottom: 6px;
+  }
+
+  .lav .mini-report {
+    padding: 16px;
+    font-size: 0.86rem;
+  }
+
+  .lav .mini-report .t {
+    font-size: 0.62rem;
+    letter-spacing: 0.05em;
+  }
+
+  .lav .mini-report .row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .lav .mini-report .v,
+  .lav .mini-report .pill {
+    text-align: left;
+  }
+}
+
+@media (max-width: 480px) {
+  .lav .card {
+    padding: 20px;
+  }
+
+  .lav .sec-head {
+    margin-bottom: clamp(2rem, 6vw, 2.75rem);
+  }
+}

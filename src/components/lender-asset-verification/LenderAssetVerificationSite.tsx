@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { useRef } from "react";
 import {
   LenderBookingForm,
@@ -14,65 +15,78 @@ export function LenderAssetVerificationSite() {
   const bookingRef = useRef<LenderBookingFormHandle>(null);
 
   return (
-    <div className="lav w-full min-w-0">
+    <div className="lav w-full min-w-0 max-w-full overflow-x-clip">
       <section className="hero">
-        <div className="av-site-container hero-grid">
-          <div>
+        <div className="av-site-container hero-grid lg:grid-cols-2">
+          <div className="relative min-w-0 text-center lg:text-left">
             <span className="eyebrow">For lenders, brokers &amp; introducers</span>
-            <h1>
-              Lender asset verification
-              <br />
-              <span className="hl line">verified in minutes</span>
-              <span className="hl line">Australia-wide</span>
+            <h1 className="text-3xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-4xl lg:text-[2.65rem] lg:leading-[1.06]">
+              Lender asset verification{" "}
+              <span className="text-accent-500">
+                verified in minutes Australia-wide
+              </span>
             </h1>
-            <p className="lead">
+            <p className="lead mx-auto mt-4 max-w-xl text-base text-slate-400 sm:mt-5 sm:text-lg lg:mx-0">
               We verify asset existence, vehicle identifiers and confirm current
               condition.
             </p>
-            <div className="ctas">
-              <a href="#book" className="btn btn-primary">
+            <div className="lav-hero-ctas mx-auto mt-6 grid w-full max-w-xl grid-cols-1 gap-2 sm:mt-8 sm:grid-cols-2 sm:gap-2 lg:mx-0">
+              <a
+                href="#book"
+                className="btn-shine group flex h-10 min-w-0 items-center justify-center gap-1 rounded-lg bg-accent-500 px-2.5 text-xs font-bold leading-tight text-white transition hover:bg-accent-600 sm:px-4 sm:text-sm"
+              >
                 Book an inspection
+                <ArrowRight
+                  className="h-3.5 w-3.5 shrink-0 transition-transform group-hover:translate-x-0.5 sm:h-4 sm:w-4"
+                  aria-hidden
+                />
               </a>
               <Link
                 href={SAMPLE_PDF}
-                className="btn btn-ghost"
                 target="_blank"
                 rel="noopener noreferrer"
+                className="group flex h-10 min-w-0 items-center justify-center gap-1 rounded-lg border-2 border-accent-500 bg-transparent px-2.5 text-center text-xs font-bold leading-tight text-accent-500 transition hover:bg-accent-500/10 sm:gap-1.5 sm:px-4 sm:text-sm"
               >
-                View sample report
+                <span className="min-w-0">View sample report</span>
+                <ArrowRight
+                  className="h-3.5 w-3.5 shrink-0 transition-transform group-hover:translate-x-0.5 sm:h-4 sm:w-4"
+                  aria-hidden
+                />
               </Link>
             </div>
           </div>
-          <div className="frame" aria-hidden="true">
-            <span className="c tl" />
-            <span className="c tr" />
-            <span className="c bl" />
-            <span className="c br" />
-            <div className="ring" />
-            <div className="floor" />
-            <div className="mini-report">
-              <div className="t">
-                Verification summary – Digital Self Inspection
-              </div>
-              <div className="row">
-                <span>Vehicle verification</span>
-                <span className="pill">Key identifiers matched</span>
-              </div>
-              <div className="row">
-                <span>Odometer captured</span>
-                <span className="pill">Yes</span>
-              </div>
-              <div className="row">
-                <span>Photos</span>
-                <span className="v">Date &amp; time stamped images</span>
-              </div>
-              <div className="row">
-                <span>Condition</span>
-                <span className="v">Verified using AI damage detection</span>
-              </div>
-              <div className="row">
-                <span>Report delivered</span>
-                <span className="v">Real time</span>
+          <div className="hero-visual relative mx-auto w-full min-w-0 max-w-[320px] sm:max-w-[420px] lg:mx-0 lg:max-w-[500px]">
+            <div className="frame" aria-hidden="true">
+              <span className="c tl" />
+              <span className="c tr" />
+              <span className="c bl" />
+              <span className="c br" />
+              <div className="ring" />
+              <div className="floor" />
+              <div className="mini-report">
+                <div className="t">
+                  Verification summary – Digital Self Inspection
+                </div>
+                <div className="row">
+                  <span>Vehicle verification</span>
+                  <span className="pill">Key identifiers matched</span>
+                </div>
+                <div className="row">
+                  <span>Odometer captured</span>
+                  <span className="pill">Yes</span>
+                </div>
+                <div className="row">
+                  <span>Photos</span>
+                  <span className="v">Date &amp; time stamped images</span>
+                </div>
+                <div className="row">
+                  <span>Condition</span>
+                  <span className="v">Verified using AI damage detection</span>
+                </div>
+                <div className="row">
+                  <span>Report delivered</span>
+                  <span className="v">Real time</span>
+                </div>
               </div>
             </div>
           </div>
@@ -167,7 +181,7 @@ export function LenderAssetVerificationSite() {
               </button>
             </div>
           </div>
-          <p className="sec-head" style={{ marginTop: 32, marginBottom: 0 }}>
+          <p className="sec-head lav-sample-pdf-cta">
             <Link
               href={SAMPLE_PDF}
               className="btn btn-ghost"
@@ -182,7 +196,7 @@ export function LenderAssetVerificationSite() {
 
       <section id="book">
         <div className="av-site-container booking">
-          <div className="sec-head" style={{ marginBottom: 30 }}>
+          <div className="sec-head">
             <span className="eyebrow">Book now</span>
             <h2>Book an asset verification</h2>
             <p>
