@@ -2076,7 +2076,7 @@ function InsightsPlusDamagePage({
           </View>
         ) : !damage ? (
           <Text style={[styles.para, { marginTop: 8 }]}>
-            AI damage analysis will appear on this page once processing is complete.
+            AI damage analysis is processing (usually around 10 minutes). Results will appear when ready.
           </Text>
         ) : null}
 

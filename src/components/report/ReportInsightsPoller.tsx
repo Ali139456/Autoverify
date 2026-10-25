@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { AI_DAMAGE_PROCESSING_POLLER } from "@/lib/damage-processing-copy";
 
 const POLL_MS = 15_000;
 /** ~75 minutes while the report tab stays open. */
@@ -75,8 +76,7 @@ export function ReportInsightsPoller({
       role="status"
     >
       <Loader2 className="h-4 w-4 shrink-0 animate-spin text-[#0073E3]" aria-hidden />
-      AI damage analysis is processing — this page will update automatically when Ravin
-      delivers results (often within a few minutes).
+      {AI_DAMAGE_PROCESSING_POLLER}
     </p>
   );
 }

@@ -236,6 +236,10 @@ export interface VehicleReport {
   ownerPhone?: string | null;
   /** Set when this Insights+ report was created by upgrading a purchased Insights report. */
   upgradedFromReportId?: string | null;
+  /** When owner walkaround was submitted and Ravin processing started. */
+  damageProcessingStartedAt?: string | null;
+  /** When the ~15 minute post-processing follow-up email was sent. */
+  damageFollowUpEmailSentAt?: string | null;
   stripeSessionId: string | null;
   vehicle: VehicleIdentity;
   registration: RegistrationInfo;

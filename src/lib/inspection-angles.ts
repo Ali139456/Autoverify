@@ -180,7 +180,10 @@ const LEGACY_INSPECTION_PHOTO_SORT_INDEX: Record<string, number> = {
   interior_passenger_front: 905,
 };
 
-/** Stable walkthrough order for report/PDF grids (matches guided capture steps). */
+/**
+ * Walkaround tile labels — must stay in sync with Insights+ sample report
+ * (`buildSampleInspectionPhotos` uses {@link getInspectionAngleLabel}).
+ */
 export function sortInspectionPhotos<T extends { angle: string }>(
   photos: T[],
 ): T[] {

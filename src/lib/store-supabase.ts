@@ -144,6 +144,38 @@ export async function listReportIdsByWorkflowStatus(
   return (data ?? []).map((row) => String((row as { id: string }).id));
 }
 
+/** Reports awaiting the post-processing follow-up email (~15 min after Ravin ingest). */
+export async function listReportIdsForDamageFollowUp(
+  limit = 80,
+): Promise<string[]> {
+  const supabase = createServerClient();
+  const { data, error } = await supabase
+    .from("reports")
+    .select("id, history_data, status")
+    .in("status", ["processing_ravin", "complete"])
+    .order("updated_at", { ascending: true })
+    .limit(limit);
+
+  if (error) throw new Error(error.message);
+
+  const cutoffMs = Date.now();
+  const ids: string[] = [];
+
+  for (const row of data ?? []) {
+    const history = (row as { history_data: VehicleReport | null }).history_data;
+    if (!history?.damageProcessingStartedAt) continue;
+    if (history.damageFollowUpEmailSentAt) continue;
+    const started = Date.parse(history.damageProcessingStartedAt);
+    if (!Number.isFinite(started)) continue;
+    const elapsedMin = (cutoffMs - started) / 60_000;
+    if (elapsedMin >= 15) {
+      ids.push(String((row as { id: string }).id));
+    }
+  }
+
+  return ids;
+}
+
 export async function countRavinWebhookEventsForReport(
   reportId: string,
 ): Promise<number> {

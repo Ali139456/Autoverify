@@ -69,8 +69,11 @@ export async function POST(
       completedAt: new Date().toISOString(),
     });
 
+    const processingStartedAt =
+      report.damageProcessingStartedAt ?? new Date().toISOString();
     await updateReport(inspection.reportId, {
       workflowStatus: "processing_ravin",
+      damageProcessingStartedAt: processingStartedAt,
     });
 
     let submission;
@@ -100,7 +103,7 @@ export async function POST(
         missingAngles: progress.missing,
         ravinIngestError: ingestErrorMessage,
         message:
-          "Photos saved to your Auto Verifi report. AI damage analysis will be added automatically once condition assessment is complete.",
+          "Photos saved. AI damage analysis usually takes around 10 minutes. We will email your updated report about 15 minutes after processing starts.",
       });
     }
 
@@ -173,7 +176,7 @@ export async function POST(
         missingAngles: progress.missing,
         ravinIngest: submission.ingestTrace,
         message:
-          "Photos saved to your Auto Verifi report. AI damage analysis will be added automatically once condition assessment is complete.",
+          "Photos saved. AI damage analysis usually takes around 10 minutes. We will email your updated report about 15 minutes after processing starts.",
       });
     }
 
@@ -197,7 +200,7 @@ export async function POST(
       missingAngles: progress.missing,
       ravinIngest: submission.ingestTrace,
       message:
-        "Photos saved to your Auto Verifi report. AI damage analysis will be added automatically once condition assessment is complete.",
+        "Photos saved. AI damage analysis usually takes around 10 minutes. We will email your updated report about 15 minutes after processing starts.",
     });
   } catch (err) {
     await updateInspection(inspection.id, { status: "failed" });

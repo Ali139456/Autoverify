@@ -10,6 +10,10 @@ import { buildPurchaseEmailContextFromSession } from "./stripe-purchase-email";
 import { getBaseUrl } from "./stripe";
 import { parseInspectorLiteCodeFromUrl } from "./ravin-partner";
 import { buildReportPublicUrls } from "./ravin-report-trace";
+import {
+  AI_DAMAGE_FOLLOW_UP_EMAIL_PROMISE,
+  AI_DAMAGE_PROCESSING_SHORT,
+} from "./damage-processing-copy";
 import type { InspectionSession, VehicleReport } from "./types";
 
 export type SendPurchaseConfirmationOptions = {
@@ -150,7 +154,8 @@ export async function sendInspectionPhotosUpdatedEmail(
 </body></html>`
     : `<!DOCTYPE html><html><body style="font-family:sans-serif;color:#0f172a;line-height:1.5">
 <p>Your guided inspection photos for <strong>${vehicleLabel}</strong>${regoSuffix} are saved on your Auto Verifi Insights+ report.</p>
-<p><strong>AI damage analysis is still processing.</strong> Damage detection results will appear on your report automatically when ready — we will not send a separate email when that finishes.</p>
+<p><strong>AI damage analysis is still processing.</strong> ${AI_DAMAGE_PROCESSING_SHORT}</p>
+<p>${AI_DAMAGE_FOLLOW_UP_EMAIL_PROMISE}</p>
 <p><a href="${reportUrl}">View your report online</a> · <a href="${pdfUrl}">Download PDF</a></p>
 </body></html>`;
 
@@ -172,6 +177,77 @@ export async function sendInspectionPhotosUpdatedEmail(
     const body = await response.text().catch(() => "");
     throw new Error(
       `Resend inspection email failed (${response.status}): ${body.slice(0, 200)}`,
+    );
+  }
+}
+
+/** ~15 minutes after processing starts — updated report link (+ PDF when available). */
+export async function sendInspectionDamageFollowUpEmail(
+  report: VehicleReport,
+  email: string,
+): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  if (!apiKey) {
+    console.warn(
+      "[email] RESEND_API_KEY not set — skipping damage follow-up email.",
+    );
+    return;
+  }
+
+  const from =
+    process.env.RESEND_FROM?.trim() ??
+    "Auto Verifi <noreply@autoverifi.com.au>";
+  const baseUrl = getBaseUrl();
+  const { reportUrl, pdfUrl } = buildReportPublicUrls(baseUrl, report.id);
+  const vehicleLabel = `${report.vehicle.year} ${report.vehicle.make} ${report.vehicle.model}`;
+  const rego = report.vehicle.rego?.trim();
+  const regoSuffix = rego ? ` (${rego})` : "";
+  const damageReady = Boolean(report.damage?.findings?.length);
+
+  const subject = damageReady
+    ? `Your updated Auto Verifi report — AI damage analysis ready — ${vehicleLabel}${regoSuffix}`
+    : `Your updated Auto Verifi report — ${vehicleLabel}${regoSuffix}`;
+
+  const damageLine = damageReady
+    ? "AI damage analysis is now on your report."
+    : "AI damage analysis may still be finishing — refresh your report online for the latest results.";
+
+  const html = `<!DOCTYPE html><html><body style="font-family:sans-serif;color:#0f172a;line-height:1.5">
+<p>Your Auto Verifi Insights+ report for <strong>${vehicleLabel}</strong>${regoSuffix} has been updated with your latest walkaround photos.</p>
+<p><strong>${damageLine}</strong></p>
+<p><a href="${reportUrl}">View your report online</a> · <a href="${pdfUrl}">Download PDF</a></p>
+</body></html>`;
+
+  const attachments: { filename: string; content: string }[] = [];
+  try {
+    const reportPdf = await generateReportPdfBuffer(report);
+    attachments.push({
+      filename: `Auto-Verifi-Report-${report.vehicle.rego || report.id}.pdf`,
+      content: reportPdf.toString("base64"),
+    });
+  } catch {
+    // PDF optional
+  }
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from,
+      to: email,
+      subject,
+      html,
+      attachments: attachments.length > 0 ? attachments : undefined,
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => "");
+    throw new Error(
+      `Resend damage follow-up failed (${response.status}): ${body.slice(0, 200)}`,
     );
   }
 }

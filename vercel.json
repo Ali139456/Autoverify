@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/ravin-sync",
       "schedule": "*/10 * * * *"
+    },
+    {
+      "path": "/api/cron/inspection-damage-followup",
+      "schedule": "*/5 * * * *"
     }
   ]
 }

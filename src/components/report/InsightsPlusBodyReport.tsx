@@ -1,6 +1,10 @@
 import type { ReactNode } from "react";
 import { AlertTriangle, Camera, CheckCircle2 } from "lucide-react";
 import {
+  AI_DAMAGE_PROCESSING_DAMAGE_SECTION,
+  AI_DAMAGE_PROCESSING_WALKAROUND_BANNER,
+} from "@/lib/damage-processing-copy";
+import {
   getInspectionPhotoUrl,
   formatReportReference,
   resolveDamageFindingImageUrl,
@@ -182,27 +186,24 @@ export function InsightsPlusBodyReport({
           <div className="report-insights-plus-photos-body space-y-6">
             <InsightsPlusTitleBlock vehicleTitle={vehicleTitle} />
 
-            {showActions && (
+            {showActions && !damage && (
               <div className="report-no-print rounded-xl border border-slate-200 bg-slate-50 p-4">
                 <InspectionStarter
                   reportId={report.id}
                   initialInspectUrl={inspectUrl}
                   customerPhone={report.customerPhone}
                   ownerPhone={report.ownerPhone}
-                  autoShowQr={!damage && !inspectUrl}
+                  autoShowQr={!inspectUrl}
                 />
-                {!damage && (
-                  <div className="mt-4">
-                    <DamageUpload reportId={report.id} />
-                  </div>
-                )}
+                <div className="mt-4">
+                  <DamageUpload reportId={report.id} />
+                </div>
               </div>
             )}
 
             {damage ? null : photos.length > 0 ? (
               <p className="report-no-print rounded-xl border border-dashed border-[#0073E3]/40 bg-[#0073E3]/5 px-4 py-4 text-sm text-slate-600">
-                {photos.length} photo(s) received. AI damage analysis is being
-                processed and will appear here automatically once complete.
+                {AI_DAMAGE_PROCESSING_WALKAROUND_BANNER}
               </p>
             ) : (
               <p className="report-no-print rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-500">
@@ -316,8 +317,7 @@ export function InsightsPlusBodyReport({
               </div>
             ) : !damage ? (
               <p className="text-sm text-slate-500">
-                AI damage analysis will appear on this page once processing is
-                complete.
+                {AI_DAMAGE_PROCESSING_DAMAGE_SECTION}
               </p>
             ) : null}
 

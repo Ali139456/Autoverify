@@ -274,7 +274,7 @@ export function InspectionCapture({
       } else {
         setDoneMessage(
           data.message ??
-            "Photos saved to your Auto Verifi report. AI damage analysis will be added automatically once condition assessment is complete.",
+            "Photos saved. AI damage analysis usually takes around 10 minutes. We will email your updated report about 15 minutes after processing starts.",
         );
       }
     } catch (err) {
