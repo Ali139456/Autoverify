@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { sendPurchaseConfirmationEmail } from "@/lib/email";
+import { fulfillLavBooking } from "@/lib/lav/fulfill-booking";
+import {
+  getLavBookingByStripeSession,
+  updateLavBooking,
+} from "@/lib/lav/booking-store";
 import { getStripe } from "@/lib/stripe";
 import { getReport, updateReport } from "@/lib/store";
 import { guardRateLimit } from "@/lib/security";
@@ -32,6 +37,24 @@ export async function POST(req: NextRequest) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
+
+    const lavRef = session.metadata?.lavBookingRef?.trim();
+    if (lavRef && session.payment_status === "paid") {
+      const existing = await getLavBookingByStripeSession(session.id);
+      const bookingRef = existing?.bookingRef ?? lavRef;
+      await updateLavBooking(bookingRef, {
+        status: "paid",
+        stripeSessionId: session.id,
+      });
+      try {
+        await fulfillLavBooking(bookingRef);
+      } catch (err) {
+        console.error("[webhooks/stripe] LAV fulfill failed:", err);
+        await updateLavBooking(bookingRef, { status: "failed" });
+      }
+      return NextResponse.json({ received: true });
+    }
+
     const reportId = session.metadata?.reportId;
     if (reportId && session.payment_status === "paid") {
       const email =

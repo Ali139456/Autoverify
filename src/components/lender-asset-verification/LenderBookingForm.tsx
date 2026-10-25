@@ -12,6 +12,11 @@ import { AUTOVERIFI_CONTACT_EMAIL } from "@/lib/site-contact";
 const PRICE_DIGITAL = 35;
 const PRICE_PHYSICAL = 120;
 const GST_RATE = 0.1;
+const LAV_INVOICE_PROMO = "AVINV";
+
+function normalizePromoCode(raw: string): string {
+  return raw.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+}
 
 const ASSET_TYPES = [
   "Car / 4WD",
@@ -100,11 +105,16 @@ export const LenderBookingForm = forwardRef<
   const [borrower, setBorrower] = useState("");
   const [reference, setReference] = useState("");
   const [ccEmails, setCcEmails] = useState("");
-  const [billing, setBilling] = useState("Invoice my account");
+  const [promoCode, setPromoCode] = useState("");
   const [confirmLender, setConfirmLender] = useState(false);
   const [confirmTerms, setConfirmTerms] = useState(false);
   const [doneRef, setDoneRef] = useState("");
+  const [doneCaptureLinks, setDoneCaptureLinks] = useState<
+    { assetIndex: number; inspectUrl: string; label: string }[]
+  >([]);
   const [submitting, setSubmitting] = useState(false);
+  const [stepError, setStepError] = useState("");
+  const invoiceAccount = normalizePromoCode(promoCode) === LAV_INVOICE_PROMO;
 
   const lastStep = 5;
   const unit =
@@ -120,8 +130,51 @@ export const LenderBookingForm = forwardRef<
   };
 
   const goTo = (n: number) => {
+    setStepError("");
     setStep(n);
     scrollBook();
+  };
+
+  const normalizedPostcode = postcode.trim();
+
+  const stepValidationMessage = (n: number): string | null => {
+    if (n === 2) {
+      if (!assets.every((a) => a.type && a.make.trim() && a.model.trim())) {
+        return "Complete asset type, make and model for each asset.";
+      }
+    }
+    if (n === 3) {
+      if (!vendorType) return "Select a vendor type.";
+      if (!vendorName.trim()) return "Enter the vendor name or business.";
+      if (!vendorPhone.trim()) return "Enter the vendor mobile number.";
+      if (!address.trim()) return "Enter the asset street address.";
+      if (!suburb.trim()) return "Enter the suburb.";
+      if (!state) return "Select the state.";
+      if (!/^\d{4}$/.test(normalizedPostcode)) {
+        return "Enter a valid 4-digit Australian postcode (e.g. 2088).";
+      }
+    }
+    if (n === 4) {
+      if (!role) return "Select your role.";
+      if (!company.trim()) return "Enter your company name.";
+      if (!contactName.trim()) return "Enter your name.";
+      if (!contactPhone.trim()) return "Enter your phone number.";
+      if (!/^\S+@\S+\.\S+$/.test(contactEmail.trim())) {
+        return "Enter a valid email address.";
+      }
+      if (!lender.trim()) return "Enter the lender name.";
+      if (!borrower.trim()) return "Enter the borrower / applicant name.";
+      const promo = normalizePromoCode(promoCode);
+      if (promo && promo !== LAV_INVOICE_PROMO) {
+        return "That discount code is not valid for this booking.";
+      }
+    }
+    if (n === 5) {
+      if (!confirmLender || !confirmTerms) {
+        return "Confirm the checkboxes before submitting.";
+      }
+    }
+    return null;
   };
 
   const updateAsset = (id: string, patch: Partial<AssetRow>) => {
@@ -147,37 +200,8 @@ export const LenderBookingForm = forwardRef<
 
   useImperativeHandle(ref, () => ({ pickInspection }), [pickInspection]);
 
-  const validateStep = (n: number): boolean => {
-    if (n === 2) {
-      return assets.every((a) => a.type && a.make.trim() && a.model.trim());
-    }
-    if (n === 3) {
-      return Boolean(
-        vendorType &&
-          vendorName.trim() &&
-          vendorPhone.trim() &&
-          address.trim() &&
-          suburb.trim() &&
-          state &&
-          /^\d{4}$/.test(postcode),
-      );
-    }
-    if (n === 4) {
-      return Boolean(
-        role &&
-          company.trim() &&
-          contactName.trim() &&
-          contactPhone.trim() &&
-          /^\S+@\S+\.\S+$/.test(contactEmail) &&
-          lender.trim() &&
-          borrower.trim(),
-      );
-    }
-    if (n === 5) {
-      return confirmLender && confirmTerms;
-    }
-    return true;
-  };
+  const validateStep = (n: number): boolean =>
+    stepValidationMessage(n) === null;
 
   const buildPayload = (bookingRef: string) => ({
     bookingRef,
@@ -210,7 +234,10 @@ export const LenderBookingForm = forwardRef<
     borrower,
     reference,
     ccEmails,
-    billing,
+    billing: invoiceAccount
+      ? "Invoice account (AVINV)"
+      : "Pay by card (Stripe checkout)",
+    promoCode: invoiceAccount ? LAV_INVOICE_PROMO : "",
     ...totals,
   });
 
@@ -228,8 +255,26 @@ export const LenderBookingForm = forwardRef<
           body: JSON.stringify(payload),
         },
       );
-      if (!res.ok) throw new Error("submit failed");
-      setDoneRef(bookingRef);
+      const data = (await res.json()) as {
+        ok?: boolean;
+        error?: string;
+        checkoutUrl?: string;
+        bookingRef?: string;
+        captureLinks?: {
+          assetIndex: number;
+          inspectUrl: string;
+          label: string;
+        }[];
+      };
+      if (!res.ok) {
+        throw new Error(data.error ?? "submit failed");
+      }
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+        return;
+      }
+      setDoneRef(data.bookingRef ?? bookingRef);
+      setDoneCaptureLinks(data.captureLinks ?? []);
       setStep(6);
     } catch {
       const lines = [
@@ -281,7 +326,12 @@ export const LenderBookingForm = forwardRef<
       ["Lender", lender],
       ["Borrower", borrower],
       ["Reference", reference],
-      ["Billing", billing],
+      [
+        "Billing",
+        invoiceAccount
+          ? "Invoice separately (AVINV — no payment now)"
+          : "Pay by card (Stripe checkout link)",
+      ],
     ])}
     <div class="total" style="font-weight:500;color:var(--muted)"><span>${assets.length} × ${inspectionType} @ ${money(unit)} + GST</span><span>${money(totals.subtotal)}</span></div>
     <div style="display:flex;justify-content:space-between;color:var(--muted);padding-top:6px"><span>GST</span><span>${money(totals.gst)}</span></div>
@@ -289,8 +339,8 @@ export const LenderBookingForm = forwardRef<
   }, [
     address,
     assets,
-    billing,
     borrower,
+    invoiceAccount,
     company,
     contactEmail,
     contactName,
@@ -325,7 +375,7 @@ export const LenderBookingForm = forwardRef<
         ))}
       </div>
 
-      <div id="bookingForm">
+      <div className="booking-panels">
         {step === 1 && (
           <div className="panel active" data-step="1">
             <h3>Inspection type</h3>
@@ -730,15 +780,21 @@ export const LenderBookingForm = forwardRef<
                 />
               </div>
               <div className="full">
-                <label htmlFor="billing">Billing</label>
-                <select
-                  id="billing"
-                  value={billing}
-                  onChange={(e) => setBilling(e.target.value)}
+                <label htmlFor="promoCode">Discount code (optional)</label>
+                <input
+                  id="promoCode"
+                  value={promoCode}
+                  placeholder="Invoiced customers: enter AVINV"
+                  onChange={(e) => setPromoCode(e.target.value)}
+                />
+                <p
+                  className="sub"
+                  style={{ marginTop: 8, marginBottom: 0, fontSize: "0.88rem" }}
                 >
-                  <option>Invoice my account</option>
-                  <option>Pay by card (we&apos;ll send a payment link)</option>
-                </select>
+                  Payment is by Stripe checkout after you submit, unless your
+                  organisation uses code <strong>AVINV</strong> (you will be
+                  invoiced separately — no tax invoice with this booking).
+                </p>
               </div>
             </div>
           </div>
@@ -780,9 +836,46 @@ export const LenderBookingForm = forwardRef<
               <div className="big">✓</div>
               <h3>Booking received</h3>
               <p style={{ color: "var(--muted)" }}>
-                Reference <b>{doneRef}</b>. We&apos;ll contact the vendor
-                shortly and email you a confirmation.
+                Reference <b>{doneRef}</b>.
+                {invoiceAccount ? (
+                  <>
+                    {" "}
+                    You will be invoiced separately — no payment is required
+                    now. We&apos;ve emailed a confirmation (not a tax invoice).
+                  </>
+                ) : (
+                  <>
+                    {" "}
+                    Confirmation and capture links are being emailed to you and
+                    the vendor.
+                  </>
+                )}
               </p>
+              {doneCaptureLinks.length > 0 ? (
+                <ul
+                  style={{
+                    textAlign: "left",
+                    marginTop: 20,
+                    color: "var(--muted)",
+                    fontSize: "0.92rem",
+                  }}
+                >
+                  {doneCaptureLinks.map((link) => (
+                    <li key={link.inspectUrl} style={{ marginBottom: 10 }}>
+                      <strong>
+                        Asset {link.assetIndex}: {link.label}
+                      </strong>
+                      <br />
+                      <a
+                        href={link.inspectUrl}
+                        style={{ color: "var(--blue-h)" }}
+                      >
+                        {link.inspectUrl}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
               <button
                 type="button"
                 className="btn btn-light"
@@ -799,6 +892,12 @@ export const LenderBookingForm = forwardRef<
           </div>
         )}
 
+        {stepError ? (
+          <p className="form-error" role="alert">
+            {stepError}
+          </p>
+        ) : null}
+
         {step <= lastStep && (
           <div className="form-nav" id="formNav">
             <button
@@ -814,7 +913,13 @@ export const LenderBookingForm = forwardRef<
               className="btn btn-primary"
               disabled={submitting}
               onClick={() => {
-                if (!validateStep(step)) return;
+                const message = stepValidationMessage(step);
+                if (message) {
+                  setStepError(message);
+                  scrollBook();
+                  return;
+                }
+                setStepError("");
                 if (step < lastStep) goTo(step + 1);
                 else void submit();
               }}

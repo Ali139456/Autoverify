@@ -196,11 +196,35 @@ export interface InspectionSession {
   updatedAt: string;
 }
 
+/** Lender Asset Verification — one report row per booked asset. */
+export type LavAssetContext = {
+  bookingRef: string;
+  assetIndex: number;
+  assetType: string;
+  inspectionType: "digital" | "physical";
+  productKind: "lender_asset_verification";
+};
+
+export type LavVerificationSummary = {
+  vehicleMake: string;
+  vehicleModel: string;
+  badge: string | null;
+  colour: string | null;
+  buildOrCompliance: string | null;
+  vin: string | null;
+  rego: string | null;
+  state: AustralianState | null;
+  identifiersMatched: boolean;
+  autograbSource: "live" | "manual" | "demo";
+};
+
 export interface VehicleReport {
   id: string;
   createdAt: string;
   status: ReportStatus;
   tier?: ReportTier;
+  lavContext?: LavAssetContext | null;
+  lavVerification?: LavVerificationSummary | null;
   customerEmail?: string | null;
   customerFirstName?: string | null;
   customerLastName?: string | null;

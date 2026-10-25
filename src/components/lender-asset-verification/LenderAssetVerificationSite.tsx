@@ -20,7 +20,7 @@ export function LenderAssetVerificationSite() {
         <div className="av-site-container hero-grid lg:grid-cols-2">
           <div className="relative min-w-0 text-center lg:text-left">
             <span className="eyebrow">For lenders, brokers &amp; introducers</span>
-            <h1 className="text-3xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-4xl lg:text-[2.65rem] lg:leading-[1.06]">
+            <h1 className="text-[1.65rem] font-extrabold leading-[1.1] tracking-tight text-white sm:text-3xl lg:text-[2.35rem] lg:leading-[1.08]">
               Lender asset verification{" "}
               <span className="text-accent-500">
                 verified in minutes Australia-wide
@@ -73,6 +73,10 @@ export function LenderAssetVerificationSite() {
                 </div>
                 <div className="row">
                   <span>Odometer captured</span>
+                  <span className="pill">Yes</span>
+                </div>
+                <div className="row">
+                  <span>VIN identification captured</span>
                   <span className="pill">Yes</span>
                 </div>
                 <div className="row">
@@ -146,8 +150,16 @@ export function LenderAssetVerificationSite() {
               </p>
               <ul>
                 <li>Completed on their phone — no app download</li>
-                <li>Photos, identifiers, odometer &amp; ID</li>
-                <li>Reviewed by Auto Verifi</li>
+                <li>
+                  Photos confirming odometer, identifiers and condition
+                </li>
+                <li>
+                  Vehicle make, model, badge, colour, build / compliance date
+                  verified
+                </li>
+                <li>
+                  Location geo tagged and inspection images date/time stamped
+                </li>
               </ul>
               <div className="price">
                 <b>$35</b> + GST per asset
@@ -199,10 +211,6 @@ export function LenderAssetVerificationSite() {
           <div className="sec-head">
             <span className="eyebrow">Book now</span>
             <h2>Book an asset verification</h2>
-            <p>
-              Takes about three minutes. Fields marked{" "}
-              <span style={{ color: "var(--blue-h)" }}>*</span> are required.
-            </p>
           </div>
           <LenderBookingForm ref={bookingRef} />
         </div>

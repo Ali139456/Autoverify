@@ -24,7 +24,8 @@ export function ConditionalSiteChrome({
     pathname.startsWith("/checkout") ||
     pathname.startsWith("/report/") ||
     pathname.startsWith("/sample-report") ||
-    isContactPage;
+    isContactPage ||
+    isLenderAssetPage;
   const isPreviewLogin = pathname === "/preview";
   const isComingSoonHome =
     pathname === "/" && comingSoonMode && !previewAccess;

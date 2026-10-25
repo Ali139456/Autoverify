@@ -126,7 +126,7 @@ export function HomePage() {
         <div className="pointer-events-none absolute -top-40 left-1/2 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-accent-500/15 blur-[140px]" />
 
         <div className="av-site-container relative pb-8 pt-8 sm:pb-10 sm:pt-14 lg:pb-12 lg:pt-20">
-          <div className="grid items-center gap-8 sm:gap-10 lg:grid-cols-2 lg:gap-12">
+          <div className="grid items-start gap-8 sm:gap-10 lg:grid-cols-2 lg:gap-12">
             <HeroCheckLead />
 
             <div className="animate-scale-in delay-200 relative mx-auto w-full min-w-0 max-w-[320px] sm:max-w-[420px] lg:max-w-[500px]">

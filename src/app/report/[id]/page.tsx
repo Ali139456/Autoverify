@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Lock } from "lucide-react";
+import { LenderAssetVerificationReport } from "@/components/report/LenderAssetVerificationReport";
 import { CarInsightsReport } from "@/components/report/CarInsightsReport";
 import { InsightsPlusBodyReport } from "@/components/report/InsightsPlusBodyReport";
 import { PpsrCertificateReportPages } from "@/components/report/PpsrCertificateReportPages";
@@ -107,6 +108,24 @@ export default async function ReportPage({
     factoryFeatureCount,
   );
   let reportPage = 1;
+
+  if (
+    report.lavContext?.productKind === "lender_asset_verification" &&
+    report.status === "paid"
+  ) {
+    return (
+      <div className="min-h-screen bg-slate-100 dark:bg-ink-950">
+        <div className="report-no-print mx-auto flex max-w-3xl justify-end px-4 pt-6">
+          <ReportPrintActions />
+        </div>
+        <LenderAssetVerificationReport
+          report={report}
+          damage={report.damage}
+          inspectUrl={inspectUrlForOwner}
+        />
+      </div>
+    );
+  }
 
   if (report.status !== "paid") {
     return (
