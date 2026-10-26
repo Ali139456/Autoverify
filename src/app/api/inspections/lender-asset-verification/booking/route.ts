@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { sendContactFormEmail } from "@/lib/email";
 import {
   isLavBookingStoreConfigured,
@@ -66,14 +66,19 @@ export async function POST(req: NextRequest) {
     );
 
     if (invoiceAccount) {
-      const fulfillment = await fulfillLavBooking(payload.bookingRef);
+      after(async () => {
+        try {
+          await fulfillLavBooking(payload.bookingRef);
+        } catch (err) {
+          console.error("[lav-booking] async fulfill failed:", err);
+          await updateLavBooking(payload.bookingRef, { status: "failed" });
+        }
+      });
       return NextResponse.json({
         ok: true,
         bookingRef: payload.bookingRef,
         invoiced: true,
-        captureLinks: fulfillment.captureLinks,
-        assetReportIds: fulfillment.assetReportIds,
-        smsWarnings: fulfillment.smsWarnings,
+        processing: true,
       });
     }
 
@@ -89,14 +94,19 @@ export async function POST(req: NextRequest) {
     }
 
     await updateLavBooking(payload.bookingRef, { status: "paid" });
-    const fulfillment = await fulfillLavBooking(payload.bookingRef);
+    after(async () => {
+      try {
+        await fulfillLavBooking(payload.bookingRef);
+      } catch (err) {
+        console.error("[lav-booking] async fulfill failed:", err);
+        await updateLavBooking(payload.bookingRef, { status: "failed" });
+      }
+    });
     return NextResponse.json({
       ok: true,
       bookingRef: payload.bookingRef,
       demo: true,
-      captureLinks: fulfillment.captureLinks,
-      assetReportIds: fulfillment.assetReportIds,
-      smsWarnings: fulfillment.smsWarnings,
+      processing: true,
     });
   } catch (err) {
     console.error("[lav-booking]", err);

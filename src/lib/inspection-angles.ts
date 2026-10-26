@@ -37,7 +37,36 @@ export const INSPECTION_ANGLES = [
   },
 ] as const;
 
+/** Lender asset verification — digital self inspection (7 photos). */
+export const LAV_DIGITAL_INSPECTION_ANGLES = [
+  { id: "front", label: "Front centre" },
+  { id: "left_side", label: "Passenger side (full body)" },
+  { id: "right_side", label: "Driver side (full body)" },
+  { id: "rear", label: "Rear centre" },
+  {
+    id: "dashboard",
+    label: "Interior odometer reading (with engine running)",
+  },
+  { id: "vin_plate", label: "VIN identification image" },
+  { id: "service_record", label: "Registration papers" },
+] as const;
+
+export type InspectionAngleDef = (typeof INSPECTION_ANGLES)[number];
 export type InspectionAngleId = (typeof INSPECTION_ANGLES)[number]["id"];
+
+export function isLavDigitalInspectionReport(report: {
+  lavContext?: unknown;
+} | null): boolean {
+  return Boolean(report?.lavContext);
+}
+
+export function resolveInspectionAnglesForReport(report: {
+  lavContext?: unknown;
+} | null): readonly InspectionAngleDef[] {
+  return isLavDigitalInspectionReport(report)
+    ? LAV_DIGITAL_INSPECTION_ANGLES
+    : INSPECTION_ANGLES;
+}
 
 /** @deprecated Use {@link isPrimaryWalkaroundInspectionAngle} — kept for older call sites. */
 export const EXTERIOR_INSPECTION_ANGLE_IDS: readonly string[] =

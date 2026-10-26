@@ -71,12 +71,32 @@ export function isSmsConfigured(): boolean {
 export const SMS_NOT_CONFIGURED_MESSAGE =
   "SMS is not configured on this deployment. Add TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and either TWILIO_FROM_NUMBER (Twilio-owned AU number in E.164) or TWILIO_MESSAGING_SERVICE_SID in Vercel → Settings → Environment Variables (Production), then redeploy.";
 
+function buildInspectionLinkSmsBody(input: {
+  inspectUrl: string;
+  vehicleLabel?: string;
+  recipient?: "owner" | "purchaser";
+  product?: "insights_plus" | "lav_digital";
+}): string {
+  const vehicle = input.vehicleLabel?.trim() || "this asset";
+
+  if (input.product === "lav_digital") {
+    return `Auto Verifi - Digital Self Inspection scan on ${vehicle}. Please complete by clicking this link. It takes about 5 minutes:\n${input.inspectUrl}`;
+  }
+
+  const vehicleSuffix = input.vehicleLabel ? ` for ${input.vehicleLabel}` : "";
+  if (input.recipient === "purchaser") {
+    return `Auto Verifi: your Insights+ inspection link${vehicleSuffix}. Open on this phone or forward to the vehicle owner:\n${input.inspectUrl}`;
+  }
+  return `Auto Verifi: complete the AI condition check${vehicleSuffix} on your phone:\n${input.inspectUrl}`;
+}
+
 export async function sendInspectionLinkSms(input: {
   to: string;
   inspectUrl: string;
   vehicleLabel?: string;
   /** Purchaser copy mentions they can open the link or forward to the owner. */
   recipient?: "owner" | "purchaser";
+  product?: "insights_plus" | "lav_digital";
 }): Promise<{ to: string }> {
   if (!isSmsConfigured()) {
     throw new Error(SMS_NOT_CONFIGURED_MESSAGE);
@@ -89,12 +109,7 @@ export async function sendInspectionLinkSms(input: {
 
   const { accountSid, authToken, from, messagingServiceSid } =
     readTwilioCredentials();
-  const vehicle = input.vehicleLabel ? ` for ${input.vehicleLabel}` : "";
-
-  const body =
-    input.recipient === "purchaser"
-      ? `Auto Verifi: your Insights+ inspection link${vehicle}. Open on this phone or forward to the vehicle owner:\n${input.inspectUrl}`
-      : `Auto Verifi: complete the AI condition check${vehicle} on your phone:\n${input.inspectUrl}`;
+  const body = buildInspectionLinkSmsBody(input);
 
   const params = new URLSearchParams({ To: to, Body: body });
   if (messagingServiceSid) {

@@ -1,10 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import {
   forwardRef,
   useCallback,
+  useEffect,
   useImperativeHandle,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { AUTOVERIFI_CONTACT_EMAIL } from "@/lib/site-contact";
@@ -74,6 +77,22 @@ function esc(s: string) {
     .replace(/"/g, "&quot;");
 }
 
+const LAV_LAST_FORM_STEP = 5;
+
+function lavStepFromHash(): number | null {
+  if (typeof window === "undefined") return null;
+  const match = window.location.hash.match(/(?:^|[?&])step=(\d+)/);
+  if (!match) return null;
+  const n = parseInt(match[1], 10);
+  if (!Number.isFinite(n) || n < 1 || n > 6) return null;
+  return n;
+}
+
+function lavStepUrl(step: number): string {
+  const base = `${window.location.pathname}${window.location.search}`;
+  return `${base}#book?step=${step}`;
+}
+
 export type LenderBookingFormHandle = {
   pickInspection: (kind: "digital" | "physical") => void;
 };
@@ -105,6 +124,7 @@ export const LenderBookingForm = forwardRef<
   const [borrower, setBorrower] = useState("");
   const [reference, setReference] = useState("");
   const [ccEmails, setCcEmails] = useState("");
+  const [buyerPhone, setBuyerPhone] = useState("");
   const [promoCode, setPromoCode] = useState("");
   const [confirmLender, setConfirmLender] = useState(false);
   const [confirmTerms, setConfirmTerms] = useState(false);
@@ -116,7 +136,8 @@ export const LenderBookingForm = forwardRef<
   const [stepError, setStepError] = useState("");
   const invoiceAccount = normalizePromoCode(promoCode) === LAV_INVOICE_PROMO;
 
-  const lastStep = 5;
+  const lastStep = LAV_LAST_FORM_STEP;
+  const stepHistoryReady = useRef(false);
   const unit =
     inspectionType.startsWith("Digital") ? PRICE_DIGITAL : PRICE_PHYSICAL;
   const totals = useMemo(() => {
@@ -129,11 +150,46 @@ export const LenderBookingForm = forwardRef<
     document.getElementById("book")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const goTo = (n: number) => {
-    setStepError("");
-    setStep(n);
-    scrollBook();
-  };
+  const goTo = useCallback(
+    (n: number, historyMode: "push" | "replace" | "none" = "push") => {
+      const clamped = Math.min(Math.max(n, 1), 6);
+      setStepError("");
+      setStep(clamped);
+      if (typeof window !== "undefined" && historyMode !== "none") {
+        const url = lavStepUrl(clamped);
+        const state = { lavStep: clamped };
+        if (historyMode === "replace") {
+          window.history.replaceState(state, "", url);
+        } else {
+          window.history.pushState(state, "", url);
+        }
+      }
+      scrollBook();
+    },
+    [],
+  );
+
+  useEffect(() => {
+    const fromHash = lavStepFromHash();
+    const initial =
+      fromHash != null && fromHash <= lastStep ? fromHash : 1;
+    setStep(initial);
+    window.history.replaceState({ lavStep: initial }, "", lavStepUrl(initial));
+    stepHistoryReady.current = true;
+
+    const onPopState = (event: PopStateEvent) => {
+      const fromState =
+        typeof event.state?.lavStep === "number"
+          ? event.state.lavStep
+          : lavStepFromHash();
+      if (fromState == null || fromState < 1 || fromState > 6) return;
+      setStepError("");
+      setStep(fromState);
+      scrollBook();
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, [lastStep]);
 
   const normalizedPostcode = postcode.trim();
 
@@ -194,9 +250,8 @@ export const LenderBookingForm = forwardRef<
     setInspectionType(
       kind === "digital" ? "Digital Self Inspection" : "Physical inspection",
     );
-    setStep(1);
-    document.getElementById("book")?.scrollIntoView({ behavior: "smooth" });
-  }, []);
+    goTo(1, "replace");
+  }, [goTo]);
 
   useImperativeHandle(ref, () => ({ pickInspection }), [pickInspection]);
 
@@ -234,9 +289,10 @@ export const LenderBookingForm = forwardRef<
     borrower,
     reference,
     ccEmails,
+    buyerPhone,
     billing: invoiceAccount
-      ? "Invoice account (AVINV)"
-      : "Pay by card (Stripe checkout)",
+      ? "Approved invoiced customer"
+      : "Pay by card at checkout",
     promoCode: invoiceAccount ? LAV_INVOICE_PROMO : "",
     ...totals,
   });
@@ -275,7 +331,7 @@ export const LenderBookingForm = forwardRef<
       }
       setDoneRef(data.bookingRef ?? bookingRef);
       setDoneCaptureLinks(data.captureLinks ?? []);
-      setStep(6);
+      goTo(6, "replace");
     } catch {
       const lines = [
         `Booking ref: ${bookingRef}`,
@@ -289,7 +345,7 @@ export const LenderBookingForm = forwardRef<
       ];
       window.location.href = `mailto:${AUTOVERIFI_CONTACT_EMAIL}?subject=${encodeURIComponent(`Asset verification booking ${bookingRef}`)}&body=${encodeURIComponent(lines.join("\n"))}`;
       setDoneRef(bookingRef);
-      setStep(6);
+      goTo(6, "replace");
     } finally {
       setSubmitting(false);
     }
@@ -326,11 +382,19 @@ export const LenderBookingForm = forwardRef<
       ["Lender", lender],
       ["Borrower", borrower],
       ["Reference", reference],
+      ...(ccEmails.trim()
+        ? ([["Report copy to", ccEmails.trim()]] as [string, string][])
+        : []),
+      ...(inspectionType.startsWith("Digital") && buyerPhone.trim()
+        ? ([
+            ["Buyer inspection SMS", buyerPhone.trim()],
+          ] as [string, string][])
+        : []),
       [
         "Billing",
         invoiceAccount
-          ? "Invoice separately (AVINV — no payment now)"
-          : "Pay by card (Stripe checkout link)",
+          ? "Approved invoiced customer — no payment now"
+          : "Pay by card at checkout",
       ],
     ])}
     <div class="total" style="font-weight:500;color:var(--muted)"><span>${assets.length} × ${inspectionType} @ ${money(unit)} + GST</span><span>${money(totals.subtotal)}</span></div>
@@ -340,6 +404,8 @@ export const LenderBookingForm = forwardRef<
     address,
     assets,
     borrower,
+    buyerPhone,
+    ccEmails,
     invoiceAccount,
     company,
     contactEmail,
@@ -394,9 +460,11 @@ export const LenderBookingForm = forwardRef<
                   onChange={() => setInspectionType("Digital Self Inspection")}
                 />
                 <strong>Digital Self Inspection</strong>
-                <small>
-                  $35 + GST per asset · owner, buyer or vendor completes on
-                  their phone
+                <small className="choice-detail">
+                  <span className="choice-detail-line">$35 + GST per asset</span>
+                  <span className="choice-detail-line">
+                    Owner, buyer or vendor completes on their phone
+                  </span>
                 </small>
               </label>
               <label
@@ -409,8 +477,11 @@ export const LenderBookingForm = forwardRef<
                   onChange={() => setInspectionType("Physical inspection")}
                 />
                 <strong>Physical inspection</strong>
-                <small>
-                  $120 + GST per asset · inspector attends the asset
+                <small className="choice-detail">
+                  <span className="choice-detail-line">$120 + GST per asset</span>
+                  <span className="choice-detail-line">
+                    Inspector attends the asset
+                  </span>
                 </small>
               </label>
             </div>
@@ -541,9 +612,6 @@ export const LenderBookingForm = forwardRef<
         {step === 3 && (
           <div className="panel active" data-step="3">
             <h3>Vendor & asset location</h3>
-            <p className="sub">
-              We&apos;ll contact the vendor directly to arrange the inspection.
-            </p>
             <div className="fields">
               <div>
                 <label htmlFor="vendorType">
@@ -779,21 +847,36 @@ export const LenderBookingForm = forwardRef<
                   onChange={(e) => setCcEmails(e.target.value)}
                 />
               </div>
+              {inspectionType.startsWith("Digital") ? (
+                <div className="full">
+                  <label htmlFor="buyerPhone">
+                    Also send Digital Self Inspection link to buyer — mobile phone
+                    number
+                  </label>
+                  <input
+                    id="buyerPhone"
+                    type="tel"
+                    placeholder="04xx xxx xxx"
+                    value={buyerPhone}
+                    onChange={(e) => setBuyerPhone(e.target.value)}
+                  />
+                </div>
+              ) : null}
               <div className="full">
                 <label htmlFor="promoCode">Discount code (optional)</label>
                 <input
                   id="promoCode"
                   value={promoCode}
-                  placeholder="Invoiced customers: enter AVINV"
+                  placeholder="Enter code if you have one"
                   onChange={(e) => setPromoCode(e.target.value)}
+                  autoComplete="off"
                 />
                 <p
                   className="sub"
                   style={{ marginTop: 8, marginBottom: 0, fontSize: "0.88rem" }}
                 >
-                  Payment is by Stripe checkout after you submit, unless your
-                  organisation uses code <strong>AVINV</strong> (you will be
-                  invoiced separately — no tax invoice with this booking).
+                  Payment is by credit card at checkout unless your organisation
+                  is an approved invoiced customer.
                 </p>
               </div>
             </div>
@@ -824,7 +907,27 @@ export const LenderBookingForm = forwardRef<
                   checked={confirmTerms}
                   onChange={(e) => setConfirmTerms(e.target.checked)}
                 />
-                I agree to the Auto Verifi terms of service and privacy policy.
+                <span>
+                  I agree to the Auto Verifi{" "}
+                  <Link
+                    href="/terms"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="lav-check-link"
+                  >
+                    terms of service
+                  </Link>{" "}
+                  and{" "}
+                  <Link
+                    href="/privacy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="lav-check-link"
+                  >
+                    privacy policy
+                  </Link>
+                  .
+                </span>
               </label>
             </div>
           </div>
@@ -847,7 +950,7 @@ export const LenderBookingForm = forwardRef<
                   <>
                     {" "}
                     Confirmation and capture links are being emailed to you and
-                    the vendor.
+                    the vendor (this usually takes under a minute).
                   </>
                 )}
               </p>
@@ -880,10 +983,10 @@ export const LenderBookingForm = forwardRef<
                 type="button"
                 className="btn btn-light"
                 onClick={() => {
-                  setStep(1);
                   setConfirmLender(false);
                   setConfirmTerms(false);
                   setAssets([newAsset()]);
+                  goTo(1, "replace");
                 }}
               >
                 Make another booking
@@ -904,7 +1007,14 @@ export const LenderBookingForm = forwardRef<
               type="button"
               className="btn btn-light btn-back"
               style={{ visibility: step > 1 ? "visible" : "hidden" }}
-              onClick={() => goTo(step - 1)}
+              onClick={() => {
+                if (step <= 1) return;
+                if (stepHistoryReady.current && window.history.state?.lavStep) {
+                  window.history.back();
+                } else {
+                  goTo(step - 1, "replace");
+                }
+              }}
             >
               ← Back
             </button>
@@ -920,7 +1030,7 @@ export const LenderBookingForm = forwardRef<
                   return;
                 }
                 setStepError("");
-                if (step < lastStep) goTo(step + 1);
+                if (step < lastStep) goTo(step + 1, "push");
                 else void submit();
               }}
             >

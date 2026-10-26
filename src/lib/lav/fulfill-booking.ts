@@ -70,6 +70,7 @@ async function startDigitalCapture(input: {
         inspectUrl,
         vehicleLabel: input.vehicleLabel,
         recipient: "owner",
+        product: "lav_digital",
       });
     } catch (err) {
       smsWarnings.push(
@@ -100,6 +101,7 @@ export async function fulfillLavBooking(
   const digital = isDigitalInspection(payload.inspectionType);
   const vendorPhone = normalizeAuMobile(payload.vendorPhone);
   const contactPhone = normalizeAuMobile(payload.contactPhone);
+  const buyerPhone = normalizeAuMobile(payload.buyerPhone);
 
   const captureLinks: LavCaptureLink[] = [];
   const assetReportIds: string[] = [];
@@ -145,12 +147,36 @@ export async function fulfillLavBooking(
             inspectUrl: capture.inspectUrl,
             vehicleLabel: label,
             recipient: "purchaser",
+            product: "lav_digital",
           });
         } catch (err) {
           smsWarnings.push(
             err instanceof Error
               ? `Customer SMS: ${err.message}`
               : "Customer SMS failed.",
+          );
+        }
+      }
+
+      if (
+        buyerPhone &&
+        buyerPhone !== vendorPhone &&
+        buyerPhone !== contactPhone &&
+        isSmsConfigured()
+      ) {
+        try {
+          await sendInspectionLinkSms({
+            to: buyerPhone,
+            inspectUrl: capture.inspectUrl,
+            vehicleLabel: label,
+            recipient: "purchaser",
+            product: "lav_digital",
+          });
+        } catch (err) {
+          smsWarnings.push(
+            err instanceof Error
+              ? `Buyer SMS: ${err.message}`
+              : "Buyer SMS failed.",
           );
         }
       }

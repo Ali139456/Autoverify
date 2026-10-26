@@ -66,6 +66,7 @@ export function parseLavBookingBody(
     borrower: clampText(body.borrower, 120),
     reference: clampText(body.reference, 80),
     ccEmails: clampText(body.ccEmails, 500),
+    buyerPhone: clampText(body.buyerPhone, 24),
     billing: clampText(body.billing, 120),
     promoCode,
     subtotal: Number.isFinite(subtotal) ? subtotal : 0,

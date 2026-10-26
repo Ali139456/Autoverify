@@ -180,7 +180,9 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                   </p>
                 ) : insight.status?.trim() ? (
                 <p
-                  className={`text-xs font-normal leading-snug ${insightToneClass(insight.tone)}`}
+                  className={`text-xs font-normal leading-snug ${insightToneClass(insight.tone)} ${
+                    insight.id === "registration" ? "whitespace-nowrap" : ""
+                  }`}
                 >
                   {reportInsightCopy(insight.status)}
                 </p>

@@ -20,13 +20,12 @@ export function LenderAssetVerificationSite() {
         <div className="av-site-container hero-grid lg:grid-cols-2">
           <div className="relative min-w-0 text-center lg:text-left">
             <span className="eyebrow">For lenders, brokers &amp; introducers</span>
-            <h1 className="text-[1.65rem] font-extrabold leading-[1.1] tracking-tight text-white sm:text-3xl lg:text-[2.35rem] lg:leading-[1.08]">
-              Lender asset verification{" "}
-              <span className="text-accent-500">
-                verified in minutes Australia-wide
-              </span>
+            <h1 className="lav-hero-title">
+              <span className="line">Lender asset verification.</span>
+              <span className="line">Verified in minutes.</span>
+              <span className="line">Australia wide</span>
             </h1>
-            <p className="lead mx-auto mt-4 max-w-xl text-base text-slate-400 sm:mt-5 sm:text-lg lg:mx-0">
+            <p className="lead mx-auto mt-4 max-w-xl text-sm text-slate-400 sm:mt-5 sm:text-base lg:mx-0">
               We verify asset existence, vehicle identifiers and confirm current
               condition.
             </p>
@@ -83,7 +82,7 @@ export function LenderAssetVerificationSite() {
                   <span>Photos</span>
                   <span className="v">Date &amp; time stamped images</span>
                 </div>
-                <div className="row">
+                <div className="row row-condition">
                   <span>Condition</span>
                   <span className="v">Verified using AI damage detection</span>
                 </div>

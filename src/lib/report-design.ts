@@ -209,6 +209,20 @@ export function formatExpiryDate(iso: string): string {
   return `${day}-${month}-${year}`;
 }
 
+/** Single-line registration card: `Active Expiry 01-09-2027 | NSW`. */
+export function formatRegistrationInsightStatus(
+  registration: VehicleReport["registration"],
+  state?: string,
+): string {
+  const status = registrationDisplayStatus(registration);
+  const expiry = registration.expiryDate
+    ? `Expiry ${formatExpiryDate(registration.expiryDate)}`
+    : "";
+  const main = expiry ? `${status} ${expiry}` : status;
+  const st = state?.trim();
+  return st ? `${main} | ${st}` : main;
+}
+
 export { resolveVehicleDoorAndSeatCounts } from "./vehicle-door-seats";
 
 function formatRegistrationPlateOverview(vehicle: VehicleIdentity): string {
@@ -630,11 +644,7 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
     {
       id: "registration",
       title: "Registration",
-      status: registrationDisplayStatus(registration),
-      statusSubtext: vehicle.state,
-      detail: registration.expiryDate
-        ? `Expiry ${formatExpiryDate(registration.expiryDate)}`
-        : undefined,
+      status: formatRegistrationInsightStatus(registration, vehicle.state),
       tone: registration.status === "Registered" ? "clear" : "warn",
     },
     {

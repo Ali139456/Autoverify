@@ -37,6 +37,8 @@ export type LavBookingPayload = {
   borrower: string;
   reference: string;
   ccEmails: string;
+  /** Optional buyer mobile — Digital Self Inspection link SMS */
+  buyerPhone: string;
   billing: string;
   promoCode: string;
   subtotal: number;

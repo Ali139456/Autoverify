@@ -4,7 +4,8 @@ import {
   getInspectionProgress,
   isInspectionExpired,
 } from "@/lib/inspections";
-import { INSPECTION_ANGLES } from "@/lib/inspection-angles";
+import { resolveInspectionAnglesForReport } from "@/lib/inspection-angles";
+import { getReport } from "@/lib/store";
 import { guardRateLimit, isBoundedAccessToken } from "@/lib/security";
 
 export async function GET(
@@ -32,6 +33,8 @@ export async function GET(
   }
 
   const progress = getInspectionProgress(inspection.photos);
+  const report = await getReport(inspection.reportId);
+  const angles = resolveInspectionAnglesForReport(report);
 
   return NextResponse.json(
     {
@@ -40,7 +43,8 @@ export async function GET(
       status: inspection.status,
       photos: inspection.photos,
       progress,
-      angles: INSPECTION_ANGLES,
+      angles,
+      lavDigital: Boolean(report?.lavContext),
       expiresAt: inspection.expiresAt,
     },
     {

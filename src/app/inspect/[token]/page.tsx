@@ -4,6 +4,11 @@ import {
   getInspectionByToken,
   isInspectionExpired,
 } from "@/lib/inspections";
+import {
+  isLavDigitalInspectionReport,
+  resolveInspectionAnglesForReport,
+} from "@/lib/inspection-angles";
+import { getReport } from "@/lib/store";
 
 export default async function InspectPage({
   params,
@@ -14,6 +19,10 @@ export default async function InspectPage({
   const inspection = await getInspectionByToken(token);
 
   if (!inspection) notFound();
+
+  const report = await getReport(inspection.reportId);
+  const angles = resolveInspectionAnglesForReport(report);
+  const lavDigital = isLavDigitalInspectionReport(report);
 
   if (isInspectionExpired(inspection)) {
     return (
@@ -35,6 +44,8 @@ export default async function InspectPage({
     <InspectionCapture
       token={token}
       reportId={inspection.reportId}
+      angles={angles}
+      lavDigital={lavDigital}
       initialPhotos={inspection.photos.map((photo) => ({
         angle: photo.angle,
         label: photo.label,

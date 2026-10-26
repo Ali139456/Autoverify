@@ -13,6 +13,7 @@ import {
   getInspectionAngleHint,
   INSPECTION_ANGLES,
   splitInspectionAngleLabelLines,
+  type InspectionAngleDef,
 } from "@/lib/inspection-angles";
 import { readCaptureGeolocation } from "@/lib/capture-geolocation";
 import { mergeInspectionPhotosByAngle } from "@/lib/merge-inspection-photos";
@@ -57,20 +58,27 @@ function inspectionErrorMessage(err: unknown, fallback: string): string {
   return err.message;
 }
 
-function allAnglesUploaded(uploaded: Set<string>): boolean {
-  return INSPECTION_ANGLES.every((angle) => uploaded.has(angle.id));
+function allAnglesUploaded(
+  uploaded: Set<string>,
+  angles: readonly InspectionAngleDef[],
+): boolean {
+  return angles.every((angle) => uploaded.has(angle.id));
 }
 
 /** Next capture step after a successful upload (first missing angle ahead, then wrap). */
-function findNextStepIndex(uploaded: Set<string>, fromStep: number): number {
-  if (allAnglesUploaded(uploaded)) {
+function findNextStepIndex(
+  uploaded: Set<string>,
+  fromStep: number,
+  angles: readonly InspectionAngleDef[],
+): number {
+  if (allAnglesUploaded(uploaded, angles)) {
     return fromStep;
   }
-  for (let i = fromStep + 1; i < INSPECTION_ANGLES.length; i++) {
-    if (!uploaded.has(INSPECTION_ANGLES[i].id)) return i;
+  for (let i = fromStep + 1; i < angles.length; i++) {
+    if (!uploaded.has(angles[i].id)) return i;
   }
   for (let i = 0; i < fromStep; i++) {
-    if (!uploaded.has(INSPECTION_ANGLES[i].id)) return i;
+    if (!uploaded.has(angles[i].id)) return i;
   }
   return fromStep;
 }
@@ -99,13 +107,19 @@ export function InspectionCapture({
   token,
   reportId,
   initialPhotos = [],
+  angles: initialAngles = INSPECTION_ANGLES,
+  lavDigital = false,
 }: {
   token: string;
   reportId: string;
   initialPhotos?: UploadedPhoto[];
+  angles?: readonly InspectionAngleDef[];
+  lavDigital?: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const uploadingRef = useRef(false);
+  const [angles, setAngles] =
+    useState<readonly InspectionAngleDef[]>(initialAngles);
   const [photos, setPhotos] = useState<UploadedPhoto[]>(initialPhotos);
   const [stepIndex, setStepIndex] = useState(0);
   const initialUploaded = useMemo(
@@ -113,7 +127,7 @@ export function InspectionCapture({
     [initialPhotos],
   );
   const [screen, setScreen] = useState<"capture" | "submit">(() =>
-    allAnglesUploaded(initialUploaded) ? "submit" : "capture",
+    allAnglesUploaded(initialUploaded, initialAngles) ? "submit" : "capture",
   );
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -121,15 +135,23 @@ export function InspectionCapture({
   const [doneMessage, setDoneMessage] = useState<string | null>(null);
   const [exitDismissed, setExitDismissed] = useState(false);
 
-  const currentAngle = INSPECTION_ANGLES[stepIndex];
+  const currentAngle = angles[stepIndex] ?? angles[0];
   const captureAngleLabel = splitInspectionAngleLabelLines(currentAngle.label);
   const captureHint = getInspectionAngleHint(currentAngle.id);
   const uploadedAngles = useMemo(
     () => new Set(photos.map((photo) => photo.angle)),
     [photos],
   );
-  const completedCount = uploadedAngles.size;
-  const allPhotosComplete = completedCount >= INSPECTION_ANGLES.length;
+  const completedCount = angles.filter((angle) =>
+    uploadedAngles.has(angle.id),
+  ).length;
+  const allPhotosComplete = allAnglesUploaded(uploadedAngles, angles);
+  const captureTitle = lavDigital
+    ? "Photo image capture and AI condition assessment"
+    : "AI condition assessment";
+  const captureDuration = lavDigital
+    ? "This takes about 5 minutes."
+    : "This takes about 5–10 minutes to complete.";
 
   const fetchPhotosFromServer = useCallback(async (): Promise<
     UploadedPhoto[] | null
@@ -137,10 +159,13 @@ export function InspectionCapture({
     const res = await fetch(`/api/inspections/${token}`);
     if (!res.ok) return null;
     try {
-      const data = await readJsonResponse<{ photos?: UploadedPhoto[] }>(
-        res,
-        "Could not refresh photo list.",
-      );
+      const data = await readJsonResponse<{
+        photos?: UploadedPhoto[];
+        angles?: InspectionAngleDef[];
+      }>(res, "Could not refresh photo list.");
+      if (Array.isArray(data.angles) && data.angles.length > 0) {
+        setAngles(data.angles);
+      }
       return Array.isArray(data.photos) ? data.photos : null;
     } catch {
       return null;
@@ -151,6 +176,16 @@ export function InspectionCapture({
     if (!synced) return;
     setPhotos((prev) => mergeInspectionPhotosByAngle(prev, synced));
   }, []);
+
+  useEffect(() => {
+    setAngles(initialAngles);
+  }, [initialAngles]);
+
+  useEffect(() => {
+    setStepIndex((index) =>
+      Math.min(index, Math.max(0, angles.length - 1)),
+    );
+  }, [angles.length]);
 
   useEffect(() => {
     void fetchPhotosFromServer().then(applyServerPhotos);
@@ -224,11 +259,11 @@ export function InspectionCapture({
 
       const uploaded = new Set(merged.map((photo) => photo.angle));
       uploaded.add(capturedAngleId);
-      const complete = allAnglesUploaded(uploaded);
+      const complete = allAnglesUploaded(uploaded, angles);
       if (complete) {
         setScreen("submit");
       } else {
-        setStepIndex(findNextStepIndex(uploaded, capturedStep));
+        setStepIndex(findNextStepIndex(uploaded, capturedStep, angles));
       }
     } catch (err) {
       setError(inspectionErrorMessage(err, "Upload failed."));
@@ -294,8 +329,9 @@ export function InspectionCapture({
             Ready to submit
           </h1>
           <p className="mt-3 max-w-sm text-sm leading-relaxed text-slate-400">
-            All {INSPECTION_ANGLES.length} photos are uploaded. Submit now to send
-            them for AI condition assessment on your Insights+ report.
+            All {angles.length} photos are uploaded. Submit now to send
+            them for AI condition assessment
+            {lavDigital ? " on your verification report." : " on your Insights+ report."}
           </p>
           {error ? (
             <div
@@ -364,20 +400,18 @@ export function InspectionCapture({
     <div className="inspect-capture-page mx-auto min-h-[100dvh] max-w-lg bg-ink-950 px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] text-white">
       <div className="mb-6">
         <Logo variant="onDark" height={36} linked={false} className="mb-4" />
-        <h1 className="text-2xl font-extrabold tracking-tight">
-          AI condition assessment
+        <h1 className="text-xl font-extrabold leading-snug tracking-tight sm:text-2xl">
+          {captureTitle}
         </h1>
-        <p className="mt-2 text-sm text-slate-400">
-          This takes about 5–10 minutes to complete.
-        </p>
+        <p className="mt-2 text-sm text-slate-400">{captureDuration}</p>
         <p className="mt-1 text-sm text-slate-400">
-          Step {stepIndex + 1} of {INSPECTION_ANGLES.length} · {completedCount} uploaded
+          Step {stepIndex + 1} of {angles.length} · {completedCount} uploaded
         </p>
         <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
           <div
             className="h-full rounded-full bg-gradient-to-r from-accent-600 to-accent-400 transition-all"
             style={{
-              width: `${(completedCount / INSPECTION_ANGLES.length) * 100}%`,
+              width: `${(completedCount / angles.length) * 100}%`,
             }}
           />
         </div>
@@ -419,10 +453,10 @@ export function InspectionCapture({
             type="button"
             onClick={() =>
               setStepIndex((value) =>
-                Math.min(INSPECTION_ANGLES.length - 1, value + 1),
+                Math.min(angles.length - 1, value + 1),
               )
             }
-            disabled={stepIndex === INSPECTION_ANGLES.length - 1 || uploading}
+            disabled={stepIndex === angles.length - 1 || uploading}
             className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 disabled:opacity-40"
             aria-label="Next angle"
           >
@@ -474,7 +508,7 @@ export function InspectionCapture({
         </div>
 
         <ul className="mt-5 grid grid-cols-2 gap-2 text-xs text-slate-400">
-          {INSPECTION_ANGLES.map((angle, index) => (
+          {angles.map((angle, index) => (
             <li key={angle.id}>
               <button
                 type="button"

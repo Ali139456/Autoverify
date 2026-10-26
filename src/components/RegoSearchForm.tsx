@@ -98,7 +98,7 @@ export function RegoSearchForm({
   const shellClass = compact
     ? ""
     : onDark
-      ? "mx-auto w-full max-w-xl rounded-2xl border border-white/10 bg-ink-800 p-2 sm:p-2.5 lg:mx-0"
+      ? "mx-auto w-full max-w-xl overflow-visible rounded-2xl border border-white/10 bg-ink-800 p-3 sm:p-3.5 lg:mx-0"
       : "mx-auto w-full max-w-md rounded-2xl border border-slate-200 bg-white p-2.5 shadow-lg dark:border-white/10 dark:bg-ink-800 dark:shadow-none sm:p-3 lg:mx-0";
 
   const fieldClass = onDark
@@ -171,10 +171,10 @@ export function RegoSearchForm({
           </div>
         </div>
 
-        <div className="mb-1 mt-2 text-left">
+        <div className="mb-1.5 mt-3 text-left">
           <span className={labelClass}>Vehicle type</span>
         </div>
-        <div className="relative">
+        <div className="relative mb-1">
           <select
             value={assetCategory}
             onChange={(e) =>
@@ -207,7 +207,7 @@ export function RegoSearchForm({
         </div>
 
         <div
-          className={`mx-auto mt-2 grid w-full gap-1.5 lg:mx-0 sm:mt-2.5 sm:gap-2 ${
+          className={`mx-auto mt-3 grid w-full gap-1.5 lg:mx-0 sm:mt-3.5 sm:gap-2 ${
             sampleLinks === "both" ? "grid-cols-3" : "grid-cols-2"
           }`}
         >
