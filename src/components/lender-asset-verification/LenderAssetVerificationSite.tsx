@@ -132,14 +132,7 @@ export function LenderAssetVerificationSite() {
             <h2>Choose your inspection</h2>
             <p>Check which method your lender accepts before booking.</p>
           </div>
-          <div
-            className="grid"
-            style={{
-              gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))",
-              maxWidth: 900,
-              margin: "0 auto",
-            }}
-          >
+          <div className="grid lav-pricing-grid">
             <div className="card opt featured">
               <span className="pill tag">Australia-wide</span>
               <h3>Digital Self Inspection</h3>
