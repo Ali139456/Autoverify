@@ -118,9 +118,13 @@ export default async function ReportPage({
         <div className="report-no-print mx-auto flex max-w-3xl justify-end px-4 pt-6">
           <ReportPrintActions />
         </div>
+        {inspectionPhotos.length > 0 && !report.damage ? (
+          <ReportInsightsPoller reportId={report.id} enabled />
+        ) : null}
         <LenderAssetVerificationReport
           report={report}
           damage={report.damage}
+          photos={inspectionPhotos}
           inspectUrl={inspectUrlForOwner}
         />
       </div>

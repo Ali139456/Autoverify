@@ -1,0 +1,244 @@
+.lav-report-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.lav-report-title {
+  margin: 0;
+  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+}
+
+.lav-report-asset-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.lav-report-asset-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  background: #fff;
+}
+
+.lav-report-asset-chip.is-selected {
+  border-color: #0073e3;
+  background: #0073e3;
+  color: #fff;
+}
+
+.lav-report-section-heading {
+  margin: 1rem 0 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #0073e3;
+}
+
+.lav-report-page1-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr minmax(140px, 34%);
+  gap: 1rem 1.25rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .lav-report-page1-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .lav-report-hero-photo {
+    grid-column: 1 / -1;
+  }
+}
+
+.lav-report-field label {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 0.2rem;
+}
+
+.lav-report-field p {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.35;
+}
+
+.lav-report-hero-photo {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: #f1f5f9;
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lav-report-hero-photo img {
+  width: 100%;
+  height: 100%;
+  max-height: 220px;
+  object-fit: cover;
+}
+
+.lav-report-summary {
+  margin-top: 1.25rem;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1rem;
+}
+
+.lav-report-summary h4 {
+  margin: 0 0 0.75rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #0f172a;
+}
+
+.lav-report-condition-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.lav-report-condition-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.lav-report-condition-option.is-on {
+  color: #059669;
+}
+
+.lav-report-condition-box {
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid #94a3b8;
+  border-radius: 2px;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.lav-report-condition-option.is-on .lav-report-condition-box {
+  border-color: #059669;
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.lav-report-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .lav-report-photo-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.lav-report-photo-grid--id {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 767px) {
+  .lav-report-photo-grid--id {
+    grid-template-columns: 1fr;
+  }
+}
+
+.lav-report-damage-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+@media (min-width: 768px) {
+  .lav-report-damage-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.lav-report-damage-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.75rem;
+  background: #f8fafc;
+}
+
+.lav-report-damage-card h5 {
+  margin: 0 0 0.25rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #0f172a;
+}
+
+.lav-report-damage-card p {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.lav-report-disclaimer h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.lav-report-disclaimer section {
+  margin-bottom: 0.85rem;
+}
+
+.lav-report-disclaimer h4 {
+  margin: 0 0 0.25rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.lav-report-disclaimer p {
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.55;
+  color: #475569;
+}
+
+.lav-report-disclaimer footer {
+  margin-top: 1rem;
+  font-size: 0.68rem;
+  color: #64748b;
+}
