@@ -32,7 +32,6 @@ function formatAuDate(date: Date): string {
 export function buildLavBookingConfirmationEmailHtml(input: {
   payload: LavBookingPayload;
   captureLinks: LavCaptureLink[];
-  reportLinks: { id: string; reportUrl: string; pdfUrl: string }[];
   invoiceAccount: boolean;
   digital: boolean;
   baseUrl: string;
@@ -40,7 +39,6 @@ export function buildLavBookingConfirmationEmailHtml(input: {
   const {
     payload,
     captureLinks,
-    reportLinks,
     invoiceAccount,
     digital,
     baseUrl,
@@ -77,20 +75,6 @@ export function buildLavBookingConfirmationEmailHtml(input: {
          ${captureRows || `<tr><td style="padding:14px 16px;font-size:14px;color:#64748b;">Capture links are being prepared — our team will follow up shortly.</td></tr>`}
        </table>`
     : `<p style="margin:0;font-size:15px;line-height:1.65;color:#334155;">A <strong>physical inspection</strong> has been queued. An Auto Verifi inspector will attend the asset location.</p>`;
-
-  const reportRows = reportLinks
-    .map(
-      ({ id, reportUrl, pdfUrl }) => `
-        <tr>
-          <td style="padding:11px 14px;border-bottom:1px solid #dbeafe;color:#475569;font-size:13px;width:38%;background:#f8fafc;">Report</td>
-          <td style="padding:11px 14px;border-bottom:1px solid #dbeafe;font-size:13px;">
-            <a href="${escapeHtml(reportUrl)}" style="color:${BRAND_BLUE};font-weight:700;text-decoration:none;">${escapeHtml(id)}</a>
-            &nbsp;&middot;&nbsp;
-            <a href="${escapeHtml(pdfUrl)}" style="color:${BRAND_BLUE};font-weight:700;text-decoration:none;">PDF</a>
-          </td>
-        </tr>`,
-    )
-    .join("");
 
   const summaryRows = [
     ["Booking reference", payload.bookingRef],
@@ -157,14 +141,6 @@ export function buildLavBookingConfirmationEmailHtml(input: {
           <tr>
             <td style="background:#ffffff;padding:22px 32px;border-left:1px solid #dbeafe;border-right:1px solid #dbeafe;">
               ${captureSection}
-            </td>
-          </tr>
-          <tr>
-            <td style="background:#ffffff;padding:0 32px 28px;border-left:1px solid #dbeafe;border-right:1px solid #dbeafe;">
-              <h2 style="margin:0 0 12px;font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:${BRAND_BLUE};">Verification reports (LAV format)</h2>
-              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border:1px solid #bfdbfe;border-radius:10px;border-collapse:separate;overflow:hidden;background:#ffffff;">
-                ${reportRows || `<tr><td style="padding:14px 16px;font-size:14px;color:#64748b;">Reports will appear here once generated.</td></tr>`}
-              </table>
             </td>
           </tr>
           <tr>

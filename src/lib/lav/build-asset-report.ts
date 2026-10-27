@@ -37,12 +37,13 @@ function verificationFromLookup(
 ): LavVerificationSummary {
   const { vehicle } = lookup;
   const badge = [vehicle.variant, vehicle.series].filter(Boolean).join(" ").trim();
+  const bookingYear = asset.year.trim() || (vehicle.year ? String(vehicle.year) : "");
   return {
-    vehicleMake: vehicle.make || asset.make,
-    vehicleModel: vehicle.model || asset.model,
+    vehicleMake: asset.make.trim() || vehicle.make,
+    vehicleModel: asset.model.trim() || vehicle.model,
     badge: badge || null,
     colour: vehicle.colour || asset.description.trim() || null,
-    buildOrCompliance: vehicle.year ? String(vehicle.year) : asset.year || null,
+    buildOrCompliance: bookingYear || null,
     vin: vehicle.vin || asset.identifier.trim().toUpperCase() || null,
     rego: vehicle.rego || asset.rego.trim() || null,
     state: vehicle.state ?? null,
@@ -98,9 +99,13 @@ export async function createLavAssetReport(input: {
         stripeSessionId: null,
         vehicle: {
           ...lookup.vehicle,
-          make: lookup.vehicle.make || asset.make,
-          model: lookup.vehicle.model || asset.model,
-          year: lookup.vehicle.year || Number(asset.year) || lookup.vehicle.year,
+          make: asset.make.trim() || lookup.vehicle.make,
+          model: asset.model.trim() || lookup.vehicle.model,
+          year: Number(asset.year) || lookup.vehicle.year,
+          rego:
+            asset.rego.trim().split(/\s+/)[0] ||
+            lookup.vehicle.rego ||
+            "",
         },
         registration: lookup.registration,
         valuation: lookup.valuation,

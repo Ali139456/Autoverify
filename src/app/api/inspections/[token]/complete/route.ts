@@ -19,6 +19,7 @@ import {
   withRavinIngestTrace,
 } from "@/lib/ravin-payload-store";
 import { guardRateLimit, isBoundedAccessToken } from "@/lib/security";
+import { INSPECTION_CAPTURE_DONE_PENDING_MESSAGE } from "@/lib/damage-processing-copy";
 
 export async function POST(
   req: NextRequest,
@@ -102,8 +103,7 @@ export async function POST(
         complete: false,
         missingAngles: progress.missing,
         ravinIngestError: ingestErrorMessage,
-        message:
-          "Photos saved. AI damage analysis usually takes around 10 minutes. We will email your updated report about 15 minutes after processing starts.",
+        message: INSPECTION_CAPTURE_DONE_PENDING_MESSAGE,
       });
     }
 
@@ -175,8 +175,7 @@ export async function POST(
         complete: false,
         missingAngles: progress.missing,
         ravinIngest: submission.ingestTrace,
-        message:
-          "Photos saved. AI damage analysis usually takes around 10 minutes. We will email your updated report about 15 minutes after processing starts.",
+        message: INSPECTION_CAPTURE_DONE_PENDING_MESSAGE,
       });
     }
 
@@ -199,8 +198,7 @@ export async function POST(
       complete: false,
       missingAngles: progress.missing,
       ravinIngest: submission.ingestTrace,
-      message:
-        "Photos saved. AI damage analysis usually takes around 10 minutes. We will email your updated report about 15 minutes after processing starts.",
+      message: INSPECTION_CAPTURE_DONE_PENDING_MESSAGE,
     });
   } catch (err) {
     await updateInspection(inspection.id, { status: "failed" });

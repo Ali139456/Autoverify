@@ -41,8 +41,8 @@ export const INSPECTION_ANGLES = [
 export const LAV_DIGITAL_INSPECTION_ANGLES = [
   { id: "front", label: "Front centre" },
   { id: "left_side", label: "Passenger side (full body)" },
-  { id: "right_side", label: "Driver side (full body)" },
   { id: "rear", label: "Rear centre" },
+  { id: "right_side", label: "Driver side (full body)" },
   {
     id: "dashboard",
     label: "Interior odometer reading (with engine running)",

@@ -1954,7 +1954,6 @@ function InsightsPlusWalkaroundPhotosPage({
         <PdfPhotoGroup
           title="Walkaround Photos"
           photos={walkaroundPhotos}
-          note="Captured on the owner's device. Time and location are recorded beneath each photo when location access is granted; the front photo should show the registration plate."
           photoImageHeight={80}
           photoObjectFit="contain"
         />

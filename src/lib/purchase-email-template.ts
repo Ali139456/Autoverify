@@ -59,12 +59,25 @@ function formatMoney(cents: number, currency: string): string {
   }).format(cents / 100);
 }
 
+function purchaseEmailProductName(tier: ReportTier): string {
+  return tier === "insights_plus"
+    ? "Auto Verifi Insights+ Report"
+    : "Auto Verifi Insights Report";
+}
+
 function purchaseEmailReportHeading(tier: ReportTier, includePpsr: boolean): string {
-  const productName =
-    tier === "insights_plus"
-      ? "Auto Verifi Insights+ Report"
-      : "Auto Verifi Insights Report";
+  const productName = purchaseEmailProductName(tier);
   return includePpsr ? `${productName} & PPSR Certificate` : productName;
+}
+
+/** H1 line break: “…Report &” then “PPSR Certificate” on the next line. */
+function purchaseEmailReportHeadingHtml(
+  tier: ReportTier,
+  includePpsr: boolean,
+): string {
+  const productName = purchaseEmailProductName(tier);
+  if (!includePpsr) return escapeHtml(productName);
+  return `${escapeHtml(productName)} &amp;<br />PPSR Certificate`;
 }
 
 /** Break patterns mail clients turn into blue address/map links. */
@@ -123,6 +136,7 @@ export function buildPurchaseConfirmationEmailHtml(
   const company = getCompanyDetails(baseUrl);
   const includePpsr = hasPpsrCertificate(report);
   const reportHeading = purchaseEmailReportHeading(tier, includePpsr);
+  const reportHeadingHtml = purchaseEmailReportHeadingHtml(tier, includePpsr);
   const footerContactHtml = buildEmailFooterContactHtml(company);
 
   const logoUrl = `${baseUrl.replace(/\/$/, "")}${REPORT_LOGO_PNG_PATH}`;
@@ -232,7 +246,7 @@ export function buildPurchaseConfirmationEmailHtml(
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td style="padding:24px 0 8px;">
-                    <h1 style="margin:0;font-size:24px;line-height:1.25;color:${BRAND_NAVY};font-weight:800;">${escapeHtml(reportHeading)}</h1>
+                    <h1 style="margin:0;font-size:24px;line-height:1.25;color:${BRAND_NAVY};font-weight:800;">${reportHeadingHtml}</h1>
                   </td>
                 </tr>
               </table>

@@ -19,6 +19,7 @@ import { readCaptureGeolocation } from "@/lib/capture-geolocation";
 import { mergeInspectionPhotosByAngle } from "@/lib/merge-inspection-photos";
 import { prepareInspectionPhoto } from "@/lib/prepare-inspection-photo";
 import { Logo } from "@/components/Logo";
+import { INSPECTION_CAPTURE_DONE_PENDING_MESSAGE } from "@/lib/damage-processing-copy";
 
 type UploadedPhoto = {
   angle: string;
@@ -308,8 +309,7 @@ export function InspectionCapture({
         );
       } else {
         setDoneMessage(
-          data.message ??
-            "Photos saved. AI damage analysis usually takes around 10 minutes. We will email your updated report about 15 minutes after processing starts.",
+          data.message ?? INSPECTION_CAPTURE_DONE_PENDING_MESSAGE,
         );
       }
     } catch (err) {
@@ -387,11 +387,6 @@ export function InspectionCapture({
             Exit
           </button>
         ) : null}
-        <p className="mt-3 max-w-xs text-[11px] leading-relaxed text-slate-500">
-          {exitDismissed
-            ? "Inspection complete. Close this browser tab or return to your messages — there is nothing else to do on this link."
-            : "Tap Exit to finish. This screen stays here; we will not send you back to the report QR code."}
-        </p>
       </div>
     );
   }

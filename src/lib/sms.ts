@@ -87,7 +87,7 @@ function buildInspectionLinkSmsBody(input: {
   if (input.recipient === "purchaser") {
     return `Auto Verifi: your Insights+ inspection link${vehicleSuffix}. Open on this phone or forward to the vehicle owner:\n${input.inspectUrl}`;
   }
-  return `Auto Verifi: complete the AI condition check${vehicleSuffix} on your phone:\n${input.inspectUrl}`;
+  return `Auto Verifi: complete the AI condition check${vehicleSuffix} on your phone:\n${input.inspectUrl}\n\nThis will take about 10 minutes to complete.`;
 }
 
 export async function sendInspectionLinkSms(input: {

@@ -1,6 +1,5 @@
 import { getContactInboxEmail } from "@/lib/site-contact";
 import { getBaseUrl } from "@/lib/stripe";
-import { buildReportPublicUrls } from "@/lib/ravin-report-trace";
 import { buildLavBookingConfirmationEmailHtml } from "./confirmation-email-template";
 import type { LavBookingPayload, LavCaptureLink } from "./types";
 
@@ -18,8 +17,7 @@ export async function sendLavBookingConfirmationEmail(input: {
     process.env.RESEND_FROM?.trim() ??
     "Auto Verifi <noreply@autoverifi.com.au>";
   const baseUrl = getBaseUrl();
-  const { payload, captureLinks, assetReportIds, invoiceAccount, digital } =
-    input;
+  const { payload, captureLinks, invoiceAccount, digital } = input;
 
   const recipients = new Set<string>();
   recipients.add(payload.contactEmail.trim().toLowerCase());
@@ -32,15 +30,9 @@ export async function sendLavBookingConfirmationEmail(input: {
   const inbox = getContactInboxEmail();
   if (inbox) recipients.add(inbox.toLowerCase());
 
-  const reportLinks = assetReportIds.map((id) => {
-    const urls = buildReportPublicUrls(baseUrl, id);
-    return { id, reportUrl: urls.reportUrl, pdfUrl: urls.pdfUrl };
-  });
-
   const html = buildLavBookingConfirmationEmailHtml({
     payload,
     captureLinks,
-    reportLinks,
     invoiceAccount,
     digital,
     baseUrl,

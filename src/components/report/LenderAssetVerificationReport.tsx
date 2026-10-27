@@ -46,6 +46,9 @@ export function LenderAssetVerificationReport({
           label="Vehicle verification"
           value={v?.identifiersMatched ? "Key identifiers matched" : "Pending"}
         />
+        <p className="border-b border-slate-200 py-3 text-xs font-bold uppercase tracking-widest text-accent-500 dark:border-white/10">
+          Vehicle details
+        </p>
         <Row label="Make" value={v?.vehicleMake || report.vehicle.make} />
         <Row label="Model" value={v?.vehicleModel || report.vehicle.model} />
         {v?.badge ? <Row label="Badge / variant" value={v.badge} /> : null}

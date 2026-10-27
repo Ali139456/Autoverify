@@ -9,6 +9,7 @@ import { generateTaxInvoicePdfBuffer } from "./tax-invoice-pdf-buffer";
 import { buildPurchaseEmailContextFromSession } from "./stripe-purchase-email";
 import { getBaseUrl } from "./stripe";
 import { parseInspectorLiteCodeFromUrl } from "./ravin-partner";
+import { formatReportVehicleLabel } from "./report-design";
 import { buildReportPublicUrls } from "./ravin-report-trace";
 import {
   AI_DAMAGE_FOLLOW_UP_EMAIL_PROMISE,
@@ -137,22 +138,38 @@ export async function sendInspectionPhotosUpdatedEmail(
     "Auto Verifi <noreply@autoverifi.com.au>";
   const baseUrl = getBaseUrl();
   const { reportUrl, pdfUrl } = buildReportPublicUrls(baseUrl, report.id);
-  const vehicleLabel = `${report.vehicle.year} ${report.vehicle.make} ${report.vehicle.model}`;
+  const vehicleLabel = formatReportVehicleLabel(report);
   const rego = report.vehicle.rego?.trim();
   const regoSuffix = rego ? ` (${rego})` : "";
   const damageAnalysisReady =
     options?.damageAnalysisReady ?? Boolean(report.damage);
+  const isLav = Boolean(report.lavContext);
 
-  const subject = damageAnalysisReady
-    ? `Inspection photos added — ${vehicleLabel}${regoSuffix}`
-    : `AI damage analysis still processing — ${vehicleLabel}${regoSuffix}`;
+  const subject = isLav
+    ? damageAnalysisReady
+      ? `Lender asset verification report updated — ${vehicleLabel}${regoSuffix}`
+      : `Digital Self Inspection photos received — ${vehicleLabel}${regoSuffix}`
+    : damageAnalysisReady
+      ? `Inspection photos added — ${vehicleLabel}${regoSuffix}`
+      : `AI damage analysis still processing — ${vehicleLabel}${regoSuffix}`;
 
-  const html = damageAnalysisReady
-    ? `<!DOCTYPE html><html><body style="font-family:sans-serif;color:#0f172a;line-height:1.5">
+  const html = isLav
+    ? damageAnalysisReady
+      ? `<!DOCTYPE html><html><body style="font-family:sans-serif;color:#0f172a;line-height:1.5">
+<p>Your lender asset verification report for <strong>${vehicleLabel}</strong>${regoSuffix} has been updated with inspection photos and AI damage analysis.</p>
+<p><a href="${reportUrl}">View your report online</a> · <a href="${pdfUrl}">Download PDF</a></p>
+</body></html>`
+      : `<!DOCTYPE html><html><body style="font-family:sans-serif;color:#0f172a;line-height:1.5">
+<p>Your Digital Self Inspection photos for <strong>${vehicleLabel}</strong>${regoSuffix} are saved.</p>
+<p><strong>AI damage analysis is still processing.</strong> ${AI_DAMAGE_PROCESSING_SHORT}</p>
+<p>${AI_DAMAGE_FOLLOW_UP_EMAIL_PROMISE}</p>
+</body></html>`
+    : damageAnalysisReady
+      ? `<!DOCTYPE html><html><body style="font-family:sans-serif;color:#0f172a;line-height:1.5">
 <p>Inspection photos for <strong>${vehicleLabel}</strong>${regoSuffix} have been added to your Auto Verifi Insights+ report.</p>
 <p><a href="${reportUrl}">View your report online</a> · <a href="${pdfUrl}">Download PDF</a></p>
 </body></html>`
-    : `<!DOCTYPE html><html><body style="font-family:sans-serif;color:#0f172a;line-height:1.5">
+      : `<!DOCTYPE html><html><body style="font-family:sans-serif;color:#0f172a;line-height:1.5">
 <p>Your guided inspection photos for <strong>${vehicleLabel}</strong>${regoSuffix} are saved on your Auto Verifi Insights+ report.</p>
 <p><strong>AI damage analysis is still processing.</strong> ${AI_DAMAGE_PROCESSING_SHORT}</p>
 <p>${AI_DAMAGE_FOLLOW_UP_EMAIL_PROMISE}</p>
@@ -199,21 +216,30 @@ export async function sendInspectionDamageFollowUpEmail(
     "Auto Verifi <noreply@autoverifi.com.au>";
   const baseUrl = getBaseUrl();
   const { reportUrl, pdfUrl } = buildReportPublicUrls(baseUrl, report.id);
-  const vehicleLabel = `${report.vehicle.year} ${report.vehicle.make} ${report.vehicle.model}`;
+  const vehicleLabel = formatReportVehicleLabel(report);
   const rego = report.vehicle.rego?.trim();
   const regoSuffix = rego ? ` (${rego})` : "";
   const damageReady = Boolean(report.damage?.findings?.length);
+  const isLav = Boolean(report.lavContext);
 
-  const subject = damageReady
-    ? `Your updated Auto Verifi report — AI damage analysis ready — ${vehicleLabel}${regoSuffix}`
-    : `Your updated Auto Verifi report — ${vehicleLabel}${regoSuffix}`;
+  const subject = isLav
+    ? damageReady
+      ? `Your lender asset verification report is ready — ${vehicleLabel}${regoSuffix}`
+      : `Your lender asset verification report — ${vehicleLabel}${regoSuffix}`
+    : damageReady
+      ? `Your updated Auto Verifi report — AI damage analysis ready — ${vehicleLabel}${regoSuffix}`
+      : `Your updated Auto Verifi report — ${vehicleLabel}${regoSuffix}`;
 
   const damageLine = damageReady
     ? "AI damage analysis is now on your report."
     : "AI damage analysis may still be finishing — refresh your report online for the latest results.";
 
+  const productLine = isLav
+    ? "Your lender asset verification report"
+    : "Your Auto Verifi Insights+ report";
+
   const html = `<!DOCTYPE html><html><body style="font-family:sans-serif;color:#0f172a;line-height:1.5">
-<p>Your Auto Verifi Insights+ report for <strong>${vehicleLabel}</strong>${regoSuffix} has been updated with your latest walkaround photos.</p>
+<p>${productLine} for <strong>${vehicleLabel}</strong>${regoSuffix} has been updated with your latest inspection photos.</p>
 <p><strong>${damageLine}</strong></p>
 <p><a href="${reportUrl}">View your report online</a> · <a href="${pdfUrl}">Download PDF</a></p>
 </body></html>`;

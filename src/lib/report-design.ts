@@ -22,6 +22,20 @@ import type {
   VehicleReport,
 } from "./types";
 
+/** Customer-facing vehicle line — LAV bookings use entered asset details, not AutoGrab demo data. */
+export function formatReportVehicleLabel(report: VehicleReport): string {
+  const lav = report.lavVerification;
+  if (report.lavContext && lav) {
+    const year =
+      lav.buildOrCompliance?.trim() ||
+      (report.vehicle.year ? String(report.vehicle.year) : "");
+    const make = lav.vehicleMake?.trim() || report.vehicle.make;
+    const model = lav.vehicleModel?.trim() || report.vehicle.model;
+    return [year, make, model].filter(Boolean).join(" ").trim();
+  }
+  return `${report.vehicle.year} ${report.vehicle.make} ${report.vehicle.model}`.trim();
+}
+
 /** Hide "Listed" when AutoGrab leads omit days on market (avoids a column of 0d). */
 export function comparableListingsShowDaysListed(
   listings: Pick<MarketListing, "daysListed">[],
@@ -80,7 +94,7 @@ export function reportInsightCopy(text: string): string {
     )
     .replace(
       /\bContact Authorised Dealer\/service centre and quote VIN to confirm remaining Manufacturer's warranty\./gi,
-      "Contact\u00A0Authorised\u00A0Dealer/service centre and quote VIN to confirm remaining Manufacturer's warranty.",
+      "Contact\u00A0Authorised\u00A0Dealer/service\u00A0centre and quote VIN to confirm remaining Manufacturer's warranty.",
     )
     .replace(
       /\bCheck state specific requirements\. Refer table below\./gi,
@@ -99,6 +113,7 @@ export function reportInsightCopy(text: string): string {
     .replace(/\bSelf reported\b/g, "Self\u00A0reported")
     .replace(/\bAuthorised Dealer\b/gi, "Authorised\u00A0Dealer")
     .replace(/\bservice centre\b/gi, "service\u00A0centre")
+    .replace(/\bcentre\b/gi, "cen\u2060tre")
     .replace(/\bManufacturer's warranty\b/gi, "Manufacturer's\u00A0warranty")
     .replace(/\bFinance owing\b/gi, "Finance\u00A0owing")
     .replace(/\bEncumbered\b/g, "Encumbered")
