@@ -535,15 +535,17 @@ export function InspectionCapture({
 
       {!allPhotosComplete ? (
         <>
-          <p className="mt-4 text-center text-xs text-slate-500">
-            You can submit once at least one photo has uploaded. If one angle fails,
-            skip it and submit the rest.
-          </p>
+          {!lavDigital ? (
+            <p className="mt-4 text-center text-xs text-slate-500">
+              You can submit once at least one photo has uploaded. If one angle
+              fails, skip it and submit the rest.
+            </p>
+          ) : null}
           <button
             type="button"
             onClick={() => void submitInspection()}
             disabled={submitting || completedCount === 0}
-            className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent-600 to-accent-500 px-5 py-3.5 text-sm font-bold text-white transition hover:from-accent-500 hover:to-accent-400 disabled:opacity-50"
+            className={`inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent-600 to-accent-500 px-5 py-3.5 text-sm font-bold text-white transition hover:from-accent-500 hover:to-accent-400 disabled:opacity-50 ${lavDigital ? "mt-4" : "mt-3"}`}
           >
             {submitting ? (
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden />

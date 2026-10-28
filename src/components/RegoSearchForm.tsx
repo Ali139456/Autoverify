@@ -26,6 +26,8 @@ export function RegoSearchForm({
   defaultState = "NSW",
   compact = false,
   onDark = false,
+  /** Buy-report modal: avoid clipped rego/state row on narrow viewports. */
+  modalLayout = false,
   inputId = VEHICLE_SEARCH_INPUT_ID,
   onLoadingChange,
   onSampleNavigate,
@@ -37,6 +39,7 @@ export function RegoSearchForm({
   compact?: boolean;
   /** Force dark styling when the form sits on a navy hero background. */
   onDark?: boolean;
+  modalLayout?: boolean;
   /** Override the input id when more than one form is on the page (e.g. modal). */
   inputId?: string;
   /** Parent renders a full-panel overlay (e.g. buy modal). */
@@ -116,8 +119,31 @@ export function RegoSearchForm({
         ? "text-white"
         : "";
 
+  const regoStateRowClass = modalLayout
+    ? "flex flex-col gap-2 min-[400px]:flex-row min-[400px]:items-stretch min-[400px]:gap-2"
+    : "flex gap-1.5 sm:gap-2";
+
+  const stateColClass = modalLayout
+    ? "relative w-full min-[400px]:w-[6.25rem] min-[400px]:shrink-0"
+    : "relative w-[5.75rem] shrink-0 min-[480px]:w-[6rem]";
+
+  const stateLabelClass = modalLayout
+    ? `${labelClass} w-full min-[400px]:w-[6.25rem] min-[400px]:shrink-0`
+    : `${labelClass} w-[5.75rem] shrink-0 text-left`;
+
+  const labelRowClass = modalLayout
+    ? "mb-1 flex flex-col gap-2 text-left min-[400px]:flex-row min-[400px]:gap-2"
+    : "mb-1 flex gap-2 text-left";
+
+  const actionGridClass =
+    sampleLinks === "both"
+      ? modalLayout
+        ? "grid-cols-1 min-[400px]:grid-cols-3"
+        : "grid-cols-3"
+      : "grid-cols-2";
+
   return (
-    <form onSubmit={onSubmit} className="relative w-full">
+    <form onSubmit={onSubmit} className="relative w-full min-w-0 max-w-full">
       {loading && !externalLoadingOverlay ? (
         <div
           className={`absolute inset-0 z-20 flex min-h-full w-full items-center justify-center rounded-2xl px-2 ${
@@ -129,17 +155,17 @@ export function RegoSearchForm({
           <VehicleSearchLoading embedded onDark={onDark} />
         </div>
       ) : null}
-      <div className={`relative w-full ${shellClass}`}>
-        <div className="mb-1 flex gap-2 text-left">
+      <div className={`relative w-full min-w-0 max-w-full ${shellClass}`}>
+        <div className={labelRowClass}>
           <span className={`${labelClass} min-w-0 flex-1`}>
             Registration Plate or VIN
           </span>
-          <span className={`${labelClass} w-[5.75rem] shrink-0 text-left`}>
+          <span className={stateLabelClass}>
             State{vinMode ? " (optional)" : ""}
           </span>
         </div>
 
-        <div className="flex gap-1.5 sm:gap-2">
+        <div className={regoStateRowClass}>
           <div className="relative min-w-0 flex-1">
             <input
               id={inputId}
@@ -152,7 +178,7 @@ export function RegoSearchForm({
             />
           </div>
 
-          <div className="relative w-[5.75rem] shrink-0 min-[480px]:w-[6rem]">
+          <div className={stateColClass}>
             <select
               value={state}
               onChange={(e) => setState(e.target.value)}
@@ -174,14 +200,14 @@ export function RegoSearchForm({
         <div className="mb-1.5 mt-3 text-left">
           <span className={labelClass}>Vehicle type</span>
         </div>
-        <div className="relative mb-1">
+        <div className="relative mb-1 min-w-0 max-w-full">
           <select
             value={assetCategory}
             onChange={(e) =>
               setAssetCategory(e.target.value as AutograbAssetCategory)
             }
             aria-label="Vehicle type"
-            className={`${fieldClass} cursor-pointer appearance-none pl-2.5 pr-8 text-left sm:pl-3`}
+            className={`${fieldClass} max-w-full cursor-pointer appearance-none pl-2.5 pr-8 text-left sm:pl-3`}
           >
             {(
               Object.entries(AUTOGRAB_ASSET_CATEGORY_LABELS) as [
@@ -207,9 +233,7 @@ export function RegoSearchForm({
         </div>
 
         <div
-          className={`mx-auto mt-3 grid w-full gap-1.5 lg:mx-0 sm:mt-3.5 sm:gap-2 ${
-            sampleLinks === "both" ? "grid-cols-3" : "grid-cols-2"
-          }`}
+          className={`mx-auto mt-3 grid w-full min-w-0 max-w-full gap-1.5 lg:mx-0 sm:mt-3.5 sm:gap-2 ${actionGridClass}`}
         >
           <button
             type="submit"

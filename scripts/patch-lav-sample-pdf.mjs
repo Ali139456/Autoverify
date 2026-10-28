@@ -3,7 +3,9 @@
  * - Removes guided capture callout + AI disclaimer (page 2)
  * - Replaces section titles with blue Auto Verifi headings
  *
- * Run: node scripts/patch-lav-sample-pdf.mjs
+ * Run from a clean master (once per design export):
+ *   git checkout b57adee -- public/samples/lender-asset-verification-car-sample.pdf
+ *   node scripts/patch-lav-sample-pdf.mjs
  */
 import fs from "fs";
 import path from "path";
@@ -31,23 +33,42 @@ async function main() {
   const marginX = 38;
   const contentW = width - marginX * 2;
 
-  // "Vehicle details" between asset-type pills and Make/Model grid (page 1)
+  // "Vehicle details" below asset-type pills, above Make/Model grid (page 1)
+  // pdf.js: ASSET TYPE ~y=666, pill row ~y=650, field grid ~y=607+
+  const vehicleDetailsBaselineY = 612;
+  page1.drawRectangle({
+    x: marginX,
+    y: vehicleDetailsBaselineY - 4,
+    width: contentW,
+    height: 36,
+    color: PAGE_FILL,
+    borderWidth: 0,
+  });
   page1.drawText("Vehicle details", {
     x: marginX,
-    y: 636,
+    y: vehicleDetailsBaselineY,
     size: 11,
     font: fontBold,
     color: BRAND_BLUE,
   });
 
-  // Guided photo capture callout (above photo grid)
+  // Page 2: remove "PHOTO VERIFICATION" + guided callout; add "Vehicle Photos"
+  // (Title stays at ~y=686; section heading sits below it at ~y=628.)
+  const vehiclePhotosBaselineY = 628;
   page2.drawRectangle({
     x: marginX,
-    y: 582,
+    y: 568,
     width: contentW,
-    height: 78,
+    height: 108,
     color: PAGE_FILL,
     borderWidth: 0,
+  });
+  page2.drawText("Vehicle Photos", {
+    x: marginX,
+    y: vehiclePhotosBaselineY,
+    size: 11,
+    font: fontBold,
+    color: BRAND_BLUE,
   });
 
   // AI walkaround disclaimer (below Front/Rear damage cards)
@@ -60,35 +81,19 @@ async function main() {
     borderWidth: 0,
   });
 
-  // "PHOTO VERIFICATION" → "Vehicle Photos" (blue)
-  page2.drawRectangle({
-    x: marginX,
-    y: 648,
-    width: contentW,
-    height: 20,
-    color: PAGE_FILL,
-    borderWidth: 0,
-  });
-  page2.drawText("Vehicle Photos", {
-    x: marginX,
-    y: 652,
-    size: 11,
-    font: fontBold,
-    color: BRAND_BLUE,
-  });
-
-  // "IDENTIFICATION PHOTOS" → "Identification photos" (blue)
+  // Page 3: "Identification photos" below page title (same vertical rhythm as page 2)
+  const identificationBaselineY = 628;
   page3.drawRectangle({
     x: marginX,
-    y: 682,
+    y: 568,
     width: contentW,
-    height: 20,
+    height: 108,
     color: PAGE_FILL,
     borderWidth: 0,
   });
   page3.drawText("Identification photos", {
     x: marginX,
-    y: 686,
+    y: identificationBaselineY,
     size: 11,
     font: fontBold,
     color: BRAND_BLUE,

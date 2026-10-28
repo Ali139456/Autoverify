@@ -6,6 +6,7 @@ import {
   updateLavBooking,
 } from "@/lib/lav/booking-store";
 import { fulfillLavBooking } from "@/lib/lav/fulfill-booking";
+import { allocateLavBookingRef } from "@/lib/lav/booking-ref";
 import { parseLavBookingBody } from "@/lib/lav/parse-booking-body";
 import { createLavStripeCheckoutSession } from "@/lib/lav/stripe-checkout";
 import { LAV_INVOICE_PROMO } from "@/lib/lav/types";
@@ -40,7 +41,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: parsed.error }, { status: 400 });
     }
 
-    const { payload } = parsed;
+    const { payload: parsedPayload } = parsed;
+    const bookingRef = await allocateLavBookingRef();
+    const payload = { ...parsedPayload, bookingRef };
     const invoiceAccount = payload.promoCode === LAV_INVOICE_PROMO;
 
     if (!isLavBookingStoreConfigured()) {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { VehicleSearchLoading } from "@/components/VehicleSearchLoading";
 import { Search, X } from "lucide-react";
 import { RegoSearchForm } from "@/components/RegoSearchForm";
@@ -16,6 +17,11 @@ export function BuyReportModal({
   onClose: () => void;
 }) {
   const [searching, setSearching] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -37,9 +43,9 @@ export function BuyReportModal({
     };
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/92 px-4 py-6 backdrop-blur-md"
       role="dialog"
@@ -48,7 +54,7 @@ export function BuyReportModal({
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-md rounded-3xl border border-white/10 bg-ink-950 p-6 text-left shadow-2xl sm:p-8"
+        className="relative box-border w-full min-w-0 max-w-[min(28rem,calc(100vw-2rem))] overflow-visible rounded-3xl border border-white/10 bg-ink-950 p-6 text-left shadow-2xl sm:max-w-md sm:p-8"
         onClick={(event) => event.stopPropagation()}
       >
         {searching ? (
@@ -84,10 +90,11 @@ export function BuyReportModal({
           from {formatTierPrice("insights")}.
         </p>
 
-        <div className="mt-5">
+        <div className="mt-5 min-w-0 max-w-full overflow-visible">
           <RegoSearchForm
             compact
             onDark
+            modalLayout
             inputId={BUY_REPORT_MODAL_INPUT_ID}
             onLoadingChange={setSearching}
             onSampleNavigate={onClose}
@@ -95,6 +102,7 @@ export function BuyReportModal({
           />
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

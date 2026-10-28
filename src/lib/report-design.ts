@@ -195,7 +195,7 @@ export const SERVICE_HISTORY_DETAIL =
   "Contact the vehicle owner or selling dealer for service history records and review owners manual/vehicle handbook for servicing intervals and guidelines.";
 
 export const MANUFACTURER_WARRANTY_CONFIRM_DETAIL =
-  "Contact Authorised Dealer/service centre and quote VIN to confirm remaining Manufacturer's warranty.";
+  "Contact Authorised\u00A0Dealer/service\u00A0centre and quote VIN to confirm remaining Manufacturer's\u00A0warranty.";
 
 /** Warranty remaining / expiry line for the overview block (when AutoGrab supplies a value). */
 export function formatWarrantyRemainingDisplay(
@@ -550,7 +550,7 @@ function buildRideShareKeyInsight(report: VehicleReport): ReportInsight {
         { text: "Doors — eligible", variant: "eligible" },
         { text: "Passenger capacity — eligible", variant: "eligible" },
         {
-          text: "Check state specific requirements. Refer table below.",
+          text: "Check state\u00A0specific\u00A0requirements. Refer\u00A0table\u00A0below.",
           variant: "action",
         },
       ],
@@ -567,7 +567,7 @@ function buildRideShareKeyInsight(report: VehicleReport): ReportInsight {
       quickLine("Doors", check.doorsCheck),
       quickLine("Passenger capacity", check.passengersCheck),
       {
-        text: "Check state specific requirements",
+        text: "Check state\u00A0specific\u00A0requirements. Refer\u00A0table\u00A0below.",
         variant: "action",
       },
     ],

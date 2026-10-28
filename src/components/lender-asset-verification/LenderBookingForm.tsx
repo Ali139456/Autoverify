@@ -258,8 +258,7 @@ export const LenderBookingForm = forwardRef<
   const validateStep = (n: number): boolean =>
     stepValidationMessage(n) === null;
 
-  const buildPayload = (bookingRef: string) => ({
-    bookingRef,
+  const buildPayload = () => ({
     submittedAt: new Date().toISOString(),
     inspectionType,
     assets: assets.map((a) => ({
@@ -299,8 +298,7 @@ export const LenderBookingForm = forwardRef<
 
   const submit = async () => {
     if (!validateStep(5)) return;
-    const bookingRef = `AV-${Date.now().toString(36).toUpperCase().slice(-6)}`;
-    const payload = buildPayload(bookingRef);
+    const payload = buildPayload();
     setSubmitting(true);
     try {
       const res = await fetch(
@@ -329,12 +327,12 @@ export const LenderBookingForm = forwardRef<
         window.location.href = data.checkoutUrl;
         return;
       }
-      setDoneRef(data.bookingRef ?? bookingRef);
+      setDoneRef(data.bookingRef ?? "");
       setDoneCaptureLinks(data.captureLinks ?? []);
       goTo(6, "replace");
     } catch {
       const lines = [
-        `Booking ref: ${bookingRef}`,
+        "Booking ref: (assign on server — resubmit or email details below)",
         `Inspection: ${inspectionType}`,
         `Total: ${money(totals.subtotal)} + GST ${money(totals.gst)} = ${money(totals.estimate)} inc GST`,
         "",
@@ -343,8 +341,8 @@ export const LenderBookingForm = forwardRef<
             `Asset ${i + 1}: ${a.type} | ${a.year} ${a.make} ${a.model} | ID ${a.identifier || "-"} | Rego ${a.rego || "-"}`,
         ),
       ];
-      window.location.href = `mailto:${AUTOVERIFI_CONTACT_EMAIL}?subject=${encodeURIComponent(`Asset verification booking ${bookingRef}`)}&body=${encodeURIComponent(lines.join("\n"))}`;
-      setDoneRef(bookingRef);
+      window.location.href = `mailto:${AUTOVERIFI_CONTACT_EMAIL}?subject=${encodeURIComponent("Asset verification booking")}&body=${encodeURIComponent(lines.join("\n"))}`;
+      setDoneRef("");
       goTo(6, "replace");
     } finally {
       setSubmitting(false);

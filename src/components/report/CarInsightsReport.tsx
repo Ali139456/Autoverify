@@ -320,7 +320,7 @@ export function CarInsightsReport({
           Key Insights
         </h2>
       </div>
-      <div className="report-insights-grid grid grid-cols-1 items-stretch gap-3 min-[480px]:grid-cols-2 lg:grid-cols-4 [&>*]:min-w-0 [&>*]:h-full">
+      <div className="report-insights-grid grid grid-cols-1 items-start gap-3 min-[480px]:grid-cols-2 lg:grid-cols-4 [&>*]:min-w-0 [&>*]:h-full">
         {insights.map((insight) => (
           <ReportInsightCard key={insight.id} insight={insight} />
         ))}

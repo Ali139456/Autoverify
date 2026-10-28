@@ -8,11 +8,10 @@ function normalizePromo(raw: string): string {
 export function parseLavBookingBody(
   body: Record<string, unknown>,
 ): { payload: LavBookingPayload } | { error: string } {
-  const bookingRef = clampText(body.bookingRef, 32);
   const contactName = clampText(body.contactName, 120);
   const contactEmail = clampText(body.contactEmail, 254).toLowerCase();
 
-  if (!bookingRef || !contactName || !isReasonableEmail(contactEmail)) {
+  if (!contactName || !isReasonableEmail(contactEmail)) {
     return { error: "Please complete your contact details." };
   }
 
@@ -44,7 +43,7 @@ export function parseLavBookingBody(
   const estimate = Number(body.estimate);
 
   const payload: LavBookingPayload = {
-    bookingRef,
+    bookingRef: "",
     submittedAt: clampText(body.submittedAt, 40) || new Date().toISOString(),
     inspectionType: clampText(body.inspectionType, 80),
     assets,
