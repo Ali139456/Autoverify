@@ -78,6 +78,16 @@ export interface ManufacturerWarrantyServiceInfo {
   warrantyAntiCorrosionYears: number | null;
   regularServiceKm: number | null;
   regularServiceMonths: number | null;
+  firstServiceKm?: number | null;
+  firstServiceMonths?: number | null;
+  warrantyCustomerAssist?: string | null;
+  warrantyExtraInfo?: string | null;
+  hvBatteryWarrantyKm?: number | null;
+  hvBatteryWarrantyKmUnlimited?: boolean;
+  hvBatteryWarrantyYears?: number | null;
+  hvWarrantyExtraInfo?: string | null;
+  /** YYYY-MM compliance plate month — basis for warranty period (not explicit start/end in API). */
+  compliancePlate?: string | null;
 }
 
 export interface ValuationInfo {
