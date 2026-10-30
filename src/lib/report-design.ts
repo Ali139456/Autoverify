@@ -497,25 +497,177 @@ export function futureValueConfidenceLabel(future: FutureValueInfo): string {
   return "Estimated";
 }
 
+function formatInfoAgentWarrantyKm(
+  info: ManufacturerWarrantyServiceInfo,
+): string | null {
+  if (info.warrantyKmUnlimited) return "Unlimited km";
+  if (info.warrantyKm != null) {
+    return `${info.warrantyKm.toLocaleString("en-AU")} km`;
+  }
+  return null;
+}
+
+/** Estimated window from compliance month + OEM warranty years (API has no explicit end date). */
+function formatEstimatedWarrantyPeriod(
+  compliancePlate: string | null | undefined,
+  warrantyYears: number | null,
+): string | null {
+  if (!compliancePlate?.trim() || warrantyYears == null) return null;
+  const match = compliancePlate.trim().match(/^(\d{4})-(\d{2})$/);
+  if (!match) return null;
+  const startYear = Number(match[1]);
+  const startMonth = Number(match[2]);
+  if (
+    !Number.isFinite(startYear) ||
+    !Number.isFinite(startMonth) ||
+    startMonth < 1 ||
+    startMonth > 12
+  ) {
+    return null;
+  }
+  const endYear = startYear + warrantyYears;
+  const monthLabel = new Date(startYear, startMonth - 1, 1).toLocaleDateString(
+    "en-AU",
+    { month: "short" },
+  );
+  return `Est. warranty period: ${monthLabel} ${startYear} – ${monthLabel} ${endYear} (from compliance ${compliancePlate}).`;
+}
+
+function hasInfoAgentWarrantyData(
+  info: ManufacturerWarrantyServiceInfo | null | undefined,
+): info is ManufacturerWarrantyServiceInfo {
+  if (!info) return false;
+  return (
+    info.warrantyYears != null ||
+    info.warrantyKm != null ||
+    info.warrantyKmUnlimited === true ||
+    info.compliancePlate != null ||
+    info.warrantyAntiCorrosionYears != null ||
+    Boolean(info.warrantyCustomerAssist?.trim()) ||
+    info.hvBatteryWarrantyYears != null ||
+    info.hvBatteryWarrantyKm != null ||
+    info.hvBatteryWarrantyKmUnlimited === true
+  );
+}
+
+function hasInfoAgentServiceData(
+  info: ManufacturerWarrantyServiceInfo | null | undefined,
+): info is ManufacturerWarrantyServiceInfo {
+  if (!info) return false;
+  return (
+    info.regularServiceKm != null ||
+    info.regularServiceMonths != null ||
+    info.firstServiceKm != null ||
+    info.firstServiceMonths != null
+  );
+}
+
 function formatManufacturerWarrantyStatus(
-  _info: ManufacturerWarrantyServiceInfo | null | undefined,
+  info: ManufacturerWarrantyServiceInfo | null | undefined,
 ): Pick<ReportInsight, "status" | "statusSubtext" | "tone" | "detail"> {
+  if (!hasInfoAgentWarrantyData(info)) {
+    return {
+      status: "",
+      statusSubtext: undefined,
+      tone: "muted",
+      detail: MANUFACTURER_WARRANTY_CONFIRM_DETAIL,
+    };
+  }
+
+  const kmLabel = formatInfoAgentWarrantyKm(info);
+  const yearLabel =
+    info.warrantyYears != null
+      ? `${info.warrantyYears} yr${info.warrantyYears === 1 ? "" : "s"}`
+      : null;
+  const status =
+    [yearLabel, kmLabel].filter(Boolean).join(" · ") ||
+    "Manufacturer warranty (OEM)";
+
+  const detailParts: string[] = [];
+  const period = formatEstimatedWarrantyPeriod(
+    info.compliancePlate,
+    info.warrantyYears,
+  );
+  if (period) detailParts.push(period);
+  if (info.warrantyAntiCorrosionYears != null) {
+    detailParts.push(
+      `Anti-corrosion warranty: ${info.warrantyAntiCorrosionYears} years.`,
+    );
+  }
+  if (info.warrantyCustomerAssist?.trim()) {
+    detailParts.push(info.warrantyCustomerAssist.trim());
+  }
+  if (info.hvBatteryWarrantyYears != null) {
+    const hvKm = info.hvBatteryWarrantyKmUnlimited
+      ? "unlimited km"
+      : info.hvBatteryWarrantyKm != null
+        ? `${info.hvBatteryWarrantyKm.toLocaleString("en-AU")} km`
+        : null;
+    detailParts.push(
+      `HV battery warranty: ${info.hvBatteryWarrantyYears} years${hvKm ? ` / ${hvKm}` : ""}.`,
+    );
+  }
+  if (info.hvWarrantyExtraInfo?.trim()) {
+    detailParts.push(info.hvWarrantyExtraInfo.trim());
+  }
+  detailParts.push(MANUFACTURER_WARRANTY_CONFIRM_DETAIL);
+
   return {
-    status: "",
-    statusSubtext: undefined,
-    tone: "muted",
-    detail: MANUFACTURER_WARRANTY_CONFIRM_DETAIL,
+    status,
+    statusSubtext: info.compliancePlate
+      ? `Compliance ${info.compliancePlate}`
+      : undefined,
+    tone: "clear",
+    detail: detailParts.join(" "),
   };
 }
 
 function formatServicingGuidelines(
-  _info: ManufacturerWarrantyServiceInfo | null | undefined,
+  info: ManufacturerWarrantyServiceInfo | null | undefined,
 ): Pick<ReportInsight, "status" | "statusSubtext" | "tone" | "detail"> {
+  if (!hasInfoAgentServiceData(info)) {
+    return {
+      status: "",
+      statusSubtext: undefined,
+      tone: "muted",
+      detail: SERVICE_HISTORY_DETAIL,
+    };
+  }
+
+  const intervalParts: string[] = [];
+  if (info.regularServiceKm != null) {
+    intervalParts.push(
+      `${info.regularServiceKm.toLocaleString("en-AU")} km`,
+    );
+  }
+  if (info.regularServiceMonths != null) {
+    intervalParts.push(
+      `${info.regularServiceMonths} mo`,
+    );
+  }
+  const status =
+    intervalParts.length > 0
+      ? `Every ${intervalParts.join(" / ")}`
+      : "OEM service intervals";
+
+  const detailParts: string[] = [];
+  if (info.firstServiceKm != null || info.firstServiceMonths != null) {
+    const firstParts: string[] = [];
+    if (info.firstServiceKm != null) {
+      firstParts.push(`${info.firstServiceKm.toLocaleString("en-AU")} km`);
+    }
+    if (info.firstServiceMonths != null) {
+      firstParts.push(`${info.firstServiceMonths} months`);
+    }
+    detailParts.push(`First service: ${firstParts.join(" or ")}.`);
+  }
+  detailParts.push(SERVICE_HISTORY_DETAIL);
+
   return {
-    status: "",
+    status,
     statusSubtext: undefined,
-    tone: "muted",
-    detail: SERVICE_HISTORY_DETAIL,
+    tone: "clear",
+    detail: detailParts.join(" "),
   };
 }
 
