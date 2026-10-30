@@ -19,7 +19,7 @@ type FacetVehicle = {
 };
 
 const selectClass =
-  "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-accent-500 dark:border-white/10 dark:bg-ink-950 dark:text-white";
+  "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-accent-500 [color-scheme:light] dark:border-white/10 dark:bg-ink-950 dark:text-white [&>option]:bg-white [&>option]:text-slate-900";
 
 function resolveFacetMake(
   input: string,

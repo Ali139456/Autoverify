@@ -176,7 +176,7 @@ export function LenderAssetVerificationSite() {
                 Book Digital Self Inspection
               </button>
             </div>
-            <div className="card opt">
+            <div className="card opt featured">
               <span className="pill tag">Metro &amp; regional</span>
               <h3>Physical inspection</h3>
               <p>An Auto Verifi inspector verifies the asset in person.</p>
