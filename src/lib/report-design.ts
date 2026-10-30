@@ -189,6 +189,9 @@ const money = (n: number) => `$${n.toLocaleString("en-AU")}`;
 
 export const ANCAP_SAFETY_RATINGS_URL = "https://www.ancap.com.au/safety-ratings";
 
+/** Short label for insight cards / PDF (avoids clipping long URLs in narrow columns). */
+export const ANCAP_SAFETY_RATINGS_LINK_LABEL = "ancap.com.au/safety-ratings";
+
 export const VEHICLE_RECALLS_GOV_AU_URL = "https://www.vehiclerecalls.gov.au";
 
 export const SERVICE_HISTORY_DETAIL =

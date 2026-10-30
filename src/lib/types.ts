@@ -248,7 +248,9 @@ export interface VehicleReport {
   upgradedFromReportId?: string | null;
   /** When owner walkaround was submitted and Ravin processing started. */
   damageProcessingStartedAt?: string | null;
-  /** When the ~15 minute post-processing follow-up email was sent. */
+  /** When Ravin / demo analysis finished and damage was merged onto the report. */
+  damageAnalysisCompletedAt?: string | null;
+  /** When the post-analysis follow-up email was sent (~30 min after completion). */
   damageFollowUpEmailSentAt?: string | null;
   stripeSessionId: string | null;
   vehicle: VehicleIdentity;

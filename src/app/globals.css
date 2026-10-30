@@ -2165,7 +2165,7 @@ html.dark body {
     min-height: 0 !important;
     height: 100% !important;
     max-width: 100% !important;
-    overflow: hidden !important;
+    overflow: visible !important;
     box-shadow: none !important;
     padding: 10px !important;
     border-radius: 8px !important;
@@ -2210,7 +2210,7 @@ html.dark body {
   }
 
   .report-insight-card a {
-    overflow-wrap: break-word !important;
+    overflow-wrap: anywhere !important;
     word-break: normal !important;
     hyphens: none !important;
   }

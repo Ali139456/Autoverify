@@ -21,7 +21,7 @@ export async function runDamageFollowUpEmailJob(): Promise<{
 
   for (const reportId of reportIds) {
     let report = await getReport(reportId);
-    if (!report?.damageProcessingStartedAt || report.damageFollowUpEmailSentAt) {
+    if (!report?.damage || report.damageFollowUpEmailSentAt) {
       skipped += 1;
       continue;
     }

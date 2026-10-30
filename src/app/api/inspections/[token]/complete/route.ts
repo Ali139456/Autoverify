@@ -141,6 +141,7 @@ export async function POST(
       await updateReport(inspection.reportId, {
         damage: submission.damage,
         workflowStatus: "complete",
+        damageAnalysisCompletedAt: new Date().toISOString(),
       });
 
       return NextResponse.json({

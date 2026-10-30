@@ -45,6 +45,7 @@ export async function applyRavinWebhookPayload(
     damage,
     workflowStatus: "complete",
     ravin_payload: payload,
+    damageAnalysisCompletedAt: new Date().toISOString(),
   });
 
   await updateReportWorkflowStatus(inspection.reportId, "complete");

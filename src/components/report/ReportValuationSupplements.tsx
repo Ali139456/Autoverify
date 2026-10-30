@@ -5,7 +5,7 @@ import {
   isPPlateAdvisoryCopy,
 
   P_PLATE_REFERENCE_ROWS,
-
+  P_PLATE_SECTION_HEADING,
 } from "@/lib/p-plate-reference";
 
 import {
@@ -91,9 +91,7 @@ export function ReportPPlateSupplement({ report }: { report: VehicleReport }) {
 
 
       <h3 className="report-section-heading mt-5">
-
-        P-plate vehicle/legal reference
-
+        {P_PLATE_SECTION_HEADING}
       </h3>
 
       <div className="report-table-scroll mt-2 min-w-0 max-w-full overflow-x-auto rounded-lg border border-slate-200 bg-white [-webkit-overflow-scrolling:touch] sm:overflow-x-visible">
@@ -151,24 +149,21 @@ export function ReportPPlateSupplement({ report }: { report: VehicleReport }) {
 
                 </th>
 
-                <td className="px-2 py-2 sm:px-4 sm:py-2.5">
-
-                  <a
-
-                    href={row.href}
-
-                    target="_blank"
-
-                    rel="noopener noreferrer"
-
-                    className="font-medium text-[#0073E3] underline underline-offset-2 break-words [overflow-wrap:anywhere] hover:text-[#0062c2]"
-
-                  >
-
-                    {row.label}
-
-                  </a>
-
+                <td className="px-2 py-2 text-slate-700 sm:px-4 sm:py-2.5">
+                  {row.href ? (
+                    <a
+                      href={row.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium text-[#0073E3] underline underline-offset-2 break-words [overflow-wrap:anywhere] hover:text-[#0062c2]"
+                    >
+                      {row.label}
+                    </a>
+                  ) : (
+                    <span className="break-words [overflow-wrap:anywhere] leading-snug">
+                      {row.label}
+                    </span>
+                  )}
                 </td>
 
               </tr>

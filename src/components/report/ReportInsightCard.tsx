@@ -4,6 +4,7 @@
 
 import { CircleMinus } from "lucide-react";
 import {
+  ANCAP_SAFETY_RATINGS_LINK_LABEL,
   ANCAP_SAFETY_RATINGS_URL,
   VEHICLE_RECALLS_GOV_AU_URL,
   insightToneClass,
@@ -165,19 +166,19 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
               ) : null}
               <div className="min-w-0 flex-1">
                 {insight.id === "ancap" && !insight.status?.trim() ? (
-                  <p className="min-w-0 text-[11px] font-medium leading-snug [hyphens:none] [overflow-wrap:normal] [word-break:normal]">
-                    <span className="text-[#E87722]">
-                      {reportInsightCopy("Verify ANCAP rating here:")}{" "}
-                    </span>
+                  <div className="min-w-0 space-y-1 text-[11px] font-medium leading-snug [hyphens:none]">
+                    <p className="text-[#E87722] [overflow-wrap:anywhere]">
+                      {reportInsightCopy("Verify ANCAP rating here:")}
+                    </p>
                     <a
                       href={ANCAP_SAFETY_RATINGS_URL}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-semibold text-[#0073E3] underline underline-offset-2"
+                      className="block font-semibold text-[#0073E3] underline underline-offset-2 [overflow-wrap:anywhere]"
                     >
-                      {ANCAP_SAFETY_RATINGS_URL}
+                      {ANCAP_SAFETY_RATINGS_LINK_LABEL}
                     </a>
-                  </p>
+                  </div>
                 ) : insight.status?.trim() ? (
                 <p
                   className={`text-xs font-normal leading-snug ${insightToneClass(insight.tone)} ${

@@ -144,31 +144,42 @@ export async function listReportIdsByWorkflowStatus(
   return (data ?? []).map((row) => String((row as { id: string }).id));
 }
 
-/** Reports awaiting the post-processing follow-up email (~15 min after Ravin ingest). */
+/** Reports awaiting the post-analysis follow-up email (~30 min after AI damage completes). */
 export async function listReportIdsForDamageFollowUp(
   limit = 80,
 ): Promise<string[]> {
   const supabase = createServerClient();
   const { data, error } = await supabase
     .from("reports")
-    .select("id, history_data, status")
-    .in("status", ["processing_ravin", "complete"])
+    .select("id, history_data, status, updated_at")
+    .eq("status", "complete")
     .order("updated_at", { ascending: true })
     .limit(limit);
 
   if (error) throw new Error(error.message);
+
+  const { AI_DAMAGE_FOLLOW_UP_EMAIL_MINUTES } = await import(
+    "./damage-processing-copy"
+  );
 
   const cutoffMs = Date.now();
   const ids: string[] = [];
 
   for (const row of data ?? []) {
     const history = (row as { history_data: VehicleReport | null }).history_data;
-    if (!history?.damageProcessingStartedAt) continue;
+    if (!history?.damage) continue;
     if (history.damageFollowUpEmailSentAt) continue;
-    const started = Date.parse(history.damageProcessingStartedAt);
-    if (!Number.isFinite(started)) continue;
-    const elapsedMin = (cutoffMs - started) / 60_000;
-    if (elapsedMin >= 15) {
+
+    const rowUpdatedAt = String(
+      (row as { updated_at?: string }).updated_at ?? "",
+    );
+    const completedIso =
+      history.damageAnalysisCompletedAt?.trim() || rowUpdatedAt;
+    const completedMs = Date.parse(completedIso);
+    if (!Number.isFinite(completedMs)) continue;
+
+    const elapsedMin = (cutoffMs - completedMs) / 60_000;
+    if (elapsedMin >= AI_DAMAGE_FOLLOW_UP_EMAIL_MINUTES) {
       ids.push(String((row as { id: string }).id));
     }
   }

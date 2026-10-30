@@ -1,4 +1,12 @@
 import {
+  buildContactFormNotificationEmailHtml,
+  type ContactFormEmailPayload,
+} from "./contact-email-template";
+import {
+  buildInspectionDamageFollowUpEmailHtml,
+  buildInspectionPhotosUpdatedEmailHtml,
+} from "./inspection-notification-email-template";
+import {
   buildPurchaseConfirmationEmailHtml,
   type PurchaseEmailContext,
 } from "./purchase-email-template";
@@ -11,10 +19,6 @@ import { getBaseUrl } from "./stripe";
 import { parseInspectorLiteCodeFromUrl } from "./ravin-partner";
 import { formatReportVehicleLabel } from "./report-design";
 import { buildReportPublicUrls } from "./ravin-report-trace";
-import {
-  AI_DAMAGE_FOLLOW_UP_EMAIL_PROMISE,
-  AI_DAMAGE_PROCESSING_SHORT,
-} from "./damage-processing-copy";
 import type { InspectionSession, VehicleReport } from "./types";
 
 export type SendPurchaseConfirmationOptions = {
@@ -153,28 +157,15 @@ export async function sendInspectionPhotosUpdatedEmail(
       ? `Inspection photos added — ${vehicleLabel}${regoSuffix}`
       : `AI damage analysis still processing — ${vehicleLabel}${regoSuffix}`;
 
-  const html = isLav
-    ? damageAnalysisReady
-      ? `<!DOCTYPE html><html><body style="font-family:sans-serif;color:#0f172a;line-height:1.5">
-<p>Your lender asset verification report for <strong>${vehicleLabel}</strong>${regoSuffix} has been updated with inspection photos and AI damage analysis.</p>
-<p><a href="${reportUrl}">View your report online</a> · <a href="${pdfUrl}">Download PDF</a></p>
-</body></html>`
-      : `<!DOCTYPE html><html><body style="font-family:sans-serif;color:#0f172a;line-height:1.5">
-<p>Your Digital Self Inspection photos for <strong>${vehicleLabel}</strong>${regoSuffix} are saved.</p>
-<p><strong>AI damage analysis is still processing.</strong> ${AI_DAMAGE_PROCESSING_SHORT}</p>
-<p>${AI_DAMAGE_FOLLOW_UP_EMAIL_PROMISE}</p>
-</body></html>`
-    : damageAnalysisReady
-      ? `<!DOCTYPE html><html><body style="font-family:sans-serif;color:#0f172a;line-height:1.5">
-<p>Inspection photos for <strong>${vehicleLabel}</strong>${regoSuffix} have been added to your Auto Verifi Insights+ report.</p>
-<p><a href="${reportUrl}">View your report online</a> · <a href="${pdfUrl}">Download PDF</a></p>
-</body></html>`
-      : `<!DOCTYPE html><html><body style="font-family:sans-serif;color:#0f172a;line-height:1.5">
-<p>Your guided inspection photos for <strong>${vehicleLabel}</strong>${regoSuffix} are saved on your Auto Verifi Insights+ report.</p>
-<p><strong>AI damage analysis is still processing.</strong> ${AI_DAMAGE_PROCESSING_SHORT}</p>
-<p>${AI_DAMAGE_FOLLOW_UP_EMAIL_PROMISE}</p>
-<p><a href="${reportUrl}">View your report online</a> · <a href="${pdfUrl}">Download PDF</a></p>
-</body></html>`;
+  const html = buildInspectionPhotosUpdatedEmailHtml({
+    isLav,
+    damageAnalysisReady,
+    vehicleLabel,
+    regoSuffix,
+    reportUrl,
+    pdfUrl,
+    baseUrl,
+  });
 
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -198,7 +189,7 @@ export async function sendInspectionPhotosUpdatedEmail(
   }
 }
 
-/** ~15 minutes after processing starts — updated report link (+ PDF when available). */
+/** ~30 minutes after AI damage analysis completes — updated report + PDF attachment. */
 export async function sendInspectionDamageFollowUpEmail(
   report: VehicleReport,
   email: string,
@@ -219,30 +210,25 @@ export async function sendInspectionDamageFollowUpEmail(
   const vehicleLabel = formatReportVehicleLabel(report);
   const rego = report.vehicle.rego?.trim();
   const regoSuffix = rego ? ` (${rego})` : "";
-  const damageReady = Boolean(report.damage?.findings?.length);
+  const damageReady = Boolean(
+    report.damageAnalysisCompletedAt || report.damage,
+  );
   const isLav = Boolean(report.lavContext);
 
   const subject = isLav
-    ? damageReady
-      ? `Your lender asset verification report is ready — ${vehicleLabel}${regoSuffix}`
-      : `Your lender asset verification report — ${vehicleLabel}${regoSuffix}`
-    : damageReady
-      ? `Your updated Auto Verifi report — AI damage analysis ready — ${vehicleLabel}${regoSuffix}`
-      : `Your updated Auto Verifi report — ${vehicleLabel}${regoSuffix}`;
+    ? `Your lender asset verification report is ready — ${vehicleLabel}${regoSuffix}`
+    : `Your Auto Verifi report is ready — AI analysis complete — ${vehicleLabel}${regoSuffix}`;
 
-  const damageLine = damageReady
-    ? "AI damage analysis is now on your report."
-    : "AI damage analysis may still be finishing — refresh your report online for the latest results.";
-
-  const productLine = isLav
-    ? "Your lender asset verification report"
-    : "Your Auto Verifi Insights+ report";
-
-  const html = `<!DOCTYPE html><html><body style="font-family:sans-serif;color:#0f172a;line-height:1.5">
-<p>${productLine} for <strong>${vehicleLabel}</strong>${regoSuffix} has been updated with your latest inspection photos.</p>
-<p><strong>${damageLine}</strong></p>
-<p><a href="${reportUrl}">View your report online</a> · <a href="${pdfUrl}">Download PDF</a></p>
-</body></html>`;
+  const html = buildInspectionDamageFollowUpEmailHtml({
+    isLav,
+    damageReady,
+    vehicleLabel,
+    regoSuffix,
+    reportUrl,
+    pdfUrl,
+    baseUrl,
+    pdfAttached: true,
+  });
 
   const attachments: { filename: string; content: string }[] = [];
   try {
@@ -339,21 +325,7 @@ export async function sendRavinStuckOpsAlert(input: {
   }
 }
 
-function escapeContactHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-export type ContactFormPayload = {
-  name: string;
-  email: string;
-  phone?: string;
-  subject?: string;
-  message: string;
-};
+export type ContactFormPayload = ContactFormEmailPayload;
 
 /** Delivers Contact us form submissions to the Auto Verifi inbox via Resend. */
 export async function sendContactFormEmail(
@@ -368,25 +340,12 @@ export async function sendContactFormEmail(
     process.env.RESEND_FROM?.trim() ??
     "Auto Verifi <noreply@autoverifi.com.au>";
   const to = getContactInboxEmail();
-  const name = escapeContactHtml(payload.name);
-  const email = escapeContactHtml(payload.email);
-  const phone = payload.phone?.trim()
-    ? escapeContactHtml(payload.phone.trim())
-    : "";
-  const topic = payload.subject?.trim()
-    ? escapeContactHtml(payload.subject.trim())
-    : "General enquiry";
-  const message = escapeContactHtml(payload.message).replace(/\n/g, "<br/>");
-
-  const html = `<!DOCTYPE html><html><body style="font-family:sans-serif;color:#0f172a;line-height:1.55">
-<p><strong>Contact form — Auto Verifi website</strong></p>
-<p><strong>Name:</strong> ${name}<br/>
-<strong>Email:</strong> <a href="mailto:${email}">${email}</a><br/>
-${phone ? `<strong>Phone:</strong> ${phone}<br/>` : ""}
-<strong>Topic:</strong> ${topic}</p>
-<p><strong>Message:</strong></p>
-<p>${message}</p>
-</body></html>`;
+  const baseUrl = getBaseUrl();
+  const html = buildContactFormNotificationEmailHtml({
+    payload,
+    baseUrl,
+    receivedAt: new Date(),
+  });
 
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",

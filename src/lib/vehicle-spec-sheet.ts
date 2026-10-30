@@ -204,7 +204,7 @@ export function visibleSpecDataRows(
 export const SPEC_POWER_TO_WEIGHT_LABEL = "Power to weight";
 
 export const P_PLATE_POWER_TO_WEIGHT_FOOTNOTE =
-  "*Provisional driver restrictions on vehicle power above 130kW/tonne in NSW, VIC, QLD and SA. Check P Plate vehicle legal reference links above.";
+  "*Provisional driver restrictions on vehicle power above 130kW/tonne in NSW, VIC, QLD and SA. See p-plate vehicle restrictions above.";
 
 export function isPowerToWeightSpecRow(label: string): boolean {
   return label.trim().toLowerCase() === SPEC_POWER_TO_WEIGHT_LABEL.toLowerCase();

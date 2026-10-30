@@ -44,6 +44,7 @@ import {
 import {
   buildKeyInsights,
   comparableListingsShowDaysListed,
+  ANCAP_SAFETY_RATINGS_LINK_LABEL,
   ANCAP_SAFETY_RATINGS_URL,
   formatExpiryDate,
   hasOdometerHistory,
@@ -362,7 +363,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: PDF_INSIGHT_PAD,
     backgroundColor: "#f1f5f9",
-    overflow: "hidden",
+    minHeight: 52,
   },
   insightTop: {
     flexDirection: "row",
@@ -903,24 +904,30 @@ function PdfInsightCard({
                     </Text>
                   ) : null}
                   {insight.id === "ancap" && !insight.status?.trim() ? (
-                    <Text
-                      style={{
-                        marginTop: 0,
-                        fontSize: PDF_INSIGHT_BODY_SM,
-                        fontFamily: "Helvetica",
-                        lineHeight: PDF_INSIGHT_LINE,
-                      }}
-                    >
-                      <Text style={{ color: RIDE_SHARE_ORANGE }}>
-                        {reportInsightCopy("Verify ANCAP rating here:")}{" "}
+                    <View style={{ marginTop: 0, width: "100%" }}>
+                      <Text
+                        style={{
+                          fontSize: PDF_INSIGHT_BODY_SM,
+                          fontFamily: "Helvetica",
+                          lineHeight: PDF_INSIGHT_LINE,
+                          color: RIDE_SHARE_ORANGE,
+                        }}
+                      >
+                        {reportInsightCopy("Verify ANCAP rating here:")}
                       </Text>
                       <Link
                         src={ANCAP_SAFETY_RATINGS_URL}
-                        style={{ color: BLUE }}
+                        style={{
+                          marginTop: 2,
+                          fontSize: PDF_INSIGHT_BODY_SM,
+                          fontFamily: "Helvetica",
+                          lineHeight: PDF_INSIGHT_LINE,
+                          color: BLUE,
+                        }}
                       >
-                        www.ancap.com.au/safety-ratings
+                        {ANCAP_SAFETY_RATINGS_LINK_LABEL}
                       </Link>
-                    </Text>
+                    </View>
                   ) : insight.id === "recall" &&
                   !insight.status?.trim() &&
                   insight.tone === "muted" ? (
@@ -1111,7 +1118,7 @@ function PdfPPlateSupplementContent({ report }: { report: VehicleReport }) {
       </View>
 
       <Text style={[styles.sectionTitle, { marginTop: 8, fontSize: 8 }]}>
-        P-plate vehicle/legal reference
+        p-plate vehicle restrictions
       </Text>
       <View style={[styles.pdfTableWrap, { marginTop: 3 }]}>
         <View style={styles.pdfTableHeadRow}>
@@ -1134,9 +1141,15 @@ function PdfPPlateSupplementContent({ report }: { report: VehicleReport }) {
               <Text style={styles.specSheetLabel}>{row.state}</Text>
             </View>
             <View style={{ flex: 1, paddingVertical: PDF_TABLE_PAD_V, paddingHorizontal: PDF_TABLE_PAD_H }}>
-              <Link src={row.href} style={{ fontSize: PDF_TABLE_FONT_BODY, color: BLUE }}>
-                {row.label}
-              </Link>
+              {row.href ? (
+                <Link src={row.href} style={{ fontSize: PDF_TABLE_FONT_BODY, color: BLUE }}>
+                  {row.label}
+                </Link>
+              ) : (
+                <Text style={[styles.specSheetValue, { fontSize: PDF_TABLE_FONT_BODY }]}>
+                  {row.label}
+                </Text>
+              )}
             </View>
           </View>
         ))}
