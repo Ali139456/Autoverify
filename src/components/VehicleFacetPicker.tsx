@@ -21,6 +21,23 @@ type FacetVehicle = {
 const selectClass =
   "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-accent-500 dark:border-white/10 dark:bg-ink-950 dark:text-white";
 
+function resolveFacetMake(
+  input: string,
+  options: FacetValue[],
+): string | null {
+  const trimmed = input.trim();
+  if (!trimmed) return null;
+  const exact = options.find(
+    (item) => item.value.toLowerCase() === trimmed.toLowerCase(),
+  );
+  if (exact) return exact.value;
+  const prefixMatches = options.filter((item) =>
+    item.value.toLowerCase().startsWith(trimmed.toLowerCase()),
+  );
+  if (prefixMatches.length === 1) return prefixMatches[0].value;
+  return null;
+}
+
 async function loadFacetValues(
   facet: string,
   filters: Record<string, string>,
@@ -51,6 +68,7 @@ export function VehicleFacetPicker({
 }) {
   const router = useRouter();
   const [make, setMake] = useState("");
+  const [makeInput, setMakeInput] = useState("");
   const [year, setYear] = useState("");
   const [model, setModel] = useState("");
   const [badge, setBadge] = useState("");
@@ -210,8 +228,8 @@ export function VehicleFacetPicker({
         Select your vehicle manually
       </p>
       <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-        Choose make, year, model, and badge to find the correct car in our
-        catalogue.
+        Type or choose make, then year, model, and badge to find the correct
+        car in our catalogue.
       </p>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -219,23 +237,52 @@ export function VehicleFacetPicker({
           <span className="mb-1 block font-medium text-slate-700 dark:text-slate-300">
             Make
           </span>
-          <select
+          <input
             className={selectClass}
-            value={make}
+            list="vehicle-facet-make-options"
+            value={makeInput}
+            placeholder="Type or select make"
+            autoComplete="off"
             onChange={(e) => {
-              setMake(e.target.value);
-              setYear("");
-              setModel("");
-              setBadge("");
+              const next = e.target.value;
+              setMakeInput(next);
+              const resolved = resolveFacetMake(next, makes);
+              if (resolved) {
+                if (resolved !== make) {
+                  setMake(resolved);
+                  setYear("");
+                  setModel("");
+                  setBadge("");
+                }
+              } else {
+                setMake("");
+                setYear("");
+                setModel("");
+                setBadge("");
+              }
             }}
-          >
-            <option value="">Select make</option>
+            onBlur={() => {
+              const resolved = resolveFacetMake(makeInput, makes);
+              if (resolved) {
+                if (resolved !== make) {
+                  setMake(resolved);
+                  setYear("");
+                  setModel("");
+                  setBadge("");
+                }
+                setMakeInput(resolved);
+              } else if (make) {
+                setMakeInput(make);
+              } else {
+                setMakeInput("");
+              }
+            }}
+          />
+          <datalist id="vehicle-facet-make-options">
             {makes.map((item) => (
-              <option key={item.value} value={item.value}>
-                {item.value}
-              </option>
+              <option key={item.value} value={item.value} />
             ))}
-          </select>
+          </datalist>
         </label>
 
         <label className="block text-sm">

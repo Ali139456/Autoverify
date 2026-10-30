@@ -70,11 +70,83 @@ export function buildLavBookingConfirmationEmailHtml(input: {
 
   const captureSection = digital
     ? `<h2 style="margin:0 0 12px;font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:${BRAND_BLUE};">Digital capture links</h2>
-       <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#475569;">Links were sent to the vendor by SMS where possible. You can also open or forward them below.</p>
+       <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#475569;">An SMS has been sent to the vehicle owner, vendor and/or buyer so they can complete the digital self inspection.</p>
        <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;">
          ${captureRows || `<tr><td style="padding:14px 16px;font-size:14px;color:#64748b;">Capture links are being prepared — our team will follow up shortly.</td></tr>`}
        </table>`
-    : `<p style="margin:0;font-size:15px;line-height:1.65;color:#334155;">A <strong>physical inspection</strong> has been queued. An Auto Verifi inspector will attend the asset location.</p>`;
+    : buildPhysicalInspectionSection(payload);
+
+  function detailRow(label: string, value: string): string {
+    const trimmed = value.trim();
+    if (!trimmed) return "";
+    return `
+        <tr>
+          <td style="padding:11px 14px;border-bottom:1px solid #e2e8f0;color:#475569;font-size:13px;width:38%;background:#f8fafc;vertical-align:top;">${escapeHtml(label)}</td>
+          <td style="padding:11px 14px;border-bottom:1px solid #e2e8f0;color:${BRAND_NAVY};font-size:13px;font-weight:600;vertical-align:top;">${escapeHtml(trimmed)}</td>
+        </tr>`;
+  }
+
+  function buildPhysicalInspectionSection(booking: LavBookingPayload): string {
+    const assetRows = booking.assets
+      .flatMap((asset, index) => {
+        const title = [asset.year, asset.make, asset.model]
+          .filter(Boolean)
+          .join(" ");
+        const headline =
+          title.trim() || asset.description.trim() || `Asset ${index + 1}`;
+        return [
+          detailRow(
+            `Asset ${index + 1}`,
+            [headline, asset.type].filter(Boolean).join(" · "),
+          ),
+          detailRow("Serial / identifier", asset.identifier),
+          detailRow("Registration", asset.rego),
+          detailRow("Description", asset.description),
+        ].filter(Boolean);
+      })
+      .join("");
+
+    const location = [
+      booking.address,
+      booking.suburb,
+      booking.state,
+      booking.postcode,
+    ]
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .join(", ");
+
+    const bookingDetailRows = [
+      detailRow(
+        "Vendor",
+        [booking.vendorName, booking.vendorType && `(${booking.vendorType})`]
+          .filter(Boolean)
+          .join(" "),
+      ),
+      detailRow("Vendor phone", booking.vendorPhone),
+      detailRow("Vendor email", booking.vendorEmail),
+      detailRow("Asset location", location),
+      detailRow("Access notes", booking.accessNotes),
+      detailRow(
+        "Ordered by",
+        `${booking.contactName}${booking.company ? `, ${booking.company}` : ""}${booking.role ? ` (${booking.role})` : ""}`,
+      ),
+      detailRow("Contact phone", booking.contactPhone),
+      detailRow("Report copy to", booking.ccEmails.replace(/[,;]/g, ", ")),
+    ]
+      .filter(Boolean)
+      .join("");
+
+    const detailsBlock =
+      assetRows || bookingDetailRows
+        ? `<h2 style="margin:20px 0 12px;font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:${BRAND_BLUE};">Booking capture details</h2>
+           <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border:1px solid #e2e8f0;border-radius:10px;border-collapse:separate;overflow:hidden;background:#ffffff;">
+             ${assetRows}${bookingDetailRows}
+           </table>`
+        : "";
+
+    return `<p style="margin:0 0 14px;font-size:15px;line-height:1.65;color:#334155;">A <strong>physical inspection</strong> has been booked. An Auto Verifi inspector will attend the asset location and confirm a date and booking time shortly.</p>${detailsBlock}`;
+  }
 
   const summaryRows = [
     ["Booking reference", payload.bookingRef],

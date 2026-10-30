@@ -101,12 +101,14 @@ export function RegoSearchForm({
   const shellClass = compact
     ? ""
     : onDark
-      ? "mx-auto w-full max-w-xl overflow-visible rounded-2xl border border-white/10 bg-ink-800 p-3 sm:p-3.5 lg:mx-0"
+      ? "mx-auto w-full max-w-xl overflow-visible rounded-2xl border border-white/10 bg-ink-800 p-3.5 pb-4 sm:p-4 sm:pb-5 lg:mx-0"
       : "mx-auto w-full max-w-md rounded-2xl border border-slate-200 bg-white p-2.5 shadow-lg dark:border-white/10 dark:bg-ink-800 dark:shadow-none sm:p-3 lg:mx-0";
 
+  const optionClass = "bg-white text-slate-900";
+
   const fieldClass = onDark
-    ? "h-10 w-full min-w-0 rounded-lg border border-white/15 bg-ink-950 text-sm font-bold outline-none transition placeholder:text-xs placeholder:font-semibold placeholder:normal-case placeholder:text-[#0073E3] focus:border-[#0073E3] focus:ring-2 focus:ring-[#0073E3]/25 sm:placeholder:text-sm sm:placeholder:font-bold sm:text-base"
-    : "h-10 w-full min-w-0 rounded-lg border border-slate-200 bg-white text-sm font-semibold text-slate-900 outline-none transition placeholder:text-xs placeholder:font-normal placeholder:normal-case placeholder:text-slate-400 focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 dark:border-white/15 dark:bg-ink-950 dark:font-black dark:text-white dark:placeholder:text-slate-500 sm:placeholder:text-sm sm:text-base";
+    ? "min-h-11 w-full min-w-0 rounded-lg border border-white/15 bg-ink-950 py-2.5 text-sm font-bold leading-normal text-white outline-none transition placeholder:text-xs placeholder:font-semibold placeholder:normal-case placeholder:text-[#0073E3] focus:border-[#0073E3] focus:ring-2 focus:ring-[#0073E3]/25 sm:min-h-10 sm:py-2 sm:placeholder:text-sm sm:placeholder:font-bold sm:text-base"
+    : "min-h-11 w-full min-w-0 rounded-lg border border-slate-200 bg-white py-2.5 text-sm font-semibold leading-normal text-slate-900 outline-none transition placeholder:text-xs placeholder:font-normal placeholder:normal-case placeholder:text-slate-400 focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 dark:border-white/15 dark:bg-ink-950 dark:min-h-10 dark:py-2 dark:font-black dark:text-white dark:placeholder:text-slate-500 sm:placeholder:text-sm sm:text-base";
 
   const labelClass = onDark
     ? "text-[9px] font-bold uppercase tracking-[0.14em] text-slate-400"
@@ -183,10 +185,10 @@ export function RegoSearchForm({
               value={state}
               onChange={(e) => setState(e.target.value)}
               aria-label="State of registration"
-              className={`${fieldClass} cursor-pointer appearance-none pl-2.5 pr-7 text-left text-sm font-bold tracking-wide sm:pl-3 sm:pr-8 sm:text-base`}
+              className={`${fieldClass} cursor-pointer appearance-none pl-2.5 pr-7 text-left text-sm font-bold tracking-wide sm:pl-3 sm:pr-8 sm:text-base [color-scheme:light]`}
             >
               {STATES.map((s) => (
-                <option key={s} value={s}>
+                <option key={s} value={s} className={optionClass}>
                   {s}
                 </option>
               ))}
@@ -219,6 +221,7 @@ export function RegoSearchForm({
                 key={value}
                 value={value}
                 disabled={!isPurchaseAssetCategory(value)}
+                className={optionClass}
               >
                 {label}
               </option>

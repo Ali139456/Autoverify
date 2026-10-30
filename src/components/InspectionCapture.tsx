@@ -354,14 +354,6 @@ export function InspectionCapture({
             )}
             {submitting ? "Submitting…" : "Submit inspection"}
           </button>
-          <button
-            type="button"
-            onClick={() => setScreen("capture")}
-            disabled={submitting}
-            className="mt-4 text-sm font-medium text-slate-400 underline-offset-2 hover:text-slate-200 hover:underline disabled:opacity-50"
-          >
-            Review or retake photos
-          </button>
         </div>
       </div>
     );
@@ -372,9 +364,12 @@ export function InspectionCapture({
       <div className="inspect-capture-page mx-auto flex min-h-[100dvh] max-w-lg flex-col items-center justify-center px-4 py-10 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] text-center">
         <CheckCircle2 className="h-14 w-14 text-emerald-400" aria-hidden />
         <h1 className="mt-5 text-2xl font-bold text-white">All done</h1>
-        <p className="mt-3 max-w-sm text-sm leading-relaxed text-slate-400">
-          {doneMessage}
-        </p>
+        {doneMessage &&
+        doneMessage !== INSPECTION_CAPTURE_DONE_PENDING_MESSAGE ? (
+          <p className="mt-3 max-w-sm text-sm leading-relaxed text-slate-400">
+            {doneMessage}
+          </p>
+        ) : null}
         {!exitDismissed ? (
           <button
             type="button"

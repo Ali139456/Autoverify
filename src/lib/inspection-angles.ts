@@ -4,7 +4,7 @@
 export const INSPECTION_ANGLES = [
   { id: "front", label: "Front centre" },
   { id: "windscreen", label: "Windscreen" },
-  { id: "front_left", label: "Front passenger side" },
+  { id: "front_left", label: "Front corner guard - passenger side" },
   {
     id: "mirror_passenger",
     label: "Front passenger exterior door mirror",
@@ -17,7 +17,7 @@ export const INSPECTION_ANGLES = [
     id: "mirror_driver",
     label: "Front driver side exterior door mirror",
   },
-  { id: "front_right", label: "Front driver side" },
+  { id: "front_right", label: "Front corner guard - driver side" },
   { id: "roof", label: "Roof" },
   { id: "wheel_left_front", label: "Passenger side front tyre" },
   { id: "wheel_left_rear", label: "Passenger side rear tyre" },

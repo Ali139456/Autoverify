@@ -79,12 +79,24 @@ export function LenderAssetVerificationSite() {
                   <span className="pill">Yes</span>
                 </div>
                 <div className="row">
-                  <span>Photos</span>
+                  <span>Photos – vehicle verification</span>
                   <span className="v">Date &amp; time stamped images</span>
                 </div>
                 <div className="row row-condition">
                   <span>Condition</span>
                   <span className="v">Verified using AI damage detection</span>
+                </div>
+                <div className="row">
+                  <span>Registration papers</span>
+                  <span className="v">Date and time stamped image</span>
+                </div>
+                <div className="row">
+                  <span>Vehicle owner ID verification</span>
+                  <span className="v">Optional</span>
+                </div>
+                <div className="row">
+                  <span>Vehicle valuation</span>
+                  <span className="v">Optional</span>
                 </div>
                 <div className="row">
                   <span>Report delivered</span>
