@@ -42,6 +42,10 @@ yarn-error.log*
 /*.png
 !public/**/*.pdf
 !public/**/*.png
+/images/*.pdf
+/images/**/*.pdf
+Report_sendEventReport*.json
+/index (1).html
 
 # vercel
 .vercel

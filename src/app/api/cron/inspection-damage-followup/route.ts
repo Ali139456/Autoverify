@@ -5,7 +5,7 @@ import { requireCronAuth, secureJson } from "@/lib/security";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-/** Vercel Cron: ~15 min after walkaround submit, email updated Insights+ report link. */
+/** Vercel Cron: ~30 min after AI damage analysis completes — updated report email + PDF. */
 export async function GET(req: NextRequest) {
   const blocked = requireCronAuth(req);
   if (blocked) return blocked;
