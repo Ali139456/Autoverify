@@ -329,9 +329,19 @@ export function InspectionCapture({
             Ready to submit
           </h1>
           <p className="mt-3 max-w-sm text-sm leading-relaxed text-slate-400">
-            All {angles.length} photos are uploaded. Submit now to send
-            them for AI condition assessment
-            {lavDigital ? " on your verification report." : " on your Insights+ report."}
+            {lavDigital ? (
+              <>
+                All {angles.length} images are uploaded. Submit them to
+                complete your asset verification. Walkaround photos may be
+                assessed for condition; odometer, VIN, and registration images
+                are kept on file as a record.
+              </>
+            ) : (
+              <>
+                All {angles.length} photos are uploaded. Submit now to send
+                them for AI condition assessment on your Insights+ report.
+              </>
+            )}
           </p>
           {error ? (
             <div
@@ -352,7 +362,7 @@ export function InspectionCapture({
             ) : (
               <Sparkles className="h-5 w-5" aria-hidden />
             )}
-            {submitting ? "Submitting…" : "Submit inspection"}
+            {submitting ? "Submitting…" : "Submit images"}
           </button>
         </div>
       </div>
@@ -547,8 +557,19 @@ export function InspectionCapture({
             ) : (
               <Sparkles className="h-4 w-4" aria-hidden />
             )}
-            {submitting ? "Submitting AI condition images…" : "Submit inspection"}
+            {submitting
+              ? "Submitting…"
+              : lavDigital
+                ? "Submit images"
+                : "Submit inspection"}
           </button>
+          {lavDigital ? (
+            <p className="mt-2 text-center text-xs leading-relaxed text-slate-500">
+              Not every image is used for AI condition assessment — some are
+              kept on file as a matter of record (e.g. odometer, VIN,
+              registration papers).
+            </p>
+          ) : null}
         </>
       ) : (
         <button
