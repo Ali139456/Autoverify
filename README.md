@@ -60,9 +60,9 @@ npm run start   # serves on port 3000 (set PORT to change)
 ```
 
 On SiteGround, use a Node.js-capable plan (Cloud) or reverse-proxy to the Node
-process. Reports are stored as JSON files under `data/reports/` — make sure that
-directory is writable and persisted. For higher volume, swap `src/lib/store.ts`
-for a database (the store is 4 small functions).
+process. In production, reports are stored in **Supabase** when `SUPABASE_*` env
+vars are set; locally, JSON files under `data/reports/` are used as a fallback
+(see `src/lib/store.ts`).
 
 ## Project structure
 

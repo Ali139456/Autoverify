@@ -46,6 +46,9 @@ yarn-error.log*
 /images/**/*.pdf
 Report_sendEventReport*.json
 /index (1).html
+/New Updated logo and branding*/
+*.zip
+!/public/**/*.zip
 
 # vercel
 .vercel
