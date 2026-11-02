@@ -31,8 +31,8 @@ export default function ContactPage() {
         <div className="mt-8 overflow-hidden rounded-[1.75rem] border border-[#0073E3]/20 bg-gradient-to-br from-[#0c1222]/95 via-ink-900/90 to-[#061018]/95 shadow-[0_32px_80px_rgba(0,0,0,0.55)] backdrop-blur-sm">
           <div className="h-1 w-full bg-gradient-to-r from-transparent via-[#0073E3] to-transparent opacity-80" />
 
-          <div className="grid gap-10 p-6 sm:p-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-12 lg:p-10 xl:p-12">
-            <div className="flex flex-col justify-center lg:max-w-md">
+          <div className="grid gap-10 p-6 sm:p-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-start lg:gap-12 lg:p-10 xl:p-12">
+            <div className="flex flex-col pt-5 lg:max-w-md lg:pt-7">
               <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
                 Contact us
               </h1>

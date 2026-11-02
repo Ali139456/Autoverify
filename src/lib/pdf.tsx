@@ -12,8 +12,11 @@ import {
   View,
 } from "@react-pdf/renderer";
 
+import { PDF_SANS, registerReportPdfFonts } from "./pdf-fonts";
+
 /** Avoid Deal-er / Manufac-turer style breaks in narrow insight tiles. */
 Font.registerHyphenationCallback((word) => [word]);
+registerReportPdfFonts();
 import {
   RIDE_SHARE_ELIGIBILITY_ROWS,
   RIDE_SHARE_TABLE_HEADING,
@@ -139,7 +142,7 @@ const styles = StyleSheet.create({
   page: {
     padding: 0,
     fontSize: 8.5,
-    fontFamily: "Helvetica",
+    fontFamily: PDF_SANS,
     color: "#1e293b",
     backgroundColor: "#ffffff",
     position: "relative",
@@ -158,7 +161,8 @@ const styles = StyleSheet.create({
     width: PDF_A4_WIDTH * 1.85,
     textAlign: "center",
     fontSize: 118,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: PDF_SANS,
+    fontWeight: 700,
     color: "#94a3b8",
     opacity: 0.24,
     letterSpacing: 26,
@@ -193,7 +197,8 @@ const styles = StyleSheet.create({
     fontSize: 6.5,
     marginTop: 3,
     textTransform: "uppercase",
-    fontFamily: "Helvetica-Bold",
+    fontFamily: PDF_SANS,
+    fontWeight: 700,
     letterSpacing: 0.15,
   },
   headerMeta: {
@@ -202,15 +207,18 @@ const styles = StyleSheet.create({
     fontSize: 7.5,
     lineHeight: 1.55,
     textTransform: "uppercase",
-    fontFamily: "Helvetica-Bold",
+    fontFamily: PDF_SANS,
+    fontWeight: 700,
   },
   body: { paddingHorizontal: 32, paddingTop: 14, paddingBottom: 18 },
   bodyCompact: { paddingHorizontal: 32, paddingTop: 12, paddingBottom: 14 },
-  title: { fontSize: 16, fontFamily: "Helvetica-Bold", color: "#0f172a" },
+  title: { fontSize: 16, fontFamily: PDF_SANS,
+    fontWeight: 700, color: "#0f172a" },
   vehicleName: {
     marginTop: 4,
     fontSize: 11,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: PDF_SANS,
+    fontWeight: 700,
     color: BLUE,
   },
   subtitle: {
@@ -219,7 +227,8 @@ const styles = StyleSheet.create({
     color: GREY,
     textTransform: "uppercase",
     letterSpacing: 0.15,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: PDF_SANS,
+    fontWeight: 700,
   },
   specBar: {
     marginTop: 8,
@@ -246,12 +255,13 @@ const styles = StyleSheet.create({
     fontSize: 7.5,
     color: "#0f172a",
     textTransform: "uppercase",
-    fontFamily: "Helvetica-Bold",
+    fontFamily: PDF_SANS,
+    fontWeight: 700,
   },
   specValue: {
     marginTop: 4,
     fontSize: 9,
-    fontFamily: "Helvetica",
+    fontFamily: PDF_SANS,
     color: GREY,
     lineHeight: 1.25,
   },
@@ -323,7 +333,8 @@ const styles = StyleSheet.create({
     fontSize: 7.5,
     color: "#0f172a",
     textTransform: "uppercase",
-    fontFamily: "Helvetica-Bold",
+    fontFamily: PDF_SANS,
+    fontWeight: 700,
     letterSpacing: 0.6,
     marginBottom: 6,
   },
@@ -337,14 +348,16 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontSize: 8,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: PDF_SANS,
+    fontWeight: 700,
     textTransform: "uppercase",
     letterSpacing: 0.15,
     color: "#0f172a",
   },
   sectionLabelAccent: {
     fontSize: 7,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: PDF_SANS,
+    fontWeight: 700,
     textTransform: "uppercase",
     color: BLUE,
   },
@@ -378,7 +391,8 @@ const styles = StyleSheet.create({
     textAlign: "right",
     flex: 1,
     lineHeight: 1.35,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: PDF_SANS,
+    fontWeight: 700,
     textTransform: "uppercase",
   },
   insightBottom: {
@@ -389,7 +403,7 @@ const styles = StyleSheet.create({
   insightStatusRow: { flexDirection: "row", alignItems: "flex-start", gap: 4 },
   insightStatus: {
     fontSize: PDF_INSIGHT_BODY,
-    fontFamily: "Helvetica",
+    fontFamily: PDF_SANS,
     lineHeight: PDF_INSIGHT_LINE,
   },
   clear: { color: "#15803d" },
@@ -410,23 +424,26 @@ const styles = StyleSheet.create({
   valAmount: {
     marginTop: 3,
     fontSize: PDF_REPORT_CURRENCY,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: PDF_SANS,
+    fontWeight: 700,
     color: BLUE,
   },
   reportCurrency: {
     fontSize: PDF_REPORT_CURRENCY,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: PDF_SANS,
+    fontWeight: 700,
     color: BLUE,
   },
   reportMetric: {
     fontSize: PDF_REPORT_METRIC,
-    fontFamily: "Helvetica",
+    fontFamily: PDF_SANS,
     color: "#334155",
   },
   section: { marginTop: 14 },
   sectionTitle: {
     fontSize: 9,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: PDF_SANS,
+    fontWeight: 700,
     color: "#0f172a",
     borderBottomWidth: 2,
     borderBottomColor: BLUE,
@@ -462,7 +479,7 @@ const styles = StyleSheet.create({
   },
   specSheetValue: {
     fontSize: PDF_TABLE_FONT_BODY,
-    fontFamily: "Helvetica",
+    fontFamily: PDF_SANS,
     color: "#0f172a",
   },
   pdfTableWrap: {
@@ -482,7 +499,8 @@ const styles = StyleSheet.create({
   },
   pdfTableHeadCell: {
     fontSize: PDF_TABLE_FONT_HEAD,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: PDF_SANS,
+    fontWeight: 700,
     color: GREY,
   },
   pdfTableBodyRow: {
@@ -504,7 +522,8 @@ const styles = StyleSheet.create({
     fontSize: PDF_TABLE_FONT_BODY,
     paddingVertical: PDF_TABLE_PAD_V,
     paddingHorizontal: PDF_TABLE_PAD_H,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: PDF_SANS,
+    fontWeight: 700,
     color: "#0f172a",
   },
   pdfTableLabelCell: {
@@ -559,11 +578,13 @@ const styles = StyleSheet.create({
   },
   plusTitle: {
     fontSize: 8,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: PDF_SANS,
+    fontWeight: 700,
     textTransform: "uppercase",
     letterSpacing: 0.8,
   },
-  plusSub: { marginTop: 2, fontSize: 11, fontFamily: "Helvetica-Bold", color: BLUE },
+  plusSub: { marginTop: 2, fontSize: 11, fontFamily: PDF_SANS,
+    fontWeight: 700, color: BLUE },
   photoGrid: { marginTop: 6 },
   photoRow: { flexDirection: "row", alignItems: "stretch", marginBottom: 6 },
   photoTile: {
@@ -598,7 +619,8 @@ const styles = StyleSheet.create({
   },
   photoImageLabelText: {
     fontSize: 5.5,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: PDF_SANS,
+    fontWeight: 700,
     color: "#ffffff",
     lineHeight: 1.25,
   },
@@ -607,7 +629,8 @@ const styles = StyleSheet.create({
     paddingTop: 3,
     paddingBottom: 1,
     fontSize: 6.5,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: PDF_SANS,
+    fontWeight: 700,
     borderTopWidth: PDF_BORDER_INNER,
     borderTopColor: BORDER_SLATE_200,
   },
@@ -752,7 +775,7 @@ function PdfPageShell({
         <View style={styles.footerBar}>
           <Image src={LOGO_BLUE} style={styles.footerLogo} />
           <Text style={styles.footerText}>
-            {reportReference} · Autoverifi.com.au | {pageLabel}
+            {reportReference} | {pageLabel}
           </Text>
         </View>
       </View>
@@ -809,7 +832,7 @@ function PdfInsightCard({
                           insight.id === "rideshare"
                             ? PDF_INSIGHT_BODY_SM
                             : PDF_INSIGHT_BODY,
-                        fontFamily: "Helvetica",
+                        fontFamily: PDF_SANS,
                         color: pdfRideShareLineColor(line.variant),
                         marginTop: lineIndex === 0 ? 0 : 2,
                         lineHeight: PDF_INSIGHT_LINE,
@@ -824,7 +847,7 @@ function PdfInsightCard({
                         marginTop: 4,
                         fontSize: PDF_INSIGHT_BODY_SM,
                         color: GREY,
-                        fontFamily: "Helvetica",
+                        fontFamily: PDF_SANS,
                         lineHeight: PDF_INSIGHT_LINE,
                       }}
                     >
@@ -855,7 +878,7 @@ function PdfInsightCard({
                           insight.id === "warranty-status"
                             ? RIDE_SHARE_ORANGE
                             : GREY,
-                        fontFamily: "Helvetica",
+                        fontFamily: PDF_SANS,
                         lineHeight: PDF_INSIGHT_LINE,
                       }}
                     >
@@ -868,7 +891,7 @@ function PdfInsightCard({
                         styles.insightStatus,
                         insight.id === "registration" || insight.id === "market"
                           ? toneStyle(insight.tone)
-                          : { color: GREY, fontFamily: "Helvetica", fontSize: PDF_INSIGHT_BODY_SM },
+                          : { color: GREY, fontFamily: PDF_SANS, fontSize: PDF_INSIGHT_BODY_SM },
                         { marginTop: 3 },
                       ]}
                     >
@@ -883,7 +906,7 @@ function PdfInsightCard({
                           style={{
                             fontSize: PDF_INSIGHT_BODY_SM,
                             color: GREY,
-                            fontFamily: "Helvetica",
+                            fontFamily: PDF_SANS,
                             lineHeight: PDF_INSIGHT_LINE,
                             marginTop: itemIndex === 0 ? 0 : 2,
                           }}
@@ -909,7 +932,7 @@ function PdfInsightCard({
                       <Text
                         style={{
                           fontSize: PDF_INSIGHT_BODY_SM,
-                          fontFamily: "Helvetica",
+                          fontFamily: PDF_SANS,
                           lineHeight: PDF_INSIGHT_LINE,
                           color: RIDE_SHARE_ORANGE,
                         }}
@@ -921,7 +944,7 @@ function PdfInsightCard({
                         style={{
                           marginTop: 2,
                           fontSize: PDF_INSIGHT_BODY_SM,
-                          fontFamily: "Helvetica",
+                          fontFamily: PDF_SANS,
                           lineHeight: PDF_INSIGHT_LINE,
                           color: BLUE,
                         }}
@@ -936,7 +959,7 @@ function PdfInsightCard({
                       style={{
                         marginTop: 0,
                         fontSize: PDF_INSIGHT_BODY_SM,
-                        fontFamily: "Helvetica",
+                        fontFamily: PDF_SANS,
                         lineHeight: PDF_INSIGHT_LINE,
                       }}
                     >
@@ -965,7 +988,7 @@ function PdfInsightCard({
                           insight.id === "warranty-status"
                             ? RIDE_SHARE_ORANGE
                             : GREY,
-                        fontFamily: "Helvetica",
+                        fontFamily: PDF_SANS,
                         lineHeight: PDF_INSIGHT_LINE,
                       }}
                     >
@@ -1108,7 +1131,8 @@ function PdfPPlateSupplementContent({ report }: { report: VehicleReport }) {
               style={[
                 styles.specSheetValue,
                 isPPlateAdvisoryCopy(pPlateStatus)
-                  ? { color: RIDE_SHARE_ORANGE, fontFamily: "Helvetica-Bold" }
+                  ? { color: RIDE_SHARE_ORANGE, fontFamily: PDF_SANS,
+    fontWeight: 700 }
                   : {},
               ]}
             >
@@ -1329,7 +1353,7 @@ function PdfPresentAndFutureValuations({
                         fontSize: PDF_REPORT_METRIC,
                         color: GREY,
                         marginTop: 2,
-                        fontFamily: "Helvetica",
+                        fontFamily: PDF_SANS,
                       }}
                     >
                       {point.odometer.toLocaleString()} km
@@ -1366,7 +1390,8 @@ function PdfOdometerHistoryTable({ report }: { report: VehicleReport }) {
         <Text
           style={{
             fontSize: 6.5,
-            fontFamily: "Helvetica-Bold",
+            fontFamily: PDF_SANS,
+    fontWeight: 700,
             color: BLUE,
             textTransform: "uppercase",
             marginBottom: 2,
@@ -1634,7 +1659,8 @@ function VehicleSpecPages({
                         style={[
                           styles.specSheetLabel,
                           powerRow
-                            ? { color: BLUE, fontFamily: "Helvetica-Bold" }
+                            ? { color: BLUE, fontFamily: PDF_SANS,
+    fontWeight: 700 }
                             : {},
                         ]}
                       >
@@ -1663,7 +1689,7 @@ function VehicleSpecPages({
                   fontSize: 6.5,
                   lineHeight: 1.4,
                   color: BLUE,
-                  fontFamily: "Helvetica",
+                  fontFamily: PDF_SANS,
                 }}
               >
                 {P_PLATE_POWER_TO_WEIGHT_FOOTNOTE}
@@ -1751,19 +1777,22 @@ function CarBuyingChecklistPage({
                   marginRight: 10,
                 }}
               >
-                <Text style={{ color: "#ffffff", fontSize: 8.5, fontFamily: "Helvetica-Bold" }}>
+                <Text style={{ color: "#ffffff", fontSize: 8.5, fontFamily: PDF_SANS,
+    fontWeight: 700 }}>
                   {index + 1}
                 </Text>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 9, fontFamily: "Helvetica-Bold", color: "#0f172a" }}>
+                <Text style={{ fontSize: 9, fontFamily: PDF_SANS,
+    fontWeight: 700, color: "#0f172a" }}>
                   {item.title}
                 </Text>
                 <Text style={[styles.para, { marginTop: 3 }]}>{item.body}</Text>
                 {item.href ? (
                   <Link
                     src={item.href}
-                    style={{ marginTop: 4, fontSize: 8, color: BLUE, fontFamily: "Helvetica-Bold" }}
+                    style={{ marginTop: 4, fontSize: 8, color: BLUE, fontFamily: PDF_SANS,
+    fontWeight: 700 }}
                   >
                     {item.linkLabel ?? item.href}
                   </Link>
@@ -1794,7 +1823,8 @@ function PdfGeneralDisclaimer() {
       <Text
         style={{
           fontSize: 8,
-          fontFamily: "Helvetica-Bold",
+          fontFamily: PDF_SANS,
+    fontWeight: 700,
           color: "#0f172a",
           textTransform: "uppercase",
           letterSpacing: 0.6,
@@ -2067,7 +2097,8 @@ function InsightsPlusDamagePage({
                       <Text
                         style={{
                           marginTop: 4,
-                          fontFamily: "Helvetica-Bold",
+                          fontFamily: PDF_SANS,
+    fontWeight: 700,
                           fontSize: 8.5,
                         }}
                       >

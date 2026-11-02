@@ -8,7 +8,7 @@ import {
   History,
   TrendingUp,
 } from "lucide-react";
-import { AboutUsSection } from "@/components/AboutUsSection";
+import { HomeAboutHashRedirect } from "@/components/HomeAboutHashRedirect";
 import { PricingTierCards } from "@/components/PricingTierCards";
 import { HeroCheckLead } from "@/components/HeroCheckLead";
 import { ScrollToCheckOnHash } from "@/components/ScrollToCheckOnHash";
@@ -111,6 +111,7 @@ export function HomePage() {
         className="relative scroll-mt-24 overflow-x-clip bg-ink-950"
       >
         <ScrollToCheckOnHash />
+      <HomeAboutHashRedirect />
         <div className="pointer-events-none absolute -top-40 left-1/2 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-accent-500/15 blur-[140px]" />
 
         <div className="av-site-container relative pb-8 pt-8 sm:pb-10 sm:pt-14 lg:pb-12 lg:pt-20">
@@ -192,8 +193,6 @@ export function HomePage() {
       </section>
 
       <HowItWorksSection />
-
-      <AboutUsSection />
 
       <section id="faq" className="scroll-mt-24 bg-white py-12 dark:bg-ink-950 sm:py-16 lg:py-20">
         <div className="av-site-container">

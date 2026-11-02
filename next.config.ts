@@ -1,6 +1,17 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  outputFileTracingIncludes: {
+    "/api/report/*/pdf": [
+      "./node_modules/geist/dist/fonts/geist-sans/*.ttf",
+    ],
+    "/api/sample-report/pdf": [
+      "./node_modules/geist/dist/fonts/geist-sans/*.ttf",
+    ],
+    "/api/webhooks/stripe": [
+      "./node_modules/geist/dist/fonts/geist-sans/*.ttf",
+    ],
+  },
   experimental: {
     // Inspection photo uploads pass through proxy; default 10MB can truncate multipart bodies.
     proxyClientMaxBodySize: "15mb",

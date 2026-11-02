@@ -48,13 +48,7 @@ export function ReportShell({
       <footer className="report-shell-footer mt-auto flex shrink-0 items-end justify-between gap-4 border-t border-slate-200 px-6 py-4 sm:px-8">
         <Logo height={34} linked={false} variant="onLight" />
         <p className="text-right text-xs font-medium uppercase tracking-wide text-slate-400">
-          {reportReference ? (
-            <>
-              {reportReference}
-              <span aria-hidden> · </span>
-            </>
-          ) : null}
-          Autoverifi.com.au{pageLabel ? ` | ${pageLabel}` : ""}
+          {[reportReference, pageLabel].filter(Boolean).join(" | ")}
         </p>
       </footer>
     </article>

@@ -16,7 +16,7 @@ const QUICK_LINKS = [
   { href: "/vehicleinspections", label: "Vehicle inspections" },
   { href: "/#how-it-works", label: "How it works" },
   { href: "/#whats-included", label: "What's included" },
-  { href: "/#about", label: "About us" },
+  { href: "/about", label: "About us" },
   { href: "/#faq", label: "FAQ" },
   { href: "/contact", label: "Contact us" },
 ];

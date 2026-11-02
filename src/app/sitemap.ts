@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { SOLUTION_PAGES } from "@/content/solution-pages";
 import { isComingSoonMode } from "@/lib/site-mode";
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
@@ -64,6 +65,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.7,
     },
+    {
+      url: `${baseUrl}/about`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.65,
+    },
+    ...SOLUTION_PAGES.map((page) => ({
+      url: `${baseUrl}/solutions/${page.slug}`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    })),
     {
       url: `${baseUrl}/terms`,
       lastModified: new Date(),

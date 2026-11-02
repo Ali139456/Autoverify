@@ -15,17 +15,5 @@ export const INSPECTION_MENU_ITEMS: InspectionMenuItem[] = [
     href: "/inspections/lender-asset-verification",
   },
   { label: "Pre Purchase Inspections", status: "coming_soon" },
-  {
-    label: "Hazard Inspections",
-    href: "https://www.hazardinspect.com.au",
-    external: true,
-  },
-  {
-    label: "Pre Delivery Inspections",
-    href: "https://www.predelivery.ai",
-    external: true,
-  },
   { label: "EV Battery Health Checks", status: "coming_soon" },
-  { label: "Ride Share Inspections", status: "coming_soon" },
-  { label: "End of Lease Inspections", status: "coming_soon" },
 ];

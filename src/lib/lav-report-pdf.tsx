@@ -22,9 +22,11 @@ import {
 import { formatReportReference, getInspectionPhotoUrl } from "./report-design";
 import { REPORT_LOGO_PNG_PATH } from "./report-logo-size";
 import { publicPdfImage } from "./pdf-local-image";
+import { PDF_SANS, registerReportPdfFonts } from "./pdf-fonts";
 import type { InspectionPhoto, VehicleReport } from "./types";
 
 Font.registerHyphenationCallback((word) => [word]);
+registerReportPdfFonts();
 
 const BLUE = "#0073E3";
 const NAVY = "#0f172a";
@@ -32,7 +34,7 @@ const GREY = "#64748b";
 const LOGO = publicPdfImage(REPORT_LOGO_PNG_PATH);
 
 const styles = StyleSheet.create({
-  page: { padding: 32, fontFamily: "Helvetica", fontSize: 9, color: NAVY },
+  page: { padding: 32, fontFamily: PDF_SANS, fontSize: 9, color: NAVY },
   headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -104,7 +106,7 @@ function LavPdfFooter({
     <View style={styles.footer} fixed>
       <Image src={LOGO} style={{ width: 72, height: 22, objectFit: "contain" }} />
       <Text style={styles.footerText}>
-        {ref} · Autoverifi.com.au | {pageLabel}
+        {ref} | {pageLabel}
       </Text>
     </View>
   );

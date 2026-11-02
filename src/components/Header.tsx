@@ -7,14 +7,12 @@ import { ArrowRight, ChevronDown, Menu, X } from "lucide-react";
 import { BuyReportModal } from "@/components/BuyReportModal";
 import { Logo } from "@/components/Logo";
 import { INSPECTION_MENU_ITEMS } from "@/lib/inspection-menu";
-
-const MAIN_LINKS = [
-  { href: "/#whats-included", label: "What's included" },
-  { href: "/pricing", label: "Pricing" },
-  { href: "/#about", label: "About us" },
-  { href: "/#faq", label: "FAQ" },
-  { href: "/contact", label: "Contact" },
-] as const;
+import {
+  isNavDropdown,
+  MAIN_NAV,
+  type NavDropdown,
+  type NavLinkItem,
+} from "@/lib/main-nav";
 
 const INSPECTION_PAGE_LINKS = [
   { href: "#services", label: "Services" },
@@ -33,14 +31,80 @@ const navLinkClass = (active: boolean) =>
 const buyReportClass =
   "group hidden h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-accent-500 px-3 text-[13px] font-bold leading-none text-white transition hover:bg-accent-600 xl:inline-flex xl:gap-2 xl:px-4 xl:text-sm";
 
-function navLinkVisibility(href: string): string {
-  if (href === "/contact") return "hidden 2xl:inline-flex";
-  if (href === "/#faq") return "hidden 2xl:inline-flex";
-  if (href === "/#about") return "hidden xl:inline-flex";
-  if (href === "/#whats-included") {
-    return "hidden lg:inline-flex";
-  }
-  return "inline-flex";
+function navDropdownIsActive(menu: NavDropdown, pathname: string): boolean {
+  return menu.items.some((item) => {
+    if (item.href === pathname) return true;
+    if (item.href.startsWith("/solutions/") && pathname.startsWith("/solutions/")) {
+      return true;
+    }
+    return false;
+  });
+}
+
+function NavDropdownMenu({
+  menu,
+  pathname,
+  onNavigate,
+}: {
+  menu: NavDropdown;
+  pathname: string;
+  onNavigate?: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const active = navDropdownIsActive(menu, pathname);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div ref={containerRef} className="relative hidden shrink-0 lg:block">
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        aria-expanded={open}
+        aria-haspopup="true"
+        className={`inline-flex h-9 shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-3 text-[13px] font-medium leading-none transition lg:px-4 lg:text-sm ${
+          open || active
+            ? "bg-accent-500 text-white"
+            : "text-slate-300 hover:bg-white/5 hover:text-white"
+        }`}
+      >
+        {menu.label}
+        <ChevronDown
+          className={`h-4 w-4 transition-transform ${open ? "rotate-180" : ""}`}
+          aria-hidden
+        />
+      </button>
+      {open ? (
+        <div className="absolute left-0 top-[calc(100%+0.5rem)] z-50 min-w-[14rem] overflow-hidden rounded-2xl border border-slate-200 bg-white py-2 shadow-[0_20px_60px_rgba(15,23,42,0.12)] dark:border-white/10 dark:bg-ink-900/95 dark:shadow-[0_20px_60px_rgba(0,0,0,0.55)]">
+          {menu.items.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => {
+                setOpen(false);
+                onNavigate?.();
+              }}
+              className="block px-4 py-2.5 text-sm text-slate-700 transition hover:bg-slate-50 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-white/5 dark:hover:text-white"
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 function InspectionMenuItems({
@@ -212,20 +276,44 @@ function HeaderMobileMenu({
             <p className="px-1 text-[10px] font-bold uppercase tracking-[0.22em] text-[#0073E3]">
               Navigate
             </p>
-            {links.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                onClick={() => setOpen(false)}
-                className={mobileNavLinkClass}
-              >
-                {l.label}
-                <ArrowRight
-                  className="h-4 w-4 shrink-0 text-[#0073E3] opacity-0 transition group-hover:translate-x-0.5 group-hover:opacity-100"
-                  aria-hidden
-                />
-              </Link>
-            ))}
+            {isInspectionPage
+              ? links.map((l) => (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    onClick={() => setOpen(false)}
+                    className={mobileNavLinkClass}
+                  >
+                    {l.label}
+                    <ArrowRight
+                      className="h-4 w-4 shrink-0 text-[#0073E3] opacity-0 transition group-hover:translate-x-0.5 group-hover:opacity-100"
+                      aria-hidden
+                    />
+                  </Link>
+                ))
+              : MAIN_NAV.map((entry) =>
+                  isNavDropdown(entry) ? (
+                    <div key={entry.id} className="space-y-1">
+                      <p className="px-1 pt-2 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                        {entry.label}
+                      </p>
+                      {entry.items.map((item: NavLinkItem) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => setOpen(false)}
+                          className={mobileNavLinkClass}
+                        >
+                          {item.label}
+                          <ArrowRight
+                            className="h-4 w-4 shrink-0 text-[#0073E3] opacity-0 transition group-hover:translate-x-0.5 group-hover:opacity-100"
+                            aria-hidden
+                          />
+                        </Link>
+                      ))}
+                    </div>
+                  ) : null,
+                )}
 
             {!isInspectionPage && (
               <div className="mt-1">
@@ -350,7 +438,7 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const isInspectionPage = pathname.startsWith("/vehicleinspections");
-  const links = isInspectionPage ? INSPECTION_PAGE_LINKS : MAIN_LINKS;
+  const links = isInspectionPage ? INSPECTION_PAGE_LINKS : [];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -382,20 +470,25 @@ export function Header() {
             aria-label="Primary"
             className="hidden min-w-0 items-center gap-1 rounded-full border border-white/10 bg-ink-800/80 p-1 lg:flex"
           >
-            {links.map((l) => {
-              const active =
-                (l.href === "/pricing" && pathname === "/pricing") ||
-                (l.href === "/contact" && pathname === "/contact");
-              return (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  className={`${navLinkVisibility(l.href)} ${navLinkClass(active)}`}
-                >
-                  {l.label}
-                </Link>
-              );
-            })}
+            {isInspectionPage
+              ? links.map((l) => (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    className={`inline-flex ${navLinkClass(false)}`}
+                  >
+                    {l.label}
+                  </Link>
+                ))
+              : MAIN_NAV.map((entry) =>
+                  isNavDropdown(entry) ? (
+                    <NavDropdownMenu
+                      key={entry.id}
+                      menu={entry}
+                      pathname={pathname}
+                    />
+                  ) : null,
+                )}
           </nav>
 
           {!isInspectionPage ? (
