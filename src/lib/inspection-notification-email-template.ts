@@ -18,7 +18,7 @@ function vehicleLine(vehicleLabel: string, regoSuffix: string): string {
 }
 
 function processingBodyHtml(): string {
-  return `<p style="margin:0 0 12px;padding:14px 16px;border-radius:10px;background:#eff6ff;border:1px solid #bfdbfe;"><strong style="color:${BRANDED_EMAIL_BLUE};">AI damage analysis is still processing.</strong> ${escapeBrandedEmailHtml(AI_DAMAGE_PROCESSING_SHORT)}</p>
+  return `<p style="margin:0 0 12px;padding:14px 16px;border-radius:10px;background:#eff6ff;border:1px solid #bfdbfe;"><strong style="color:${BRANDED_EMAIL_BLUE};">AI condition assessment is still processing.</strong> ${escapeBrandedEmailHtml(AI_DAMAGE_PROCESSING_SHORT)}</p>
 <p style="margin:0;color:#475569;font-size:14px;line-height:1.6;">${escapeBrandedEmailHtml(AI_DAMAGE_FOLLOW_UP_EMAIL_PROMISE)}</p>`;
 }
 

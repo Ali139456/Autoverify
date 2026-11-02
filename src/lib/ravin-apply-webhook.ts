@@ -49,7 +49,7 @@ export async function applyRavinWebhookPayload(
 
   const updatedReport = (await getReport(inspection.reportId)) ?? report;
 
-  if (options?.notifyCustomer !== false && updatedReport && !hadDamage) {
+  if (options?.notifyCustomer !== false && updatedReport?.damage) {
     void notifyDamageAssessmentCompleteEmail(inspection.reportId).catch(
       (err) => {
         console.error(

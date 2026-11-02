@@ -152,7 +152,7 @@ export async function listReportIdsForDamageFollowUp(
   const { data, error } = await supabase
     .from("reports")
     .select("id, history_data, status, updated_at")
-    .eq("status", "complete")
+    .in("status", ["complete", "processing_ravin"])
     .order("updated_at", { ascending: true })
     .limit(limit);
 

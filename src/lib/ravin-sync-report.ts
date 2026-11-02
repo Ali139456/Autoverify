@@ -8,6 +8,7 @@ import {
   getInspectionByReportId,
   resolveInspectionFromRavinWebhook,
 } from "./inspections";
+import { notifyDamageAssessmentCompleteEmail } from "./damage-follow-up-email";
 import { applyRavinWebhookPayload } from "./ravin-apply-webhook";
 import { getReport } from "./store";
 
@@ -98,6 +99,12 @@ export async function syncStoredRavinWebhooksForReport(
     return { applied: false, findings: 0, reason: "report_not_found" };
   }
   if (report.damage) {
+    void notifyDamageAssessmentCompleteEmail(reportId).catch((err) => {
+      console.error(
+        `[ravin-sync] completion email reconcile failed (${reportId}):`,
+        err,
+      );
+    });
     return {
       applied: false,
       findings: report.damage.findings.length,
