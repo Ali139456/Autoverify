@@ -7,10 +7,7 @@ import {
   isInspectionExpired,
   updateInspection,
 } from "@/lib/inspections";
-import {
-  getInspectionPhotoNotifyEmails,
-  sendInspectionPhotosUpdatedEmail,
-} from "@/lib/email";
+import { notifyDamageAssessmentCompleteEmail } from "@/lib/damage-follow-up-email";
 import { getReport, updateReport } from "@/lib/store";
 import { syncRavinReportIfPending } from "@/lib/ravin-background-sync";
 import { submitInspectionToRavin } from "@/lib/ravin-ingest";
@@ -107,26 +104,6 @@ export async function POST(
       });
     }
 
-    const damageAnalysisReady =
-      submission.mode === "demo" && Boolean(submission.damage);
-
-    const notifyEmails = getInspectionPhotoNotifyEmails(report);
-    for (const notifyEmail of notifyEmails) {
-      void sendInspectionPhotosUpdatedEmail(report, notifyEmail, {
-        damageAnalysisReady,
-      }).catch((err) => {
-        console.error(
-          `[inspections/complete] inspection update email failed (${notifyEmail}):`,
-          err,
-        );
-      });
-    }
-    if (notifyEmails.length === 0) {
-      console.warn(
-        `[inspections/complete] no notify email for report ${report.id} (set customer email or AUTOVERIFI_SUPPORT_EMAIL).`,
-      );
-    }
-
     if (submission.mode === "demo" && submission.damage) {
       await updateInspection(inspection.id, {
         status: "complete",
@@ -143,6 +120,15 @@ export async function POST(
         workflowStatus: "complete",
         damageAnalysisCompletedAt: new Date().toISOString(),
       });
+
+      void notifyDamageAssessmentCompleteEmail(inspection.reportId).catch(
+        (err) => {
+          console.error(
+            `[inspections/complete] damage-complete email failed (${report.id}):`,
+            err,
+          );
+        },
+      );
 
       return NextResponse.json({
         ok: true,

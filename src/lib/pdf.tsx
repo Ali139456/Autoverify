@@ -34,6 +34,7 @@ import {
   INSPECTION_RECORD_ONLY_FOOTNOTE_WITH_STAR,
   isRecordOnlyInspectionPhoto,
 } from "./inspection-angles";
+import { AI_DAMAGE_PROCESSING_PDF } from "./damage-processing-copy";
 import {
   hasVehicleSpecContent,
   visibleSpecDataRows,
@@ -2088,7 +2089,7 @@ function InsightsPlusDamagePage({
           </View>
         ) : !damage ? (
           <Text style={[styles.para, { marginTop: 8 }]}>
-            AI damage analysis is processing (usually around 10 minutes). Results will appear when ready.
+            {AI_DAMAGE_PROCESSING_PDF}
           </Text>
         ) : null}
 

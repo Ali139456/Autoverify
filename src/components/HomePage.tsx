@@ -1,6 +1,5 @@
 import Image from "next/image";
 import {
-  ArrowRight,
   BadgeDollarSign,
   ChevronDown,
   Camera,
@@ -10,12 +9,11 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { AboutUsSection } from "@/components/AboutUsSection";
-import { HomeCheckLink } from "@/components/HomeCheckLink";
 import { PricingTierCards } from "@/components/PricingTierCards";
 import { HeroCheckLead } from "@/components/HeroCheckLead";
 import { ScrollToCheckOnHash } from "@/components/ScrollToCheckOnHash";
 import { Reveal } from "@/components/Reveal";
-import { formatTierPrice } from "@/lib/pricing";
+import { HowItWorksSection } from "@/components/HowItWorksSection";
 
 const INSIGHT_PILLARS = [
   {
@@ -65,13 +63,6 @@ const INSIGHT_PILLARS = [
   },
 ] as const;
 
-const STEPS = [
-  { n: "1", title: "Enter rego or VIN", text: "Type in the registration plate and state, or the 17-digit VIN if the car isn't registered." },
-  { n: "2", title: "Preview the vehicle", text: "We instantly identify the car and show you a free summary so you know it's the right one." },
-  { n: "3", title: "Pay securely", text: "One-off payment via Stripe — cards accepted, no subscription, no hidden fees." },
-  { n: "4", title: "Get your report", text: "View the full report online instantly and download the PDF to keep." },
-];
-
 type FaqItem = {
   q: string;
   intro?: string;
@@ -111,9 +102,6 @@ const featureCardClass =
 const FEATURE_ITEMS = INSIGHT_PILLARS.flatMap((pillar) =>
   pillar.items.map((item) => item),
 );
-
-const stepCardClass =
-  "group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-accent-500/40 dark:border-white/10 dark:bg-ink-800 dark:shadow-none";
 
 export function HomePage() {
   return (
@@ -203,53 +191,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section
-        id="how-it-works"
-        className="relative scroll-mt-24 overflow-hidden border-y border-slate-200 bg-slate-50 py-12 dark:border-white/10 dark:bg-ink-900 sm:py-16 lg:py-20"
-      >
-        <div className="pointer-events-none absolute -bottom-52 left-1/2 h-[400px] w-[800px] -translate-x-1/2 rounded-full bg-accent-600/10 blur-[120px]" />
-        <div className="av-site-container relative">
-          <Reveal className="mx-auto max-w-2xl text-center">
-            <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
-              How it <span className="text-accent-400">works</span>
-            </h2>
-            <p className="mt-3 text-sm text-slate-600 dark:text-slate-400 sm:text-base">
-              From rego to full report in minutes.
-            </p>
-          </Reveal>
-          <div className="mt-8 grid gap-4 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
-            {STEPS.map((s, i) => (
-              <Reveal key={s.n} delay={i * 120} className={stepCardClass}>
-                <div className="pointer-events-none absolute -right-14 -top-14 h-40 w-40 rounded-full bg-accent-500/0 blur-3xl transition-all duration-500 group-hover:bg-accent-500/15" />
-                <div className="flex items-center justify-between">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500 to-accent-700 text-lg font-black text-white transition-transform duration-300 group-hover:scale-110">
-                    {s.n}
-                  </span>
-                  {i < STEPS.length - 1 && (
-                    <ArrowRight
-                      className="h-5 w-5 text-slate-400 transition-colors group-hover:text-accent-500 dark:text-slate-600 dark:group-hover:text-accent-400"
-                      aria-hidden
-                    />
-                  )}
-                </div>
-                <h3 className="relative mt-5 font-bold text-slate-900 transition-colors group-hover:text-accent-600 dark:text-white dark:group-hover:text-accent-300">
-                  {s.title}
-                </h3>
-                <p className="relative mt-2 text-sm text-slate-600 dark:text-slate-400">{s.text}</p>
-                <div className="absolute inset-x-8 bottom-0 h-px bg-gradient-to-r from-transparent via-accent-500 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-              </Reveal>
-            ))}
-          </div>
-          <Reveal delay={200} className="mt-8 text-center sm:mt-10">
-            <HomeCheckLink
-              className="inline-flex items-center gap-2 rounded-full bg-accent-500 px-6 py-3 text-sm font-bold text-white transition hover:bg-accent-600 sm:px-8 sm:py-3.5 sm:text-base"
-            >
-              Buy Report — from {formatTierPrice("insights")}
-              <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden />
-            </HomeCheckLink>
-          </Reveal>
-        </div>
-      </section>
+      <HowItWorksSection />
 
       <AboutUsSection />
 

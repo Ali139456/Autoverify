@@ -144,7 +144,7 @@ export async function listReportIdsByWorkflowStatus(
   return (data ?? []).map((row) => String((row as { id: string }).id));
 }
 
-/** Reports awaiting the post-analysis follow-up email (~30 min after AI damage completes). */
+/** Reports awaiting the completion email backup (~5 min after AI assessment completes). */
 export async function listReportIdsForDamageFollowUp(
   limit = 80,
 ): Promise<string[]> {

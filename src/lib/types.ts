@@ -250,7 +250,7 @@ export interface VehicleReport {
   damageProcessingStartedAt?: string | null;
   /** When Ravin / demo analysis finished and damage was merged onto the report. */
   damageAnalysisCompletedAt?: string | null;
-  /** When the post-analysis follow-up email was sent (~30 min after completion). */
+  /** When the post-analysis completion email was sent (PDF + report links). */
   damageFollowUpEmailSentAt?: string | null;
   stripeSessionId: string | null;
   vehicle: VehicleIdentity;

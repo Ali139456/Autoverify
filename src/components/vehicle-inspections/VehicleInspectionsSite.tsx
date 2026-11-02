@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import Image from "next/image";
+import { useState } from "react";
 import {
   ArrowRight,
   BadgeCheck,
@@ -8,6 +9,7 @@ import {
   Building2,
   Car,
   Gavel,
+  Loader2,
   Mail,
   TrendingUp,
 } from "lucide-react";
@@ -48,7 +50,7 @@ const THEO_EXPERTISE = [
 ];
 
 const DENISE_EXPERTISE = [
-  "Finance & investment management (23+ years)",
+  "Finance & investment management",
   "Business scaling, M&A and ASX exit execution",
   "Financial management & profit optimisation",
   "Governance, risk and compliance frameworks",
@@ -76,6 +78,45 @@ function BulletList({ items }: { items: string[] }) {
   );
 }
 
+async function submitVehicleInspectionContact(
+  form: HTMLFormElement,
+): Promise<void> {
+  const data = new FormData(form);
+  const name = String(data.get("name") ?? "").trim();
+  const email = String(data.get("email") ?? "").trim();
+  const service = String(data.get("service") ?? "Dealer Inspection").trim();
+
+  const res = await fetch("/api/contact", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name,
+      email,
+      subject: `Vehicle inspections — ${service}`,
+      message: `Service requested: ${service}\n\nSubmitted from autoverifi.com.au/vehicleinspections`,
+      company: "",
+    }),
+  });
+
+  const raw = await res.text();
+  let json: { ok?: boolean; error?: string } = {};
+  if (raw.trim()) {
+    try {
+      json = JSON.parse(raw) as { ok?: boolean; error?: string };
+    } catch {
+      throw new Error(
+        res.ok
+          ? "Could not send request."
+          : `Could not send request (HTTP ${res.status}).`,
+      );
+    }
+  }
+
+  if (!res.ok) {
+    throw new Error(json.error ?? "Could not send request.");
+  }
+}
+
 function ExpertiseCards({ items }: { items: string[] }) {
   return (
     <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -92,6 +133,28 @@ function ExpertiseCards({ items }: { items: string[] }) {
 }
 
 export function VehicleInspectionsSite() {
+  const [contactStatus, setContactStatus] = useState<
+    "idle" | "sending" | "sent" | "error"
+  >("idle");
+  const [contactError, setContactError] = useState<string | null>(null);
+
+  async function onContactSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setContactStatus("sending");
+    setContactError(null);
+    const form = event.currentTarget;
+    try {
+      await submitVehicleInspectionContact(form);
+      setContactStatus("sent");
+      form.reset();
+    } catch (err) {
+      setContactStatus("error");
+      setContactError(
+        err instanceof Error ? err.message : "Could not send request.",
+      );
+    }
+  }
+
   return (
     <div className="-mt-[76px] overflow-x-hidden bg-[#010626] text-white sm:-mt-[80px]">
       {/* 1. Hero */}
@@ -339,54 +402,94 @@ export function VehicleInspectionsSite() {
                 </a>
               </div>
 
-              <form
-                className="rounded-2xl border border-white/10 bg-[#010626]/70 p-5 backdrop-blur-md sm:p-6"
-                action="mailto:info@autoverifi.com.au"
-                method="post"
-                encType="text/plain"
-              >
-                <label className="block text-sm">
-                  <span className="mb-1.5 block text-slate-300">Name</span>
-                  <input
-                    name="name"
-                    required
-                    placeholder="Name"
-                    className="w-full rounded-xl border border-white/10 bg-[#010626] px-4 py-3 text-white outline-none transition focus:border-[#4da3ff]/50 focus:ring-2 focus:ring-[#2563eb]/40 placeholder:text-slate-500"
-                  />
-                </label>
-                <label className="mt-4 block text-sm">
-                  <span className="mb-1.5 block text-slate-300">Email</span>
-                  <input
-                    type="email"
-                    name="email"
-                    required
-                    placeholder="Email"
-                    className="w-full rounded-xl border border-white/10 bg-[#010626] px-4 py-3 text-white outline-none transition focus:border-[#4da3ff]/50 focus:ring-2 focus:ring-[#2563eb]/40 placeholder:text-slate-500"
-                  />
-                </label>
-                <label className="mt-4 block text-sm">
-                  <span className="mb-1.5 block text-slate-300">Service required</span>
-                  <select
-                    name="service"
-                    defaultValue="Dealer Inspection"
-                    className="w-full rounded-xl border border-white/10 bg-[#010626] px-4 py-3 text-white outline-none transition focus:border-[#4da3ff]/50 focus:ring-2 focus:ring-[#2563eb]/40"
-                  >
-                    <option>Dealer Inspection</option>
-                    <option>Expert Witness</option>
-                    <option>Inspection operations audit</option>
-                  </select>
-                </label>
-                <button
-                  type="submit"
-                  className="btn-shine group mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#2563eb] to-[#3b82f6] px-6 py-3.5 text-sm font-bold text-white shadow-[0_10px_28px_rgba(37,99,235,0.35)] transition hover:from-[#1d4ed8] hover:to-[#2563eb] sm:w-auto"
+              {contactStatus === "sent" ? (
+                <div
+                  className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6 text-sm text-emerald-100"
+                  role="status"
                 >
-                  Submit request
-                  <ArrowRight
-                    className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                    aria-hidden
-                  />
-                </button>
-              </form>
+                  <p className="font-semibold text-white">Request received</p>
+                  <p className="mt-2 leading-relaxed text-emerald-100/90">
+                    Thanks — our team will reply to your email shortly.
+                  </p>
+                  <button
+                    type="button"
+                    className="mt-4 text-sm font-semibold text-[#93c5fd] underline-offset-2 hover:underline"
+                    onClick={() => setContactStatus("idle")}
+                  >
+                    Send another request
+                  </button>
+                </div>
+              ) : (
+                <form
+                  className="rounded-2xl border border-white/10 bg-[#010626]/70 p-5 backdrop-blur-md sm:p-6"
+                  onSubmit={(e) => void onContactSubmit(e)}
+                >
+                  <label className="block text-sm">
+                    <span className="mb-1.5 block text-slate-300">Name</span>
+                    <input
+                      name="name"
+                      required
+                      disabled={contactStatus === "sending"}
+                      placeholder="Name"
+                      className="w-full rounded-xl border border-white/10 bg-[#010626] px-4 py-3 text-white outline-none transition focus:border-[#4da3ff]/50 focus:ring-2 focus:ring-[#2563eb]/40 placeholder:text-slate-500 disabled:opacity-60"
+                    />
+                  </label>
+                  <label className="mt-4 block text-sm">
+                    <span className="mb-1.5 block text-slate-300">Email</span>
+                    <input
+                      type="email"
+                      name="email"
+                      required
+                      disabled={contactStatus === "sending"}
+                      placeholder="Email"
+                      className="w-full rounded-xl border border-white/10 bg-[#010626] px-4 py-3 text-white outline-none transition focus:border-[#4da3ff]/50 focus:ring-2 focus:ring-[#2563eb]/40 placeholder:text-slate-500 disabled:opacity-60"
+                    />
+                  </label>
+                  <label className="mt-4 block text-sm">
+                    <span className="mb-1.5 block text-slate-300">
+                      Service required
+                    </span>
+                    <select
+                      name="service"
+                      defaultValue="Dealer Inspection"
+                      disabled={contactStatus === "sending"}
+                      className="w-full rounded-xl border border-white/10 bg-[#010626] px-4 py-3 text-white outline-none transition focus:border-[#4da3ff]/50 focus:ring-2 focus:ring-[#2563eb]/40 disabled:opacity-60"
+                    >
+                      <option>Dealer Inspection</option>
+                      <option>Expert Witness</option>
+                      <option>Inspection operations audit</option>
+                    </select>
+                  </label>
+                  {contactError ? (
+                    <p
+                      className="mt-4 text-sm font-medium text-red-300"
+                      role="alert"
+                    >
+                      {contactError}
+                    </p>
+                  ) : null}
+                  <button
+                    type="submit"
+                    disabled={contactStatus === "sending"}
+                    className="btn-shine group mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#2563eb] to-[#3b82f6] px-6 py-3.5 text-sm font-bold text-white shadow-[0_10px_28px_rgba(37,99,235,0.35)] transition hover:from-[#1d4ed8] hover:to-[#2563eb] disabled:opacity-60 sm:w-auto"
+                  >
+                    {contactStatus === "sending" ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                        Sending…
+                      </>
+                    ) : (
+                      <>
+                        Submit request
+                        <ArrowRight
+                          className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                          aria-hidden
+                        />
+                      </>
+                    )}
+                  </button>
+                </form>
+              )}
             </div>
           </div>
         </Reveal>

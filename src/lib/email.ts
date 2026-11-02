@@ -5,6 +5,7 @@ import {
 import {
   buildInspectionDamageFollowUpEmailHtml,
   buildInspectionPhotosUpdatedEmailHtml,
+  LAV_DIGITAL_SELF_INSPECTION_EMAIL_HEADING,
 } from "./inspection-notification-email-template";
 import {
   buildPurchaseConfirmationEmailHtml,
@@ -148,17 +149,22 @@ export async function sendInspectionPhotosUpdatedEmail(
   const damageAnalysisReady =
     options?.damageAnalysisReady ?? Boolean(report.damage);
   const isLav = Boolean(report.lavContext);
+  const lavDigitalSelfInspection =
+    report.lavContext?.inspectionType === "digital";
 
   const subject = isLav
-    ? damageAnalysisReady
-      ? `Lender asset verification report updated — ${vehicleLabel}${regoSuffix}`
-      : `Digital Self Inspection photos received — ${vehicleLabel}${regoSuffix}`
+    ? lavDigitalSelfInspection
+      ? `${LAV_DIGITAL_SELF_INSPECTION_EMAIL_HEADING} — ${vehicleLabel}${regoSuffix}`
+      : damageAnalysisReady
+        ? `Lender asset verification report updated — ${vehicleLabel}${regoSuffix}`
+        : `Lender asset verification photos received — ${vehicleLabel}${regoSuffix}`
     : damageAnalysisReady
       ? `Inspection photos added — ${vehicleLabel}${regoSuffix}`
       : `AI damage analysis still processing — ${vehicleLabel}${regoSuffix}`;
 
   const html = buildInspectionPhotosUpdatedEmailHtml({
     isLav,
+    lavDigitalSelfInspection,
     damageAnalysisReady,
     vehicleLabel,
     regoSuffix,
@@ -189,7 +195,7 @@ export async function sendInspectionPhotosUpdatedEmail(
   }
 }
 
-/** ~30 minutes after AI damage analysis completes — updated report + PDF attachment. */
+/** Sent when AI condition assessment completes — updated report + PDF attachment. */
 export async function sendInspectionDamageFollowUpEmail(
   report: VehicleReport,
   email: string,
@@ -214,13 +220,18 @@ export async function sendInspectionDamageFollowUpEmail(
     report.damageAnalysisCompletedAt || report.damage,
   );
   const isLav = Boolean(report.lavContext);
+  const lavDigitalSelfInspection =
+    report.lavContext?.inspectionType === "digital";
 
   const subject = isLav
-    ? `Your lender asset verification report is ready — ${vehicleLabel}${regoSuffix}`
-    : `Your Auto Verifi report is ready — AI analysis complete — ${vehicleLabel}${regoSuffix}`;
+    ? lavDigitalSelfInspection
+      ? `${LAV_DIGITAL_SELF_INSPECTION_EMAIL_HEADING} — ${vehicleLabel}${regoSuffix}`
+      : `Your lender asset verification report is ready — ${vehicleLabel}${regoSuffix}`
+    : `AI condition assessment processed — ${vehicleLabel}${regoSuffix}`;
 
   const html = buildInspectionDamageFollowUpEmailHtml({
     isLav,
+    lavDigitalSelfInspection,
     damageReady,
     vehicleLabel,
     regoSuffix,

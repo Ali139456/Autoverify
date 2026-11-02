@@ -152,7 +152,7 @@ export function InspectionCapture({
     : "AI condition assessment";
   const captureDuration = lavDigital
     ? "This takes about 5 minutes."
-    : "This takes about 5–10 minutes to complete.";
+    : "This usually takes about 5 minutes to complete.";
 
   const fetchPhotosFromServer = useCallback(async (): Promise<
     UploadedPhoto[] | null

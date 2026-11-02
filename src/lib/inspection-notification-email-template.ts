@@ -2,6 +2,10 @@ import {
   AI_DAMAGE_FOLLOW_UP_EMAIL_PROMISE,
   AI_DAMAGE_PROCESSING_SHORT,
 } from "@/lib/damage-processing-copy";
+
+/** LAV Digital Self Inspection — primary email heading (subject + title). */
+export const LAV_DIGITAL_SELF_INSPECTION_EMAIL_HEADING =
+  "Lender Asset Verification - Digital Self Inspection";
 import {
   BRANDED_EMAIL_BLUE,
   BRANDED_EMAIL_NAVY,
@@ -20,6 +24,7 @@ function processingBodyHtml(): string {
 
 export function buildInspectionPhotosUpdatedEmailHtml(input: {
   isLav: boolean;
+  lavDigitalSelfInspection?: boolean;
   damageAnalysisReady: boolean;
   vehicleLabel: string;
   regoSuffix: string;
@@ -29,6 +34,7 @@ export function buildInspectionPhotosUpdatedEmailHtml(input: {
 }): string {
   const {
     isLav,
+    lavDigitalSelfInspection = false,
     damageAnalysisReady,
     vehicleLabel,
     regoSuffix,
@@ -37,12 +43,15 @@ export function buildInspectionPhotosUpdatedEmailHtml(input: {
     baseUrl,
   } = input;
   const vehicle = vehicleLine(vehicleLabel, regoSuffix);
+  const lavHeading = lavDigitalSelfInspection
+    ? LAV_DIGITAL_SELF_INSPECTION_EMAIL_HEADING
+    : "Lender asset verification";
 
   if (isLav && damageAnalysisReady) {
     return buildBrandedEmailLayout({
       baseUrl,
-      eyebrow: "Lender asset verification",
-      title: "Report updated",
+      eyebrow: lavHeading,
+      title: lavDigitalSelfInspection ? lavHeading : "Report updated",
       introHtml: `Your lender asset verification report for ${vehicle} has been updated with inspection photos and AI damage analysis.`,
       ctas: [
         { label: "View report online", href: reportUrl, primary: true },
@@ -54,8 +63,8 @@ export function buildInspectionPhotosUpdatedEmailHtml(input: {
   if (isLav && !damageAnalysisReady) {
     return buildBrandedEmailLayout({
       baseUrl,
-      eyebrow: "Digital self inspection",
-      title: "Photos received",
+      eyebrow: lavHeading,
+      title: lavDigitalSelfInspection ? lavHeading : "Photos received",
       introHtml: `Your Digital Self Inspection photos for ${vehicle} are saved.`,
       bodyHtml: processingBodyHtml(),
     });
@@ -89,6 +98,7 @@ export function buildInspectionPhotosUpdatedEmailHtml(input: {
 
 export function buildInspectionDamageFollowUpEmailHtml(input: {
   isLav: boolean;
+  lavDigitalSelfInspection?: boolean;
   damageReady: boolean;
   vehicleLabel: string;
   regoSuffix: string;
@@ -99,6 +109,7 @@ export function buildInspectionDamageFollowUpEmailHtml(input: {
 }): string {
   const {
     isLav,
+    lavDigitalSelfInspection = false,
     damageReady,
     vehicleLabel,
     regoSuffix,
@@ -108,25 +119,34 @@ export function buildInspectionDamageFollowUpEmailHtml(input: {
     pdfAttached = false,
   } = input;
   const vehicle = vehicleLine(vehicleLabel, regoSuffix);
+  const lavHeading = lavDigitalSelfInspection
+    ? LAV_DIGITAL_SELF_INSPECTION_EMAIL_HEADING
+    : "Lender asset verification";
   const productLine = isLav
     ? "lender asset verification report"
     : "Auto Verifi Insights+ report";
 
   const statusHtml = damageReady
-    ? `<p style="margin:0;padding:14px 16px;border-radius:10px;background:#ecfdf5;border:1px solid #a7f3d0;"><strong style="color:#047857;">Photo scanning and AI damage analysis are now complete.</strong> Your latest walkaround and condition results are on your report.</p>`
+    ? `<p style="margin:0;padding:14px 16px;border-radius:10px;background:#ecfdf5;border:1px solid #a7f3d0;"><strong style="color:#047857;">AI condition assessment is complete.</strong> Your latest walkaround and condition results are on your report.</p>`
     : `<p style="margin:0;padding:14px 16px;border-radius:10px;background:#eff6ff;border:1px solid #bfdbfe;"><strong style="color:${BRANDED_EMAIL_BLUE};">AI damage analysis may still be finishing</strong> — refresh your report online for the latest results.</p>`;
 
   const footerNoteHtml = pdfAttached
     ? "A copy of your report PDF is attached to this email. You can also view or download it using the links below."
     : undefined;
 
+  const completionTitle = isLav
+    ? lavDigitalSelfInspection
+      ? lavHeading
+      : "Your report is ready"
+    : "AI condition assessment processed";
+
   return buildBrandedEmailLayout({
     baseUrl,
-    eyebrow: isLav ? "Lender asset verification" : "Auto Verifi Insights+",
-    title: damageReady ? "Your report is ready" : "Report updated",
+    eyebrow: isLav ? lavHeading : "Auto Verifi Insights+",
+    title: damageReady ? completionTitle : "Report updated",
     introHtml: isLav
-      ? `Your ${escapeBrandedEmailHtml(productLine)} for ${vehicle} has been updated with your latest inspection photos and AI damage analysis results.`
-      : `Your guided inspection photos for ${vehicle} are saved on your ${escapeBrandedEmailHtml(productLine)}.`,
+      ? `Your ${escapeBrandedEmailHtml(productLine)} for ${vehicle} has been updated with your latest inspection photos and AI condition assessment results.`
+      : `Your guided inspection photos for ${vehicle} are on your ${escapeBrandedEmailHtml(productLine)}. AI condition assessment is complete.`,
     bodyHtml: statusHtml,
     ctas: [
       { label: "View your report online", href: reportUrl, primary: true },

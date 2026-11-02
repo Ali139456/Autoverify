@@ -6,6 +6,45 @@ import { getReport, updateReport } from "@/lib/store";
 import { listReportIdsForDamageFollowUp } from "@/lib/store-supabase";
 import { isSupabaseServerConfigured } from "@/lib/supabase/server";
 
+/** Customer email once AI condition assessment is on the report (PDF + links). */
+export async function notifyDamageAssessmentCompleteEmail(
+  reportId: string,
+): Promise<boolean> {
+  let report = await getReport(reportId);
+  if (!report?.damage || report.damageFollowUpEmailSentAt) {
+    return false;
+  }
+
+  const emails = getInspectionPhotoNotifyEmails(report);
+  if (emails.length === 0) {
+    return false;
+  }
+
+  report = (await getReport(reportId)) ?? report;
+
+  let ok = true;
+  for (const email of emails) {
+    try {
+      await sendInspectionDamageFollowUpEmail(report, email);
+    } catch (err) {
+      ok = false;
+      console.error(
+        `[damage-complete-email] failed for ${reportId} (${email}):`,
+        err,
+      );
+    }
+  }
+
+  if (ok) {
+    await updateReport(reportId, {
+      damageFollowUpEmailSentAt: new Date().toISOString(),
+    });
+    return true;
+  }
+
+  return false;
+}
+
 export async function runDamageFollowUpEmailJob(): Promise<{
   scanned: number;
   sent: number;

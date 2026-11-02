@@ -1,7 +1,4 @@
-import {
-  getInspectionPhotoNotifyEmails,
-  sendInspectionPhotosUpdatedEmail,
-} from "./email";
+import { notifyDamageAssessmentCompleteEmail } from "./damage-follow-up-email";
 import { updateInspection } from "./inspections";
 import type { InspectionSession } from "./types";
 import {
@@ -53,17 +50,14 @@ export async function applyRavinWebhookPayload(
   const updatedReport = (await getReport(inspection.reportId)) ?? report;
 
   if (options?.notifyCustomer !== false && updatedReport && !hadDamage) {
-    const notifyEmails = getInspectionPhotoNotifyEmails(updatedReport);
-    for (const notifyEmail of notifyEmails) {
-      void sendInspectionPhotosUpdatedEmail(updatedReport, notifyEmail, {
-        damageAnalysisReady: true,
-      }).catch((err) => {
+    void notifyDamageAssessmentCompleteEmail(inspection.reportId).catch(
+      (err) => {
         console.error(
-          `[ravin-apply] damage-ready email failed (${notifyEmail}):`,
+          `[ravin-apply] damage-complete email failed (${inspection.reportId}):`,
           err,
         );
-      });
-    }
+      },
+    );
   }
 
   return { findings: damage.findings.length };
