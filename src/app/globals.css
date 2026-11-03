@@ -656,14 +656,14 @@ html.dark body {
   mix-blend-mode: multiply;
 }
 
-/* Additional photos — same visual weight as walkaround tiles (not full-page). */
+/* Additional photos — match walkaround tile sizing. */
 .report-insights-plus-additional-sheet .report-photo-tile > div {
-  min-height: 140px !important;
-  max-height: 160px !important;
+  min-height: 180px !important;
+  max-height: none !important;
 }
 
 .report-insights-plus-additional-sheet .report-photo-tile img {
-  max-height: 150px !important;
+  max-height: 240px !important;
 }
 
 @media print {
@@ -1529,11 +1529,15 @@ html.dark body {
   }
 
   .report-shell-insights-plus-photos .report-photo-tile img {
-    width: auto !important;
-    height: auto !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
-    object-fit: contain !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: cover !important;
+  }
+
+  .report-shell-insights-plus-photos .report-photo-tile > div {
+    overflow: hidden !important;
   }
 
   .report-shell-insights-plus-photos .report-photo-tile figcaption {
@@ -1630,7 +1634,7 @@ html.dark body {
     display: flex !important;
     flex-direction: column !important;
     min-height: 0 !important;
-    height: 100% !important;
+    height: auto !important;
   }
 
   .report-insights-plus-additional-sheet .report-photo-tile > div {
@@ -1642,14 +1646,15 @@ html.dark body {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    overflow: hidden !important;
   }
 
   .report-insights-plus-additional-sheet .report-photo-tile img {
-    width: auto !important;
-    height: auto !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
-    object-fit: contain !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: cover !important;
     object-position: center !important;
     background-color: #f1f5f9 !important;
   }

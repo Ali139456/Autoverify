@@ -166,10 +166,11 @@ export function LavReportPdf({
       <Page size="A4" style={styles.page}>
         <LavPdfHeader report={report} />
         <Text style={styles.title}>{vm.title}</Text>
-        <Text style={{ fontSize: 8, color: GREY, marginBottom: 6 }}>
-          Asset type: {vm.assetType}
-          {vm.bookingRef ? ` · Booking ${vm.bookingRef}` : ""}
-        </Text>
+        {vm.bookingRef ? (
+          <Text style={{ fontSize: 8, color: GREY, marginBottom: 6 }}>
+            Booking {vm.bookingRef}
+          </Text>
+        ) : null}
         <Text style={styles.section}>Vehicle details</Text>
         <View style={styles.grid2}>
           {[

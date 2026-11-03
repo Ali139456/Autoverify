@@ -132,14 +132,14 @@ export function IntegrationsPanel() {
         </p>
       </div>
 
-      <div className="mx-auto w-full">
+      <div className="mx-auto w-full max-w-md px-2 sm:max-w-lg md:max-w-xl lg:max-w-2xl">
         <Image
           src={ecosystemImage}
           alt="Auto Verifi vehicle intelligence hub connected to marketplaces, lenders, insurers, dealers, auction houses, rental, car share and ride share"
-          width={1400}
-          height={1400}
-          sizes="(max-width: 1080px) 100vw, 1080px"
-          className="mx-auto h-auto w-full max-w-none object-contain"
+          width={900}
+          height={900}
+          sizes="(max-width: 640px) 88vw, (max-width: 1024px) 512px, 672px"
+          className="mx-auto h-auto w-full object-contain"
         />
       </div>
 

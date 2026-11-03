@@ -13,7 +13,6 @@ import { AUTOVERIFI_CONTACT_EMAIL } from "@/lib/site-contact";
 const QUICK_LINKS = [
   { href: "/#check", label: "Check a vehicle" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/vehicleinspections", label: "Vehicle inspections" },
   { href: "/#how-it-works", label: "How it works" },
   { href: "/#whats-included", label: "What's included" },
   { href: "/about", label: "About us" },

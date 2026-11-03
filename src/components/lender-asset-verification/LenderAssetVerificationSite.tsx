@@ -67,8 +67,8 @@ export function LenderAssetVerificationSite() {
                   Verification summary – Digital Self Inspection
                 </div>
                 <div className="row">
-                  <span>Vehicle verification</span>
-                  <span className="pill">Key identifiers matched</span>
+                  <span>Vehicle Identifiers and Verification</span>
+                  <span className="pill">Matched</span>
                 </div>
                 <div className="row">
                   <span>Odometer captured</span>
@@ -92,11 +92,11 @@ export function LenderAssetVerificationSite() {
                 </div>
                 <div className="row">
                   <span>Vehicle owner ID verification</span>
-                  <span className="v">Optional</span>
+                  <span className="v muted">Optional</span>
                 </div>
                 <div className="row">
                   <span>Vehicle valuation</span>
-                  <span className="v">Optional</span>
+                  <span className="v muted">Optional</span>
                 </div>
                 <div className="row">
                   <span>Report delivered</span>

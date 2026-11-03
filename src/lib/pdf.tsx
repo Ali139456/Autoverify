@@ -1999,7 +1999,7 @@ function InsightsPlusWalkaroundPhotosPage({
           title="Walkaround Photos"
           photos={walkaroundPhotos}
           photoImageHeight={80}
-          photoObjectFit="contain"
+          photoObjectFit="cover"
         />
       </View>
     </PdfPageShell>
@@ -2033,7 +2033,7 @@ function InsightsPlusAdditionalPhotosPage({
           photos={additionalPhotos}
           note="Keys and Registration paper records from the guided inspection."
           photoImageHeight={80}
-          photoObjectFit="contain"
+          photoObjectFit="cover"
         />
       </View>
     </PdfPageShell>

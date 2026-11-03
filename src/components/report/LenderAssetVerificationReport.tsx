@@ -93,21 +93,7 @@ export function LenderAssetVerificationReport({
         >
           <h1 className="lav-report-title">{vm.title}</h1>
 
-          <div className="lav-report-asset-types mt-4">
-            {vm.assetTypes.map((type) => (
-              <span
-                key={type}
-                className={`lav-report-asset-chip ${
-                  type === vm.assetType ? "is-selected" : ""
-                }`}
-              >
-                {type === vm.assetType ? "✓ " : null}
-                {type}
-              </span>
-            ))}
-          </div>
-
-          <h2 className="lav-report-section-heading">Vehicle details</h2>
+          <h2 className="lav-report-section-heading mt-4">Vehicle details</h2>
 
           <div className="lav-report-page1-grid">
             <div className="lav-report-field">
