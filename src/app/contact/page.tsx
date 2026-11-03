@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Mail } from "lucide-react";
 import { ContactForm } from "@/components/ContactForm";
 import { getContactInboxEmail } from "@/lib/site-contact";
@@ -57,7 +58,9 @@ export default function ContactPage() {
             </div>
 
             <div className="rounded-2xl border border-white/[0.08] bg-[#050a14]/60 p-5 sm:p-6 lg:p-7">
-              <ContactForm />
+              <Suspense fallback={<p className="text-sm text-slate-400">Loading form…</p>}>
+                <ContactForm />
+              </Suspense>
             </div>
           </div>
         </div>

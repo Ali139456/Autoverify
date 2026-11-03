@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { ChevronDown, Loader2, Send } from "lucide-react";
 
 const SUBJECTS = [
@@ -34,6 +35,13 @@ async function readJson<T extends object>(
 }
 
 export function ContactForm() {
+  const searchParams = useSearchParams();
+  const querySubject = searchParams.get("subject")?.trim() ?? "";
+  const queryMessage = searchParams.get("message")?.trim() ?? "";
+  const initialSubject = SUBJECTS.includes(querySubject as (typeof SUBJECTS)[number])
+    ? querySubject
+    : querySubject || SUBJECTS[0];
+
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
     "idle",
   );
@@ -157,7 +165,8 @@ export function ContactForm() {
           <div className="group/select relative">
             <select
               name="subject"
-              defaultValue={SUBJECTS[0]}
+              key={initialSubject}
+              defaultValue={initialSubject}
               disabled={status === "sending"}
               className={selectFieldClass}
             >
@@ -166,6 +175,11 @@ export function ContactForm() {
                   {option}
                 </option>
               ))}
+              {querySubject && !SUBJECTS.includes(querySubject as (typeof SUBJECTS)[number]) ? (
+                <option value={querySubject} className="bg-[#070d1a] text-white">
+                  {querySubject}
+                </option>
+              ) : null}
             </select>
             <span
               className="pointer-events-none absolute right-2.5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg border border-[#0073E3]/40 bg-gradient-to-b from-[#0073E3]/25 via-[#0073E3]/10 to-transparent shadow-[0_0_20px_rgba(0,115,227,0.2),inset_0_1px_0_rgba(255,255,255,0.12)] ring-1 ring-inset ring-white/10 transition-[transform,box-shadow,border-color] duration-200 group-focus-within/select:rotate-180 group-focus-within/select:border-[#0073E3]/70 group-focus-within/select:shadow-[0_0_24px_rgba(0,115,227,0.35),inset_0_1px_0_rgba(255,255,255,0.16)]"
@@ -181,9 +195,11 @@ export function ContactForm() {
         <span className={labelClass}>Message</span>
         <textarea
           name="message"
+          key={queryMessage || "empty"}
           required
           minLength={10}
           rows={6}
+          defaultValue={queryMessage}
           disabled={status === "sending"}
           placeholder="How can we help?"
           className={`${fieldClass} min-h-[140px] resize-y`}

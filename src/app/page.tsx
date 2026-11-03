@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies, headers } from "next/headers";
 import { ComingSoon } from "@/components/ComingSoon";
 import { HomePage } from "@/components/HomePage";
+import { isSolutionTab } from "@/content/solutions-hub";
 import { shouldShowComingSoonPage } from "@/lib/site-mode";
 import { hasPreviewAccess, PREVIEW_COOKIE_NAME } from "@/lib/site-preview";
 
@@ -29,7 +30,11 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function Page() {
+type PageProps = {
+  searchParams: Promise<{ solutions?: string }>;
+};
+
+export default async function Page({ searchParams }: PageProps) {
   const cookieStore = await cookies();
   const headerStore = await headers();
   const previewToken = cookieStore.get(PREVIEW_COOKIE_NAME)?.value;
@@ -40,5 +45,9 @@ export default async function Page() {
     return <ComingSoon />;
   }
 
-  return <HomePage />;
+  const { solutions } = await searchParams;
+  const solutionsTab =
+    solutions && isSolutionTab(solutions) ? solutions : undefined;
+
+  return <HomePage solutionsTab={solutionsTab} />;
 }

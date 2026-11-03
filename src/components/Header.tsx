@@ -10,9 +10,11 @@ import { INSPECTION_MENU_ITEMS } from "@/lib/inspection-menu";
 import {
   isNavDropdown,
   MAIN_NAV,
+  SOLUTIONS_MENU,
   type NavDropdown,
   type NavLinkItem,
 } from "@/lib/main-nav";
+import { navigateToSolutionsNavHref } from "@/lib/scroll-to-solutions";
 
 const INSPECTION_PAGE_LINKS = [
   { href: "#services", label: "Services" },
@@ -31,11 +33,15 @@ const navLinkClass = (active: boolean) =>
 const buyReportClass =
   "group hidden h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-accent-500 px-3 text-[13px] font-bold leading-none text-white transition hover:bg-accent-600 xl:inline-flex xl:gap-2 xl:px-4 xl:text-sm";
 
-function navDropdownIsActive(menu: NavDropdown, pathname: string): boolean {
+function navDropdownIsActive(
+  menu: NavDropdown,
+  pathname: string,
+  locationHash: string,
+): boolean {
   return menu.items.some((item) => {
     if (item.href === pathname) return true;
-    if (item.href.startsWith("/solutions/") && pathname.startsWith("/solutions/")) {
-      return true;
+    if (pathname === "/" && item.href.startsWith("/#")) {
+      return item.href === `/${locationHash}`;
     }
     return false;
   });
@@ -44,15 +50,17 @@ function navDropdownIsActive(menu: NavDropdown, pathname: string): boolean {
 function NavDropdownMenu({
   menu,
   pathname,
+  locationHash,
   onNavigate,
 }: {
   menu: NavDropdown;
   pathname: string;
+  locationHash: string;
   onNavigate?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const active = navDropdownIsActive(menu, pathname);
+  const active = navDropdownIsActive(menu, pathname, locationHash);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -92,7 +100,13 @@ function NavDropdownMenu({
             <Link
               key={item.href}
               href={item.href}
-              onClick={() => {
+              onClick={(event) => {
+                if (
+                  menu.id === SOLUTIONS_MENU.id &&
+                  navigateToSolutionsNavHref(item.href, pathname)
+                ) {
+                  event.preventDefault();
+                }
                 setOpen(false);
                 onNavigate?.();
               }}
@@ -234,6 +248,7 @@ function HeaderMobileMenu({
   links: ReadonlyArray<{ href: string; label: string }>;
   onBuyReport: () => void;
 }) {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [mobileInspectionsOpen, setMobileInspectionsOpen] = useState(false);
 
@@ -301,7 +316,15 @@ function HeaderMobileMenu({
                         <Link
                           key={item.href}
                           href={item.href}
-                          onClick={() => setOpen(false)}
+                          onClick={(event) => {
+                            if (
+                              entry.id === SOLUTIONS_MENU.id &&
+                              navigateToSolutionsNavHref(item.href, pathname)
+                            ) {
+                              event.preventDefault();
+                            }
+                            setOpen(false);
+                          }}
                           className={mobileNavLinkClass}
                         >
                           {item.label}
@@ -436,6 +459,7 @@ function HeaderBuyReportActions({
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
+  const [locationHash, setLocationHash] = useState("");
   const pathname = usePathname();
   const isInspectionPage = pathname.startsWith("/vehicleinspections");
   const links = isInspectionPage ? INSPECTION_PAGE_LINKS : [];
@@ -446,6 +470,13 @@ export function Header() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    const syncHash = () => setLocationHash(window.location.hash);
+    syncHash();
+    window.addEventListener("hashchange", syncHash);
+    return () => window.removeEventListener("hashchange", syncHash);
+  }, [pathname]);
 
   return (
     <header className="av-site-header fixed inset-x-0 top-0 z-50 bg-ink-950 py-3">
@@ -486,6 +517,7 @@ export function Header() {
                       key={entry.id}
                       menu={entry}
                       pathname={pathname}
+                      locationHash={locationHash}
                     />
                   ) : null,
                 )}

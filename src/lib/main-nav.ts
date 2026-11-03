@@ -1,3 +1,5 @@
+import { solutionSectionHref } from "@/content/solutions-hub";
+
 export type NavLinkItem = {
   href: string;
   label: string;
@@ -33,10 +35,9 @@ export const SOLUTIONS_MENU: NavDropdown = {
   id: "solutions",
   label: "Solutions",
   items: [
-    { href: "/solutions/consumer", label: "Consumer" },
-    { href: "/solutions/dealers", label: "Dealers" },
-    { href: "/solutions/government", label: "Government" },
-    { href: "/solutions/audit", label: "Audit & consulting" },
+    { href: solutionSectionHref("consumer"), label: "Consumer" },
+    { href: solutionSectionHref("business"), label: "Business" },
+    { href: solutionSectionHref("integrations"), label: "Integrations" },
   ],
 };
 

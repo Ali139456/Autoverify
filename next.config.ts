@@ -33,6 +33,41 @@ const nextConfig: NextConfig = {
         destination: "/vehicleinspections",
         permanent: true,
       },
+      {
+        source: "/solutions",
+        destination: "/?solutions=consumer",
+        permanent: true,
+      },
+      {
+        source: "/solutions/consumer",
+        destination: "/?solutions=consumer",
+        permanent: true,
+      },
+      {
+        source: "/solutions/business",
+        destination: "/?solutions=business",
+        permanent: true,
+      },
+      {
+        source: "/solutions/integrations",
+        destination: "/?solutions=integrations",
+        permanent: true,
+      },
+      {
+        source: "/solutions/dealers",
+        destination: "/?solutions=business",
+        permanent: true,
+      },
+      {
+        source: "/solutions/government",
+        destination: "/?solutions=business",
+        permanent: true,
+      },
+      {
+        source: "/solutions/audit",
+        destination: "/?solutions=business",
+        permanent: true,
+      },
     ];
   },
 };

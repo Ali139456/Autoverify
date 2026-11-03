@@ -14,6 +14,8 @@ import { HeroCheckLead } from "@/components/HeroCheckLead";
 import { ScrollToCheckOnHash } from "@/components/ScrollToCheckOnHash";
 import { Reveal } from "@/components/Reveal";
 import { HowItWorksSection } from "@/components/HowItWorksSection";
+import { HomeSolutionsSection } from "@/components/HomeSolutionsSection";
+import type { SolutionTab } from "@/content/solutions-hub";
 
 const INSIGHT_PILLARS = [
   {
@@ -103,7 +105,11 @@ const FEATURE_ITEMS = INSIGHT_PILLARS.flatMap((pillar) =>
   pillar.items.map((item) => item),
 );
 
-export function HomePage() {
+export function HomePage({
+  solutionsTab,
+}: {
+  solutionsTab?: SolutionTab;
+} = {}) {
   return (
     <>
       <section
@@ -193,6 +199,8 @@ export function HomePage() {
       </section>
 
       <HowItWorksSection />
+
+      <HomeSolutionsSection initialTab={solutionsTab} />
 
       <section id="faq" className="scroll-mt-24 bg-white py-12 dark:bg-ink-950 sm:py-16 lg:py-20">
         <div className="av-site-container">
