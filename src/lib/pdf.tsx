@@ -1864,12 +1864,15 @@ function PdfPhotoGroup({
   note,
   photoImageHeight = 64,
   photoObjectFit = "cover",
+  columnsPerRow = 4,
 }: {
   title: string;
   photos: InspectionPhoto[];
   note?: string;
   photoImageHeight?: number;
   photoObjectFit?: "cover" | "contain";
+  /** Fixed grid columns so partial rows align with full rows (e.g. 2 additional photos). */
+  columnsPerRow?: 2 | 3 | 4;
 }) {
   if (photos.length === 0) return null;
   const hasRecordOnlyPhoto = photos.some((photo) =>
@@ -1882,7 +1885,7 @@ function PdfPhotoGroup({
         <Text style={[styles.para, { marginTop: 2, fontSize: 6.5 }]}>{note}</Text>
       ) : null}
       <View style={styles.photoGrid}>
-        {chunkFactoryFeatures(photos, 4).map((row, rowIndex) => (
+        {chunkFactoryFeatures(photos, columnsPerRow).map((row, rowIndex) => (
           <View key={rowIndex} style={styles.photoRow} wrap={false}>
             {row.map((photo, i) => {
               const url = resolvePdfImageSrc(getInspectionPhotoUrl(photo));
@@ -1895,7 +1898,7 @@ function PdfPhotoGroup({
                 photo.angle === "front"
                   ? `${baseLabel} (rego visible)`
                   : baseLabel;
-              const tileWidth = pdfPhotoTileWidth(row.length);
+              const tileWidth = pdfPhotoTileWidth(columnsPerRow);
               return (
                 <View
                   key={`${photo.angle}-${photo.uploadedAt}`}
@@ -2034,6 +2037,7 @@ function InsightsPlusAdditionalPhotosPage({
           note="Keys and Registration paper records from the guided inspection."
           photoImageHeight={80}
           photoObjectFit="cover"
+          columnsPerRow={4}
         />
       </View>
     </PdfPageShell>

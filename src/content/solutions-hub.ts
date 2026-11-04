@@ -90,7 +90,7 @@ export const BUSINESS_OFFERINGS: SolutionOfferingCard[] = [
     id: "ride-share",
     title: "Ride Share",
     description:
-      "Day 1 onboarding vehicle record and continuous vehicle intelligence.",
+      "Day 1 onboarding vehicle record and continuous vehicle intelligence to improve visibility over vehicle quality and ongoing compliance.",
     bullets: [
       "Vehicle condition record at Day 1 onboarding",
       "Continuous vehicle and maintenance record intelligence",
@@ -117,7 +117,7 @@ export const BUSINESS_OFFERINGS: SolutionOfferingCard[] = [
       "Check-in & return inspection",
       "AI-Powered Damage Detection",
       "Repair cost estimates",
-      "Dispute resolution and evidence",
+      "Dispute resolution evidence",
     ],
   },
   {
@@ -148,7 +148,7 @@ export const INTEGRATIONS_CONTENT = {
   title: "One intelligence layer, across the automotive ecosystem",
   intro:
     "Auto Verifi sits at the centre of the automotive ecosystem, feeding verified vehicle intelligence to the platforms and businesses that depend on it.",
-  ecosystemImage: "/0f13898be_image.png",
+  ecosystemImage: "/solutions/integrations-ecosystem.png",
 };
 
 export function isSolutionTab(slug: string): slug is SolutionTab {

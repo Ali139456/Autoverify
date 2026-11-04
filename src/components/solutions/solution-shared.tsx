@@ -139,7 +139,7 @@ export function IntegrationsPanel() {
           width={900}
           height={900}
           sizes="(max-width: 640px) 88vw, (max-width: 1024px) 512px, 672px"
-          className="mx-auto h-auto w-full object-contain"
+          className="integrations-ecosystem-image mx-auto h-auto w-full object-contain"
         />
       </div>
 

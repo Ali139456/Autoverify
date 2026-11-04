@@ -40,7 +40,6 @@ import {
   buildVinLookupQuery,
   CARS_ONLY_AVAILABILITY_NOTE,
   DEFAULT_ASSET_CATEGORY,
-  FACET_MANUAL_SELECT_HINT,
   isPurchaseAssetCategory,
   upstreamIndicatesNonCarAsset,
 } from "./autograb-catalogue";
@@ -181,6 +180,36 @@ async function autograbPost(path: string, body: JsonRecord): Promise<Response> {
   });
 }
 
+function registrationLookupFailureMessage(
+  status: number,
+  errorBody: JsonRecord | null,
+  plate: string,
+  state: AustralianState,
+): string {
+  const apiMessage =
+    typeof errorBody?.message === "string" ? errorBody.message : null;
+
+  if (status === 404) {
+    return `No vehicle found for registration ${plate} (${state}). Check the plate and try again.`;
+  }
+
+  if (status === 401) {
+    return "We couldn't reach the vehicle register (AutoGrab authentication). Please try again shortly or contact support if this continues.";
+  }
+
+  if (
+    status === 400 &&
+    apiMessage &&
+    /overlay feature|registration_features/i.test(apiMessage)
+  ) {
+    return "Vehicle lookup is misconfigured on our side (AutoGrab feature bundle). Please contact support.";
+  }
+
+  return (
+    apiMessage ?? `Autograb registration lookup failed (${status}).`
+  );
+}
+
 function assertRegistrationMatchQuality(
   registrationData: JsonRecord,
   vehicleRecord: JsonRecord,
@@ -207,17 +236,8 @@ function assertRegistrationMatchQuality(
     );
   }
 
-  if (confidence === "reduced") {
-    throw new VehicleLookupMismatchError(
-      "reduced_confidence",
-      FACET_MANUAL_SELECT_HINT,
-      {
-        upstreamVehicle: upstream ?? undefined,
-        confidence: confidence ?? undefined,
-        vehicleCategory: vehicleCategory ?? undefined,
-      },
-    );
-  }
+  // Reduced confidence: AutoGrab still returns a catalogue vehicle (e.g. MB3NZ → Mercedes C300).
+  // Allow checkout; facet manual select remains available via CheckVehicleMismatch if re-enabled.
 }
 
 function assertCatalogueVehicleCategory(
@@ -249,19 +269,18 @@ async function lookupViaAutograb(
     `/vehicles/registrations/${encodeURIComponent(plate)}?${buildRegistrationLookupQuery(state, { category, features: REGISTRATION_FEATURES })}`,
   );
 
-  if (registrationRes.status === 404) {
-    throw new Error(
-      `No vehicle found for registration ${plate} (${state}). Check the plate and try again.`,
-    );
-  }
-
   if (!registrationRes.ok) {
-    const errorBody = await registrationRes.json().catch(() => null);
-    const message =
-      typeof errorBody?.message === "string"
-        ? errorBody.message
-        : `Autograb registration lookup failed (${registrationRes.status}).`;
-    throw new Error(message);
+    const errorBody = (await registrationRes.json().catch(() => null)) as
+      | JsonRecord
+      | null;
+    throw new Error(
+      registrationLookupFailureMessage(
+        registrationRes.status,
+        errorBody,
+        plate,
+        state,
+      ),
+    );
   }
 
   const registrationData = (await registrationRes.json()) as JsonRecord;
@@ -1272,6 +1291,67 @@ async function fetchRegistrationPayloadSummary(
   return {
     expiryDate: expiryDate ?? null,
     status: status ?? "Registered",
+  };
+}
+
+/** Public readiness probe — no secrets returned. */
+export async function getAutograbHealthPayload(): Promise<{
+  configured: boolean;
+  mode: "demo" | "live";
+  registrationFeatures: string;
+  probe: {
+    plate: string;
+    state: AustralianState;
+    httpStatus: number;
+    ok: boolean;
+    message?: string;
+  } | null;
+}> {
+  const registrationFeatures = REGISTRATION_FEATURES;
+  if (!AUTOGRAB_API_KEY?.trim()) {
+    return {
+      configured: false,
+      mode: "demo",
+      registrationFeatures,
+      probe: null,
+    };
+  }
+
+  const plate = (
+    process.env.AUTOGRAB_PROBE_REGO?.trim() || "FVC37P"
+  ).toUpperCase();
+  const state = (
+    process.env.AUTOGRAB_PROBE_STATE?.trim() || "NSW"
+  ).toUpperCase() as AustralianState;
+
+  const registrationRes = await autograbGet(
+    `/vehicles/registrations/${encodeURIComponent(plate)}?${buildRegistrationLookupQuery(state, { category: DEFAULT_ASSET_CATEGORY, features: REGISTRATION_FEATURES })}`,
+  );
+
+  let message: string | undefined;
+  if (!registrationRes.ok) {
+    const errorBody = (await registrationRes.json().catch(() => null)) as
+      | JsonRecord
+      | null;
+    message = registrationLookupFailureMessage(
+      registrationRes.status,
+      errorBody,
+      plate,
+      state,
+    );
+  }
+
+  return {
+    configured: true,
+    mode: "live",
+    registrationFeatures,
+    probe: {
+      plate,
+      state,
+      httpStatus: registrationRes.status,
+      ok: registrationRes.ok,
+      message,
+    },
   };
 }
 

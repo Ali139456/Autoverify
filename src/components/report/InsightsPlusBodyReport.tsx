@@ -237,7 +237,7 @@ export function InsightsPlusBodyReport({
                 photos={additionalPhotos}
                 damageByPanel={damageByPanel}
                 note="Keys and Registration paper records from the guided inspection."
-                gridClassName="report-photo-grid report-photo-grid-additional mt-3 grid grid-cols-2 gap-4"
+                gridClassName="report-photo-grid report-photo-grid-additional mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-3"
               />
             </div>
           </ReportShell>

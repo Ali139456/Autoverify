@@ -666,6 +666,13 @@ html.dark body {
   max-height: 240px !important;
 }
 
+/** Solutions → Integrations hub graphic (dark asset, no frame). */
+.integrations-ecosystem-image {
+  display: block;
+  background: transparent;
+  vertical-align: middle;
+}
+
 @media print {
   .report-hero-image-photo {
     mix-blend-mode: normal;
@@ -1621,12 +1628,11 @@ html.dark body {
 
   .report-insights-plus-additional-sheet .report-photo-grid,
   .report-insights-plus-additional-sheet .report-photo-grid-additional {
-    flex: 1 1 auto !important;
-    gap: 10px !important;
+    flex: 0 0 auto !important;
+    gap: 6px !important;
     align-content: start !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
     grid-auto-rows: auto !important;
-    min-height: 0 !important;
     max-width: 100% !important;
   }
 
@@ -1635,6 +1641,7 @@ html.dark body {
     flex-direction: column !important;
     min-height: 0 !important;
     height: auto !important;
+    align-self: start !important;
   }
 
   .report-insights-plus-additional-sheet .report-photo-tile > div {
@@ -2127,6 +2134,30 @@ html.dark body {
   .report-photo-tile img {
     object-fit: contain !important;
     object-position: center !important;
+    background-color: #f1f5f9 !important;
+  }
+
+  /* Insights+ walkaround & additional — uniform tile fill (overrides generic contain above). */
+  .report-shell-insights-plus-photos .report-photo-tile > div,
+  .report-insights-plus-additional-sheet .report-photo-tile > div {
+    width: 100% !important;
+    height: 24mm !important;
+    min-height: 24mm !important;
+    max-height: 24mm !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    display: block !important;
+  }
+
+  .report-shell-insights-plus-photos .report-photo-tile img,
+  .report-insights-plus-additional-sheet .report-photo-tile img {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: cover !important;
+    object-position: center center !important;
     background-color: #f1f5f9 !important;
   }
 
