@@ -385,9 +385,8 @@ async function lookupViaAutograb(
 
 async function attachManufacturerWarrantyService(
   result: VehicleLookupResult,
-  preview?: boolean,
+  _preview?: boolean,
 ): Promise<void> {
-  if (preview) return;
   if (isInfoAgentConfigured()) {
     result.manufacturerWarrantyService = await fetchManufacturerWarrantyService({
       rego: result.vehicle.rego,

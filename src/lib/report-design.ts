@@ -565,7 +565,7 @@ function hasInfoAgentServiceData(
   );
 }
 
-function formatManufacturerWarrantyStatus(
+export function formatManufacturerWarrantyStatus(
   info: ManufacturerWarrantyServiceInfo | null | undefined,
 ): Pick<ReportInsight, "status" | "statusSubtext" | "tone" | "detail"> {
   if (!hasInfoAgentWarrantyData(info)) {
@@ -625,7 +625,7 @@ function formatManufacturerWarrantyStatus(
   };
 }
 
-function formatServicingGuidelines(
+export function formatServicingGuidelines(
   info: ManufacturerWarrantyServiceInfo | null | undefined,
 ): Pick<ReportInsight, "status" | "statusSubtext" | "tone" | "detail"> {
   if (!hasInfoAgentServiceData(info)) {
