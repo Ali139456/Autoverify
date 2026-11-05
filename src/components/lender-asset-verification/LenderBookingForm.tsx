@@ -13,7 +13,7 @@ import {
 import { AUTOVERIFI_CONTACT_EMAIL } from "@/lib/site-contact";
 
 const PRICE_DIGITAL = 35;
-const PRICE_PHYSICAL = 120;
+const PRICE_PHYSICAL = 160;
 const GST_RATE = 0.1;
 const LAV_INVOICE_PROMO = "AVINV";
 
@@ -476,7 +476,9 @@ export const LenderBookingForm = forwardRef<
                 />
                 <strong>Physical inspection</strong>
                 <small className="choice-detail">
-                  <span className="choice-detail-line">$120 + GST per asset</span>
+                  <span className="choice-detail-line">
+                    ${PRICE_PHYSICAL} + GST per asset
+                  </span>
                   <span className="choice-detail-line">
                     Inspector attends the asset
                   </span>

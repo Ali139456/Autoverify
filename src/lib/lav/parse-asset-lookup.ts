@@ -12,6 +12,27 @@ const STATES: AustralianState[] = [
   "WA",
 ];
 
+/** Cars and road vehicles use AutoGrab; plant/equipment and similar are manual-only. */
+export function lavAssetSupportsAutoGrabLookup(assetType: string): boolean {
+  const t = assetType.trim().toLowerCase();
+  if (!t) return true;
+  if (
+    t.includes("equipment") ||
+    t.includes("yellow goods") ||
+    t.includes("agricultural") ||
+    t.includes("plant &") ||
+    t.includes("plant and") ||
+    t.includes("outboard") ||
+    t.includes("inboard motor") ||
+    t.includes("boat hull") ||
+    t.includes("jet ski") ||
+    t.includes("pwc")
+  ) {
+    return false;
+  }
+  return true;
+}
+
 export function parseLavAssetLookupInput(asset: {
   identifier: string;
   rego: string;

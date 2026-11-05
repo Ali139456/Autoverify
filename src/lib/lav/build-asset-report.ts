@@ -1,7 +1,10 @@
 import { lookupVehicle, type VehicleLookupResult } from "@/lib/autograb";
 import { generateReportId, saveReport } from "@/lib/store";
 import type { VehicleReport } from "@/lib/types";
-import { parseLavAssetLookupInput } from "./parse-asset-lookup";
+import {
+  lavAssetSupportsAutoGrabLookup,
+  parseLavAssetLookupInput,
+} from "./parse-asset-lookup";
 import type {
   LavAssetContext,
   LavAssetInput,
@@ -85,7 +88,7 @@ export async function createLavAssetReport(input: {
   });
 
   try {
-    if (lookupInput) {
+    if (lookupInput && lavAssetSupportsAutoGrabLookup(asset.type)) {
       const lookup = await lookupVehicle(lookupInput.query, lookupInput.state);
       verification = verificationFromLookup(lookup, asset);
       report = {

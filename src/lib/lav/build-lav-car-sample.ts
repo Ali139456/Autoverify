@@ -21,8 +21,10 @@ function sampleWalkaroundPath(file: string): string {
 }
 
 export function buildLavCarSamplePhotos(): InspectionPhoto[] {
-  return LAV_DIGITAL_INSPECTION_ANGLES.map(({ id }) => {
-    const file = SAMPLE_WALKAROUND_FILES[id] ?? "front.jpg";
+  return LAV_DIGITAL_INSPECTION_ANGLES.filter(({ id }) =>
+    Boolean(SAMPLE_WALKAROUND_FILES[id]),
+  ).map(({ id }) => {
+    const file = SAMPLE_WALKAROUND_FILES[id]!;
     const url = sampleWalkaroundPath(file);
     return {
       angle: id,

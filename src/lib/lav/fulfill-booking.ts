@@ -3,11 +3,6 @@ import {
   getInspectionOwnerUrl,
   updateInspection,
 } from "@/lib/inspections";
-import {
-  coerceRavinInspectorLiteUrl,
-  createRavinPartnerInvite,
-  isRavinPartnerConfigured,
-} from "@/lib/ravin-partner";
 import { normalizeAuMobile } from "@/lib/phone";
 import { sendInspectionLinkSms, isSmsConfigured } from "@/lib/sms";
 import { getBaseUrl } from "@/lib/stripe";
@@ -40,22 +35,6 @@ async function startDigitalCapture(input: {
 
   const baseUrl = getBaseUrl();
   const inspectUrl = getInspectionOwnerUrl(inspection, baseUrl);
-
-  if (isRavinPartnerConfigured()) {
-    try {
-      const invite = await createRavinPartnerInvite({
-        claimId: input.reportId,
-        lp: input.rego || "LAV",
-        state: input.state || "NSW",
-      });
-      await updateInspection(inspection.id, {
-        ravinInspectionId: invite.invitationId,
-        ravinInviteUrl: coerceRavinInspectorLiteUrl(invite.inviteUrl),
-      });
-    } catch (err) {
-      console.error("[lav/fulfill] Ravin invite failed:", err);
-    }
-  }
 
   await updateReport(input.reportId, {
     workflowStatus: "awaiting_inspection",

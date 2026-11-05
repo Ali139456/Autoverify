@@ -1,7 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import {
+  ArrowRight,
+  Bike,
+  Car,
+  Caravan,
+  LayoutGrid,
+  Ship,
+  Tractor,
+  Truck,
+} from "lucide-react";
 import { useRef } from "react";
 import {
   LenderBookingForm,
@@ -10,6 +19,16 @@ import {
 import "./lender-asset-verification.css";
 
 const SAMPLE_PDF = "/samples/lender-asset-verification-car-sample.pdf";
+
+const SECURED_ASSET_TYPES = [
+  { label: "Cars", Icon: Car },
+  { label: "Bikes", Icon: Bike },
+  { label: "Boats", Icon: Ship },
+  { label: "Heavy vehicles", Icon: Truck },
+  { label: "Equipment", Icon: Tractor },
+  { label: "Caravans", Icon: Caravan },
+  { label: "Other assets", Icon: LayoutGrid },
+] as const;
 
 export function LenderAssetVerificationSite() {
   const bookingRef = useRef<LenderBookingFormHandle>(null);
@@ -80,11 +99,13 @@ export function LenderAssetVerificationSite() {
                 </div>
                 <div className="row">
                   <span>Photos – vehicle verification</span>
-                  <span className="v">Date &amp; time stamped images</span>
+                  <span className="v">
+                    Date, time stamped and geo tagged images
+                  </span>
                 </div>
                 <div className="row row-condition">
                   <span>Condition</span>
-                  <span className="v">Verified using AI damage detection</span>
+                  <span className="v">Verified from image capture</span>
                 </div>
                 <div className="row">
                   <span>Registration papers</span>
@@ -105,6 +126,24 @@ export function LenderAssetVerificationSite() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="secured-assets" aria-labelledby="secured-assets-heading">
+        <div className="av-site-container">
+          <div className="sec-head lav-secured-assets-head">
+            <h2 id="secured-assets-heading">We verify all secured assets</h2>
+          </div>
+          <ul className="secured-assets-grid">
+            {SECURED_ASSET_TYPES.map(({ label, Icon }) => (
+              <li key={label} className="secured-asset-card">
+                <span className="secured-asset-icon" aria-hidden>
+                  <Icon className="h-[22px] w-[22px]" strokeWidth={1.75} />
+                </span>
+                <span className="secured-asset-label">{label}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
@@ -186,7 +225,7 @@ export function LenderAssetVerificationSite() {
                 <li>General condition verified</li>
               </ul>
               <div className="price">
-                <b>$120</b> + GST per asset
+                <b>$160</b> + GST per asset
               </div>
               <button
                 type="button"
@@ -233,7 +272,7 @@ export function LenderAssetVerificationSite() {
               <p>
                 That depends on your lender&apos;s credit policy. A Digital Self
                 Inspection ($35 + GST) is faster and works anywhere with mobile
-                coverage, but some lenders require a physical inspection ($120 +
+                coverage, but some lenders require a physical inspection ($160 +
                 GST) for certain asset types, ages or loan amounts. Please
                 confirm before booking.
               </p>

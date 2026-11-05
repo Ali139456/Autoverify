@@ -60,6 +60,31 @@ export async function POST(
 
     const freshInspection =
       (await getInspectionById(inspection.id)) ?? inspection;
+
+    if (report.lavContext) {
+      await updateInspection(inspection.id, {
+        status: "complete",
+        completedAt: new Date().toISOString(),
+      });
+      await updateReport(inspection.reportId, {
+        workflowStatus: "complete",
+      });
+      void notifyDamageAssessmentCompleteEmail(inspection.reportId).catch(
+        (err) => {
+          console.error(
+            `[inspections/complete] LAV complete email failed (${report.id}):`,
+            err,
+          );
+        },
+      );
+      return NextResponse.json({
+        ok: true,
+        mode: "lav_capture",
+        complete: true,
+        missingAngles: progress.missing,
+      });
+    }
+
     const photoFiles = await downloadInspectionPhotos(freshInspection);
 
     await updateInspection(inspection.id, {

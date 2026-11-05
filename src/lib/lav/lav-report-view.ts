@@ -29,16 +29,17 @@ export type LavReportPhotoSlot = {
 };
 
 const WALKAROUND_ANGLES = [
-  { id: "front", title: "Front" },
-  { id: "left_side", title: "Left passenger side" },
+  { id: "front", title: "Front showing registration plate" },
+  { id: "left_side", title: "Passenger side" },
+  { id: "right_side", title: "Driver side" },
   { id: "rear", title: "Rear" },
-  { id: "right_side", title: "Right driver side" },
 ] as const;
 
 const ID_ANGLES = [
-  { id: "vin_plate", title: "VIN identification" },
   { id: "dashboard", title: "Odometer reading" },
+  { id: "vin_plate", title: "VIN identification" },
   { id: "service_record", title: "Registration papers" },
+  { id: "owner_licence", title: "Driver licence of owner" },
 ] as const;
 
 function normalizeAssetType(raw: string | undefined): string {
@@ -148,13 +149,6 @@ export function buildLavReportViewModel(
     body: vehicle.bodyType?.trim() || "—",
     colour: v?.colour?.trim() || vehicle.colour?.trim() || "—",
     conditionGrade: resolveLavConditionGrade(damage),
-    inspectorComments: "Inspector comments not supplied.",
-    aiScanSummary:
-      damage?.findings?.length && damage.findings.length > 0
-        ? "Damage detected on one or more panels — see panel results below."
-        : damage
-          ? "No significant damage detected"
-          : "Awaiting AI damage scan",
     heroPhoto,
     walkaround,
     identification,

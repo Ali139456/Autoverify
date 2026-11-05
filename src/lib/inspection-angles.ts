@@ -37,21 +37,27 @@ export const INSPECTION_ANGLES = [
   },
 ] as const;
 
-/** Lender asset verification — digital self inspection (7 photos). */
+/** Lender asset verification — digital self inspection (image capture only). */
 export const LAV_DIGITAL_INSPECTION_ANGLES = [
-  { id: "front", label: "Front centre" },
+  { id: "front", label: "Front showing registration plate" },
   { id: "left_side", label: "Passenger side (full body)" },
-  { id: "rear", label: "Rear centre" },
   { id: "right_side", label: "Driver side (full body)" },
+  { id: "rear", label: "Rear" },
+  { id: "dashboard", label: "Odometer reading" },
+  { id: "vin_plate", label: "VIN identification" },
+  { id: "service_record", label: "Registration papers (optional)", optional: true },
   {
-    id: "dashboard",
-    label: "Interior odometer reading (with engine running)",
+    id: "owner_licence",
+    label: "Driver licence of owner (optional)",
+    optional: true,
   },
-  { id: "vin_plate", label: "VIN identification image" },
-  { id: "service_record", label: "Registration papers" },
 ] as const;
 
-export type InspectionAngleDef = (typeof INSPECTION_ANGLES)[number];
+export type InspectionAngleDef = {
+  id: string;
+  label: string;
+  optional?: boolean;
+};
 export type InspectionAngleId = (typeof INSPECTION_ANGLES)[number]["id"];
 
 export function isLavDigitalInspectionReport(report: {
@@ -99,10 +105,28 @@ export const LEGACY_INSPECTION_ANGLE_IDS = [
   "interior_passenger_front",
 ] as const;
 
+const LAV_INSPECTION_ANGLE_IDS = LAV_DIGITAL_INSPECTION_ANGLES.map((a) => a.id);
+
 export function isValidInspectionAngleId(id: string): boolean {
   return (
     INSPECTION_ANGLE_IDS.includes(id as (typeof INSPECTION_ANGLE_IDS)[number]) ||
+    (LAV_INSPECTION_ANGLE_IDS as readonly string[]).includes(id) ||
     (LEGACY_INSPECTION_ANGLE_IDS as readonly string[]).includes(id)
+  );
+}
+
+export function requiredInspectionAngles(
+  angles: readonly InspectionAngleDef[],
+): InspectionAngleDef[] {
+  return angles.filter((angle) => !angle.optional);
+}
+
+export function allRequiredAnglesUploaded(
+  uploaded: Set<string>,
+  angles: readonly InspectionAngleDef[],
+): boolean {
+  return requiredInspectionAngles(angles).every((angle) =>
+    uploaded.has(angle.id),
   );
 }
 
@@ -131,7 +155,11 @@ export function getInspectionAngleLabel(id: string): string {
   if (id === "interior_driver_front" || id === "interior_passenger_front") {
     return "Front interior";
   }
-  return INSPECTION_ANGLES.find((angle) => angle.id === id)?.label ?? id;
+  const fromStandard = INSPECTION_ANGLES.find((angle) => angle.id === id);
+  if (fromStandard) return fromStandard.label;
+  const fromLav = LAV_DIGITAL_INSPECTION_ANGLES.find((angle) => angle.id === id);
+  if (fromLav) return fromLav.label;
+  return id;
 }
 
 export function getInspectionAngleHint(id: string): string | undefined {
@@ -172,8 +200,12 @@ export const INSPECTION_LINK_TTL_HOURS = 72;
 /** Max photos for manual desktop upload (matches guided capture count). */
 export const MANUAL_DAMAGE_UPLOAD_MAX_PHOTOS = INSPECTION_ANGLES.length;
 
-/** Keys and registration papers — shown on report for record only (no Ravin AI). */
-export const RECORD_ONLY_INSPECTION_ANGLE_IDS = ["keys", "service_record"] as const;
+/** Keys, papers, ID — shown on report for record only (no AI scan). */
+export const RECORD_ONLY_INSPECTION_ANGLE_IDS = [
+  "keys",
+  "service_record",
+  "owner_licence",
+] as const;
 
 export function isRecordOnlyInspectionPhoto(angle: string): boolean {
   return (RECORD_ONLY_INSPECTION_ANGLE_IDS as readonly string[]).includes(angle);
@@ -216,9 +248,11 @@ const LEGACY_INSPECTION_PHOTO_SORT_INDEX: Record<string, number> = {
 export function sortInspectionPhotos<T extends { angle: string }>(
   photos: T[],
 ): T[] {
-  const order = new Map<string, number>(
-    INSPECTION_ANGLE_IDS.map((id, index) => [id, index]),
-  );
+  const lavOrder = LAV_INSPECTION_ANGLE_IDS.map((id, index) => [id, index] as const);
+  const order = new Map<string, number>([
+    ...INSPECTION_ANGLE_IDS.map((id, index) => [id, index] as const),
+    ...lavOrder,
+  ]);
   return [...photos].sort((a, b) => {
     const ai =
       order.get(a.angle) ??

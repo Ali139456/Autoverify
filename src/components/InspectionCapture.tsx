@@ -10,8 +10,10 @@ import {
   Sparkles,
 } from "lucide-react";
 import {
+  allRequiredAnglesUploaded,
   getInspectionAngleHint,
   INSPECTION_ANGLES,
+  requiredInspectionAngles,
   splitInspectionAngleLabelLines,
   type InspectionAngleDef,
 } from "@/lib/inspection-angles";
@@ -59,20 +61,13 @@ function inspectionErrorMessage(err: unknown, fallback: string): string {
   return err.message;
 }
 
-function allAnglesUploaded(
-  uploaded: Set<string>,
-  angles: readonly InspectionAngleDef[],
-): boolean {
-  return angles.every((angle) => uploaded.has(angle.id));
-}
-
 /** Next capture step after a successful upload (first missing angle ahead, then wrap). */
 function findNextStepIndex(
   uploaded: Set<string>,
   fromStep: number,
   angles: readonly InspectionAngleDef[],
 ): number {
-  if (allAnglesUploaded(uploaded, angles)) {
+  if (allRequiredAnglesUploaded(uploaded, angles)) {
     return fromStep;
   }
   for (let i = fromStep + 1; i < angles.length; i++) {
@@ -128,7 +123,9 @@ export function InspectionCapture({
     [initialPhotos],
   );
   const [screen, setScreen] = useState<"capture" | "submit">(() =>
-    allAnglesUploaded(initialUploaded, initialAngles) ? "submit" : "capture",
+    allRequiredAnglesUploaded(initialUploaded, initialAngles)
+      ? "submit"
+      : "capture",
   );
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -143,16 +140,22 @@ export function InspectionCapture({
     () => new Set(photos.map((photo) => photo.angle)),
     [photos],
   );
-  const completedCount = angles.filter((angle) =>
+  const requiredAngles = useMemo(
+    () => requiredInspectionAngles(angles),
+    [angles],
+  );
+  const completedCount = requiredAngles.filter((angle) =>
     uploadedAngles.has(angle.id),
   ).length;
-  const allPhotosComplete = allAnglesUploaded(uploadedAngles, angles);
+  const allPhotosComplete = allRequiredAnglesUploaded(uploadedAngles, angles);
   const captureTitle = lavDigital
-    ? "Photo image capture and AI condition assessment"
+    ? "Digital self inspection — photo capture"
     : "AI condition assessment";
   const captureDuration = lavDigital
-    ? "This takes about 5 minutes."
+    ? "Capture the required images on this phone."
     : "This usually takes about 5 minutes to complete.";
+  const [odometerKm, setOdometerKm] = useState("");
+  const [odometerSaved, setOdometerSaved] = useState(false);
 
   const fetchPhotosFromServer = useCallback(async (): Promise<
     UploadedPhoto[] | null
@@ -191,6 +194,37 @@ export function InspectionCapture({
   useEffect(() => {
     void fetchPhotosFromServer().then(applyServerPhotos);
   }, [fetchPhotosFromServer, applyServerPhotos]);
+
+  useEffect(() => {
+    if (!lavDigital) return;
+    void fetch(`/api/inspections/${token}/lav-details`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refreshVehicle: true }),
+    }).catch(() => {
+      // Non-blocking — booking data remains on the report if lookup fails.
+    });
+  }, [lavDigital, token]);
+
+  async function saveLavOdometer() {
+    const km = Number(odometerKm.replace(/,/g, "").trim());
+    if (!Number.isFinite(km) || km <= 0) {
+      setError("Enter a valid odometer reading in km.");
+      return;
+    }
+    setError(null);
+    const res = await fetch(`/api/inspections/${token}/lav-details`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ odometerKm: km }),
+    });
+    const data = await readJsonResponse<{ error?: string }>(
+      res,
+      "Could not save odometer.",
+    );
+    if (!res.ok) throw new Error(data.error ?? "Could not save odometer.");
+    setOdometerSaved(true);
+  }
 
   useEffect(() => {
     const onVisible = () => {
@@ -260,7 +294,7 @@ export function InspectionCapture({
 
       const uploaded = new Set(merged.map((photo) => photo.angle));
       uploaded.add(capturedAngleId);
-      const complete = allAnglesUploaded(uploaded, angles);
+      const complete = allRequiredAnglesUploaded(uploaded, angles);
       if (complete) {
         setScreen("submit");
       } else {
@@ -305,7 +339,9 @@ export function InspectionCapture({
       markInspectionSubmitted(reportId);
       if (data.complete) {
         setDoneMessage(
-          "Inspection complete. Your Auto Verifi report has been updated with AI damage analysis.",
+          lavDigital
+            ? "Inspection complete. Your lender asset verification report has been updated with your photos."
+            : "Inspection complete. Your Auto Verifi report has been updated with AI damage analysis.",
         );
       } else {
         setDoneMessage(
@@ -331,10 +367,9 @@ export function InspectionCapture({
           <p className="mt-3 max-w-sm text-sm leading-relaxed text-slate-400">
             {lavDigital ? (
               <>
-                All {angles.length} images are uploaded. Submit them to
-                complete your asset verification. Walkaround photos may be
-                assessed for condition; odometer, VIN, and registration images
-                are kept on file as a record.
+                All required images are uploaded. Submit to complete your asset
+                verification. Photos are date, time stamped and geo tagged on
+                your report.
               </>
             ) : (
               <>
@@ -405,13 +440,18 @@ export function InspectionCapture({
         </h1>
         <p className="mt-2 text-sm text-slate-400">{captureDuration}</p>
         <p className="mt-1 text-sm text-slate-400">
-          Step {stepIndex + 1} of {angles.length} · {completedCount} uploaded
+          Step {stepIndex + 1} of {angles.length} · {completedCount} of{" "}
+          {requiredAngles.length} required uploaded
         </p>
         <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
           <div
             className="h-full rounded-full bg-gradient-to-r from-accent-600 to-accent-400 transition-all"
             style={{
-              width: `${(completedCount / angles.length) * 100}%`,
+              width: `${
+                requiredAngles.length
+                  ? (completedCount / requiredAngles.length) * 100
+                  : 0
+              }%`,
             }}
           />
         </div>
@@ -446,6 +486,11 @@ export function InspectionCapture({
             </p>
             {captureHint ? (
               <p className="mt-1 text-xs font-medium text-slate-400">{captureHint}</p>
+            ) : null}
+            {currentAngle.optional ? (
+              <p className="mt-1 text-xs font-semibold text-amber-300/90">
+                Optional — you can skip this step
+              </p>
             ) : null}
           </div>
 
@@ -488,6 +533,42 @@ export function InspectionCapture({
             }}
           />
 
+          {lavDigital && currentAngle.id === "dashboard" ? (
+            <div className="mt-4 w-full max-w-xs text-left">
+              <label
+                htmlFor="lav-odometer-km"
+                className="text-xs font-semibold uppercase tracking-wide text-slate-400"
+              >
+                Enter odometer (km)
+              </label>
+              <div className="mt-2 flex gap-2">
+                <input
+                  id="lav-odometer-km"
+                  inputMode="numeric"
+                  value={odometerKm}
+                  onChange={(e) => {
+                    setOdometerKm(e.target.value);
+                    setOdometerSaved(false);
+                  }}
+                  placeholder="e.g. 51890"
+                  className="min-w-0 flex-1 rounded-lg border border-white/15 bg-ink-950 px-3 py-2 text-sm text-white"
+                />
+                <button
+                  type="button"
+                  onClick={() => void saveLavOdometer().catch((err) =>
+                    setError(inspectionErrorMessage(err, "Could not save odometer.")),
+                  )}
+                  className="shrink-0 rounded-lg border border-white/15 px-3 py-2 text-xs font-bold text-white"
+                >
+                  Save
+                </button>
+              </div>
+              {odometerSaved ? (
+                <p className="mt-1 text-xs text-emerald-400">Saved to report.</p>
+              ) : null}
+            </div>
+          ) : null}
+
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
@@ -505,6 +586,24 @@ export function InspectionCapture({
                 ? "Retake photo"
                 : "Take photo"}
           </button>
+
+          {currentAngle.optional && !uploadedAngles.has(currentAngle.id) ? (
+            <button
+              type="button"
+              disabled={uploading}
+              onClick={() => {
+                const uploaded = new Set(uploadedAngles);
+                if (allRequiredAnglesUploaded(uploaded, angles)) {
+                  setScreen("submit");
+                } else {
+                  setStepIndex(findNextStepIndex(uploaded, stepIndex, angles));
+                }
+              }}
+              className="mt-3 text-sm font-semibold text-slate-400 underline-offset-2 hover:text-slate-200 hover:underline"
+            >
+              Skip optional step
+            </button>
+          ) : null}
         </div>
 
         <ul className="mt-5 grid grid-cols-2 gap-2 text-xs text-slate-400">

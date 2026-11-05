@@ -52,7 +52,7 @@ export function buildInspectionPhotosUpdatedEmailHtml(input: {
       baseUrl,
       eyebrow: lavHeading,
       title: lavDigitalSelfInspection ? lavHeading : "Report updated",
-      introHtml: `Your lender asset verification report for ${vehicle} has been updated with inspection photos and AI damage analysis.`,
+      introHtml: `Your lender asset verification report for ${vehicle} has been updated with date, time and geo tagged inspection photos.`,
       ctas: [
         { label: "View report online", href: reportUrl, primary: true },
         { label: "Download PDF", href: pdfUrl, primary: false },
@@ -65,8 +65,7 @@ export function buildInspectionPhotosUpdatedEmailHtml(input: {
       baseUrl,
       eyebrow: lavHeading,
       title: lavDigitalSelfInspection ? lavHeading : "Photos received",
-      introHtml: `Your Digital Self Inspection photos for ${vehicle} are saved.`,
-      bodyHtml: processingBodyHtml(),
+      introHtml: `Your Digital Self Inspection photos for ${vehicle} are saved on your report.`,
     });
   }
 

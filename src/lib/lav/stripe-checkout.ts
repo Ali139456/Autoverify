@@ -6,7 +6,7 @@ function unitAmountIncGstCents(inspectionType: string): number {
   if (inspectionType.toLowerCase().includes("digital")) {
     return 3850;
   }
-  return 13200;
+  return 17600;
 }
 
 export async function createLavStripeCheckoutSession(

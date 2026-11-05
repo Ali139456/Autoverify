@@ -10,10 +10,7 @@ import {
   View,
 } from "@react-pdf/renderer";
 import { formatLavInspectionPhotoEvidenceLines } from "./inspection-photo-evidence";
-import {
-  buildLavReportViewModel,
-  lavDamageLabelForAngle,
-} from "./lav/lav-report-view";
+import { buildLavReportViewModel } from "./lav/lav-report-view";
 import {
   LAV_REPORT_DISCLAIMER_FOOTER,
   LAV_REPORT_DISCLAIMER_SECTIONS,
@@ -50,9 +47,10 @@ const styles = StyleSheet.create({
     fontWeight: 700,
     color: BLUE,
     textTransform: "uppercase",
-    letterSpacing: 1,
+    letterSpacing: 0.8,
     marginTop: 10,
     marginBottom: 6,
+    paddingBottom: 4,
   },
   grid2: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   field: { width: "48%", marginBottom: 6 },
@@ -87,16 +85,13 @@ const styles = StyleSheet.create({
     padding: 5,
     minHeight: 118,
   },
-  photoTitle: { fontSize: 7, fontWeight: 700, marginBottom: 3 },
-  photoMeta: { fontSize: 6, color: GREY, lineHeight: 1.35 },
-  damageBox: {
-    width: "23%",
-    borderWidth: 0.5,
-    borderColor: "#e2e8f0",
-    backgroundColor: "#f8fafc",
-    padding: 5,
-    marginTop: 4,
+  photoTitle: {
+    fontSize: 7,
+    fontWeight: 700,
+    marginBottom: 3,
+    lineHeight: 1.35,
   },
+  photoMeta: { fontSize: 6, color: GREY, lineHeight: 1.35 },
   disclaimerHeading: { fontSize: 10, fontWeight: 700, marginBottom: 6 },
   disclaimerSub: { fontSize: 8, fontWeight: 700, marginBottom: 2 },
   disclaimerBody: { fontSize: 7, color: GREY, lineHeight: 1.45, marginBottom: 6 },
@@ -163,7 +158,12 @@ function PdfPhotoSlot({
       {src ? (
         <Image
           src={src}
-          style={{ width: "100%", height: imageHeight, objectFit: "contain" }}
+          style={{
+            width: "100%",
+            height: imageHeight,
+            objectFit: "cover",
+            objectPosition: "center",
+          }}
         />
       ) : (
         <Text style={styles.photoMeta}>Awaiting capture</Text>
@@ -184,8 +184,9 @@ export function LavReportPdf({
   report: VehicleReport;
   photos?: InspectionPhoto[];
 }) {
-  const vm = buildLavReportViewModel(report, photos, report.damage);
+  const vm = buildLavReportViewModel(report, photos, null);
   const condition = vm.conditionGrade;
+  const allPhotoSlots = [...vm.walkaround, ...vm.identification];
 
   return (
     <Document title={`Lender Asset Verification ${vm.reportRef}`}>
@@ -226,60 +227,30 @@ export function LavReportPdf({
               ? "✓ Fair"
               : condition === "poor"
                 ? "✓ Poor"
-                : "Pending inspection / AI scan"}
+                : "To be confirmed from image capture"}
         </Text>
-        <Text style={[styles.label, { marginTop: 6 }]}>
-          Additional inspector comments
-        </Text>
-        <Text style={{ fontSize: 8, color: GREY }}>{vm.inspectorComments}</Text>
-        <LavPdfFooter report={report} pageLabel="1 / 4" />
+        <LavPdfFooter report={report} pageLabel="1 / 3" />
       </Page>
 
       <Page size="A4" style={styles.page}>
         <LavPdfHeader report={report} />
-        <Text style={styles.section}>Vehicle photos</Text>
+        <Text style={styles.section}>Verification photos</Text>
+        <Text style={{ fontSize: 7, color: GREY, marginBottom: 4 }}>
+          Date, time stamped and geo tagged images from digital self inspection.
+        </Text>
         <View style={styles.photoRow}>
-          {vm.walkaround.map((slot) => (
+          {allPhotoSlots.map((slot) => (
             <PdfPhotoSlot
               key={slot.angleId}
               title={slot.title}
               photo={slot.photo}
               boxStyle={styles.photoBox}
+              imageHeight={52}
               odometerDisplay={vm.odometer}
             />
           ))}
         </View>
-        <Text style={[styles.section, { marginTop: 10 }]}>AI damage scan</Text>
-        <Text style={{ fontSize: 8, fontWeight: 700 }}>{vm.aiScanSummary}</Text>
-        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 4 }}>
-          {vm.walkaround.map((slot) => (
-            <View key={slot.angleId} style={styles.damageBox}>
-              <Text style={styles.photoTitle}>{slot.title}</Text>
-              <Text style={styles.photoMeta}>
-                {lavDamageLabelForAngle(slot.angleId, report.damage)}
-              </Text>
-            </View>
-          ))}
-        </View>
-        <LavPdfFooter report={report} pageLabel="2 / 4" />
-      </Page>
-
-      <Page size="A4" style={styles.page}>
-        <LavPdfHeader report={report} />
-        <Text style={styles.section}>Identification photos</Text>
-        <View style={styles.photoRowId}>
-          {vm.identification.map((slot) => (
-            <PdfPhotoSlot
-              key={slot.angleId}
-              title={slot.title}
-              photo={slot.photo}
-              boxStyle={styles.photoBoxId}
-              imageHeight={56}
-              odometerDisplay={vm.odometer}
-            />
-          ))}
-        </View>
-        <LavPdfFooter report={report} pageLabel="3 / 4" />
+        <LavPdfFooter report={report} pageLabel="2 / 3" />
       </Page>
 
       <Page size="A4" style={styles.page}>
@@ -294,7 +265,7 @@ export function LavReportPdf({
         <Text style={[styles.disclaimerBody, { marginTop: 8 }]}>
           {LAV_REPORT_DISCLAIMER_FOOTER}
         </Text>
-        <LavPdfFooter report={report} pageLabel="4 / 4" />
+        <LavPdfFooter report={report} pageLabel="3 / 3" />
       </Page>
     </Document>
   );
