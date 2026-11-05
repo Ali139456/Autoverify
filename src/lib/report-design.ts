@@ -510,30 +510,138 @@ function formatInfoAgentWarrantyKm(
   return null;
 }
 
+function parseCompliancePlateStart(
+  compliancePlate: string,
+): { year: number; month: number } | null {
+  const match = compliancePlate.trim().match(/^(\d{4})-(\d{2})$/);
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  if (
+    !Number.isFinite(year) ||
+    !Number.isFinite(month) ||
+    month < 1 ||
+    month > 12
+  ) {
+    return null;
+  }
+  return { year, month };
+}
+
+function warrantyEndDateFromStart(
+  startYear: number,
+  startMonth: number,
+  warrantyYears: number,
+): Date {
+  return new Date(startYear + warrantyYears, startMonth - 1, 1);
+}
+
 /** Estimated window from compliance month + OEM warranty years (API has no explicit end date). */
 function formatEstimatedWarrantyPeriod(
   compliancePlate: string | null | undefined,
   warrantyYears: number | null,
 ): string | null {
   if (!compliancePlate?.trim() || warrantyYears == null) return null;
-  const match = compliancePlate.trim().match(/^(\d{4})-(\d{2})$/);
-  if (!match) return null;
-  const startYear = Number(match[1]);
-  const startMonth = Number(match[2]);
-  if (
-    !Number.isFinite(startYear) ||
-    !Number.isFinite(startMonth) ||
-    startMonth < 1 ||
-    startMonth > 12
-  ) {
-    return null;
-  }
-  const endYear = startYear + warrantyYears;
-  const monthLabel = new Date(startYear, startMonth - 1, 1).toLocaleDateString(
+  const start = parseCompliancePlateStart(compliancePlate);
+  if (!start) return null;
+  const endYear = start.year + warrantyYears;
+  const monthLabel = new Date(start.year, start.month - 1, 1).toLocaleDateString(
     "en-AU",
     { month: "short" },
   );
-  return `Est. warranty period: ${monthLabel} ${startYear} – ${monthLabel} ${endYear} (from compliance ${compliancePlate}).`;
+  return `Est. warranty period: ${monthLabel} ${start.year} – ${monthLabel} ${endYear} (from compliance ${compliancePlate}).`;
+}
+
+export type ManufacturerWarrantyFormatContext = {
+  /** Vehicle model / build year from AutoGrab or booking (fallback when no compliance plate). */
+  vehicleYear?: number | null;
+  /** Report or lookup date for remaining-time calculation (defaults to now). */
+  asOf?: Date;
+};
+
+type WarrantyEndEstimate = {
+  end: Date;
+  source: "compliance" | "model_year";
+  compliancePlate?: string;
+  vehicleYear?: number;
+};
+
+function estimateManufacturerWarrantyEnd(
+  info: ManufacturerWarrantyServiceInfo,
+  context: ManufacturerWarrantyFormatContext = {},
+): WarrantyEndEstimate | null {
+  if (info.warrantyYears == null || info.warrantyYears <= 0) return null;
+
+  const compliance = info.compliancePlate?.trim();
+  if (compliance) {
+    const start = parseCompliancePlateStart(compliance);
+    if (start) {
+      return {
+        end: warrantyEndDateFromStart(
+          start.year,
+          start.month,
+          info.warrantyYears,
+        ),
+        source: "compliance",
+        compliancePlate: compliance,
+      };
+    }
+  }
+
+  const vehicleYear = context.vehicleYear ?? null;
+  if (
+    vehicleYear != null &&
+    Number.isFinite(vehicleYear) &&
+    vehicleYear >= 1980 &&
+    vehicleYear <= new Date().getFullYear() + 2
+  ) {
+    return {
+      end: warrantyEndDateFromStart(vehicleYear, 1, info.warrantyYears),
+      source: "model_year",
+      vehicleYear,
+    };
+  }
+
+  return null;
+}
+
+function formatRemainingWarrantyLabel(end: Date, asOf: Date): string {
+  const endMs = end.getTime();
+  const asOfMs = asOf.getTime();
+  if (endMs <= asOfMs) {
+    return "Likely expired (est.)";
+  }
+
+  let months =
+    (end.getFullYear() - asOf.getFullYear()) * 12 +
+    (end.getMonth() - asOf.getMonth());
+  if (end.getDate() > asOf.getDate()) months += 1;
+  months = Math.max(1, months);
+
+  if (months < 12) {
+    return `Est. ${months} mo remaining`;
+  }
+
+  const years = Math.floor(months / 12);
+  const remMonths = months % 12;
+  if (remMonths === 0) {
+    return `Est. ${years} yr${years === 1 ? "" : "s"} remaining`;
+  }
+  return `Est. ${years} yr${years === 1 ? "" : "s"} ${remMonths} mo remaining`;
+}
+
+function formatWarrantyRemainingSubtext(
+  estimate: WarrantyEndEstimate,
+  asOf: Date,
+): string {
+  const remaining = formatRemainingWarrantyLabel(estimate.end, asOf);
+  if (estimate.source === "compliance" && estimate.compliancePlate) {
+    return `${remaining} · compliance ${estimate.compliancePlate}`;
+  }
+  if (estimate.source === "model_year" && estimate.vehicleYear != null) {
+    return `${remaining} · est. from model year ${estimate.vehicleYear}`;
+  }
+  return remaining;
 }
 
 function hasInfoAgentWarrantyData(
@@ -567,6 +675,7 @@ function hasInfoAgentServiceData(
 
 export function formatManufacturerWarrantyStatus(
   info: ManufacturerWarrantyServiceInfo | null | undefined,
+  context: ManufacturerWarrantyFormatContext = {},
 ): Pick<ReportInsight, "status" | "statusSubtext" | "tone" | "detail"> {
   if (!hasInfoAgentWarrantyData(info)) {
     return {
@@ -576,6 +685,9 @@ export function formatManufacturerWarrantyStatus(
       detail: MANUFACTURER_WARRANTY_CONFIRM_DETAIL,
     };
   }
+
+  const asOf = context.asOf ?? new Date();
+  const endEstimate = estimateManufacturerWarrantyEnd(info, context);
 
   const kmLabel = formatInfoAgentWarrantyKm(info);
   const yearLabel =
@@ -592,6 +704,11 @@ export function formatManufacturerWarrantyStatus(
     info.warrantyYears,
   );
   if (period) detailParts.push(period);
+  if (endEstimate?.source === "model_year") {
+    detailParts.push(
+      "Remaining time estimated from model/build year and OEM warranty term — confirm with an authorised dealer using the VIN.",
+    );
+  }
   if (info.warrantyAntiCorrosionYears != null) {
     detailParts.push(
       `Anti-corrosion warranty: ${info.warrantyAntiCorrosionYears} years.`,
@@ -615,12 +732,19 @@ export function formatManufacturerWarrantyStatus(
   }
   detailParts.push(MANUFACTURER_WARRANTY_CONFIRM_DETAIL);
 
+  const remainingSubtext = endEstimate
+    ? formatWarrantyRemainingSubtext(endEstimate, asOf)
+    : info.compliancePlate
+      ? `Compliance ${info.compliancePlate}`
+      : undefined;
+
+  const expired =
+    endEstimate != null && endEstimate.end.getTime() <= asOf.getTime();
+
   return {
     status,
-    statusSubtext: info.compliancePlate
-      ? `Compliance ${info.compliancePlate}`
-      : undefined,
-    tone: "clear",
+    statusSubtext: remainingSubtext,
+    tone: expired ? "warn" : "clear",
     detail: detailParts.join(" "),
   };
 }
@@ -854,7 +978,10 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
     {
       id: "warranty-status",
       title: "Warranty Status",
-      ...formatManufacturerWarrantyStatus(report.manufacturerWarrantyService),
+      ...formatManufacturerWarrantyStatus(report.manufacturerWarrantyService, {
+        vehicleYear: report.vehicle.year,
+        asOf: new Date(report.createdAt),
+      }),
     },
     {
       id: "servicing-guidelines",
