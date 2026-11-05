@@ -6,7 +6,7 @@ export type PPlateReferenceRow = {
 };
 
 /** Official state/territory P-plate vehicle restrictions (information only). */
-export const P_PLATE_SECTION_HEADING = "p-plate vehicle restrictions";
+export const P_PLATE_SECTION_HEADING = "P-plate vehicle restrictions";
 
 export const P_PLATE_REFERENCE_ROWS: PPlateReferenceRow[] = [
   {

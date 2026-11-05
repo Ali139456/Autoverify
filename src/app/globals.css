@@ -609,6 +609,11 @@ html.dark body {
   }
 }
 
+/** Vehicle spec subsections — gap between title text and blue rule (matches valuations). */
+.report-spec-subsection-heading {
+  padding-bottom: 0.625rem;
+}
+
 /** Section titles on report page 2 — matches tagline / brand blue (#0073E3). */
 .report-section-heading {
   border-bottom: 2px solid #0073e3;
@@ -674,9 +679,18 @@ html.dark body {
 }
 
 @media print {
+  .report-hero-image-frame {
+    padding: 0 !important;
+  }
+
   .report-hero-image-photo {
     mix-blend-mode: normal;
     background-color: transparent;
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    object-fit: cover;
+    object-position: center center;
   }
 }
 
@@ -1278,12 +1292,18 @@ html.dark body {
   }
 
   .report-shell-insights-intro .report-hero-image-frame {
+    flex: 1 1 auto !important;
     min-height: 28mm !important;
-    max-height: 30mm !important;
+    max-height: none !important;
+    padding: 0 !important;
   }
 
   .report-shell-insights-intro .report-hero-image img {
-    max-height: 28mm !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: none !important;
+    object-fit: cover !important;
+    object-position: center center !important;
     background-color: transparent !important;
   }
 
@@ -1466,20 +1486,22 @@ html.dark body {
 
   .report-shell-insights-page1 .report-hero-image-frame {
     flex: 1 1 auto !important;
-    max-height: 30mm !important;
+    min-height: 0 !important;
+    max-height: none !important;
     display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    padding: 0 !important;
   }
 
   .report-shell-insights-page1 .report-hero-image img {
     position: static !important;
     display: block !important;
-    width: auto !important;
-    max-width: 100% !important;
-    height: auto !important;
-    max-height: 28mm !important;
-    object-fit: contain !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: cover !important;
     object-position: center center !important;
     background-color: transparent !important;
   }
@@ -1695,8 +1717,8 @@ html.dark body {
   .report-shell-spec-full .report-section-heading {
     font-size: 9px !important;
     line-height: 1.4 !important;
-    padding-bottom: 4px !important;
-    margin-bottom: 4px !important;
+    padding-bottom: 6px !important;
+    margin-bottom: 6px !important;
     letter-spacing: 0.06em !important;
   }
 
@@ -2074,21 +2096,23 @@ html.dark body {
   .report-hero-image-frame {
     flex: 1 1 auto !important;
     min-height: 0 !important;
-    max-height: 44mm !important;
+    max-height: none !important;
     display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    padding: 0 !important;
     background-color: #f8fafc !important;
   }
 
-  .report-hero-image img {
+  .report-hero-image img,
+  .report-hero-image-photo {
     position: static !important;
     display: block !important;
-    width: auto !important;
-    max-width: 100% !important;
-    height: auto !important;
-    max-height: 42mm !important;
-    object-fit: contain !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: cover !important;
     object-position: center center !important;
     background-color: transparent !important;
     border: none !important;

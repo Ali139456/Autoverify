@@ -48,7 +48,9 @@ export function VehicleSpecReportSection({
 
           <div className="mt-6 space-y-6">
             <div>
-              <h3 className="report-section-heading">Vehicle data</h3>
+              <h3 className="report-section-heading report-spec-subsection-heading">
+                Vehicle data
+              </h3>
               <div className="report-spec-data-table-wrap mt-3 overflow-hidden rounded-lg border border-slate-200 bg-white">
                 <table className="report-spec-data-table w-full border-collapse text-sm">
                   <colgroup>
@@ -131,7 +133,7 @@ function FactoryFeaturesBlock({
 }) {
   return (
     <>
-      <h3 className="report-section-heading report-spec-factory-heading">
+      <h3 className="report-section-heading report-spec-subsection-heading report-spec-factory-heading">
         Vehicle equipment/options
       </h3>
       <p className="mt-1 text-xs text-slate-500">

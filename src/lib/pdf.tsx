@@ -24,6 +24,7 @@ import {
 import {
   isPPlateAdvisoryCopy,
   P_PLATE_REFERENCE_ROWS,
+  P_PLATE_SECTION_HEADING,
 } from "./p-plate-reference";
 import { formatInspectionPhotoEvidenceLines } from "./inspection-photo-evidence";
 import {
@@ -290,17 +291,15 @@ const styles = StyleSheet.create({
   },
   statusImageArea: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     minHeight: 0,
-    paddingHorizontal: 4,
-    paddingTop: 4,
+    width: "100%",
+    overflow: "hidden",
   },
   statusImage: {
-    maxWidth: "100%",
-    maxHeight: "100%",
-    objectFit: "contain",
-    objectPosition: "center",
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    objectPosition: "center center",
   },
   statusImageCaption: {
     backgroundColor: "#f8fafc",
@@ -325,9 +324,11 @@ const styles = StyleSheet.create({
   },
   specHeroBannerImage: {
     width: "100%",
-    height: 100,
-    objectFit: "contain",
-    objectPosition: "center",
+    height: "100%",
+    flex: 1,
+    minHeight: 0,
+    objectFit: "cover",
+    objectPosition: "center center",
   },
   statusTitle: {
     fontSize: 7.5,
@@ -447,8 +448,9 @@ const styles = StyleSheet.create({
     color: "#0f172a",
     borderBottomWidth: 2,
     borderBottomColor: BLUE,
-    paddingBottom: 3,
+    paddingBottom: 6,
     marginBottom: 8,
+    lineHeight: 1.35,
   },
   para: { lineHeight: 1.45, color: "#334155", fontSize: 8.5 },
   specSheetTableWrap: {
@@ -1143,7 +1145,7 @@ function PdfPPlateSupplementContent({ report }: { report: VehicleReport }) {
       </View>
 
       <Text style={[styles.sectionTitle, { marginTop: 8, fontSize: 8 }]}>
-        p-plate vehicle restrictions
+        {P_PLATE_SECTION_HEADING}
       </Text>
       <View style={[styles.pdfTableWrap, { marginTop: 3 }]}>
         <View style={styles.pdfTableHeadRow}>
@@ -1698,9 +1700,7 @@ function VehicleSpecPages({
           </View>
 
           <View style={[styles.section, { marginTop: 14 }]}>
-            <Text style={[styles.sectionTitle, { lineHeight: 1.35, paddingBottom: 4 }]}>
-              Vehicle equipment/options
-            </Text>
+            <Text style={styles.sectionTitle}>Vehicle equipment/options</Text>
             <Text style={{ fontSize: 7, color: GREY, marginTop: 2, marginBottom: 4 }}>
               Standard equipment/options included with this vehicle.
             </Text>
