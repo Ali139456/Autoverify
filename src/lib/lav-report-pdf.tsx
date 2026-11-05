@@ -9,7 +9,7 @@ import {
   Text,
   View,
 } from "@react-pdf/renderer";
-import { formatInspectionPhotoEvidenceLines } from "./inspection-photo-evidence";
+import { formatLavInspectionPhotoEvidenceLines } from "./inspection-photo-evidence";
 import {
   buildLavReportViewModel,
   lavDamageLabelForAngle,
@@ -21,7 +21,7 @@ import {
 } from "./lav/lav-disclaimer";
 import { formatReportReference, getInspectionPhotoUrl } from "./report-design";
 import { REPORT_LOGO_PNG_PATH } from "./report-logo-size";
-import { publicPdfImage } from "./pdf-local-image";
+import { publicPdfImage, type PdfImageSource } from "./pdf-local-image";
 import { PDF_SANS, registerReportPdfFonts } from "./pdf-fonts";
 import type { InspectionPhoto, VehicleReport } from "./types";
 
@@ -72,12 +72,20 @@ const styles = StyleSheet.create({
   },
   footerText: { fontSize: 7, color: GREY },
   photoRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 6 },
+  photoRowId: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 6 },
   photoBox: {
     width: "23%",
     borderWidth: 0.5,
     borderColor: "#e2e8f0",
     padding: 4,
     minHeight: 70,
+  },
+  photoBoxId: {
+    width: "31%",
+    borderWidth: 0.5,
+    borderColor: "#e2e8f0",
+    padding: 5,
+    minHeight: 118,
   },
   photoTitle: { fontSize: 7, fontWeight: 700, marginBottom: 3 },
   photoMeta: { fontSize: 6, color: GREY, lineHeight: 1.35 },
@@ -125,20 +133,38 @@ function LavPdfHeader({ report }: { report: VehicleReport }) {
   );
 }
 
+function lavPdfPhotoSrc(photo: InspectionPhoto): PdfImageSource | string | null {
+  const url = getInspectionPhotoUrl(photo);
+  if (!url) return null;
+  if (url.startsWith("/")) return publicPdfImage(url);
+  return url;
+}
+
 function PdfPhotoSlot({
   title,
   photo,
+  boxStyle,
+  imageHeight = 48,
+  odometerDisplay,
 }: {
   title: string;
   photo: InspectionPhoto | null;
+  boxStyle: typeof styles.photoBox;
+  imageHeight?: number;
+  odometerDisplay?: string | null;
 }) {
-  const url = photo ? getInspectionPhotoUrl(photo) : null;
-  const meta = photo ? formatInspectionPhotoEvidenceLines(photo) : [];
+  const src = photo ? lavPdfPhotoSrc(photo) : null;
+  const meta = photo
+    ? formatLavInspectionPhotoEvidenceLines(photo, odometerDisplay)
+    : [];
   return (
-    <View style={styles.photoBox}>
+    <View style={boxStyle}>
       <Text style={styles.photoTitle}>{title}</Text>
-      {url ? (
-        <Image src={url} style={{ width: "100%", height: 48, objectFit: "contain" }} />
+      {src ? (
+        <Image
+          src={src}
+          style={{ width: "100%", height: imageHeight, objectFit: "contain" }}
+        />
       ) : (
         <Text style={styles.photoMeta}>Awaiting capture</Text>
       )}
@@ -214,7 +240,13 @@ export function LavReportPdf({
         <Text style={styles.section}>Vehicle photos</Text>
         <View style={styles.photoRow}>
           {vm.walkaround.map((slot) => (
-            <PdfPhotoSlot key={slot.angleId} title={slot.title} photo={slot.photo} />
+            <PdfPhotoSlot
+              key={slot.angleId}
+              title={slot.title}
+              photo={slot.photo}
+              boxStyle={styles.photoBox}
+              odometerDisplay={vm.odometer}
+            />
           ))}
         </View>
         <Text style={[styles.section, { marginTop: 10 }]}>AI damage scan</Text>
@@ -235,9 +267,16 @@ export function LavReportPdf({
       <Page size="A4" style={styles.page}>
         <LavPdfHeader report={report} />
         <Text style={styles.section}>Identification photos</Text>
-        <View style={styles.photoRow}>
+        <View style={styles.photoRowId}>
           {vm.identification.map((slot) => (
-            <PdfPhotoSlot key={slot.angleId} title={slot.title} photo={slot.photo} />
+            <PdfPhotoSlot
+              key={slot.angleId}
+              title={slot.title}
+              photo={slot.photo}
+              boxStyle={styles.photoBoxId}
+              imageHeight={56}
+              odometerDisplay={vm.odometer}
+            />
           ))}
         </View>
         <LavPdfFooter report={report} pageLabel="3 / 4" />

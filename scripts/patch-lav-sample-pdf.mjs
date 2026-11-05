@@ -1,11 +1,6 @@
 /**
- * Patches the LAV car sample PDF:
- * - Removes guided capture callout + AI disclaimer (page 2)
- * - Replaces section titles with blue Auto Verifi headings
- *
- * Run from a clean master (once per design export):
- *   git checkout b57adee -- public/samples/lender-asset-verification-car-sample.pdf
- *   node scripts/patch-lav-sample-pdf.mjs
+ * Legacy: patches an old exported LAV PDF. Prefer regenerating from code:
+ *   npx --yes tsx scripts/generate-lav-sample-pdf.mjs
  */
 import fs from "fs";
 import path from "path";

@@ -20,9 +20,11 @@ export const CONSUMER_OFFERINGS: SolutionOfferingCard[] = [
     description:
       "Verify before you buy. Get the full past, present and future intelligence of any vehicle before you commit.",
     bullets: [
-      "Auto Verifi Insights report",
-      "Pre purchase inspections",
-      "True cost & valuation outlook",
+      "History and title verification",
+      "AI powered current condition assessment",
+      "Current and Future valuation outlook",
+      "Pre Purchase Inspections",
+      "Lender Asset Verification",
     ],
   },
   {
@@ -31,8 +33,8 @@ export const CONSUMER_OFFERINGS: SolutionOfferingCard[] = [
     description:
       "Sell with proof. Verified condition and history that earns buyer trust and supports your asking price.",
     bullets: [
-      "Condition assessment",
-      "History & title verification",
+      "History and title verification",
+      "Current Condition assessment",
       "Verified listing badge",
     ],
   },
@@ -40,10 +42,9 @@ export const CONSUMER_OFFERINGS: SolutionOfferingCard[] = [
     id: "own",
     title: "Auto Verifi Own",
     description:
-      "Own with confidence. Track condition, costs and value across the life of your vehicle.",
+      "Own with confidence. Track compliance obligations and value across the life of your vehicle.",
     bullets: [
-      "Ongoing condition tracking",
-      "Cost & value forecasting",
+      "Value forecasting",
       "Market value, Debt and Vehicle Equity tracking",
       "Renewal & compliance reminders",
     ],

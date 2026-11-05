@@ -26,7 +26,16 @@ export function publicPdfImage(publicPath: string): PdfImageSource {
   try {
     const data = fs.readFileSync(absolute);
     const ext = path.extname(absolute).toLowerCase();
-    source = { data, format: ext === ".png" ? "png" : "jpg" };
+    const isPng =
+      data.length >= 8 &&
+      data[0] === 0x89 &&
+      data[1] === 0x50 &&
+      data[2] === 0x4e &&
+      data[3] === 0x47;
+    source = {
+      data,
+      format: isPng ? "png" : ext === ".png" ? "png" : "jpg",
+    };
   } catch {
     // Fall back to the path string; react-pdf resolves it on Linux hosts.
   }

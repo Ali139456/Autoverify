@@ -10,7 +10,6 @@ import {
 } from "@/lib/vehicle-identifier";
 import { CheckPageCheckout } from "@/components/CheckPageCheckout";
 import { CheckVehicleMismatch } from "@/components/CheckVehicleMismatch";
-import { CheckWarrantyServicingPreview } from "@/components/CheckWarrantyServicingPreview";
 import { parseReportTier } from "@/lib/pricing";
 import { RegoSearchForm } from "@/components/RegoSearchForm";
 import {
@@ -135,7 +134,7 @@ export default async function CheckPage({
     );
   }
 
-  const { vehicle, manufacturerWarrantyService } = lookup;
+  const { vehicle } = lookup;
   const checkoutIdentifier = parsed.value;
   const checkoutState = parsed.kind === "rego" ? state : validState ? state : "NSW";
 
@@ -186,7 +185,6 @@ export default async function CheckPage({
               </div>
             ))}
           </dl>
-          <CheckWarrantyServicingPreview info={manufacturerWarrantyService} />
         </div>
 
         <div className="mt-6 w-full min-w-0 sm:mt-10">

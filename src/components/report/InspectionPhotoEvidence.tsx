@@ -1,13 +1,21 @@
-import { formatInspectionPhotoEvidenceLines } from "@/lib/inspection-photo-evidence";
+import {
+  formatInspectionPhotoEvidenceLines,
+  formatLavInspectionPhotoEvidenceLines,
+} from "@/lib/inspection-photo-evidence";
 import type { InspectionPhoto } from "@/lib/types";
 
 /** Timestamp + location shown beneath the photo (never overlaid on the image). */
 export function InspectionPhotoEvidenceCaption({
   photo,
+  lavOdometerDisplay,
 }: {
   photo: InspectionPhoto;
+  /** When set, use LAV labelled captions (GPS / date / odometer). */
+  lavOdometerDisplay?: string | null;
 }) {
-  const lines = formatInspectionPhotoEvidenceLines(photo);
+  const lines = lavOdometerDisplay
+    ? formatLavInspectionPhotoEvidenceLines(photo, lavOdometerDisplay)
+    : formatInspectionPhotoEvidenceLines(photo);
   if (lines.length === 0) return null;
 
   return (

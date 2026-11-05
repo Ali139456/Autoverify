@@ -153,7 +153,7 @@ export function LenderAssetVerificationSite() {
                 on their phone.
               </p>
               <ul>
-                <li>Completed on their phone — no app download</li>
+                <li>Secure SMS Link – No App Download Required</li>
                 <li>
                   Photos confirming odometer, identifiers and condition
                 </li>

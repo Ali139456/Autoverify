@@ -35,7 +35,13 @@ function ConditionOption({
   );
 }
 
-function LavPhotoTile({ slot }: { slot: { title: string; photo: InspectionPhoto | null } }) {
+function LavPhotoTile({
+  slot,
+  odometerDisplay,
+}: {
+  slot: { title: string; photo: InspectionPhoto | null };
+  odometerDisplay?: string | null;
+}) {
   const url = slot.photo ? getInspectionPhotoUrl(slot.photo) : null;
   return (
     <figure className="overflow-hidden rounded-lg border border-slate-200 bg-white">
@@ -56,7 +62,10 @@ function LavPhotoTile({ slot }: { slot: { title: string; photo: InspectionPhoto 
       <figcaption className="border-t border-slate-200 px-2 py-1.5">
         <p className="text-[10px] font-bold text-slate-900">{slot.title}</p>
         {slot.photo ? (
-          <InspectionPhotoEvidenceCaption photo={slot.photo} />
+          <InspectionPhotoEvidenceCaption
+            photo={slot.photo}
+            lavOdometerDisplay={odometerDisplay}
+          />
         ) : null}
       </figcaption>
     </figure>
@@ -189,7 +198,11 @@ export function LenderAssetVerificationReport({
 
           <div className="lav-report-photo-grid">
             {vm.walkaround.map((slot) => (
-              <LavPhotoTile key={slot.angleId} slot={slot} />
+              <LavPhotoTile
+                key={slot.angleId}
+                slot={slot}
+                odometerDisplay={vm.odometer}
+              />
             ))}
           </div>
 
@@ -215,7 +228,11 @@ export function LenderAssetVerificationReport({
           <h2 className="lav-report-section-heading !mt-0">Identification photos</h2>
           <div className="lav-report-photo-grid lav-report-photo-grid--id">
             {vm.identification.map((slot) => (
-              <LavPhotoTile key={slot.angleId} slot={slot} />
+              <LavPhotoTile
+                key={slot.angleId}
+                slot={slot}
+                odometerDisplay={vm.odometer}
+              />
             ))}
           </div>
         </ReportShell>

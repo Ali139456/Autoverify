@@ -10,6 +10,10 @@ import {
   mergePdfBuffers,
 } from "./ppsr-certificate";
 import { buildSampleInspectionPhotos } from "./build-sample-report";
+import {
+  buildLavCarSamplePhotos,
+  buildLavCarSampleReport,
+} from "./lav/build-lav-car-sample";
 import { LavReportPdf } from "./lav-report-pdf";
 import { ReportPdf } from "./pdf";
 import type { InspectionPhoto, VehicleReport } from "./types";
@@ -44,4 +48,14 @@ export async function generateReportPdfBuffer(
   }
 
   return output;
+}
+
+/** Writes `public/samples/lender-asset-verification-car-sample.pdf` (dev script + tests). */
+export async function generateLavCarSamplePdfBuffer(): Promise<Buffer> {
+  const report = buildLavCarSampleReport();
+  const photos = buildLavCarSamplePhotos();
+  const buffer = await renderToBuffer(
+    createElement(LavReportPdf, { report, photos }) as ReactElement<DocumentProps>,
+  );
+  return Buffer.from(buffer);
 }
