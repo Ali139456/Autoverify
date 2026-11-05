@@ -33,6 +33,7 @@ import {
   DEMO_MANUFACTURER_WARRANTY_SERVICE,
   fetchManufacturerWarrantyService,
   isInfoAgentConfigured,
+  isInfoAgentDemoRegistration,
 } from "./infoagent";
 import {
   AutograbAssetCategory,
@@ -152,7 +153,18 @@ export async function lookupVehicle(
   }
 
   if (AUTOGRAB_API_KEY) {
-    return lookupViaAutograb(parsed.value, state, options);
+    try {
+      return await lookupViaAutograb(parsed.value, state, options);
+    } catch (err) {
+      if (
+        isInfoAgentDemoRegistration(parsed.value, state) &&
+        err instanceof Error &&
+        err.message.includes("No vehicle found for registration")
+      ) {
+        return buildDemoResult(parsed.value, state);
+      }
+      throw err;
+    }
   }
   return buildDemoResult(parsed.value, state);
 }

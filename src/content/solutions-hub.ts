@@ -146,7 +146,7 @@ export const BUSINESS_OFFERINGS: SolutionOfferingCard[] = [
 
 export const INTEGRATIONS_CONTENT = {
   eyebrow: "Integrations",
-  title: "One intelligence layer, across the automotive ecosystem",
+  title: "One verified intelligence layer across the automotive ecosystem",
   intro:
     "Auto Verifi sits at the centre of the automotive ecosystem, feeding verified vehicle intelligence to the platforms and businesses that depend on it.",
   ecosystemImage: "/solutions/integrations-ecosystem.png",
@@ -189,7 +189,7 @@ export function solutionTabMeta(tab: SolutionTab): {
       return {
         title: "Integrations",
         description:
-          "One intelligence layer across the automotive ecosystem — platforms and partners that depend on verified vehicle data.",
+          "One verified intelligence layer across the automotive ecosystem — platforms and partners that depend on verified vehicle data.",
       };
   }
 }

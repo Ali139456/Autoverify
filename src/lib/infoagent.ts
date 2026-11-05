@@ -22,6 +22,21 @@ export function isInfoAgentConfigured(): boolean {
   return Boolean(INFOAGENT_API_KEY);
 }
 
+/** InfoAgent TEST plates (e.g. SJJ21M NSW) — not in AutoGrab; allow demo vehicle preview for QA. */
+export function isInfoAgentDemoRegistration(
+  plate: string,
+  state: string,
+): boolean {
+  if (!isInfoAgentConfigured()) return false;
+  const testRego = (
+    process.env.INFOAGENT_TEST_REGO?.trim() || "SJJ21M"
+  ).toUpperCase();
+  const testState = (
+    process.env.INFOAGENT_TEST_STATE?.trim() || "NSW"
+  ).toUpperCase();
+  return plate.trim().toUpperCase() === testRego && state.trim().toUpperCase() === testState;
+}
+
 function readNumber(value: unknown): number | null {
   if (typeof value === "number" && Number.isFinite(value)) {
     return value < 0 ? null : value;

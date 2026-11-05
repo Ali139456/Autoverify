@@ -637,21 +637,16 @@ export function formatServicingGuidelines(
     };
   }
 
-  const intervalParts: string[] = [];
-  if (info.regularServiceKm != null) {
-    intervalParts.push(
-      `${info.regularServiceKm.toLocaleString("en-AU")} km`,
-    );
+  const km = info.regularServiceKm;
+  const months = info.regularServiceMonths;
+  let status = "OEM service intervals";
+  if (km != null && months != null) {
+    status = `Every ${km.toLocaleString("en-AU")} km or ${months} months, whichever is earlier`;
+  } else if (km != null) {
+    status = `Every ${km.toLocaleString("en-AU")} km`;
+  } else if (months != null) {
+    status = `Every ${months} months`;
   }
-  if (info.regularServiceMonths != null) {
-    intervalParts.push(
-      `${info.regularServiceMonths} mo`,
-    );
-  }
-  const status =
-    intervalParts.length > 0
-      ? `Every ${intervalParts.join(" / ")}`
-      : "OEM service intervals";
 
   const detailParts: string[] = [];
   if (info.firstServiceKm != null || info.firstServiceMonths != null) {

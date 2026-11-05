@@ -182,7 +182,12 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
                 ) : insight.status?.trim() ? (
                 <p
                   className={`text-xs font-normal leading-snug ${insightToneClass(insight.tone)} ${
-                    insight.id === "registration" ? "whitespace-nowrap" : ""
+                    insight.id === "registration"
+                      ? "whitespace-nowrap"
+                      : insight.id === "servicing-guidelines" ||
+                          insight.id === "warranty-status"
+                        ? "min-w-0 [overflow-wrap:anywhere] [word-break:normal]"
+                        : ""
                   }`}
                 >
                   {reportInsightCopy(insight.status)}
