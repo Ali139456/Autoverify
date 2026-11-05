@@ -6,7 +6,7 @@ const RAVIN_SITE_ID = Number(process.env.RAVIN_SITE_ID ?? "49");
 const RAVIN_CLIENT_ID = process.env.RAVIN_CLIENT_ID?.trim() || "autoverifi";
 const RAVIN_PROVIDER = process.env.RAVIN_PROVIDER ?? "consumer";
 const RAVIN_INSPECTOR_PATH =
-  process.env.RAVIN_INSPECTOR_PATH?.trim() || "inspector-lite/page/tmp";
+  process.env.RAVIN_INSPECTOR_PATH?.trim() || "inspector2/page/tmp";
 const RAVIN_LINK_EXPIRE_IN = Number(
   process.env.RAVIN_LINK_EXPIRE_IN ??
     process.env.RAVIN_LINK_EXPIRED_IN ??
@@ -32,29 +32,24 @@ export type RavinLiteLinkConfig = {
   usesImageUpload: boolean;
 };
 
-const DEFAULT_LITE_INSPECTOR_PATH = "inspector-lite/page/tmp";
-
-/** Ravin email: Lite = inspector-lite + image-upload; inspector2 is full flow. */
-function effectiveLiteInspectorPath(): string {
-  const path = RAVIN_INSPECTOR_PATH.replace(/^\/+/, "").replace(/\/+$/, "");
-  if (path.includes("inspector2")) return DEFAULT_LITE_INSPECTOR_PATH;
-  return path.includes("inspector-lite") ? path : DEFAULT_LITE_INSPECTOR_PATH;
+/** Configured Ravin hosted inspector path (default full inspection — inspector2). */
+function effectiveInspectorPath(): string {
+  return RAVIN_INSPECTOR_PATH.replace(/^\/+/, "").replace(/\/+$/, "");
 }
 
 export function getRavinLiteLinkConfig(): RavinLiteLinkConfig {
-  const path = effectiveLiteInspectorPath();
+  const path = effectiveInspectorPath();
   return {
     appType: RAVIN_APP_TYPE || null,
     inspectorPath: path,
-    usesImageUpload: true,
+    usesImageUpload: path.includes("inspector-lite"),
   };
 }
 
 function applyLiteQueryParams(url: URL): void {
-  if (url.pathname.includes("inspector-lite")) {
-    if (!url.searchParams.has("image-upload")) {
-      url.searchParams.set("image-upload", "true");
-    }
+  if (!url.pathname.includes("inspector-lite")) return;
+  if (!url.searchParams.has("image-upload")) {
+    url.searchParams.set("image-upload", "true");
   }
   if (RAVIN_APP_TYPE && !url.searchParams.has("app_type")) {
     url.searchParams.set("app_type", RAVIN_APP_TYPE);
@@ -75,7 +70,7 @@ export function isRavinPartnerConfigured(): boolean {
 /** Inspector Lite mobile walkaround (Site 49 consumer flow). */
 export function buildInspectorLiteUrl(code: string): string {
   const base = RAVIN_BASE_URL.replace(/\/$/, "");
-  const path = effectiveLiteInspectorPath();
+  const path = effectiveInspectorPath();
   const url = new URL(`${base}/${path}/`);
   url.searchParams.set("code", code);
   applyLiteQueryParams(url);
@@ -118,23 +113,10 @@ export function isRavinInspectorUrl(url: string): boolean {
   }
 }
 
-/** Rewrite legacy inspector2/tmp links to Inspector Lite walkthrough when we have a session code. */
+/** Normalize Ravin inspector URLs without rewriting inspector2 → inspector-lite. */
 export function coerceRavinInspectorLiteUrl(url: string): string {
-  const normalized = normalizeInspectorUrl(url);
-  if (!isRavinInspectorUrl(normalized)) return url;
-  if (isRavinInspectorLiteUrl(normalized)) return normalized;
-
-  const code = parseInspectorLiteCodeFromUrl(normalized);
-  if (!code) {
-    if (isRavinLegacyFullInspectorUrl(normalized)) {
-      console.warn(
-        "[ravin-partner] Legacy inspector2 URL without session code; cannot rewrite to Inspector Lite.",
-      );
-    }
-    return normalized;
-  }
-
-  return buildInspectorLiteUrl(code);
+  if (!url.trim()) return url;
+  return normalizeInspectorUrl(url);
 }
 
 export function parseInspectorLiteCodeFromUrl(url: string): string | null {
@@ -656,8 +638,8 @@ export async function createRavinPartnerInvite(input: {
       ...(RAVIN_APP_TYPE
         ? { app_type: RAVIN_APP_TYPE, appType: RAVIN_APP_TYPE }
         : {}),
-      imageUpload: true,
-      inspectorPath: effectiveLiteInspectorPath(),
+      imageUpload: effectiveInspectorPath().includes("inspector-lite"),
+      inspectorPath: effectiveInspectorPath(),
     }),
   });
 
@@ -678,9 +660,7 @@ export async function createRavinPartnerInvite(input: {
   }
   const sessionCode =
     parseInspectorLiteCodeFromUrl(rawInviteUrl) ?? extractSessionCode(body);
-  const inviteUrl = sessionCode
-    ? buildInspectorLiteUrl(sessionCode)
-    : coerceRavinInspectorLiteUrl(rawInviteUrl);
+  const inviteUrl = coerceRavinInspectorLiteUrl(rawInviteUrl);
 
   return {
     invitationId: claimId,
