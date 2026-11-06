@@ -132,13 +132,14 @@ export function IntegrationsPanel() {
         </p>
       </div>
 
-      <div className="mx-auto w-full max-w-md px-2 sm:max-w-lg md:max-w-xl lg:max-w-2xl">
+      <div className="mx-auto w-full max-w-lg px-2 sm:max-w-xl md:max-w-2xl lg:max-w-3xl">
         <Image
           src={ecosystemImage}
-          alt="Auto Verifi vehicle intelligence hub connected to marketplaces, lenders, insurers, dealers, auction houses, rental, car share and ride share"
-          width={900}
-          height={900}
-          sizes="(max-width: 640px) 88vw, (max-width: 1024px) 512px, 672px"
+          alt="Auto Verifi vehicle intelligence hub connected to marketplaces, lenders, insurers, FMOs, dealers, auction houses, car rental, car share and ride share"
+          width={1024}
+          height={1024}
+          sizes="(max-width: 640px) 92vw, (max-width: 1024px) 640px, 768px"
+          priority
           className="integrations-ecosystem-image mx-auto h-auto w-full object-contain"
         />
       </div>
