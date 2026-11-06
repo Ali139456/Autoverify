@@ -97,7 +97,7 @@ export function LenderAssetVerificationSite() {
                   <span>VIN identification captured</span>
                   <span className="pill">Yes</span>
                 </div>
-                <div className="row">
+                <div className="row row-photo-evidence">
                   <span>Photos – vehicle verification</span>
                   <span className="v">
                     Date, time stamped and geo tagged images
