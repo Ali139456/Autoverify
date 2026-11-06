@@ -271,10 +271,10 @@ export function LenderAssetVerificationSite() {
               </summary>
               <p>
                 That depends on your lender&apos;s credit policy. A Digital Self
-                Inspection ($35 + GST) is faster and works anywhere with mobile
-                coverage, but some lenders require a physical inspection ($160 +
-                GST) for certain asset types, ages or loan amounts. Please
-                confirm before booking.
+                Inspection is faster and works anywhere with mobile coverage,
+                but some lenders require a physical inspection for certain
+                asset types, ages or loan amounts. Please confirm before
+                booking.
               </p>
             </details>
             <details>
@@ -282,9 +282,8 @@ export function LenderAssetVerificationSite() {
               <p>
                 We text the vendor a secure link. It opens in their phone&apos;s
                 browser, with no app to download, and guides them through
-                photographing the asset, its identifiers, odometer or hour meter,
-                and their photo ID. Our team reviews the submission, follows up
-                if anything is missing, then issues the report.
+                photographing the asset, its identifiers, odometer or hours,
+                registration papers and their photo ID.
               </p>
             </details>
             <details>
@@ -299,9 +298,8 @@ export function LenderAssetVerificationSite() {
             <details>
               <summary>How quickly will I get the report?</summary>
               <p>
-                Reports are emailed on completion, typically within hours of the
-                inspection. Turnaround depends on when the inspection is
-                completed.
+                Reports are emailed on completion. Turnaround depends on when the
+                inspection is completed.
               </p>
             </details>
           </div>
