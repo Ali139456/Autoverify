@@ -18,8 +18,12 @@ const RAVIN_LOGIN_EXPIRE_IN = Number(
     "48",
 );
 
-/** Ravin Lite routing: URL `app_type=lite` (future) + inspector-lite path (current). */
-const RAVIN_APP_TYPE = (process.env.RAVIN_APP_TYPE ?? "lite").trim().toLowerCase();
+/**
+ * Ravin app flavour sent to `partnerInvite` and added to inspector-lite URLs only.
+ * Leave unset / empty for the **full inspection** journey (`RAVIN_INSPECTOR_PATH` e.g. inspector2).
+ * Set to `lite` only when you intentionally want Inspector Lite (image-upload walkthrough).
+ */
+const RAVIN_APP_TYPE = (process.env.RAVIN_APP_TYPE ?? "").trim().toLowerCase();
 
 /** Owners always use Auto Verifi /inspect capture; Ravin API/webhook runs in the background. */
 export function useHostedRavinInspector(): boolean {
