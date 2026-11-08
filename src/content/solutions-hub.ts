@@ -149,6 +149,8 @@ export const INTEGRATIONS_CONTENT = {
   title: "One verified intelligence layer across the automotive ecosystem",
   intro:
     "Auto Verifi sits at the centre of the automotive ecosystem, feeding verified vehicle intelligence to the platforms and businesses that depend on it.",
+  /** Interactive graphic (Denise HTML export). Static fallback: integrations-ecosystem.png */
+  ecosystemGraphicHtml: "/solutions/integrations-graphic.html",
   ecosystemImage: "/solutions/integrations-ecosystem.png",
 };
 

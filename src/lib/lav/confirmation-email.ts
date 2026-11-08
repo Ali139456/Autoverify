@@ -20,6 +20,8 @@ export async function sendLavBookingConfirmationEmail(input: {
 
   digital: boolean;
 
+  smsWarnings?: string[];
+
 }): Promise<void> {
 
   const apiKey = process.env.RESEND_API_KEY?.trim();
@@ -36,7 +38,7 @@ export async function sendLavBookingConfirmationEmail(input: {
 
   const baseUrl = getBaseUrl();
 
-  const { payload, captureLinks, invoiceAccount, digital } = input;
+  const { payload, captureLinks, invoiceAccount, digital, smsWarnings } = input;
 
 
 
@@ -73,6 +75,8 @@ export async function sendLavBookingConfirmationEmail(input: {
     digital,
 
     baseUrl,
+
+    smsWarnings: smsWarnings ?? [],
 
   });
 

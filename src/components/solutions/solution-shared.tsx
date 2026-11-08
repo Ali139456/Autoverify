@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -116,7 +115,7 @@ function OfferingGrid({
 }
 
 export function IntegrationsPanel() {
-  const { eyebrow, title, intro, ecosystemImage } = INTEGRATIONS_CONTENT;
+  const { eyebrow, title, intro, ecosystemGraphicHtml } = INTEGRATIONS_CONTENT;
 
   return (
     <div className="space-y-10 text-center sm:space-y-12">
@@ -133,14 +132,13 @@ export function IntegrationsPanel() {
       </div>
 
       <div className="mx-auto w-full max-w-lg px-2 sm:max-w-xl md:max-w-2xl lg:max-w-3xl">
-        <Image
-          src={ecosystemImage}
-          alt="Auto Verifi vehicle intelligence hub connected to marketplaces, lenders, insurers, FMOs, dealers, auction houses, car rental, car share and ride share"
-          width={1024}
-          height={1024}
-          sizes="(max-width: 640px) 92vw, (max-width: 1024px) 640px, 768px"
-          priority
-          className="integrations-ecosystem-image mx-auto h-auto w-full object-contain"
+        <iframe
+          src={ecosystemGraphicHtml}
+          title="Auto Verifi vehicle intelligence hub connected to marketplaces, lenders, insurers, FMOs, dealers, auction houses, car rental, car share and ride share"
+          className="integrations-ecosystem-graphic mx-auto block w-full border-0 bg-transparent"
+          style={{ aspectRatio: "1440 / 1130", minHeight: 280 }}
+          loading="lazy"
+          referrerPolicy="no-referrer"
         />
       </div>
 

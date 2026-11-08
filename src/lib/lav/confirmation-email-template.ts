@@ -35,6 +35,7 @@ export function buildLavBookingConfirmationEmailHtml(input: {
   invoiceAccount: boolean;
   digital: boolean;
   baseUrl: string;
+  smsWarnings?: string[];
 }): string {
   const {
     payload,
@@ -42,6 +43,7 @@ export function buildLavBookingConfirmationEmailHtml(input: {
     invoiceAccount,
     digital,
     baseUrl,
+    smsWarnings = [],
   } = input;
   const company = getCompanyDetails(baseUrl);
   const generatedOn = formatAuDate(new Date());
@@ -68,10 +70,17 @@ export function buildLavBookingConfirmationEmailHtml(input: {
     )
     .join("");
 
+  const smsNotice =
+    smsWarnings.length > 0
+      ? `<p style="margin:12px 0 0;font-size:13px;line-height:1.55;color:#b45309;">${smsWarnings.map((w) => escapeHtml(w)).join("<br />")}</p>`
+      : captureLinks.length > 0
+        ? `<p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#475569;">Where we have a valid mobile number, an SMS has been sent to the vehicle owner, vendor and/or buyer. You can also use the links below.</p>`
+        : `<p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#475569;">Use the links below so the owner or vendor can complete the digital self inspection.</p>`;
+
   const captureSection = digital
     ? `<h2 style="margin:0 0 12px;font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:${BRAND_BLUE};">Digital capture links</h2>
-       <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#475569;">An SMS has been sent to the vehicle owner, vendor and/or buyer so they can complete the digital self inspection.</p>
-       <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;">
+       ${smsNotice}
+       <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;margin-top:12px;">
          ${captureRows || `<tr><td style="padding:14px 16px;font-size:14px;color:#64748b;">Capture links are being prepared — our team will follow up shortly.</td></tr>`}
        </table>`
     : buildPhysicalInspectionSection(payload);

@@ -671,11 +671,11 @@ html.dark body {
   max-height: 240px !important;
 }
 
-/** Solutions → Integrations hub graphic (dark asset, no frame). */
-.integrations-ecosystem-image {
+/** Solutions → Integrations hub graphic (embedded HTML, dark canvas). */
+.integrations-ecosystem-graphic {
   display: block;
   background: transparent;
-  vertical-align: middle;
+  color-scheme: dark;
 }
 
 @media print {

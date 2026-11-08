@@ -24,13 +24,13 @@ async function startDigitalCapture(input: {
   reportId: string;
   rego: string;
   state: string;
-  vendorPhone: string;
+  smsTo: string | null;
   vehicleLabel: string;
 }): Promise<{ inspectUrl: string; smsWarnings: string[] }> {
   const smsWarnings: string[] = [];
   const inspection = await createInspection({
     reportId: input.reportId,
-    phone: input.vendorPhone,
+    phone: input.smsTo ?? undefined,
   });
 
   const baseUrl = getBaseUrl();
@@ -38,14 +38,18 @@ async function startDigitalCapture(input: {
 
   await updateReport(input.reportId, {
     workflowStatus: "awaiting_inspection",
-    ownerPhone: input.vendorPhone,
-    customerPhone: input.vendorPhone,
+    ownerPhone: input.smsTo ?? "",
+    customerPhone: input.smsTo ?? "",
   });
 
-  if (isSmsConfigured()) {
+  if (!input.smsTo) {
+    smsWarnings.push(
+      "No valid Australian mobile on the booking — use the capture link in this email.",
+    );
+  } else if (isSmsConfigured()) {
     try {
       await sendInspectionLinkSms({
-        to: input.vendorPhone,
+        to: input.smsTo,
         inspectUrl,
         vehicleLabel: input.vehicleLabel,
         recipient: "owner",
@@ -103,12 +107,13 @@ export async function fulfillLavBooking(
 
     const label = `${asset.year} ${asset.make} ${asset.model}`.trim() || asset.type;
 
-    if (digital && vendorPhone) {
+    if (digital) {
+      const primarySmsTo = vendorPhone ?? contactPhone ?? buyerPhone;
       const capture = await startDigitalCapture({
         reportId: report.id,
         rego: report.vehicle.rego,
         state: report.vehicle.state,
-        vendorPhone,
+        smsTo: primarySmsTo,
         vehicleLabel: label,
       });
       captureLinks.push({
@@ -180,6 +185,7 @@ export async function fulfillLavBooking(
     assetReportIds,
     invoiceAccount: payload.promoCode === "AVINV",
     digital,
+    smsWarnings,
   }).catch((err) => {
     console.error("[lav/fulfill] confirmation email failed:", err);
   });
