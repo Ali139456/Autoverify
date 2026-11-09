@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { IntegrationsEcosystemGraphic } from "./IntegrationsEcosystemGraphic";
 import {
   ArrowRight,
   Building2,
@@ -131,16 +132,7 @@ export function IntegrationsPanel() {
         </p>
       </div>
 
-      <div className="mx-auto w-full max-w-lg px-2 sm:max-w-xl md:max-w-2xl lg:max-w-3xl">
-        <iframe
-          src={ecosystemGraphicHtml}
-          title="Auto Verifi vehicle intelligence hub connected to marketplaces, lenders, insurers, FMOs, dealers, auction houses, car rental, car share and ride share"
-          className="integrations-ecosystem-graphic mx-auto block w-full border-0 bg-transparent"
-          style={{ aspectRatio: "1440 / 1130", minHeight: 280 }}
-          loading="lazy"
-          referrerPolicy="no-referrer"
-        />
-      </div>
+      <IntegrationsEcosystemGraphic src={ecosystemGraphicHtml} />
 
       <div className="flex flex-wrap justify-center gap-3">
         <Link
