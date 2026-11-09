@@ -22,14 +22,17 @@ export function parseLavBookingBody(
 
   const assets: LavAssetInput[] = assetsRaw.map((raw) => {
     const a = raw as Record<string, unknown>;
+    const legacyDesc = clampText(a.description, 200);
     return {
       type: clampText(a.type, 80),
       year: clampText(a.year, 8),
       make: clampText(a.make, 80),
       model: clampText(a.model, 80),
+      colour: clampText(a.colour, 80) || legacyDesc,
       identifier: clampText(a.identifier, 32).toUpperCase(),
-      rego: clampText(a.rego, 40),
-      description: clampText(a.description, 200),
+      rego: clampText(a.rego, 24),
+      regoState: clampText(a.regoState ?? a.assetState, 8).toUpperCase(),
+      ...(legacyDesc ? { description: legacyDesc } : {}),
     };
   });
 

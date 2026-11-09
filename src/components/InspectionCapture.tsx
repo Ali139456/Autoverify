@@ -99,18 +99,22 @@ function tryCloseInspectionTab(): boolean {
   }
 }
 
+type LavConditionChoice = "good" | "fair" | "poor";
+
 export function InspectionCapture({
   token,
   reportId,
   initialPhotos = [],
   angles: initialAngles = INSPECTION_ANGLES,
   lavDigital = false,
+  initialVin = "",
 }: {
   token: string;
   reportId: string;
   initialPhotos?: UploadedPhoto[];
   angles?: readonly InspectionAngleDef[];
   lavDigital?: boolean;
+  initialVin?: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const uploadingRef = useRef(false);
@@ -156,6 +160,11 @@ export function InspectionCapture({
     : "This usually takes about 5 minutes to complete.";
   const [odometerKm, setOdometerKm] = useState("");
   const [odometerSaved, setOdometerSaved] = useState(false);
+  const [captureVin, setCaptureVin] = useState(initialVin);
+  const [vinSaved, setVinSaved] = useState(false);
+  const [conditionGrade, setConditionGrade] = useState<LavConditionChoice | "">(
+    "",
+  );
 
   const fetchPhotosFromServer = useCallback(async (): Promise<
     UploadedPhoto[] | null
@@ -205,6 +214,27 @@ export function InspectionCapture({
       // Non-blocking — booking data remains on the report if lookup fails.
     });
   }, [lavDigital, token]);
+
+  async function saveLavVin() {
+    const vin = captureVin.trim().toUpperCase().replace(/\s+/g, "");
+    if (vin.length < 8) {
+      setError("Enter the full VIN from the identification image.");
+      return;
+    }
+    setError(null);
+    const res = await fetch(`/api/inspections/${token}/lav-details`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ captureVin: vin }),
+    });
+    const data = await readJsonResponse<{ error?: string }>(
+      res,
+      "Could not save VIN.",
+    );
+    if (!res.ok) throw new Error(data.error ?? "Could not save VIN.");
+    setCaptureVin(vin);
+    setVinSaved(true);
+  }
 
   async function saveLavOdometer() {
     const km = Number(odometerKm.replace(/,/g, "").trim());
@@ -326,6 +356,30 @@ export function InspectionCapture({
         throw new Error("Upload at least one photo before submitting.");
       }
 
+      if (lavDigital) {
+        if (!conditionGrade) {
+          throw new Error(
+            "Select the overall vehicle condition (good, fair or poor) before submitting.",
+          );
+        }
+        const vin = captureVin.trim().toUpperCase().replace(/\s+/g, "");
+        const detailRes = await fetch(`/api/inspections/${token}/lav-details`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            conditionGrade,
+            ...(vin.length >= 8 ? { captureVin: vin } : {}),
+          }),
+        });
+        const detailData = await readJsonResponse<{ error?: string }>(
+          detailRes,
+          "Could not save inspection details.",
+        );
+        if (!detailRes.ok) {
+          throw new Error(detailData.error ?? "Could not save inspection details.");
+        }
+      }
+
       const res = await fetch(`/api/inspections/${token}/complete`, {
         method: "POST",
       });
@@ -378,6 +432,33 @@ export function InspectionCapture({
               </>
             )}
           </p>
+          {lavDigital ? (
+            <div className="mt-6 w-full max-w-sm text-left">
+              <label
+                htmlFor="lav-condition-grade"
+                className="text-xs font-semibold uppercase tracking-wide text-slate-400"
+              >
+                Overall vehicle condition <span className="text-amber-300">*</span>
+              </label>
+              <select
+                id="lav-condition-grade"
+                value={conditionGrade}
+                onChange={(e) =>
+                  setConditionGrade(e.target.value as LavConditionChoice | "")
+                }
+                className="mt-2 w-full rounded-lg border border-white/15 bg-ink-950 px-3 py-2.5 text-sm text-white"
+              >
+                <option value="">Select…</option>
+                <option value="good">Good</option>
+                <option value="fair">Fair</option>
+                <option value="poor">Poor</option>
+              </select>
+              <p className="mt-2 text-xs leading-relaxed text-slate-500">
+                Your lender sees this on the verification report — no AI condition
+                assessment is used for asset verification.
+              </p>
+            </div>
+          ) : null}
           {error ? (
             <div
               className="mt-6 w-full rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-200"
@@ -389,11 +470,13 @@ export function InspectionCapture({
           <button
             type="button"
             onClick={() => void submitInspection()}
-            disabled={submitting}
+            disabled={submitting || (lavDigital && !conditionGrade)}
             className="mt-8 inline-flex w-full max-w-sm items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent-600 to-accent-500 px-6 py-4 text-base font-bold text-white shadow-lg shadow-accent-900/40 transition hover:from-accent-500 hover:to-accent-400 disabled:opacity-50"
           >
             {submitting ? (
               <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+            ) : lavDigital ? (
+              <CheckCircle2 className="h-5 w-5" aria-hidden />
             ) : (
               <Sparkles className="h-5 w-5" aria-hidden />
             )}
@@ -533,6 +616,50 @@ export function InspectionCapture({
             }}
           />
 
+          {lavDigital && currentAngle.id === "vin_plate" ? (
+            <div className="mt-4 w-full max-w-xs text-left">
+              <label
+                htmlFor="lav-capture-vin"
+                className="text-xs font-semibold uppercase tracking-wide text-slate-400"
+              >
+                VIN from image
+              </label>
+              <div className="mt-2 flex gap-2">
+                <input
+                  id="lav-capture-vin"
+                  value={captureVin}
+                  style={{ textTransform: "uppercase" }}
+                  onChange={(e) => {
+                    setCaptureVin(e.target.value);
+                    setVinSaved(false);
+                  }}
+                  placeholder="17-character VIN"
+                  className="min-w-0 flex-1 rounded-lg border border-white/15 bg-ink-950 px-3 py-2 text-sm text-white"
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    void saveLavVin().catch((err) =>
+                      setError(
+                        inspectionErrorMessage(err, "Could not save VIN."),
+                      ),
+                    )
+                  }
+                  className="shrink-0 rounded-lg border border-white/15 px-3 py-2 text-xs font-bold text-white"
+                >
+                  Save
+                </button>
+              </div>
+              {vinSaved ? (
+                <p className="mt-1 text-xs text-emerald-400">Saved to report.</p>
+              ) : (
+                <p className="mt-1 text-xs text-slate-500">
+                  Transcribe the VIN shown on your photo into the report.
+                </p>
+              )}
+            </div>
+          ) : null}
+
           {lavDigital && currentAngle.id === "dashboard" ? (
             <div className="mt-4 w-full max-w-xs text-left">
               <label
@@ -664,9 +791,8 @@ export function InspectionCapture({
           </button>
           {lavDigital ? (
             <p className="mt-2 text-center text-xs leading-relaxed text-slate-500">
-              Not every image is used for AI condition assessment — some are
-              kept on file as a matter of record (e.g. odometer, VIN,
-              registration papers).
+              Enter odometer and VIN readings where prompted. You will choose
+              overall condition (good, fair or poor) before final submit.
             </p>
           ) : null}
         </>

@@ -38,15 +38,27 @@ const ASSET_TYPES = [
   "Other",
 ] as const;
 
+const AU_REGO_STATES = [
+  "NSW",
+  "VIC",
+  "QLD",
+  "WA",
+  "SA",
+  "TAS",
+  "ACT",
+  "NT",
+] as const;
+
 type AssetRow = {
   id: string;
   type: string;
   year: string;
   make: string;
   model: string;
+  colour: string;
   identifier: string;
   rego: string;
-  description: string;
+  regoState: string;
 };
 
 function newAsset(): AssetRow {
@@ -56,9 +68,10 @@ function newAsset(): AssetRow {
     year: "",
     make: "",
     model: "",
+    colour: "",
     identifier: "",
     rego: "",
-    description: "",
+    regoState: "",
   };
 }
 
@@ -266,9 +279,10 @@ export const LenderBookingForm = forwardRef<
       year: a.year,
       make: a.make,
       model: a.model,
+      colour: a.colour,
       identifier: a.identifier.toUpperCase(),
-      rego: a.rego,
-      description: a.description,
+      rego: a.rego.trim().toUpperCase(),
+      regoState: a.regoState.trim().toUpperCase(),
     })),
     vendorType,
     vendorName,
@@ -361,8 +375,9 @@ export const LenderBookingForm = forwardRef<
               " · " +
               a.type,
           ],
-          ["Identifier", a.identifier],
-          ["Rego", a.rego],
+          ["Colour", a.colour],
+          ["Registration", [a.rego, a.regoState].filter(Boolean).join(" ")],
+          ["VIN", a.identifier],
         ]),
       )
       .join("");
@@ -531,17 +546,6 @@ export const LenderBookingForm = forwardRef<
                       </select>
                     </div>
                     <div>
-                      <label>Year</label>
-                      <input
-                        value={a.year}
-                        inputMode="numeric"
-                        maxLength={4}
-                        onChange={(e) =>
-                          updateAsset(a.id, { year: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div>
                       <label>
                         Make <span className="req">*</span>
                       </label>
@@ -566,6 +570,38 @@ export const LenderBookingForm = forwardRef<
                       />
                     </div>
                     <div>
+                      <label>Year</label>
+                      <input
+                        value={a.year}
+                        inputMode="numeric"
+                        maxLength={4}
+                        onChange={(e) =>
+                          updateAsset(a.id, { year: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <label>Colour</label>
+                      <input
+                        value={a.colour}
+                        placeholder="e.g. White"
+                        onChange={(e) =>
+                          updateAsset(a.id, { colour: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <label>Registration plate</label>
+                      <input
+                        value={a.rego}
+                        placeholder="e.g. ABC123"
+                        style={{ textTransform: "uppercase" }}
+                        onChange={(e) =>
+                          updateAsset(a.id, { rego: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div>
                       <label>VIN / chassis / HIN / serial</label>
                       <input
                         value={a.identifier}
@@ -576,24 +612,20 @@ export const LenderBookingForm = forwardRef<
                       />
                     </div>
                     <div>
-                      <label>Registration & state</label>
-                      <input
-                        value={a.rego}
-                        placeholder="e.g. ABC123 NSW"
+                      <label>State</label>
+                      <select
+                        value={a.regoState}
                         onChange={(e) =>
-                          updateAsset(a.id, { rego: e.target.value })
+                          updateAsset(a.id, { regoState: e.target.value })
                         }
-                      />
-                    </div>
-                    <div className="full">
-                      <label>Description / identifying features</label>
-                      <input
-                        value={a.description}
-                        placeholder="Colour, body type, attachments…"
-                        onChange={(e) =>
-                          updateAsset(a.id, { description: e.target.value })
-                        }
-                      />
+                      >
+                        <option value="">Select…</option>
+                        {AU_REGO_STATES.map((st) => (
+                          <option key={st} value={st}>
+                            {st}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </div>

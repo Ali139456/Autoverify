@@ -46,6 +46,11 @@ export default async function InspectPage({
       reportId={inspection.reportId}
       angles={angles}
       lavDigital={lavDigital}
+      initialVin={
+        report?.lavVerification?.vin?.trim() ||
+        report?.vehicle.vin?.trim() ||
+        ""
+      }
       initialPhotos={inspection.photos.map((photo) => ({
         angle: photo.angle,
         label: photo.label,

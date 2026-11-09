@@ -101,16 +101,19 @@ export function buildLavBookingConfirmationEmailHtml(input: {
         const title = [asset.year, asset.make, asset.model]
           .filter(Boolean)
           .join(" ");
-        const headline =
-          title.trim() || asset.description.trim() || `Asset ${index + 1}`;
+        const headline = title.trim() || `Asset ${index + 1}`;
+        const regoLine = [asset.rego, asset.regoState]
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .join(" ");
         return [
           detailRow(
             `Asset ${index + 1}`,
             [headline, asset.type].filter(Boolean).join(" · "),
           ),
-          detailRow("Serial / identifier", asset.identifier),
-          detailRow("Registration", asset.rego),
-          detailRow("Description", asset.description),
+          detailRow("Colour", asset.colour),
+          detailRow("Serial / VIN", asset.identifier),
+          detailRow("Registration", regoLine),
         ].filter(Boolean);
       })
       .join("");

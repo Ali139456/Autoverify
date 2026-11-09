@@ -24,11 +24,14 @@ function buildManualVerification(
     vehicleMake: asset.make.trim(),
     vehicleModel: asset.model.trim(),
     badge: null,
-    colour: asset.description.trim() || null,
+    colour: asset.colour.trim() || null,
     buildOrCompliance: asset.year.trim() || null,
     vin: asset.identifier.trim().toUpperCase() || null,
     rego: asset.rego.trim() || null,
-    state: (booking.state as LavVerificationSummary["state"]) || null,
+    state:
+      (asset.regoState.trim().toUpperCase() as LavVerificationSummary["state"]) ||
+      (booking.state as LavVerificationSummary["state"]) ||
+      null,
     identifiersMatched: Boolean(asset.identifier.trim() || asset.rego.trim()),
     autograbSource: "manual",
   };
@@ -45,7 +48,7 @@ function verificationFromLookup(
     vehicleMake: asset.make.trim() || vehicle.make,
     vehicleModel: asset.model.trim() || vehicle.model,
     badge: badge || null,
-    colour: vehicle.colour || asset.description.trim() || null,
+    colour: vehicle.colour || asset.colour.trim() || null,
     buildOrCompliance: bookingYear || null,
     vin: vehicle.vin || asset.identifier.trim().toUpperCase() || null,
     rego: vehicle.rego || asset.rego.trim() || null,
@@ -84,7 +87,7 @@ export async function createLavAssetReport(input: {
   const lookupInput = parseLavAssetLookupInput({
     identifier: asset.identifier,
     rego: asset.rego,
-    state: booking.state,
+    state: asset.regoState.trim() || booking.state,
   });
 
   try {
@@ -137,7 +140,7 @@ export async function createLavAssetReport(input: {
       stripeSessionId: null,
       vehicle: {
         rego: asset.rego.split(/\s+/)[0] ?? "",
-        state: (booking.state || "NSW") as VehicleReport["vehicle"]["state"],
+        state: ((asset.regoState.trim() || booking.state || "NSW") as VehicleReport["vehicle"]["state"]),
         vin: asset.identifier.trim().toUpperCase(),
         make: asset.make.trim(),
         model: asset.model.trim(),
@@ -148,7 +151,7 @@ export async function createLavAssetReport(input: {
         fuelType: "",
         transmission: "",
         engine: "",
-        colour: asset.description.trim(),
+        colour: asset.colour.trim(),
         odometer: null,
       },
       registration: {

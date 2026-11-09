@@ -1,8 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { lookupVehicle } from "@/lib/autograb";
 import { getInspectionByToken, isInspectionExpired } from "@/lib/inspections";
+import type { LavConditionGrade } from "@/lib/lav/lav-report-view";
 import { getReport, updateReport } from "@/lib/store";
 import { guardRateLimit, isBoundedAccessToken } from "@/lib/security";
+
+function normalizeCaptureVin(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  const vin = raw.trim().toUpperCase().replace(/\s+/g, "");
+  if (vin.length < 8 || vin.length > 17) return null;
+  return vin;
+}
+
+function normalizeConditionGrade(raw: unknown): LavConditionGrade | null {
+  if (typeof raw !== "string") return null;
+  const g = raw.trim().toLowerCase();
+  if (g === "good" || g === "fair" || g === "poor") return g;
+  return null;
+}
 
 export async function POST(
   req: NextRequest,
@@ -38,7 +53,12 @@ export async function POST(
     });
   }
 
-  let body: { odometerKm?: unknown; refreshVehicle?: unknown } = {};
+  let body: {
+    odometerKm?: unknown;
+    refreshVehicle?: unknown;
+    captureVin?: unknown;
+    conditionGrade?: unknown;
+  } = {};
   try {
     body = (await req.json()) as typeof body;
   } catch {
@@ -47,12 +67,43 @@ export async function POST(
 
   const patch: Parameters<typeof updateReport>[1] = {};
 
+  const captureVin = normalizeCaptureVin(body.captureVin);
+  if (captureVin) {
+    const prior = report.lavVerification;
+    patch.vehicle = {
+      ...report.vehicle,
+      vin: captureVin,
+    };
+    patch.lavVerification = {
+      ...(prior ?? {
+        vehicleMake: report.vehicle.make,
+        vehicleModel: report.vehicle.model,
+        badge: null,
+        colour: report.vehicle.colour || null,
+        buildOrCompliance: report.vehicle.year
+          ? String(report.vehicle.year)
+          : null,
+        rego: report.vehicle.rego || null,
+        state: report.vehicle.state ?? null,
+        identifiersMatched: true,
+        autograbSource: "manual",
+      }),
+      vin: captureVin,
+      identifiersMatched: true,
+    };
+  }
+
+  const conditionGrade = normalizeConditionGrade(body.conditionGrade);
+  if (conditionGrade) {
+    patch.lavConditionGrade = conditionGrade;
+  }
+
   const odometerRaw = body.odometerKm;
   if (odometerRaw != null && odometerRaw !== "") {
     const km = Number(odometerRaw);
     if (Number.isFinite(km) && km > 0) {
       patch.vehicle = {
-        ...report.vehicle,
+        ...(patch.vehicle ?? report.vehicle),
         odometer: Math.round(km),
         odometerSource: "Odometer reading supplied during image capture.",
       };
@@ -68,6 +119,10 @@ export async function POST(
       patch.vehicle = {
         ...(patch.vehicle ?? report.vehicle),
         ...lookup.vehicle,
+        vin:
+          captureVin ??
+          (patch.vehicle as typeof report.vehicle | undefined)?.vin ??
+          lookup.vehicle.vin,
         odometer:
           (patch.vehicle as typeof report.vehicle | undefined)?.odometer ??
           report.vehicle.odometer,
@@ -90,7 +145,7 @@ export async function POST(
         buildOrCompliance: lookup.vehicle.year
           ? String(lookup.vehicle.year)
           : (prior?.buildOrCompliance ?? null),
-        vin: lookup.vehicle.vin ?? prior?.vin ?? null,
+        vin: captureVin ?? lookup.vehicle.vin ?? prior?.vin ?? null,
         rego: lookup.vehicle.rego ?? prior?.rego ?? null,
         state: lookup.vehicle.state ?? prior?.state ?? null,
         colour: lookup.vehicle.colour ?? prior?.colour ?? null,

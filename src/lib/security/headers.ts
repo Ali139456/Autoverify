@@ -1,8 +1,19 @@
 import { NextResponse } from "next/server";
 
+type SecurityHeaderOptions = {
+  /** Allow this document to load in an iframe on the same site (e.g. Solutions embed). */
+  allowSameOriginFrame?: boolean;
+};
+
 /** Baseline HTTP security headers for HTML, API, and static assets. */
-export function applySecurityHeaders(response: NextResponse): NextResponse {
-  response.headers.set("X-Frame-Options", "DENY");
+export function applySecurityHeaders(
+  response: NextResponse,
+  options?: SecurityHeaderOptions,
+): NextResponse {
+  response.headers.set(
+    "X-Frame-Options",
+    options?.allowSameOriginFrame ? "SAMEORIGIN" : "DENY",
+  );
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set("X-DNS-Prefetch-Control", "off");

@@ -235,6 +235,8 @@ export interface VehicleReport {
   tier?: ReportTier;
   lavContext?: LavAssetContext | null;
   lavVerification?: LavVerificationSummary | null;
+  /** Vendor-selected overall condition (digital self inspection — no AI). */
+  lavConditionGrade?: "good" | "fair" | "poor" | null;
   customerEmail?: string | null;
   customerFirstName?: string | null;
   customerLastName?: string | null;

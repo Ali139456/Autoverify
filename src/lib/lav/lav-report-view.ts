@@ -148,7 +148,8 @@ export function buildLavReportViewModel(
     odometer,
     body: vehicle.bodyType?.trim() || "—",
     colour: v?.colour?.trim() || vehicle.colour?.trim() || "—",
-    conditionGrade: resolveLavConditionGrade(damage),
+    conditionGrade:
+      report.lavConditionGrade ?? resolveLavConditionGrade(damage),
     heroPhoto,
     walkaround,
     identification,

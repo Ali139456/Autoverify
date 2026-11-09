@@ -8,8 +8,15 @@ import {
 import { hasPreviewAccess, PREVIEW_COOKIE_NAME } from "@/lib/site-preview";
 import { applySecurityHeaders } from "@/lib/security/headers";
 
-function secure(response: NextResponse) {
-  return applySecurityHeaders(response);
+const SAME_ORIGIN_FRAME_PATHS = new Set([
+  "/solutions/integrations-graphic.html",
+]);
+
+function secure(response: NextResponse, request: NextRequest) {
+  const allowSameOriginFrame = SAME_ORIGIN_FRAME_PATHS.has(
+    request.nextUrl.pathname,
+  );
+  return applySecurityHeaders(response, { allowSameOriginFrame });
 }
 
 const INSPECTION_PATH_ALIASES: Record<string, string> = {
@@ -40,21 +47,25 @@ export async function proxy(request: NextRequest) {
   if (inspectionRedirect) {
     return secure(
       NextResponse.redirect(new URL(inspectionRedirect, request.url), 308),
+      request,
     );
   }
 
   if (!isComingSoonMode(host)) {
-    return secure(NextResponse.next());
+    return secure(NextResponse.next(), request);
   }
 
   const previewToken = request.cookies.get(PREVIEW_COOKIE_NAME)?.value;
 
   if (await hasPreviewAccess(previewToken)) {
-    return secure(NextResponse.next());
+    return secure(NextResponse.next(), request);
   }
 
   if (isPublicWhileComingSoon(pathname)) {
-    return secure(withNoCacheForLiveComingSoon(NextResponse.next(), host));
+    return secure(
+      withNoCacheForLiveComingSoon(NextResponse.next(), host),
+      request,
+    );
   }
 
   if (pathname !== "/") {
@@ -63,10 +74,14 @@ export async function proxy(request: NextRequest) {
         NextResponse.redirect(new URL("/", request.url)),
         host,
       ),
+      request,
     );
   }
 
-  return secure(withNoCacheForLiveComingSoon(NextResponse.next(), host));
+  return secure(
+    withNoCacheForLiveComingSoon(NextResponse.next(), host),
+    request,
+  );
 }
 
 export const config = {

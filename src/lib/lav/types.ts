@@ -9,9 +9,13 @@ export type LavAssetInput = {
   year: string;
   make: string;
   model: string;
+  colour: string;
   identifier: string;
   rego: string;
-  description: string;
+  /** Registration issuing state / territory for this asset */
+  regoState: string;
+  /** @deprecated use colour — kept when parsing older bookings */
+  description?: string;
 };
 
 export type LavBookingPayload = {
