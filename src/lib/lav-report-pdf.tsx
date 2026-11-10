@@ -12,6 +12,11 @@ import {
 import { formatLavInspectionPhotoEvidenceLines } from "./inspection-photo-evidence";
 import { buildLavReportViewModel } from "./lav/lav-report-view";
 import {
+  formatLavValuationRange,
+  lavValuationHasData,
+  lavValuationRows,
+} from "./lav/lav-valuation";
+import {
   LAV_REPORT_DISCLAIMER_FOOTER,
   LAV_REPORT_DISCLAIMER_SECTIONS,
   LAV_REPORT_DISCLAIMER_TITLE,
@@ -92,6 +97,15 @@ const styles = StyleSheet.create({
     lineHeight: 1.35,
   },
   photoMeta: { fontSize: 6, color: GREY, lineHeight: 1.35 },
+  valuationRow: { flexDirection: "row", gap: 6, marginTop: 6 },
+  valuationBox: {
+    width: "32%",
+    padding: 8,
+    borderWidth: 0.5,
+    borderColor: "#e2e8f0",
+    backgroundColor: "#ffffff",
+  },
+  valuationAmount: { fontSize: 9, fontWeight: 700, color: BLUE, marginTop: 3 },
   disclaimerHeading: { fontSize: 10, fontWeight: 700, marginBottom: 6 },
   disclaimerSub: { fontSize: 8, fontWeight: 700, marginBottom: 2 },
   disclaimerBody: { fontSize: 7, color: GREY, lineHeight: 1.45, marginBottom: 6 },
@@ -187,6 +201,9 @@ export function LavReportPdf({
   const vm = buildLavReportViewModel(report, photos, null);
   const condition = vm.conditionGrade;
   const allPhotoSlots = [...vm.walkaround, ...vm.identification];
+  const valuationRows = lavValuationHasData(report.valuation)
+    ? lavValuationRows(report.valuation)
+    : [];
 
   return (
     <Document title={`Lender Asset Verification ${vm.reportRef}`}>
@@ -250,6 +267,22 @@ export function LavReportPdf({
             />
           ))}
         </View>
+        {valuationRows.length > 0 ? (
+          <>
+            <Text style={[styles.section, { marginTop: 12 }]}>Valuation</Text>
+            <Text style={styles.label}>Present value — market valuation</Text>
+            <View style={styles.valuationRow}>
+              {valuationRows.map((row) => (
+                <View key={row.label} style={styles.valuationBox}>
+                  <Text style={styles.label}>{row.label}</Text>
+                  <Text style={styles.valuationAmount}>
+                    {formatLavValuationRange(row.low, row.high)}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </>
+        ) : null}
         <LavPdfFooter report={report} pageLabel="2 / 3" />
       </Page>
 

@@ -77,13 +77,22 @@ function SolutionCard({
           </li>
         ))}
       </ul>
-      <Link
-        href={enquireHref(card.title)}
-        className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent-500 px-5 py-3 text-sm font-bold text-white transition hover:bg-accent-600"
-      >
-        Enquire
-        <ArrowRight className="h-4 w-4" aria-hidden />
-      </Link>
+      {card.comingSoon ? (
+        <span
+          className="mt-8 inline-flex w-full cursor-default items-center justify-center rounded-full border border-white/20 bg-white/10 px-5 py-3 text-sm font-bold text-slate-300"
+          aria-disabled="true"
+        >
+          Coming soon
+        </span>
+      ) : (
+        <Link
+          href={enquireHref(card.title)}
+          className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent-500 px-5 py-3 text-sm font-bold text-white transition hover:bg-accent-600"
+        >
+          Enquire
+          <ArrowRight className="h-4 w-4" aria-hidden />
+        </Link>
+      )}
     </article>
   );
 }

@@ -2,6 +2,11 @@ import type { InspectionPhoto, VehicleReport } from "@/lib/types";
 import { getInspectionPhotoUrl } from "@/lib/report-design";
 import { buildLavReportViewModel } from "@/lib/lav/lav-report-view";
 import {
+  formatLavValuationRange,
+  lavValuationHasData,
+  lavValuationRows,
+} from "@/lib/lav/lav-valuation";
+import {
   LAV_REPORT_DISCLAIMER_FOOTER,
   LAV_REPORT_DISCLAIMER_SECTIONS,
   LAV_REPORT_DISCLAIMER_TITLE,
@@ -79,6 +84,9 @@ export function LenderAssetVerificationReport({
   inspectUrl: string | null;
 }) {
   const vm = buildLavReportViewModel(report, photos, null);
+  const valuationRows = lavValuationHasData(report.valuation)
+    ? lavValuationRows(report.valuation)
+    : [];
   const shellProps = {
     reportId: report.id,
     generatedAt: report.createdAt,
@@ -196,6 +204,30 @@ export function LenderAssetVerificationReport({
               />
             ))}
           </div>
+
+          {valuationRows.length > 0 ? (
+            <div className="report-supplementary report-present-value mt-8 rounded-xl border border-slate-200 bg-slate-50 p-5">
+              <h3 className="text-xs font-bold uppercase tracking-wide text-slate-900">
+                Valuation
+              </h3>
+              <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                Present value — market valuation
+              </p>
+              <div className="report-valuation-grid mt-3 grid gap-3 sm:grid-cols-3">
+                {valuationRows.map((row) => (
+                  <div
+                    key={row.label}
+                    className="rounded-lg bg-white p-4 ring-1 ring-slate-200"
+                  >
+                    <p className="text-xs text-slate-500">{row.label}</p>
+                    <p className="report-currency mt-1 text-sm font-bold text-[#0073E3]">
+                      {formatLavValuationRange(row.low, row.high)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </ReportShell>
       </div>
 

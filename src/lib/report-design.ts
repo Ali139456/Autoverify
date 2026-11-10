@@ -706,7 +706,7 @@ export function formatManufacturerWarrantyStatus(
   if (period) detailParts.push(period);
   if (endEstimate?.source === "model_year") {
     detailParts.push(
-      "Remaining time estimated from model/build year and OEM warranty term — confirm with an authorised dealer using the VIN.",
+      "Remaining time estimated from model/build year and OEM warranty term.",
     );
   }
   if (info.warrantyAntiCorrosionYears != null) {

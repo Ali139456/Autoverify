@@ -11,6 +11,8 @@ export type SolutionOfferingCard = {
   title: string;
   description: string;
   bullets: string[];
+  /** Non-clickable “Coming soon” CTA instead of Enquire. */
+  comingSoon?: boolean;
 };
 
 export const CONSUMER_OFFERINGS: SolutionOfferingCard[] = [
@@ -48,6 +50,7 @@ export const CONSUMER_OFFERINGS: SolutionOfferingCard[] = [
       "Market value, Debt and Vehicle Equity tracking",
       "Renewal & compliance reminders",
     ],
+    comingSoon: true,
   },
 ];
 
