@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { sendPurchaseConfirmationEmail } from "@/lib/email";
 import { fulfillLavBooking } from "@/lib/lav/fulfill-booking";
+import { notifyPrePurchaseBooking } from "@/lib/pre-purchase/booking-email";
+import type { PrePurchaseBookingPayload } from "@/lib/pre-purchase/types";
+import { PPI_PRICE_INC_GST } from "@/lib/pre-purchase/parse-booking-body";
 import {
   getLavBookingByStripeSession,
   updateLavBooking,
@@ -37,6 +40,44 @@ export async function POST(req: NextRequest) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
+
+    const ppiRef = session.metadata?.ppiBookingRef?.trim();
+    if (ppiRef && session.payment_status === "paid") {
+      const meta = session.metadata ?? {};
+      const payload: PrePurchaseBookingPayload = {
+        bookingRef: ppiRef,
+        submittedAt: new Date().toISOString(),
+        contactName: meta.ppiContactName ?? "",
+        contactEmail:
+          session.customer_details?.email ??
+          session.customer_email ??
+          "",
+        contactPhone: meta.ppiContactPhone ?? "",
+        suburb: String(meta.ppiSuburb ?? "").replace(/\s+NSW.*$/, ""),
+        postcode: String(meta.ppiSuburb ?? "").match(/\b(2\d{3})\b/)?.[1] ?? "",
+        addressLine: "",
+        accessNotes: "",
+        vehicleRego: String(meta.ppiRego ?? "").split(" ")[0] ?? "",
+        vehicleState:
+          String(meta.ppiRego ?? "").split(" ").pop() ?? "NSW",
+        vehicleVin: "",
+        vehicleMake: "",
+        vehicleModel: "",
+        vehicleYear: "",
+        preferredWhen: meta.ppiWhen ?? "",
+        priceIncGst: PPI_PRICE_INC_GST,
+      };
+      const vehicleBits = String(meta.ppiVehicle ?? "").trim().split(/\s+/);
+      if (vehicleBits.length >= 3) {
+        payload.vehicleYear = vehicleBits[0] ?? "";
+        payload.vehicleMake = vehicleBits[1] ?? "";
+        payload.vehicleModel = vehicleBits.slice(2).join(" ");
+      }
+      await notifyPrePurchaseBooking(payload, true).catch((err) => {
+        console.error("[webhooks/stripe] PPI notify failed:", err);
+      });
+      return NextResponse.json({ received: true });
+    }
 
     const lavRef = session.metadata?.lavBookingRef?.trim();
     if (lavRef && session.payment_status === "paid") {

@@ -14,6 +14,9 @@ export const INSPECTION_MENU_ITEMS: InspectionMenuItem[] = [
     label: "Lender Asset Verification",
     href: "/inspections/lender-asset-verification",
   },
-  { label: "Pre Purchase Inspections", status: "coming_soon" },
+  {
+    label: "Pre Purchase Inspections",
+    href: "/inspections/pre-purchase",
+  },
   { label: "EV Battery Health Checks", status: "coming_soon" },
 ];

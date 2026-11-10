@@ -21,6 +21,7 @@ import {
   LAV_REPORT_DISCLAIMER_SECTIONS,
   LAV_REPORT_DISCLAIMER_TITLE,
 } from "./lav/lav-disclaimer";
+import { lavRegistrationSecurityLines } from "./lav/lav-registration-security";
 import { formatReportReference, getInspectionPhotoUrl } from "./report-design";
 import { REPORT_LOGO_PNG_PATH } from "./report-logo-size";
 import { publicPdfImage, type PdfImageSource } from "./pdf-local-image";
@@ -204,6 +205,7 @@ export function LavReportPdf({
   const valuationRows = lavValuationHasData(report.valuation)
     ? lavValuationRows(report.valuation)
     : [];
+  const securityLines = lavRegistrationSecurityLines(report);
 
   return (
     <Document title={`Lender Asset Verification ${vm.reportRef}`}>
@@ -235,6 +237,20 @@ export function LavReportPdf({
             </View>
           ))}
         </View>
+        <Text style={styles.section}>Registration &amp; security (PPSR)</Text>
+        {securityLines.map((line) => (
+          <View key={line.label} style={{ marginBottom: 4 }}>
+            <Text style={styles.label}>{line.label}</Text>
+            <Text
+              style={[
+                styles.value,
+                { color: line.warn ? "#b45309" : NAVY, fontSize: 8 },
+              ]}
+            >
+              {line.detail}
+            </Text>
+          </View>
+        ))}
         <Text style={styles.section}>Inspection summary</Text>
         <Text style={styles.label}>Overall condition of vehicle</Text>
         <Text style={styles.value}>

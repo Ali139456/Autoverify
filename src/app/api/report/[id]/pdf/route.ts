@@ -47,6 +47,15 @@ export async function GET(
       expiryDate: registration.expiryDate?.trim() || ppsrRefresh.regoExpiry,
     });
   }
+  if (
+    ppsrRefresh?.certificateUrl?.trim() &&
+    !registration.ppsrCertificateUrl?.trim()
+  ) {
+    registration = {
+      ...registration,
+      ppsrCertificateUrl: ppsrRefresh.certificateUrl,
+    };
+  }
   const enriched =
     registration === report.registration
       ? report

@@ -1,4 +1,8 @@
-import { lookupVehicle, type VehicleLookupResult } from "@/lib/autograb";
+import {
+  enrichRegistrationWithPpsr,
+  lookupVehicle,
+  type VehicleLookupResult,
+} from "@/lib/autograb";
 import { generateReportId, saveReport } from "@/lib/store";
 import type { VehicleReport } from "@/lib/types";
 import {
@@ -195,6 +199,36 @@ export async function createLavAssetReport(input: {
       lavContext,
       lavVerification: verification,
     };
+  }
+
+  const needsPpsr =
+    !report.registration.ppsrCertificateUrl?.trim() ||
+    report.lavVerification?.autograbSource === "manual";
+  if (
+    needsPpsr &&
+    (report.vehicle.vin?.trim() || report.vehicle.rego?.trim())
+  ) {
+    const enriched = await enrichRegistrationWithPpsr(
+      report.registration,
+      report.vehicle,
+    );
+    if (enriched.registration !== report.registration) {
+      report = { ...report, registration: enriched.registration };
+    }
+    if (enriched.vehicle !== report.vehicle) {
+      report = { ...report, vehicle: enriched.vehicle };
+    }
+    if (enriched.registration.ppsrCertificateUrl?.trim()) {
+      verification = {
+        ...verification,
+        rego: verification.rego || enriched.vehicle.rego || null,
+        state: verification.state || enriched.vehicle.state || null,
+        vin: verification.vin || enriched.vehicle.vin || null,
+        autograbSource:
+          verification.autograbSource === "manual" ? "live" : verification.autograbSource,
+      };
+      report = { ...report, lavVerification: verification };
+    }
   }
 
   await saveReport(report);

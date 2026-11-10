@@ -1,6 +1,7 @@
 import type { InspectionPhoto, VehicleReport } from "@/lib/types";
 import { getInspectionPhotoUrl } from "@/lib/report-design";
 import { buildLavReportViewModel } from "@/lib/lav/lav-report-view";
+import { lavRegistrationSecurityLines } from "@/lib/lav/lav-registration-security";
 import {
   formatLavValuationRange,
   lavValuationHasData,
@@ -77,13 +78,17 @@ export function LenderAssetVerificationReport({
   report,
   photos,
   inspectUrl,
+  pageCount = { body: 3, total: 3 },
 }: {
   report: VehicleReport;
   damage?: null;
   photos: InspectionPhoto[];
   inspectUrl: string | null;
+  pageCount?: { body: number; total: number };
 }) {
   const vm = buildLavReportViewModel(report, photos, null);
+  const securityLines = lavRegistrationSecurityLines(report);
+  const pageLabel = (n: number) => `${n} / ${pageCount.total}`;
   const valuationRows = lavValuationHasData(report.valuation)
     ? lavValuationRows(report.valuation)
     : [];
@@ -101,7 +106,7 @@ export function LenderAssetVerificationReport({
       <div className="report-page-break">
         <ReportShell
           {...shellProps}
-          pageLabel="1 / 3"
+          pageLabel={pageLabel(1)}
           className="report-shell-lav !overflow-visible"
         >
           <h1 className="lav-report-title">{vm.title}</h1>
@@ -161,6 +166,33 @@ export function LenderAssetVerificationReport({
             </div>
           </div>
 
+          <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <h3 className="text-xs font-bold uppercase tracking-[0.12em] text-[#0073E3]">
+              Registration &amp; security (PPSR)
+            </h3>
+            <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+              {securityLines.map((line) => (
+                <li
+                  key={line.label}
+                  className={`rounded-lg border px-3 py-2 text-xs ${
+                    line.warn
+                      ? "border-amber-200 bg-amber-50 text-amber-950"
+                      : "border-slate-200 bg-white text-slate-800"
+                  }`}
+                >
+                  <p className="font-bold text-slate-900">{line.label}</p>
+                  <p className="mt-0.5">{line.detail}</p>
+                </li>
+              ))}
+            </ul>
+            {report.registration.ppsrCertificateUrl?.trim() ? (
+              <p className="mt-3 text-xs text-slate-600">
+                The official AFSA PPSR search certificate is appended after this
+                report when you print or download PDF.
+              </p>
+            ) : null}
+          </div>
+
           <div className="lav-report-summary">
             <h4>Inspection summary</h4>
             <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">
@@ -187,7 +219,7 @@ export function LenderAssetVerificationReport({
       </div>
 
       <div className="report-page-break">
-        <ReportShell {...shellProps} pageLabel="2 / 3" className="report-shell-lav">
+        <ReportShell {...shellProps} pageLabel={pageLabel(2)} className="report-shell-lav">
           <h2 className="lav-report-section-heading !mt-0">
             Verification photos
           </h2>
@@ -232,7 +264,7 @@ export function LenderAssetVerificationReport({
       </div>
 
       <div className="report-page-break">
-        <ReportShell {...shellProps} pageLabel="3 / 3" className="report-shell-lav">
+        <ReportShell {...shellProps} pageLabel={pageLabel(3)} className="report-shell-lav">
           <div className="lav-report-disclaimer">
             <h3>{LAV_REPORT_DISCLAIMER_TITLE}</h3>
             {LAV_REPORT_DISCLAIMER_SECTIONS.map((section) => (

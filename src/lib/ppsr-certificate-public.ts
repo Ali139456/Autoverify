@@ -7,7 +7,9 @@ export const SAMPLE_PPSR_CERTIFICATE_IMAGE = "/sample/ppsr-certificate.png";
 export const PPSR_CERTIFICATE_SHEET_COUNT = 3;
 
 export function isSampleReportId(reportId: string): boolean {
-  return reportId.startsWith("SAMPLE-");
+  return (
+    reportId.startsWith("SAMPLE-") || reportId === "LAV-SAMPLE-CAR"
+  );
 }
 
 export function hasPpsrCertificate(report: VehicleReport): boolean {

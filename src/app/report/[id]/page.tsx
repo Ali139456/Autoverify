@@ -113,21 +113,30 @@ export default async function ReportPage({
     report.lavContext?.productKind === "lender_asset_verification" &&
     report.status === "paid"
   ) {
+    const lavPpsrSheets = hasPpsrAppendix ? PPSR_CERTIFICATE_SHEET_COUNT : 0;
+    const lavBodyPages = 3;
+    const lavTotalPages = lavBodyPages + lavPpsrSheets;
+
     return (
       <div className="min-h-screen bg-slate-100 dark:bg-ink-950">
         <div className="report-no-print mx-auto flex max-w-3xl justify-end px-4 pt-6">
           <ReportPrintActions />
         </div>
-        {inspectionPhotos.length > 0 &&
-        !report.damage &&
-        !report.lavContext ? (
-          <ReportInsightsPoller reportId={report.id} enabled />
-        ) : null}
         <LenderAssetVerificationReport
           report={report}
           photos={inspectionPhotos}
           inspectUrl={inspectUrlForOwner}
+          pageCount={{ body: lavBodyPages, total: lavTotalPages }}
         />
+        {hasPpsrAppendix ? (
+          <PpsrCertificateReportPages
+            report={report}
+            pageLabels={Array.from(
+              { length: lavPpsrSheets },
+              (_, i) => `${lavBodyPages + 1 + i} / ${lavTotalPages}`,
+            )}
+          />
+        ) : null}
       </div>
     );
   }

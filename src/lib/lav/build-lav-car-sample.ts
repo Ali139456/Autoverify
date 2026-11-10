@@ -112,6 +112,7 @@ export function buildLavCarSampleReport(): VehicleReport {
     vehicleSpec: null,
     manufacturerWarrantyService: null,
     damage: LAV_SAMPLE_DAMAGE,
+    lavConditionGrade: "good",
     lavContext: {
       bookingRef: "LAV-SAMPLE",
       assetIndex: 0,

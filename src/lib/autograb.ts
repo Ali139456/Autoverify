@@ -1004,6 +1004,28 @@ export async function refreshPpsrCertificateSummary(
   return null;
 }
 
+/** PPSR generate + merge into registration (LAV manual path and refresh). */
+export async function enrichRegistrationWithPpsr(
+  registration: RegistrationInfo,
+  vehicle: VehicleIdentity,
+): Promise<{ registration: RegistrationInfo; vehicle: VehicleIdentity }> {
+  const ppsr = await refreshPpsrCertificateSummary(vehicle);
+  if (!ppsr) {
+    return { registration, vehicle };
+  }
+  const nextVehicle = { ...vehicle };
+  applyPpsrPlateToVehicle(nextVehicle, ppsr);
+  const nextRegistration = mergeRegistrationInfo({
+    status: registration,
+    writeoff: null,
+    ppsr,
+    vehicleFound: Boolean(
+      nextVehicle.vin?.trim() || nextVehicle.rego?.trim(),
+    ),
+  });
+  return { registration: nextRegistration, vehicle: nextVehicle };
+}
+
 function extractLeadImageUrl(lead: JsonRecord): string | null {
   const keys = [
     "cover_image",
