@@ -1,12 +1,34 @@
 /** Denise embed tweaks — hide duplicate headings; legend at bottom of canvas. */
 (function () {
   const LEGEND = [
-    { label: "Buy and sell", left: 200, lineX1: 154, lineX2: 188, matchLineX: 72 },
-    { label: "Finance and risk", left: 520, lineX1: 474, lineX2: 508, matchLineX: 300 },
-    { label: "Mobility and fleet", left: 840, lineX1: 794, lineX2: 828, matchLineX: 560 },
+    {
+      label: "Buy and sell",
+      left: 268,
+      width: 220,
+      lineX1: 260,
+      lineX2: 400,
+      matchLineX: 72,
+    },
+    {
+      label: "Finance and risk",
+      left: 488,
+      width: 230,
+      lineX1: 520,
+      lineX2: 680,
+      matchLineX: 300,
+    },
+    {
+      label: "Mobility and fleet",
+      left: 808,
+      width: 280,
+      lineX1: 780,
+      lineX2: 1040,
+      matchLineX: 560,
+    },
   ];
-  const LEGEND_TOP = 1080;
-  const LINE_Y = 1073;
+  /** Below bottom-row copy (titles 1014px, body from 1040px, ~2 lines). */
+  const LEGEND_TOP = 1104;
+  const LINE_Y = 1094;
 
   function apply() {
     const h1 = document.querySelector("h1");
@@ -22,12 +44,29 @@
       }
     });
 
+    document.querySelectorAll("p").forEach((p) => {
+      const style = p.getAttribute("style") || "";
+      if (!style.includes("top: 1040px")) return;
+      const text = (p.textContent || "").trim();
+      if (text.length < 24) return;
+      p.style.top = "1032px";
+      p.style.lineHeight = "1.28";
+      p.style.maxWidth = "206px";
+    });
+
     let legendMoved = 0;
     for (const cfg of LEGEND) {
       for (const p of document.querySelectorAll("p")) {
         if ((p.textContent || "").trim() !== cfg.label) continue;
+        p.style.position = "absolute";
         p.style.left = `${cfg.left}px`;
         p.style.top = `${LEGEND_TOP}px`;
+        p.style.margin = "0";
+        p.style.zIndex = "4";
+        p.style.textAlign = "center";
+        if (cfg.width) {
+          p.style.width = `${cfg.width}px`;
+        }
         legendMoved += 1;
       }
       for (const line of document.querySelectorAll("line")) {
@@ -42,7 +81,7 @@
 
     const canvas = document.querySelector("[data-canvas-width]");
     if (canvas instanceof HTMLElement) {
-      canvas.style.transform = "translateY(-120px)";
+      canvas.style.transform = "translateY(-108px)";
     }
 
     return legendMoved === 3;
