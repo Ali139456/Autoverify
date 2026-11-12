@@ -6,6 +6,7 @@ import {
   isPublicWhileComingSoon,
 } from "@/lib/site-mode";
 import { hasPreviewAccess, PREVIEW_COOKIE_NAME } from "@/lib/site-preview";
+import { guardRateLimit } from "@/lib/security";
 import { applySecurityHeaders } from "@/lib/security/headers";
 
 const SAME_ORIGIN_FRAME_PATHS = new Set([
@@ -42,6 +43,14 @@ function withNoCacheForLiveComingSoon(
 export async function proxy(request: NextRequest) {
   const host = request.headers.get("host");
   const { pathname } = request.nextUrl;
+
+  if (
+    pathname.startsWith("/api/") &&
+    !pathname.startsWith("/api/webhooks/")
+  ) {
+    const limited = guardRateLimit(request, "api-global", 600, 60 * 60 * 1000);
+    if (limited) return limited;
+  }
   const inspectionRedirect = INSPECTION_PATH_ALIASES[pathname.toLowerCase()];
 
   if (inspectionRedirect) {

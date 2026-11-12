@@ -1,3 +1,5 @@
+export { isProductionRuntime } from "./env";
+export { isAllowedPpsrCertificateUrl } from "./outbound-url";
 export {
   applySecurityHeaders,
   secureJson,
@@ -8,6 +10,7 @@ export {
   getOpsSecret,
   guardBrowserPost,
   guardRateLimit,
+  secretsEqual,
   isBoundedAccessToken,
   isReasonableEmail,
   payloadTooLargeResponse,

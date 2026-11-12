@@ -1,3 +1,4 @@
+import { randomBytes } from "crypto";
 import { VehicleReport } from "./types";
 import { isSupabaseServerConfigured } from "./supabase/server";
 import {
@@ -45,6 +46,6 @@ export async function updateReport(
 
 export function generateReportId(): string {
   const ts = Date.now().toString(36);
-  const rand = Math.random().toString(36).slice(2, 10);
+  const rand = randomBytes(8).toString("base64url");
   return `AV-${ts}-${rand}`.toUpperCase().replace(/[^A-Z0-9-]/g, "");
 }

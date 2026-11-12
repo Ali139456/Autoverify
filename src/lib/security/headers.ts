@@ -21,12 +21,32 @@ export function applySecurityHeaders(
     "Permissions-Policy",
     "camera=(self), geolocation=(self), microphone=(), payment=(self)",
   );
+  response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
+  response.headers.set("Cross-Origin-Resource-Policy", "same-site");
 
   if (process.env.NODE_ENV === "production") {
     response.headers.set(
       "Strict-Transport-Security",
       "max-age=63072000; includeSubDomains; preload",
     );
+    if (process.env.DISABLE_CSP !== "true") {
+      response.headers.set(
+        "Content-Security-Policy",
+        [
+          "default-src 'self'",
+          "base-uri 'self'",
+          "form-action 'self'",
+          "frame-ancestors 'self'",
+          "object-src 'none'",
+          "script-src 'self' 'unsafe-inline'",
+          "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+          "font-src 'self' https://fonts.gstatic.com data:",
+          "img-src 'self' data: blob: https:",
+          "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com",
+          "frame-src 'self'",
+        ].join("; "),
+      );
+    }
   }
 
   return response;

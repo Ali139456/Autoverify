@@ -1,5 +1,14 @@
+import { timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { applySecurityHeaders } from "./headers";
+
+export function secretsEqual(provided: string, expected: string): boolean {
+  if (!provided || !expected) return false;
+  const a = Buffer.from(provided, "utf8");
+  const b = Buffer.from(expected, "utf8");
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
+}
 
 type RateBucket = { count: number; resetAt: number };
 
@@ -137,11 +146,9 @@ export function requireCronAuth(req: NextRequest): NextResponse | null {
       ? authHeader.slice(7).trim()
       : null;
   const provided =
-    bearer ??
-    req.headers.get("x-autoverifi-ops-key")?.trim() ??
-    req.nextUrl.searchParams.get("opsKey")?.trim();
+    bearer ?? req.headers.get("x-autoverifi-ops-key")?.trim();
 
-  if (!provided || provided !== secret) {
+  if (!provided || !secretsEqual(provided, secret)) {
     return applySecurityHeaders(
       NextResponse.json({ error: "Unauthorized." }, { status: 401 }),
     );
@@ -156,10 +163,8 @@ export function requireOpsAuth(req: NextRequest): NextResponse | null {
       NextResponse.json({ error: "Not found." }, { status: 404 }),
     );
   }
-  const provided =
-    req.headers.get("x-autoverifi-ops-key")?.trim() ??
-    req.nextUrl.searchParams.get("opsKey")?.trim();
-  if (!provided || provided !== secret) {
+  const provided = req.headers.get("x-autoverifi-ops-key")?.trim();
+  if (!provided || !secretsEqual(provided, secret)) {
     return applySecurityHeaders(
       NextResponse.json({ error: "Unauthorized." }, { status: 401 }),
     );
@@ -227,5 +232,22 @@ export async function readBoundedJson(
   const raw = await req.text();
   if (raw.length > maxBytes) throw new Error("PAYLOAD_TOO_LARGE");
   if (!raw.trim()) return {};
-  return JSON.parse(raw) as unknown;
+  const parsed = JSON.parse(raw) as unknown;
+  return sanitizeParsedJson(parsed);
+}
+
+function sanitizeParsedJson(value: unknown, depth = 0): unknown {
+  if (depth > 32) return null;
+  if (!value || typeof value !== "object") return value;
+  if (Array.isArray(value)) {
+    return value.map((item) => sanitizeParsedJson(item, depth + 1));
+  }
+  const out: Record<string, unknown> = {};
+  for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+    if (key === "__proto__" || key === "constructor" || key === "prototype") {
+      continue;
+    }
+    out[key] = sanitizeParsedJson(child, depth + 1);
+  }
+  return out;
 }

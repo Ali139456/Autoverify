@@ -9,9 +9,17 @@ import { syncRavinReportIfPending } from "@/lib/ravin-background-sync";
 import { applyRavinWebhookPayload } from "@/lib/ravin-apply-webhook";
 import { saveRavinWebhookEvent } from "@/lib/store-supabase";
 import { isSupabaseServerConfigured } from "@/lib/supabase/server";
-import { guardRateLimit } from "@/lib/security";
+import {
+  guardRateLimit,
+  isProductionRuntime,
+  secretsEqual,
+  secureJson,
+} from "@/lib/security";
 
 export async function GET() {
+  if (isProductionRuntime()) {
+    return secureJson({ error: "Not found." }, { status: 404 });
+  }
   return NextResponse.json({
     ok: true,
     message: "Ravin webhook endpoint is active. Send inspection JSON reports via POST.",
@@ -29,11 +37,14 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const webhookSecret = process.env.RAVIN_WEBHOOK_SECRET;
+  const webhookSecret = process.env.RAVIN_WEBHOOK_SECRET?.trim();
+  if (isProductionRuntime() && !webhookSecret) {
+    return secureJson({ error: "Webhook not configured." }, { status: 503 });
+  }
   if (webhookSecret) {
-    const provided = req.headers.get("x-ravin-webhook-secret");
-    if (provided !== webhookSecret) {
-      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    const provided = req.headers.get("x-ravin-webhook-secret")?.trim();
+    if (!provided || !secretsEqual(provided, webhookSecret)) {
+      return secureJson({ error: "Unauthorized." }, { status: 401 });
     }
   }
 

@@ -11,18 +11,16 @@ import {
 } from "@/lib/lav/booking-store";
 import { getStripe } from "@/lib/stripe";
 import { getReport, updateReport } from "@/lib/store";
-import { guardRateLimit } from "@/lib/security";
+import { guardRateLimit, isProductionRuntime, secureJson } from "@/lib/security";
 
 export async function POST(req: NextRequest) {
   const rateLimited = guardRateLimit(req, "webhook-stripe", 120, 60 * 60 * 1000);
   if (rateLimited) return rateLimited;
 
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET?.trim();
   if (!webhookSecret) {
-    return NextResponse.json(
-      { error: "Webhook secret not configured" },
-      { status: 500 }
-    );
+    const status = isProductionRuntime() ? 503 : 500;
+    return secureJson({ error: "Webhook secret not configured." }, { status });
   }
 
   const signature = req.headers.get("stripe-signature");

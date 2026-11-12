@@ -1,3 +1,4 @@
+import { isAllowedPpsrCertificateUrl } from "./security/outbound-url";
 import { generateSamplePpsrPdfBuffer } from "./sample-ppsr-pdf";
 import {
   isSampleReportId,
@@ -18,7 +19,7 @@ export async function fetchPpsrCertificateBuffer(
   certificateUrl: string,
 ): Promise<Buffer | null> {
   const url = certificateUrl.trim();
-  if (!url.startsWith("http")) return null;
+  if (!isAllowedPpsrCertificateUrl(url)) return null;
 
   try {
     const res = await fetch(url, {
