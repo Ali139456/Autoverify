@@ -58,10 +58,7 @@ export function PrePurchaseBookingForm() {
       className="ppi-form mx-auto max-w-2xl space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-ink-900"
     >
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-accent-500">
-          Sydney metro only (launching wider soon)
-        </p>
-        <h2 className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
           Book a pre-purchase inspection
         </h2>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
