@@ -35,7 +35,7 @@ export function applySecurityHeaders(
         [
           "default-src 'self'",
           "base-uri 'self'",
-          "form-action 'self'",
+          "form-action 'self' https://checkout.stripe.com",
           "frame-ancestors 'self'",
           "object-src 'none'",
           "script-src 'self' 'unsafe-inline'",

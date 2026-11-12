@@ -122,7 +122,9 @@ export function PrePurchaseBookingForm() {
           <input
             required
             name="postcode"
-            pattern="2\\d{3}"
+            min={2000}
+            max={2234}
+            step={1}
             className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-ink-950"
           />
         </label>

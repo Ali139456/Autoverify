@@ -56,8 +56,14 @@ export function buildLavBookingConfirmationEmailHtml(input: {
     : `<p style="margin:0 0 14px;font-size:15px;line-height:1.65;color:#334155;">Payment was processed at checkout. Your tax invoice is available from your Stripe receipt.</p>`;
 
   const captureRows = captureLinks
-    .map(
-      (link) => `
+    .map((link) => {
+      const reportUrl = link.reportId
+        ? `${baseUrl.replace(/\/$/, "")}/report/${encodeURIComponent(link.reportId)}`
+        : null;
+      const pdfUrl = link.reportId
+        ? `${baseUrl.replace(/\/$/, "")}/api/report/${encodeURIComponent(link.reportId)}/pdf`
+        : null;
+      return `
         <tr>
           <td style="padding:14px 16px;border-bottom:1px solid #e2e8f0;">
             <span style="font-size:14px;font-weight:700;color:${BRAND_NAVY};">Asset ${link.assetIndex}: ${escapeHtml(link.label)}</span>
@@ -65,9 +71,15 @@ export function buildLavBookingConfirmationEmailHtml(input: {
               <a href="${escapeHtml(link.inspectUrl)}" style="display:inline-block;background:${ACCENT_ORANGE};color:#ffffff;font-size:13px;font-weight:800;text-decoration:none;padding:11px 20px;border-radius:10px;">Open capture link</a>
             </p>
             <p style="margin:8px 0 0;font-size:12px;line-height:1.5;color:#64748b;word-break:break-all;">${escapeHtml(link.inspectUrl)}</p>
+            ${
+              reportUrl
+                ? `<p style="margin:10px 0 0;font-size:12px;line-height:1.55;color:#475569;">Report (updates when capture completes): <a href="${escapeHtml(reportUrl)}" style="color:${BRAND_BLUE};font-weight:700;">View online</a>${pdfUrl ? ` · <a href="${escapeHtml(pdfUrl)}" style="color:${BRAND_BLUE};font-weight:700;">Download PDF</a>` : ""}</p>
+                 <p style="margin:6px 0 0;font-size:11px;line-height:1.45;color:#64748b;">The full PDF is emailed to you automatically once the vendor finishes the digital inspection.</p>`
+                : ""
+            }
           </td>
-        </tr>`,
-    )
+        </tr>`;
+    })
     .join("");
 
   const smsNotice =

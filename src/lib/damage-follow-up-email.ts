@@ -6,12 +6,23 @@ import { getReport, updateReport } from "@/lib/store";
 import { listReportIdsForDamageFollowUp } from "@/lib/store-supabase";
 import { isSupabaseServerConfigured } from "@/lib/supabase/server";
 
-/** Customer email once AI condition assessment is on the report (PDF + links). */
+function isLavDigitalReport(report: NonNullable<Awaited<ReturnType<typeof getReport>>>): boolean {
+  return (
+    report.lavContext?.productKind === "lender_asset_verification" &&
+    report.lavContext.inspectionType === "digital"
+  );
+}
+
+/** Customer email when the report is ready (Insights+ damage or LAV digital capture complete). */
 export async function notifyDamageAssessmentCompleteEmail(
   reportId: string,
 ): Promise<boolean> {
   let report = await getReport(reportId);
-  if (!report?.damage || report.damageFollowUpEmailSentAt) {
+  if (!report || report.damageFollowUpEmailSentAt) {
+    return false;
+  }
+  const lavDigital = isLavDigitalReport(report);
+  if (!lavDigital && !report.damage) {
     return false;
   }
 

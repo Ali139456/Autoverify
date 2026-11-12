@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { sendPurchaseConfirmationEmail } from "@/lib/email";
 import { fulfillLavBooking } from "@/lib/lav/fulfill-booking";
 import { notifyPrePurchaseBooking } from "@/lib/pre-purchase/booking-email";
+import { sendPrePurchaseCustomerConfirmationEmail } from "@/lib/pre-purchase/confirmation-email";
 import type { PrePurchaseBookingPayload } from "@/lib/pre-purchase/types";
 import { PPI_PRICE_INC_GST } from "@/lib/pre-purchase/parse-booking-body";
 import {
@@ -51,14 +52,14 @@ export async function POST(req: NextRequest) {
           session.customer_email ??
           "",
         contactPhone: meta.ppiContactPhone ?? "",
-        suburb: String(meta.ppiSuburb ?? "").replace(/\s+NSW.*$/, ""),
-        postcode: String(meta.ppiSuburb ?? "").match(/\b(2\d{3})\b/)?.[1] ?? "",
-        addressLine: "",
-        accessNotes: "",
+        suburb: "",
+        postcode: "",
+        addressLine: String(meta.ppiAddress ?? ""),
+        accessNotes: String(meta.ppiAccess ?? ""),
         vehicleRego: String(meta.ppiRego ?? "").split(" ")[0] ?? "",
         vehicleState:
           String(meta.ppiRego ?? "").split(" ").pop() ?? "NSW",
-        vehicleVin: "",
+        vehicleVin: String(meta.ppiVin ?? ""),
         vehicleMake: "",
         vehicleModel: "",
         vehicleYear: "",
@@ -71,8 +72,18 @@ export async function POST(req: NextRequest) {
         payload.vehicleMake = vehicleBits[1] ?? "";
         payload.vehicleModel = vehicleBits.slice(2).join(" ");
       }
+      const suburbLine = String(meta.ppiSuburb ?? "");
+      const postcodeMatch = suburbLine.match(/\b(2\d{3})\b/);
+      if (postcodeMatch) {
+        payload.postcode = postcodeMatch[1] ?? payload.postcode;
+        payload.suburb =
+          suburbLine.replace(/\s*NSW\s*2\d{3}\s*$/i, "").trim() || payload.suburb;
+      }
       await notifyPrePurchaseBooking(payload, true).catch((err) => {
         console.error("[webhooks/stripe] PPI notify failed:", err);
+      });
+      await sendPrePurchaseCustomerConfirmationEmail(payload).catch((err) => {
+        console.error("[webhooks/stripe] PPI customer email failed:", err);
       });
       return NextResponse.json({ received: true });
     }
