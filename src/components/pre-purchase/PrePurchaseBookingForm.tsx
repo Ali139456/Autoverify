@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { PPI_PRICE_INC_GST } from "@/lib/pre-purchase/parse-booking-body";
+import {
+  isSydneyMetroPostcode,
+  PPI_PRICE_INC_GST,
+} from "@/lib/pre-purchase/parse-booking-body";
 
 const AU_STATES = ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "ACT", "NT"] as const;
 
@@ -18,6 +21,14 @@ export function PrePurchaseBookingForm() {
     const form = e.currentTarget;
     const data = new FormData(form);
     const body = Object.fromEntries(data.entries());
+    const postcode = String(body.postcode ?? "").trim();
+    if (!isSydneyMetroPostcode(postcode)) {
+      setError(
+        "Use a 4-digit Sydney metro postcode between 2000 and 2234 (e.g. Mosman 2088).",
+      );
+      setBusy(false);
+      return;
+    }
 
     try {
       const res = await fetch("/api/inspections/pre-purchase/booking", {
@@ -122,9 +133,11 @@ export function PrePurchaseBookingForm() {
           <input
             required
             name="postcode"
-            min={2000}
-            max={2234}
-            step={1}
+            type="text"
+            inputMode="numeric"
+            autoComplete="postal-code"
+            maxLength={4}
+            placeholder="2088"
             className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-ink-950"
           />
         </label>

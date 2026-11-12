@@ -3,9 +3,10 @@ import type { PrePurchaseBookingPayload } from "./types";
 
 export const PPI_PRICE_INC_GST = 290;
 
-function isSydneyPostcode(postcode: string): boolean {
-  const n = Number(postcode);
-  return /^2\d{3}$/.test(postcode) && n >= 2000 && n <= 2234;
+export function isSydneyMetroPostcode(postcode: string): boolean {
+  const trimmed = postcode.trim();
+  const n = Number(trimmed);
+  return /^[0-9]{4}$/.test(trimmed) && n >= 2000 && n <= 2234;
 }
 
 export function parsePrePurchaseBookingBody(
@@ -21,7 +22,7 @@ export function parsePrePurchaseBookingBody(
 
   const suburb = clampText(body.suburb, 80);
   const postcode = clampText(body.postcode, 8);
-  if (!suburb || !isSydneyPostcode(postcode)) {
+  if (!suburb || !isSydneyMetroPostcode(postcode)) {
     return {
       error:
         "Pre-purchase inspections are Sydney-only for now. Use a NSW postcode between 2000 and 2234.",
