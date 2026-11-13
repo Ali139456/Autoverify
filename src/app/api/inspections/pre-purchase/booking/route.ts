@@ -4,7 +4,8 @@ import { notifyPrePurchaseBooking } from "@/lib/pre-purchase/booking-email";
 import { parsePrePurchaseBookingBody } from "@/lib/pre-purchase/parse-booking-body";
 import { createPrePurchaseStripeCheckoutSession } from "@/lib/pre-purchase/stripe-checkout";
 import type { PrePurchaseBookingPayload } from "@/lib/pre-purchase/types";
-import { isStripeConfigured } from "@/lib/stripe";
+import { sendPrePurchaseCustomerConfirmationEmail } from "@/lib/pre-purchase/confirmation-email";
+import { getBaseUrl, isStripeConfigured } from "@/lib/stripe";
 import { guardBrowserPost, readBoundedJson } from "@/lib/security";
 
 export async function POST(req: NextRequest) {
@@ -22,6 +23,20 @@ export async function POST(req: NextRequest) {
       ...parsed.payload,
       bookingRef: allocatePrePurchaseBookingRef(),
     };
+
+    const unitCents = Math.round(payload.priceIncGst * 100);
+    if (unitCents <= 0) {
+      await notifyPrePurchaseBooking(payload, true);
+      await sendPrePurchaseCustomerConfirmationEmail(payload).catch((err) => {
+        console.error("[ppi-booking] customer email failed:", err);
+      });
+      const baseUrl = getBaseUrl();
+      return NextResponse.json({
+        ok: true,
+        bookingRef: payload.bookingRef,
+        successUrl: `${baseUrl}/inspections/pre-purchase/booking/success?ref=${encodeURIComponent(payload.bookingRef)}`,
+      });
+    }
 
     if (!isStripeConfigured()) {
       await notifyPrePurchaseBooking(payload, false);

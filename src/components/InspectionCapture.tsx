@@ -19,6 +19,13 @@ import {
 } from "@/lib/inspection-angles";
 import { readCaptureGeolocation } from "@/lib/capture-geolocation";
 import { mergeInspectionPhotosByAngle } from "@/lib/merge-inspection-photos";
+import {
+  findNextCaptureStepIndex,
+  normalizeCaptureAngleId,
+  persistCaptureStep,
+  resolveInitialCaptureStep,
+  uploadedAngleIds,
+} from "@/lib/inspection-capture-step";
 import { prepareInspectionPhoto } from "@/lib/prepare-inspection-photo";
 import { Logo } from "@/components/Logo";
 import { INSPECTION_CAPTURE_DONE_PENDING_MESSAGE } from "@/lib/damage-processing-copy";
@@ -59,24 +66,6 @@ function inspectionErrorMessage(err: unknown, fallback: string): string {
     return `${fallback} Try a smaller photo or check your connection.`;
   }
   return err.message;
-}
-
-/** Next capture step after a successful upload (first missing angle ahead, then wrap). */
-function findNextStepIndex(
-  uploaded: Set<string>,
-  fromStep: number,
-  angles: readonly InspectionAngleDef[],
-): number {
-  if (allRequiredAnglesUploaded(uploaded, angles)) {
-    return fromStep;
-  }
-  for (let i = fromStep + 1; i < angles.length; i++) {
-    if (!uploaded.has(angles[i].id)) return i;
-  }
-  for (let i = 0; i < fromStep; i++) {
-    if (!uploaded.has(angles[i].id)) return i;
-  }
-  return fromStep;
 }
 
 const INSPECTION_SUBMITTED_KEY = (reportId: string) =>
@@ -121,10 +110,12 @@ export function InspectionCapture({
   const [angles, setAngles] =
     useState<readonly InspectionAngleDef[]>(initialAngles);
   const [photos, setPhotos] = useState<UploadedPhoto[]>(initialPhotos);
-  const [stepIndex, setStepIndex] = useState(0);
+  const [stepIndex, setStepIndex] = useState(() =>
+    resolveInitialCaptureStep(reportId, initialPhotos, initialAngles, lavDigital),
+  );
   const initialUploaded = useMemo(
-    () => new Set(initialPhotos.map((photo) => photo.angle)),
-    [initialPhotos],
+    () => uploadedAngleIds(initialPhotos, lavDigital),
+    [initialPhotos, lavDigital],
   );
   const [screen, setScreen] = useState<"capture" | "submit">(() =>
     allRequiredAnglesUploaded(initialUploaded, initialAngles)
@@ -141,8 +132,8 @@ export function InspectionCapture({
   const captureAngleLabel = splitInspectionAngleLabelLines(currentAngle.label);
   const captureHint = getInspectionAngleHint(currentAngle.id);
   const uploadedAngles = useMemo(
-    () => new Set(photos.map((photo) => photo.angle)),
-    [photos],
+    () => uploadedAngleIds(photos, lavDigital),
+    [photos, lavDigital],
   );
   const requiredAngles = useMemo(
     () => requiredInspectionAngles(angles),
@@ -153,7 +144,7 @@ export function InspectionCapture({
   ).length;
   const allPhotosComplete = allRequiredAnglesUploaded(uploadedAngles, angles);
   const captureTitle = lavDigital
-    ? "Digital self inspection — photo capture"
+    ? "Digital self inspection — Asset lender verification"
     : "AI condition assessment";
   const captureDuration = lavDigital
     ? "Capture the required images on this phone."
@@ -193,6 +184,10 @@ export function InspectionCapture({
   useEffect(() => {
     setAngles(initialAngles);
   }, [initialAngles]);
+
+  useEffect(() => {
+    persistCaptureStep(reportId, stepIndex);
+  }, [reportId, stepIndex]);
 
   useEffect(() => {
     setStepIndex((index) =>
@@ -254,6 +249,12 @@ export function InspectionCapture({
     );
     if (!res.ok) throw new Error(data.error ?? "Could not save odometer.");
     setOdometerSaved(true);
+    if (uploadedAngles.has("dashboard")) {
+      const vinIndex = angles.findIndex((angle) => angle.id === "vin_plate");
+      if (vinIndex >= 0 && !uploadedAngles.has("vin_plate")) {
+        setStepIndex(vinIndex);
+      }
+    }
   }
 
   useEffect(() => {
@@ -322,13 +323,15 @@ export function InspectionCapture({
         return merged;
       });
 
-      const uploaded = new Set(merged.map((photo) => photo.angle));
-      uploaded.add(capturedAngleId);
+      const uploaded = uploadedAngleIds(merged, lavDigital);
+      uploaded.add(normalizeCaptureAngleId(capturedAngleId, lavDigital));
       const complete = allRequiredAnglesUploaded(uploaded, angles);
       if (complete) {
         setScreen("submit");
       } else {
-        setStepIndex(findNextStepIndex(uploaded, capturedStep, angles));
+        setStepIndex(
+          findNextCaptureStepIndex(uploaded, capturedStep, angles),
+        );
       }
     } catch (err) {
       setError(inspectionErrorMessage(err, "Upload failed."));
@@ -723,7 +726,9 @@ export function InspectionCapture({
                 if (allRequiredAnglesUploaded(uploaded, angles)) {
                   setScreen("submit");
                 } else {
-                  setStepIndex(findNextStepIndex(uploaded, stepIndex, angles));
+                  setStepIndex(
+                    findNextCaptureStepIndex(uploaded, stepIndex, angles),
+                  );
                 }
               }}
               className="mt-3 text-sm font-semibold text-slate-400 underline-offset-2 hover:text-slate-200 hover:underline"

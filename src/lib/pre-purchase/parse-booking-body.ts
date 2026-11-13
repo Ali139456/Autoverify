@@ -1,3 +1,4 @@
+import { applyPercentDiscount, lookupPromoCode } from "@/lib/promo-codes";
 import { clampText, isReasonableEmail } from "@/lib/security";
 import type { PrePurchaseBookingPayload } from "./types";
 
@@ -42,6 +43,16 @@ export function parsePrePurchaseBookingBody(
     return { error: "Enter the vehicle make, model and year." };
   }
 
+  const promoRaw = clampText(body.promoCode, 64);
+  const promo = lookupPromoCode(promoRaw);
+  if (promoRaw.trim() && !promo) {
+    return { error: "That discount code is not valid." };
+  }
+  const listCents = Math.round(PPI_PRICE_INC_GST * 100);
+  const priceCents = promo
+    ? applyPercentDiscount(listCents, promo.percentOff)
+  : listCents;
+
   return {
     payload: {
       submittedAt: new Date().toISOString(),
@@ -59,7 +70,8 @@ export function parsePrePurchaseBookingBody(
       vehicleModel,
       vehicleYear,
       preferredWhen: clampText(body.preferredWhen, 200),
-      priceIncGst: PPI_PRICE_INC_GST,
+      priceIncGst: priceCents / 100,
+      promoCode: promo?.code ?? "",
     },
   };
 }

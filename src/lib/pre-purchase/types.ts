@@ -15,5 +15,8 @@ export type PrePurchaseBookingPayload = {
   vehicleModel: string;
   vehicleYear: string;
   preferredWhen: string;
+  /** Price charged (inc GST); may be discounted via promo code. */
   priceIncGst: number;
+  /** Promo applied at checkout, if any (e.g. AVFREE). */
+  promoCode: string;
 };

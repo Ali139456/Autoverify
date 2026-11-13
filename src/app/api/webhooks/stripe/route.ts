@@ -64,7 +64,11 @@ export async function POST(req: NextRequest) {
         vehicleModel: "",
         vehicleYear: "",
         preferredWhen: meta.ppiWhen ?? "",
-        priceIncGst: PPI_PRICE_INC_GST,
+        priceIncGst:
+          session.amount_total != null
+            ? session.amount_total / 100
+            : PPI_PRICE_INC_GST,
+        promoCode: String(meta.ppiPromoCode ?? "").trim(),
       };
       const vehicleBits = String(meta.ppiVehicle ?? "").trim().split(/\s+/);
       if (vehicleBits.length >= 3) {

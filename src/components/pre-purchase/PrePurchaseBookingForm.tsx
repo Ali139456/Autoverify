@@ -39,11 +39,16 @@ export function PrePurchaseBookingForm() {
       const json = (await res.json()) as {
         error?: string;
         checkoutUrl?: string;
+        successUrl?: string;
         message?: string;
         bookingRef?: string;
       };
       if (!res.ok) {
         setError(json.error ?? "Booking failed.");
+        return;
+      }
+      if (json.successUrl) {
+        window.location.href = json.successUrl;
         return;
       }
       if (json.checkoutUrl) {
@@ -218,6 +223,18 @@ export function PrePurchaseBookingForm() {
           />
         </label>
       </fieldset>
+
+      <label className="block">
+        <span className="text-xs font-semibold text-slate-600">
+          Discount code (optional)
+        </span>
+        <input
+          name="promoCode"
+          autoComplete="off"
+          placeholder="e.g. AVFREE"
+          className="mt-1 w-full max-w-xs rounded-lg border border-slate-300 px-3 py-2 text-sm uppercase dark:border-slate-600 dark:bg-ink-950"
+        />
+      </label>
 
       {error ? (
         <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
