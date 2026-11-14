@@ -1,16 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Bike,
-  Car,
-  Caravan,
-  LayoutGrid,
-  Ship,
-  Tractor,
-  Truck,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useRef } from "react";
 import {
   LenderBookingForm,
@@ -19,15 +11,18 @@ import {
 import "./lender-asset-verification.css";
 
 const SAMPLE_PDF = "/samples/lender-asset-verification-car-sample.pdf";
+const LAV_ASSET_BASE = "/lender-asset-verification/assets";
+const HERO_INSPECTION_IMAGE =
+  "/lender-asset-verification/hero-digital-inspection.png";
 
 const SECURED_ASSET_TYPES = [
-  { label: "Cars", Icon: Car },
-  { label: "Bikes", Icon: Bike },
-  { label: "Boats", Icon: Ship },
-  { label: "Heavy vehicles", Icon: Truck },
-  { label: "Equipment", Icon: Tractor },
-  { label: "Caravans", Icon: Caravan },
-  { label: "Other assets", Icon: LayoutGrid },
+  { label: "Cars", image: `${LAV_ASSET_BASE}/cars.png` },
+  { label: "Bikes", image: `${LAV_ASSET_BASE}/bikes.png` },
+  { label: "Boats", image: `${LAV_ASSET_BASE}/boats.png` },
+  { label: "Heavy vehicles", image: `${LAV_ASSET_BASE}/heavy-vehicles.png` },
+  { label: "Equipment", image: `${LAV_ASSET_BASE}/equipment.png` },
+  { label: "Caravans", image: `${LAV_ASSET_BASE}/caravans.png` },
+  { label: "Other assets", image: `${LAV_ASSET_BASE}/other.png` },
 ] as const;
 
 export function LenderAssetVerificationSite() {
@@ -36,19 +31,30 @@ export function LenderAssetVerificationSite() {
   return (
     <div className="lav w-full min-w-0 max-w-full overflow-x-clip">
       <section className="hero">
-        <div className="av-site-container hero-grid lg:grid-cols-2">
-          <div className="relative min-w-0 text-center lg:text-left">
+        <div className="av-site-container hero-stack">
+          <div className="lav-hero-photo">
+            <Image
+              src={HERO_INSPECTION_IMAGE}
+              alt="Auto Verifi inspector capturing a vehicle VIN with a phone"
+              width={1600}
+              height={900}
+              priority
+              className="lav-hero-photo-img"
+              sizes="(min-width: 1080px) 67.5rem, 100vw"
+            />
+          </div>
+          <div className="lav-hero-body relative min-w-0 text-center">
             <span className="eyebrow">For lenders, brokers &amp; introducers</span>
             <h1 className="lav-hero-title">
               <span className="line">Lender asset verification.</span>
               <span className="line">Verified in minutes.</span>
               <span className="line">Australia wide</span>
             </h1>
-            <p className="lead mx-auto mt-4 max-w-xl text-sm text-slate-400 sm:mt-5 sm:text-base lg:mx-0">
+            <p className="lead mx-auto mt-4 max-w-xl text-sm text-slate-400 sm:mt-5 sm:text-base">
               We verify asset existence, vehicle identifiers and confirm current
               condition.
             </p>
-            <div className="lav-hero-ctas mx-auto mt-6 grid w-full max-w-xl grid-cols-1 gap-2 sm:mt-8 sm:grid-cols-2 sm:gap-2 lg:mx-0">
+            <div className="lav-hero-ctas mx-auto mt-6 grid w-full max-w-xl grid-cols-1 gap-2 sm:mt-8 sm:grid-cols-2 sm:gap-2">
               <a
                 href="#book"
                 className="btn-shine group flex h-10 min-w-0 items-center justify-center gap-1 rounded-lg bg-accent-500 px-2.5 text-xs font-bold leading-tight text-white transition hover:bg-accent-600 sm:px-4 sm:text-sm"
@@ -73,59 +79,6 @@ export function LenderAssetVerificationSite() {
               </Link>
             </div>
           </div>
-          <div className="hero-visual relative mx-auto w-full min-w-0 max-w-[320px] sm:max-w-[420px] lg:mx-0 lg:max-w-[500px]">
-            <div className="frame" aria-hidden="true">
-              <span className="c tl" />
-              <span className="c tr" />
-              <span className="c bl" />
-              <span className="c br" />
-              <div className="ring" />
-              <div className="floor" />
-              <div className="mini-report">
-                <div className="t">
-                  Verification summary – Digital Self Inspection
-                </div>
-                <div className="row">
-                  <span>Vehicle Identifiers and Verification</span>
-                  <span className="pill">Matched</span>
-                </div>
-                <div className="row">
-                  <span>Odometer captured</span>
-                  <span className="pill">Yes</span>
-                </div>
-                <div className="row">
-                  <span>VIN identification captured</span>
-                  <span className="pill">Yes</span>
-                </div>
-                <div className="row row-photo-evidence">
-                  <span>Photos – vehicle verification</span>
-                  <span className="v">
-                    Date, time stamped and geo tagged images
-                  </span>
-                </div>
-                <div className="row row-condition">
-                  <span>Condition</span>
-                  <span className="v">Verified from image capture</span>
-                </div>
-                <div className="row">
-                  <span>Registration papers</span>
-                  <span className="v">Date and time stamped image</span>
-                </div>
-                <div className="row">
-                  <span>Vehicle owner ID verification</span>
-                  <span className="v muted">Optional</span>
-                </div>
-                <div className="row">
-                  <span>Vehicle valuation</span>
-                  <span className="v muted">Optional</span>
-                </div>
-                <div className="row">
-                  <span>Report delivered</span>
-                  <span className="v">Real time</span>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -135,10 +88,16 @@ export function LenderAssetVerificationSite() {
             <h2 id="secured-assets-heading">We verify all secured assets</h2>
           </div>
           <ul className="secured-assets-grid">
-            {SECURED_ASSET_TYPES.map(({ label, Icon }) => (
+            {SECURED_ASSET_TYPES.map(({ label, image }) => (
               <li key={label} className="secured-asset-card">
-                <span className="secured-asset-icon" aria-hidden>
-                  <Icon className="h-[22px] w-[22px]" strokeWidth={1.75} />
+                <span className="secured-asset-thumb" aria-hidden>
+                  <Image
+                    src={image}
+                    alt=""
+                    width={128}
+                    height={86}
+                    className="secured-asset-thumb-img"
+                  />
                 </span>
                 <span className="secured-asset-label">{label}</span>
               </li>
