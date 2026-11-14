@@ -41,8 +41,8 @@ export const INSPECTION_ANGLES = [
 export const LAV_DIGITAL_INSPECTION_ANGLES = [
   { id: "front", label: "Front showing registration plate" },
   { id: "left_side", label: "Passenger side (full body)" },
-  { id: "right_side", label: "Driver side (full body)" },
   { id: "rear", label: "Rear" },
+  { id: "right_side", label: "Driver side (full body)" },
   { id: "dashboard", label: "Odometer reading" },
   { id: "vin_plate", label: "VIN identification" },
   { id: "service_record", label: "Registration papers (optional)", optional: true },

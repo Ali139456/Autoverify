@@ -31,8 +31,8 @@ export type LavReportPhotoSlot = {
 const WALKAROUND_ANGLES = [
   { id: "front", title: "Front showing registration plate" },
   { id: "left_side", title: "Passenger side" },
-  { id: "right_side", title: "Driver side" },
   { id: "rear", title: "Rear" },
+  { id: "right_side", title: "Driver side" },
 ] as const;
 
 const ID_ANGLES = [

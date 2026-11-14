@@ -13,6 +13,7 @@ import {
   allRequiredAnglesUploaded,
   getInspectionAngleHint,
   INSPECTION_ANGLES,
+  LAV_DIGITAL_INSPECTION_ANGLES,
   requiredInspectionAngles,
   splitInspectionAngleLabelLines,
   type InspectionAngleDef,
@@ -171,14 +172,16 @@ export function InspectionCapture({
         photos?: UploadedPhoto[];
         angles?: InspectionAngleDef[];
       }>(res, "Could not refresh photo list.");
-      if (Array.isArray(data.angles) && data.angles.length > 0) {
+      if (lavDigital) {
+        setAngles(LAV_DIGITAL_INSPECTION_ANGLES);
+      } else if (Array.isArray(data.angles) && data.angles.length > 0) {
         setAngles(data.angles);
       }
       return Array.isArray(data.photos) ? data.photos : null;
     } catch {
       return null;
     }
-  }, [token]);
+  }, [token, lavDigital]);
 
   const applyServerPhotos = useCallback((synced: UploadedPhoto[] | null) => {
     if (!synced) return;
@@ -186,8 +189,8 @@ export function InspectionCapture({
   }, []);
 
   useEffect(() => {
-    setAngles(initialAngles);
-  }, [initialAngles]);
+    setAngles(lavDigital ? LAV_DIGITAL_INSPECTION_ANGLES : initialAngles);
+  }, [initialAngles, lavDigital]);
 
   useEffect(() => {
     persistCaptureStep(reportId, stepIndex);
@@ -321,22 +324,22 @@ export function InspectionCapture({
         throw new Error("Upload did not confirm. Please try again.");
       }
 
-      let merged: UploadedPhoto[] = [];
-      setPhotos((prev) => {
-        merged = mergeInspectionPhotosByAngle(prev, [data.photo!]);
-        return merged;
-      });
+      const merged = mergeInspectionPhotosByAngle(photos, [data.photo!]);
+      setPhotos(merged);
       void fetchPhotosFromServer().then(applyServerPhotos);
 
       const uploaded = uploadedAngleIds(merged, lavDigital);
-      uploaded.add(normalizeCaptureAngleId(capturedAngleId, lavDigital));
       const complete = allRequiredAnglesUploaded(uploaded, angles);
       if (complete) {
         setScreen("submit");
       } else {
-        setStepIndex(
-          findNextCaptureStepIndex(uploaded, capturedStep, angles),
+        const nextStep = findNextCaptureStepIndex(
+          uploaded,
+          capturedStep,
+          angles,
         );
+        persistCaptureStep(reportId, nextStep);
+        setStepIndex(nextStep);
       }
     } catch (err) {
       setError(inspectionErrorMessage(err, "Upload failed."));
