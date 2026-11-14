@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 
 const CANVAS_WIDTH = 1440;
-const CANVAS_HEIGHT = 1130;
+/** Matches cropped integrations graphic (legend footer removed). */
+const CANVAS_HEIGHT = 1000;
 
 export function IntegrationsEcosystemGraphic({ src }: { src: string }) {
   const shellRef = useRef<HTMLDivElement>(null);
