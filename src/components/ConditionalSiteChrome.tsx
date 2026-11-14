@@ -19,13 +19,15 @@ export function ConditionalSiteChrome({
     "/inspections/lender-asset-verification",
   );
   const isContactPage = pathname === "/contact";
+  const isPrePurchasePage = pathname.startsWith("/inspections/pre-purchase");
   const hideFooterPurchaseCta =
     pathname.startsWith("/check") ||
     pathname.startsWith("/checkout") ||
     pathname.startsWith("/report/") ||
     pathname.startsWith("/sample-report") ||
     isContactPage ||
-    isLenderAssetPage;
+    isLenderAssetPage ||
+    isPrePurchasePage;
   const isPreviewLogin = pathname === "/preview";
   const isComingSoonHome =
     pathname === "/" && comingSoonMode && !previewAccess;

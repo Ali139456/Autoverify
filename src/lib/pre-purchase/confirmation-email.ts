@@ -1,14 +1,38 @@
-import { getCompanyDetails } from "@/lib/company";
+import {
+  buildBrandedEmailLayout,
+  escapeBrandedEmailHtml,
+} from "@/lib/branded-email-layout";
 import { getContactInboxEmail } from "@/lib/site-contact";
 import { getBaseUrl } from "@/lib/stripe";
+import { PPI_PRICE_INC_GST } from "./parse-booking-body";
 import type { PrePurchaseBookingPayload } from "./types";
 
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+/** Customer booking email eyebrow, title, and Stripe line item branding. */
+export const PPI_CUSTOMER_BOOKING_HEADING =
+  "Auto Verifi - Pre purchase inspection";
+
+export function formatPrePurchasePaymentNote(
+  payload: PrePurchaseBookingPayload,
+): string {
+  const charged = payload.priceIncGst;
+  const promo = payload.promoCode?.trim().toUpperCase();
+  const listLabel = `$${PPI_PRICE_INC_GST} inc GST`;
+
+  if (charged <= 0) {
+    if (promo === "AVFREE") {
+      return `Promotional code AVFREE applied — no payment was charged (inspection fee otherwise ${listLabel}). There is no Stripe receipt for this booking.`;
+    }
+    if (promo) {
+      return `Promotional code ${promo} applied — no payment was charged (inspection fee otherwise ${listLabel}). There is no Stripe receipt for this booking.`;
+    }
+    return `No payment was charged for this booking (inspection fee otherwise ${listLabel}).`;
+  }
+
+  if (promo && charged < PPI_PRICE_INC_GST) {
+    return `Your Stripe receipt is your tax invoice for the $${charged.toFixed(2)} inc GST fee (code ${promo} applied; list price ${listLabel}).`;
+  }
+
+  return `Your Stripe receipt is your tax invoice for the $${charged.toFixed(2)} inc GST fee.`;
 }
 
 export async function sendPrePurchaseCustomerConfirmationEmail(
@@ -21,7 +45,6 @@ export async function sendPrePurchaseCustomerConfirmationEmail(
     process.env.RESEND_FROM?.trim() ??
     "Auto Verifi <noreply@autoverifi.com.au>";
   const baseUrl = getBaseUrl();
-  const company = getCompanyDetails(baseUrl);
   const vehicle = `${payload.vehicleYear} ${payload.vehicleMake} ${payload.vehicleModel}`.trim();
   const location = [
     payload.addressLine,
@@ -30,17 +53,25 @@ export async function sendPrePurchaseCustomerConfirmationEmail(
   ]
     .filter((s) => s.trim())
     .join(", ");
+  const paidNote = formatPrePurchasePaymentNote(payload);
 
-  const html = `<!DOCTYPE html><html lang="en"><body style="font-family:Arial,sans-serif;color:#334155;line-height:1.55;">
-    <p>Hi ${escapeHtml(payload.contactName)},</p>
-    <p>Thanks — your pre-purchase inspection booking <strong>${escapeHtml(payload.bookingRef)}</strong> is confirmed.</p>
-    <p><strong>Vehicle:</strong> ${escapeHtml(vehicle)}<br />
-    <strong>Rego:</strong> ${escapeHtml(payload.vehicleRego)} ${escapeHtml(payload.vehicleState)}<br />
-    <strong>Location:</strong> ${escapeHtml(location || "—")}<br />
-    <strong>Preferred time:</strong> ${escapeHtml(payload.preferredWhen || "We'll contact you to schedule")}</p>
-    <p>Our team will confirm the inspection date and inspector details by email or phone. Your Stripe receipt is your tax invoice for the $${payload.priceIncGst.toFixed(2)} inc GST fee.</p>
-    <p>Questions? <a href="mailto:${escapeHtml(company.email)}">${escapeHtml(company.email)}</a></p>
-    </body></html>`;
+  const bodyHtml = `<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border:1px solid #e2e8f0;border-radius:10px;border-collapse:separate;overflow:hidden;margin-top:4px;">
+  <tr><td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;font-size:13px;"><strong>Booking ref</strong><br />${escapeBrandedEmailHtml(payload.bookingRef)}</td></tr>
+  <tr><td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;font-size:13px;"><strong>Vehicle</strong><br />${escapeBrandedEmailHtml(vehicle)}</td></tr>
+  <tr><td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;font-size:13px;"><strong>Rego</strong><br />${escapeBrandedEmailHtml(payload.vehicleRego)} ${escapeBrandedEmailHtml(payload.vehicleState)}</td></tr>
+  <tr><td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;font-size:13px;"><strong>Location</strong><br />${escapeBrandedEmailHtml(location || "—")}</td></tr>
+  <tr><td style="padding:12px 14px;font-size:13px;"><strong>Preferred time</strong><br />${escapeBrandedEmailHtml(payload.preferredWhen || "We'll contact you to schedule")}</td></tr>
+</table>
+<p style="margin:16px 0 0;font-size:14px;line-height:1.6;color:#475569;">${escapeBrandedEmailHtml(paidNote)} Our team will confirm the inspection date and inspector details by email or phone.</p>`;
+
+  const html = buildBrandedEmailLayout({
+    baseUrl,
+    eyebrow: PPI_CUSTOMER_BOOKING_HEADING,
+    title: "Booking confirmed",
+    headerMetaLabel: "Booked",
+    introHtml: `Hi ${escapeBrandedEmailHtml(payload.contactName)}, thanks — your pre-purchase inspection is confirmed.`,
+    bodyHtml,
+  });
 
   const to = [payload.contactEmail.trim().toLowerCase()];
   const inbox = getContactInboxEmail()?.toLowerCase();
@@ -56,7 +87,7 @@ export async function sendPrePurchaseCustomerConfirmationEmail(
       from,
       to,
       bcc,
-      subject: `Pre-purchase inspection booked — ${payload.bookingRef}`,
+      subject: `${PPI_CUSTOMER_BOOKING_HEADING} — ${payload.bookingRef}`,
       html,
     }),
   });

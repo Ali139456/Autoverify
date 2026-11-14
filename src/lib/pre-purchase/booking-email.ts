@@ -1,4 +1,5 @@
 import { sendContactFormEmail } from "@/lib/email";
+import { PPI_PRICE_INC_GST } from "./parse-booking-body";
 import type { PrePurchaseBookingPayload } from "./types";
 
 function formatPayload(payload: PrePurchaseBookingPayload): string {

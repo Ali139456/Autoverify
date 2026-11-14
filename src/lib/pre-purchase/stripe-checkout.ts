@@ -4,6 +4,7 @@ import {
   isStripeConfigured,
   REPORT_CURRENCY,
 } from "@/lib/stripe";
+import { PPI_CUSTOMER_BOOKING_HEADING } from "./confirmation-email";
 import type { PrePurchaseBookingPayload } from "./types";
 
 export async function createPrePurchaseStripeCheckoutSession(
@@ -24,7 +25,7 @@ export async function createPrePurchaseStripeCheckoutSession(
           currency: REPORT_CURRENCY,
           unit_amount: unitCents,
           product_data: {
-            name: "Pre-purchase vehicle inspection",
+            name: PPI_CUSTOMER_BOOKING_HEADING,
           },
         },
         quantity: 1,
