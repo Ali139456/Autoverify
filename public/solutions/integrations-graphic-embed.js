@@ -1,34 +1,12 @@
-/** Denise embed tweaks — hide duplicate headings; legend at bottom of canvas. */
+/** Denise embed — hide duplicate headings; remove bottom category legend. */
 (function () {
-  const LEGEND = [
-    {
-      label: "Buy and sell",
-      left: 268,
-      width: 220,
-      lineX1: 260,
-      lineX2: 400,
-      matchLineX: 72,
-    },
-    {
-      label: "Finance and risk",
-      left: 488,
-      width: 230,
-      lineX1: 520,
-      lineX2: 680,
-      matchLineX: 300,
-    },
-    {
-      label: "Mobility and fleet",
-      left: 808,
-      width: 280,
-      lineX1: 780,
-      lineX2: 1040,
-      matchLineX: 560,
-    },
+  const LEGEND_LABELS = [
+    "Buy and sell",
+    "Finance and risk",
+    "Mobility and fleet",
   ];
-  /** Below bottom-row copy (titles 1014px, body from 1040px, ~2 lines). */
-  const LEGEND_TOP = 1104;
-  const LINE_Y = 1094;
+  /** Original connector lines above category labels. */
+  const LEGEND_LINE_X1 = [72, 300, 560];
 
   function apply() {
     const h1 = document.querySelector("h1");
@@ -54,37 +32,44 @@
       p.style.maxWidth = "206px";
     });
 
-    let legendMoved = 0;
-    for (const cfg of LEGEND) {
-      for (const p of document.querySelectorAll("p")) {
-        if ((p.textContent || "").trim() !== cfg.label) continue;
-        p.style.position = "absolute";
-        p.style.left = `${cfg.left}px`;
-        p.style.top = `${LEGEND_TOP}px`;
-        p.style.margin = "0";
-        p.style.zIndex = "4";
-        p.style.textAlign = "center";
-        if (cfg.width) {
-          p.style.width = `${cfg.width}px`;
-        }
-        legendMoved += 1;
+    document.querySelectorAll("p").forEach((p) => {
+      const t = (p.textContent || "").trim();
+      if (LEGEND_LABELS.includes(t)) {
+        p.remove();
       }
-      for (const line of document.querySelectorAll("line")) {
-        const x1 = parseFloat(line.getAttribute("x1") || "0");
-        if (Math.abs(x1 - cfg.matchLineX) > 25) continue;
-        line.setAttribute("y1", String(LINE_Y));
-        line.setAttribute("y2", String(LINE_Y));
-        line.setAttribute("x1", String(cfg.lineX1));
-        line.setAttribute("x2", String(cfg.lineX2));
+    });
+
+    document.querySelectorAll("line").forEach((line) => {
+      const x1 = parseFloat(line.getAttribute("x1") || "0");
+      const x2 = parseFloat(line.getAttribute("x2") || "0");
+      const y1 = parseFloat(line.getAttribute("y1") || "0");
+      const y2 = parseFloat(line.getAttribute("y2") || "0");
+      const y = Math.max(y1, y2);
+
+      const columnConnector = LEGEND_LINE_X1.some(
+        (mx) => Math.abs(x1 - mx) <= 25,
+      );
+      const bottomLegendRule =
+        y >= 1088 &&
+        y <= 1110 &&
+        x2 - x1 > 80 &&
+        x1 >= 200 &&
+        x2 <= 1100;
+
+      if (columnConnector || bottomLegendRule) {
+        line.remove();
       }
-    }
+    });
 
     const canvas = document.querySelector("[data-canvas-width]");
     if (canvas instanceof HTMLElement) {
       canvas.style.transform = "translateY(-108px)";
+      canvas.style.height = "1000px";
+      canvas.style.maxHeight = "1000px";
+      canvas.style.overflow = "hidden";
     }
 
-    return legendMoved === 3;
+    return true;
   }
 
   function start() {
