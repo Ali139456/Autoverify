@@ -17,7 +17,11 @@ import {
   splitInspectionAngleLabelLines,
   type InspectionAngleDef,
 } from "@/lib/inspection-angles";
-import { readCaptureGeolocation } from "@/lib/capture-geolocation";
+import {
+  peekCaptureGeolocation,
+  readCaptureGeolocation,
+  warmCaptureGeolocation,
+} from "@/lib/capture-geolocation";
 import { mergeInspectionPhotosByAngle } from "@/lib/merge-inspection-photos";
 import {
   findNextCaptureStepIndex,
@@ -196,6 +200,7 @@ export function InspectionCapture({
   }, [angles.length]);
 
   useEffect(() => {
+    warmCaptureGeolocation();
     void fetchPhotosFromServer().then(applyServerPhotos);
   }, [fetchPhotosFromServer, applyServerPhotos]);
 
@@ -269,7 +274,7 @@ export function InspectionCapture({
 
   useEffect(() => {
     if (allPhotosComplete) return;
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "auto" });
   }, [stepIndex, allPhotosComplete]);
 
   useEffect(() => {
@@ -289,10 +294,10 @@ export function InspectionCapture({
 
     try {
       const capturedAt = new Date().toISOString();
-      const [prepared, geo] = await Promise.all([
-        prepareInspectionPhoto(file, capturedAngleId),
-        readCaptureGeolocation(),
-      ]);
+      const prepared = await prepareInspectionPhoto(file, capturedAngleId);
+      const geo =
+        peekCaptureGeolocation() ??
+        (await readCaptureGeolocation({ maxWaitMs: 1500 }));
       const form = new FormData();
       form.append("angle", capturedAngleId);
       form.append("photo", prepared, prepared.name);
@@ -316,12 +321,12 @@ export function InspectionCapture({
         throw new Error("Upload did not confirm. Please try again.");
       }
 
-      const synced = await fetchPhotosFromServer();
       let merged: UploadedPhoto[] = [];
       setPhotos((prev) => {
-        merged = mergeInspectionPhotosByAngle(prev, [data.photo!], synced ?? []);
+        merged = mergeInspectionPhotosByAngle(prev, [data.photo!]);
         return merged;
       });
+      void fetchPhotosFromServer().then(applyServerPhotos);
 
       const uploaded = uploadedAngleIds(merged, lavDigital);
       uploaded.add(normalizeCaptureAngleId(capturedAngleId, lavDigital));

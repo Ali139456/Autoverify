@@ -90,12 +90,14 @@ export async function POST(
     const latitude = parseOptionalFloat(form.get("latitude"));
     const longitude = parseOptionalFloat(form.get("longitude"));
 
-    const [buffer, locationLabel] = await Promise.all([
-      file.arrayBuffer().then((data) => Buffer.from(data)),
-      latitude != null && longitude != null
-        ? reverseGeocode(latitude, longitude)
-        : Promise.resolve<string | null>(null),
-    ]);
+    const buffer = Buffer.from(await file.arrayBuffer());
+    let locationLabel: string | null = null;
+    if (latitude != null && longitude != null) {
+      locationLabel = await Promise.race([
+        reverseGeocode(latitude, longitude),
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), 1200)),
+      ]);
+    }
 
     const photo = await uploadInspectionPhoto({
       inspection,

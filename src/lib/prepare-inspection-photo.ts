@@ -1,6 +1,7 @@
-const MAX_SIDE_PX = 1600;
-const JPEG_QUALITY = 0.78;
-const SKIP_REENCODE_MAX_BYTES = 700_000;
+const MAX_SIDE_PX = 1280;
+const JPEG_QUALITY = 0.74;
+/** Phone JPEGs under this skip canvas re-encode (faster on 4G). */
+const SKIP_REENCODE_MAX_BYTES = 1_050_000;
 
 function canvasToJpegFile(
   source: CanvasImageSource,
