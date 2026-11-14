@@ -21,7 +21,6 @@ import {
   LAV_REPORT_DISCLAIMER_SECTIONS,
   LAV_REPORT_DISCLAIMER_TITLE,
 } from "./lav/lav-disclaimer";
-import { lavRegistrationSecurityLines } from "./lav/lav-registration-security";
 import { formatReportReference, getInspectionPhotoUrl } from "./report-design";
 import { REPORT_LOGO_PNG_PATH } from "./report-logo-size";
 import { publicPdfImage, type PdfImageSource } from "./pdf-local-image";
@@ -77,19 +76,29 @@ const styles = StyleSheet.create({
   footerText: { fontSize: 7, color: GREY },
   photoRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 6 },
   photoRowId: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 6 },
-  photoBox: {
-    width: "23%",
-    borderWidth: 0.5,
-    borderColor: "#e2e8f0",
-    padding: 4,
-    minHeight: 70,
-  },
-  photoBoxId: {
-    width: "31%",
+  photoBoxWalkaround: {
+    width: "48%",
     borderWidth: 0.5,
     borderColor: "#e2e8f0",
     padding: 5,
-    minHeight: 118,
+    minHeight: 100,
+  },
+  photoBoxId: {
+    width: "23%",
+    borderWidth: 0.5,
+    borderColor: "#e2e8f0",
+    padding: 5,
+    minHeight: 110,
+  },
+  page1Row: { flexDirection: "row", gap: 10, marginTop: 4 },
+  page1Fields: { width: "58%" },
+  page1Hero: {
+    width: "38%",
+    borderWidth: 0.5,
+    borderColor: "#e2e8f0",
+    minHeight: 150,
+    justifyContent: "center",
+    alignItems: "center",
   },
   photoTitle: {
     fontSize: 7,
@@ -159,7 +168,7 @@ function PdfPhotoSlot({
 }: {
   title: string;
   photo: InspectionPhoto | null;
-  boxStyle: typeof styles.photoBox;
+  boxStyle: typeof styles.photoBoxWalkaround;
   imageHeight?: number;
   odometerDisplay?: string | null;
 }) {
@@ -201,11 +210,23 @@ export function LavReportPdf({
 }) {
   const vm = buildLavReportViewModel(report, photos, null);
   const condition = vm.conditionGrade;
-  const allPhotoSlots = [...vm.walkaround, ...vm.identification];
   const valuationRows = lavValuationHasData(report.valuation)
     ? lavValuationRows(report.valuation)
     : [];
-  const securityLines = lavRegistrationSecurityLines(report);
+  const heroSrc = vm.heroPhoto ? lavPdfPhotoSrc(vm.heroPhoto) : null;
+
+  const detailRows: [string, string][] = [
+    ["Make", vm.make],
+    ["Model", vm.model],
+    ["Badge", vm.badge],
+    ["Year", vm.year],
+    ["VIN", vm.vin],
+    ["Registration plate", vm.regoDisplay],
+    ["Registration expiry", vm.registrationExpiry],
+    ["Odometer", vm.odometer],
+    ["Body", vm.body],
+    ["Colour", vm.colour],
+  ];
 
   return (
     <Document title={`Lender Asset Verification ${vm.reportRef}`}>
@@ -218,40 +239,34 @@ export function LavReportPdf({
           </Text>
         ) : null}
         <Text style={styles.section}>Vehicle details</Text>
-        <View style={styles.grid2}>
-          {[
-            ["Make", vm.make],
-            ["Model", vm.model],
-            ["Badge", vm.badge],
-            ["Year", vm.year],
-            ["VIN", vm.vin],
-            ["Registration plate", vm.regoDisplay],
-            ["Registration expiry", vm.registrationExpiry],
-            ["Odometer", vm.odometer],
-            ["Body", vm.body],
-            ["Colour", vm.colour],
-          ].map(([label, value]) => (
-            <View key={label} style={styles.field}>
-              <Text style={styles.label}>{label}</Text>
-              <Text style={styles.value}>{value}</Text>
+        <View style={styles.page1Row}>
+          <View style={styles.page1Fields}>
+            <View style={styles.grid2}>
+              {detailRows.map(([label, value]) => (
+                <View key={label} style={styles.field}>
+                  <Text style={styles.label}>{label}</Text>
+                  <Text style={styles.value}>{value}</Text>
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
-        <Text style={styles.section}>Registration &amp; security (PPSR)</Text>
-        {securityLines.map((line) => (
-          <View key={line.label} style={{ marginBottom: 4 }}>
-            <Text style={styles.label}>{line.label}</Text>
-            <Text
-              style={[
-                styles.value,
-                { color: line.warn ? "#b45309" : NAVY, fontSize: 8 },
-              ]}
-            >
-              {line.detail}
-            </Text>
           </View>
-        ))}
-        <Text style={styles.section}>Inspection summary</Text>
+          <View style={styles.page1Hero}>
+            {heroSrc ? (
+              <Image
+                src={heroSrc}
+                style={{
+                  width: "100%",
+                  height: 150,
+                  objectFit: "cover",
+                  objectPosition: "center",
+                }}
+              />
+            ) : (
+              <Text style={styles.photoMeta}>Front — registration plate</Text>
+            )}
+          </View>
+        </View>
+        <Text style={[styles.section, { marginTop: 8 }]}>Inspection summary</Text>
         <Text style={styles.label}>Overall condition of vehicle</Text>
         <Text style={styles.value}>
           {condition === "good"
@@ -272,13 +287,25 @@ export function LavReportPdf({
           Date, time stamped and geo tagged images from digital self inspection.
         </Text>
         <View style={styles.photoRow}>
-          {allPhotoSlots.map((slot) => (
+          {vm.walkaround.map((slot) => (
             <PdfPhotoSlot
               key={slot.angleId}
               title={slot.title}
               photo={slot.photo}
-              boxStyle={styles.photoBox}
-              imageHeight={52}
+              boxStyle={styles.photoBoxWalkaround}
+              imageHeight={88}
+              odometerDisplay={vm.odometer}
+            />
+          ))}
+        </View>
+        <View style={styles.photoRowId}>
+          {vm.identification.map((slot) => (
+            <PdfPhotoSlot
+              key={slot.angleId}
+              title={slot.title}
+              photo={slot.photo}
+              boxStyle={styles.photoBoxId}
+              imageHeight={72}
               odometerDisplay={vm.odometer}
             />
           ))}

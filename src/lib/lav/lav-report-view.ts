@@ -89,6 +89,13 @@ export function lavDamageLabelForAngle(
   return hit ? "Damage detected" : "No damage detected";
 }
 
+export function isLavSampleReport(report: VehicleReport): boolean {
+  return (
+    report.id === "LAV-SAMPLE-CAR" ||
+    report.lavContext?.bookingRef?.trim().toUpperCase() === "LAV-SAMPLE"
+  );
+}
+
 export function buildLavReportViewModel(
   report: VehicleReport,
   photos: InspectionPhoto[],
@@ -133,7 +140,8 @@ export function buildLavReportViewModel(
     title: "Lender Asset Verification Inspection Report",
     assetType: normalizeAssetType(report.lavContext?.assetType),
     assetTypes: LAV_ASSET_TYPE_OPTIONS,
-    bookingRef: report.lavContext?.bookingRef ?? null,
+    bookingRef:
+      isLavSampleReport(report) ? null : (report.lavContext?.bookingRef ?? null),
     make: v?.vehicleMake?.trim() || vehicle.make,
     model: v?.vehicleModel?.trim() || vehicle.model,
     badge: v?.badge?.trim() || vehicle.variant?.trim() || "—",

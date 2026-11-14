@@ -40,7 +40,7 @@ export async function generateReportPdfBuffer(
   );
   let output = Buffer.from(buffer);
 
-  if (hasPpsrCertificate(report)) {
+  if (!isLav && hasPpsrCertificate(report)) {
     const ppsrPdf = await fetchPpsrCertificateForReport(report);
     if (ppsrPdf) {
       output = Buffer.from(await mergePdfBuffers(output, ppsrPdf));
@@ -59,11 +59,5 @@ export async function generateLavCarSamplePdfBuffer(): Promise<Buffer> {
       createElement(LavReportPdf, { report, photos }) as ReactElement<DocumentProps>,
     ),
   );
-  if (hasPpsrCertificate(report)) {
-    const ppsrPdf = await fetchPpsrCertificateForReport(report);
-    if (ppsrPdf) {
-      output = Buffer.from(await mergePdfBuffers(output, ppsrPdf));
-    }
-  }
   return output;
 }

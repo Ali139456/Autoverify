@@ -1,7 +1,6 @@
 import type { InspectionPhoto, VehicleReport } from "@/lib/types";
 import { getInspectionPhotoUrl } from "@/lib/report-design";
 import { buildLavReportViewModel } from "@/lib/lav/lav-report-view";
-import { lavRegistrationSecurityLines } from "@/lib/lav/lav-registration-security";
 import {
   formatLavValuationRange,
   lavValuationHasData,
@@ -51,7 +50,7 @@ function LavPhotoTile({
           <img
             src={url}
             alt={slot.title}
-            className="h-full w-full max-h-[200px] object-cover object-center"
+            className="lav-report-photo-tile-img h-full w-full object-cover object-center"
           />
         ) : (
           <span className="px-3 text-center text-[11px] text-slate-400">
@@ -87,7 +86,6 @@ export function LenderAssetVerificationReport({
   pageCount?: { body: number; total: number };
 }) {
   const vm = buildLavReportViewModel(report, photos, null);
-  const securityLines = lavRegistrationSecurityLines(report);
   const pageLabel = (n: number) => `${n} / ${pageCount.total}`;
   const valuationRows = lavValuationHasData(report.valuation)
     ? lavValuationRows(report.valuation)
@@ -99,7 +97,6 @@ export function LenderAssetVerificationReport({
   };
 
   const heroUrl = vm.heroPhoto ? getInspectionPhotoUrl(vm.heroPhoto) : null;
-  const allPhotoSlots = [...vm.walkaround, ...vm.identification];
 
   return (
     <div className="lav-report-stack mx-auto max-w-5xl px-3 pb-12 pt-4 sm:px-6">
@@ -125,7 +122,10 @@ export function LenderAssetVerificationReport({
             <div className="lav-report-hero-photo">
               {heroUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={heroUrl} alt="" />
+                <img
+                  src={heroUrl}
+                  alt="Front of vehicle showing registration plate"
+                />
               ) : (
                 <span className="px-3 text-center text-xs text-slate-400">
                   Vehicle photo
@@ -166,33 +166,6 @@ export function LenderAssetVerificationReport({
             </div>
           </div>
 
-          <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
-            <h3 className="text-xs font-bold uppercase tracking-[0.12em] text-[#0073E3]">
-              Registration &amp; security (PPSR)
-            </h3>
-            <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-              {securityLines.map((line) => (
-                <li
-                  key={line.label}
-                  className={`rounded-lg border px-3 py-2 text-xs ${
-                    line.warn
-                      ? "border-amber-200 bg-amber-50 text-amber-950"
-                      : "border-slate-200 bg-white text-slate-800"
-                  }`}
-                >
-                  <p className="font-bold text-slate-900">{line.label}</p>
-                  <p className="mt-0.5">{line.detail}</p>
-                </li>
-              ))}
-            </ul>
-            {report.registration.ppsrCertificateUrl?.trim() ? (
-              <p className="mt-3 text-xs text-slate-600">
-                The official AFSA PPSR search certificate is appended after this
-                report when you print or download PDF.
-              </p>
-            ) : null}
-          </div>
-
           <div className="lav-report-summary">
             <h4>Inspection summary</h4>
             <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">
@@ -227,8 +200,17 @@ export function LenderAssetVerificationReport({
             Date, time stamped and geo tagged images from digital self inspection.
           </p>
 
-          <div className="lav-report-photo-grid lav-report-photo-grid--all">
-            {allPhotoSlots.map((slot) => (
+          <div className="lav-report-photo-grid lav-report-photo-grid--walkaround">
+            {vm.walkaround.map((slot) => (
+              <LavPhotoTile
+                key={slot.angleId}
+                slot={slot}
+                odometerDisplay={vm.odometer}
+              />
+            ))}
+          </div>
+          <div className="lav-report-photo-grid lav-report-photo-grid--id mt-4">
+            {vm.identification.map((slot) => (
               <LavPhotoTile
                 key={slot.angleId}
                 slot={slot}

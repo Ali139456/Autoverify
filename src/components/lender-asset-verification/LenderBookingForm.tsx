@@ -974,9 +974,8 @@ export const LenderBookingForm = forwardRef<
                 Reference <b>{doneRef}</b>.
                 {invoiceAccount ? (
                   <>
-                    {" "}
-                    You will be invoiced separately — no payment is required
-                    now. We&apos;ve emailed a confirmation (not a tax invoice).
+                    <br />
+                    You will be invoiced separately — no payment is required now.
                   </>
                 ) : (
                   <>
