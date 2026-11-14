@@ -21,6 +21,11 @@ import {
   LAV_REPORT_DISCLAIMER_SECTIONS,
   LAV_REPORT_DISCLAIMER_TITLE,
 } from "./lav/lav-disclaimer";
+import {
+  REPORT_GENERAL_DISCLAIMER_PARAGRAPHS,
+  REPORT_GENERAL_DISCLAIMER_TITLE,
+  REPORT_TERMS_URL,
+} from "./report-disclaimer";
 import { formatReportReference, getInspectionPhotoUrl } from "./report-design";
 import { REPORT_LOGO_PNG_PATH } from "./report-logo-size";
 import { publicPdfImage, type PdfImageSource } from "./pdf-local-image";
@@ -34,19 +39,27 @@ const BLUE = "#0073E3";
 const NAVY = "#0f172a";
 const GREY = "#64748b";
 const LOGO = publicPdfImage(REPORT_LOGO_PNG_PATH);
+const LAV_TOTAL_PAGES = 2;
 
 const styles = StyleSheet.create({
   page: { padding: 32, fontFamily: PDF_SANS, fontSize: 9, color: NAVY },
   headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 14,
+    marginBottom: 10,
     borderBottomWidth: 1,
     borderBottomColor: BLUE,
-    paddingBottom: 10,
+    paddingBottom: 8,
+  },
+  headerTitle: {
+    fontSize: 9,
+    fontWeight: 700,
+    color: NAVY,
+    marginTop: 4,
+    maxWidth: 340,
+    lineHeight: 1.35,
   },
   headerMeta: { fontSize: 7, color: GREY, textAlign: "right" },
-  title: { fontSize: 14, fontWeight: 700, marginBottom: 8 },
   section: {
     fontSize: 8,
     fontWeight: 700,
@@ -57,8 +70,8 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     paddingBottom: 4,
   },
-  grid2: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  field: { width: "48%", marginBottom: 6 },
+  grid3: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  field: { width: "31%", marginBottom: 6 },
   label: { fontSize: 6.5, color: GREY, textTransform: "uppercase", marginBottom: 2 },
   value: { fontSize: 9, fontWeight: 700 },
   footer: {
@@ -74,31 +87,21 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   footerText: { fontSize: 7, color: GREY },
-  photoRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 6 },
-  photoRowId: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 6 },
+  photoRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 6 },
+  photoRowId: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 8 },
   photoBoxWalkaround: {
     width: "48%",
     borderWidth: 0.5,
     borderColor: "#e2e8f0",
     padding: 5,
-    minHeight: 100,
+    minHeight: 120,
   },
   photoBoxId: {
-    width: "23%",
+    width: "31%",
     borderWidth: 0.5,
     borderColor: "#e2e8f0",
     padding: 5,
-    minHeight: 110,
-  },
-  page1Row: { flexDirection: "row", gap: 10, marginTop: 4 },
-  page1Fields: { width: "58%" },
-  page1Hero: {
-    width: "38%",
-    borderWidth: 0.5,
-    borderColor: "#e2e8f0",
-    minHeight: 150,
-    justifyContent: "center",
-    alignItems: "center",
+    minHeight: 115,
   },
   photoTitle: {
     fontSize: 7,
@@ -121,29 +124,32 @@ const styles = StyleSheet.create({
   disclaimerBody: { fontSize: 7, color: GREY, lineHeight: 1.45, marginBottom: 6 },
 });
 
-function LavPdfFooter({
-  report,
-  pageLabel,
-}: {
-  report: VehicleReport;
-  pageLabel: string;
-}) {
-  const ref = formatReportReference(report.vehicle);
+function LavPdfFooter({ pageLabel }: { pageLabel: string }) {
   return (
     <View style={styles.footer} fixed>
       <Image src={LOGO} style={{ width: 72, height: 22, objectFit: "contain" }} />
-      <Text style={styles.footerText}>
-        {ref} | {pageLabel}
-      </Text>
+      <Text style={styles.footerText}>{pageLabel}</Text>
     </View>
   );
 }
 
-function LavPdfHeader({ report }: { report: VehicleReport }) {
+function LavPdfHeader({
+  report,
+  title,
+}: {
+  report: VehicleReport;
+  title: string;
+}) {
   const ref = formatReportReference(report.vehicle);
   return (
     <View style={styles.headerRow}>
-      <Image src={LOGO} style={{ width: 120, height: 36, objectFit: "contain" }} />
+      <View style={{ flex: 1 }}>
+        <Image
+          src={LOGO}
+          style={{ width: 120, height: 36, objectFit: "contain" }}
+        />
+        <Text style={styles.headerTitle}>{title}</Text>
+      </View>
       <View>
         <Text style={styles.headerMeta}>Report ref: {ref}</Text>
         <Text style={styles.headerMeta}>Autoverifi.com.au</Text>
@@ -213,7 +219,6 @@ export function LavReportPdf({
   const valuationRows = lavValuationHasData(report.valuation)
     ? lavValuationRows(report.valuation)
     : [];
-  const heroSrc = vm.heroPhoto ? lavPdfPhotoSrc(vm.heroPhoto) : null;
 
   const detailRows: [string, string][] = [
     ["Make", vm.make],
@@ -222,51 +227,29 @@ export function LavReportPdf({
     ["Year", vm.year],
     ["VIN", vm.vin],
     ["Registration plate", vm.regoDisplay],
+    ["State", vm.registrationState],
     ["Registration expiry", vm.registrationExpiry],
     ["Odometer", vm.odometer],
     ["Body", vm.body],
     ["Colour", vm.colour],
   ];
 
+  const [generalTerms, ...generalRest] = REPORT_GENERAL_DISCLAIMER_PARAGRAPHS;
+
   return (
-    <Document title={`Lender Asset Verification ${vm.reportRef}`}>
+    <Document title={vm.title}>
       <Page size="A4" style={styles.page}>
-        <LavPdfHeader report={report} />
-        <Text style={styles.title}>{vm.title}</Text>
-        {vm.bookingRef ? (
-          <Text style={{ fontSize: 8, color: GREY, marginBottom: 6 }}>
-            Booking {vm.bookingRef}
-          </Text>
-        ) : null}
+        <LavPdfHeader report={report} title={vm.title} />
         <Text style={styles.section}>Vehicle details</Text>
-        <View style={styles.page1Row}>
-          <View style={styles.page1Fields}>
-            <View style={styles.grid2}>
-              {detailRows.map(([label, value]) => (
-                <View key={label} style={styles.field}>
-                  <Text style={styles.label}>{label}</Text>
-                  <Text style={styles.value}>{value}</Text>
-                </View>
-              ))}
+        <View style={styles.grid3}>
+          {detailRows.map(([label, value]) => (
+            <View key={label} style={styles.field}>
+              <Text style={styles.label}>{label}</Text>
+              <Text style={styles.value}>{value}</Text>
             </View>
-          </View>
-          <View style={styles.page1Hero}>
-            {heroSrc ? (
-              <Image
-                src={heroSrc}
-                style={{
-                  width: "100%",
-                  height: 150,
-                  objectFit: "cover",
-                  objectPosition: "center",
-                }}
-              />
-            ) : (
-              <Text style={styles.photoMeta}>Front — registration plate</Text>
-            )}
-          </View>
+          ))}
         </View>
-        <Text style={[styles.section, { marginTop: 8 }]}>Inspection summary</Text>
+        <Text style={styles.section}>Inspection summary</Text>
         <Text style={styles.label}>Overall condition of vehicle</Text>
         <Text style={styles.value}>
           {condition === "good"
@@ -277,12 +260,7 @@ export function LavReportPdf({
                 ? "✓ Poor"
                 : "To be confirmed from image capture"}
         </Text>
-        <LavPdfFooter report={report} pageLabel="1 / 3" />
-      </Page>
-
-      <Page size="A4" style={styles.page}>
-        <LavPdfHeader report={report} />
-        <Text style={styles.section}>Verification photos</Text>
+        <Text style={[styles.section, { marginTop: 8 }]}>Verification photos</Text>
         <Text style={{ fontSize: 7, color: GREY, marginBottom: 4 }}>
           Date, time stamped and geo tagged images from digital self inspection.
         </Text>
@@ -293,7 +271,7 @@ export function LavReportPdf({
               title={slot.title}
               photo={slot.photo}
               boxStyle={styles.photoBoxWalkaround}
-              imageHeight={88}
+              imageHeight={108}
               odometerDisplay={vm.odometer}
             />
           ))}
@@ -305,14 +283,19 @@ export function LavReportPdf({
               title={slot.title}
               photo={slot.photo}
               boxStyle={styles.photoBoxId}
-              imageHeight={72}
+              imageHeight={82}
               odometerDisplay={vm.odometer}
             />
           ))}
         </View>
+        <LavPdfFooter pageLabel={`1 / ${LAV_TOTAL_PAGES}`} />
+      </Page>
+
+      <Page size="A4" style={styles.page}>
+        <LavPdfHeader report={report} title={vm.title} />
         {valuationRows.length > 0 ? (
           <>
-            <Text style={[styles.section, { marginTop: 12 }]}>Valuation</Text>
+            <Text style={styles.section}>Valuation</Text>
             <Text style={styles.label}>Present value — market valuation</Text>
             <View style={styles.valuationRow}>
               {valuationRows.map((row) => (
@@ -326,12 +309,14 @@ export function LavReportPdf({
             </View>
           </>
         ) : null}
-        <LavPdfFooter report={report} pageLabel="2 / 3" />
-      </Page>
-
-      <Page size="A4" style={styles.page}>
-        <LavPdfHeader report={report} />
-        <Text style={styles.disclaimerHeading}>{LAV_REPORT_DISCLAIMER_TITLE}</Text>
+        <Text
+          style={[
+            styles.disclaimerHeading,
+            { marginTop: valuationRows.length > 0 ? 12 : 0 },
+          ]}
+        >
+          {LAV_REPORT_DISCLAIMER_TITLE}
+        </Text>
         {LAV_REPORT_DISCLAIMER_SECTIONS.map((section) => (
           <View key={section.heading}>
             <Text style={styles.disclaimerSub}>{section.heading}</Text>
@@ -341,7 +326,18 @@ export function LavReportPdf({
         <Text style={[styles.disclaimerBody, { marginTop: 8 }]}>
           {LAV_REPORT_DISCLAIMER_FOOTER}
         </Text>
-        <LavPdfFooter report={report} pageLabel="3 / 3" />
+        <Text style={[styles.disclaimerHeading, { marginTop: 10, fontSize: 9 }]}>
+          {REPORT_GENERAL_DISCLAIMER_TITLE}
+        </Text>
+        <Text style={styles.disclaimerBody}>
+          {generalTerms} ({REPORT_TERMS_URL}).
+        </Text>
+        {generalRest.map((paragraph) => (
+          <Text key={paragraph} style={styles.disclaimerBody}>
+            {paragraph}
+          </Text>
+        ))}
+        <LavPdfFooter pageLabel={`2 / ${LAV_TOTAL_PAGES}`} />
       </Page>
     </Document>
   );

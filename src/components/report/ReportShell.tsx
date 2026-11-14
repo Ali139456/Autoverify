@@ -6,6 +6,8 @@ export function ReportShell({
   generatedAt,
   pageLabel,
   reportReference,
+  reportTitle,
+  showReportRefInFooter = true,
   className,
   children,
 }: {
@@ -13,6 +15,9 @@ export function ReportShell({
   generatedAt: string;
   pageLabel?: string;
   reportReference?: string;
+  /** Shown in the header on every page (e.g. LAV digital inspection). */
+  reportTitle?: string;
+  showReportRefInFooter?: boolean;
   className?: string;
   children: ReactNode;
 }) {
@@ -29,9 +34,15 @@ export function ReportShell({
         <div className="report-shell-header-row flex items-start justify-between gap-6 sm:gap-8">
           <div className="report-shell-header-brand flex min-w-0 flex-col items-start">
             <Logo height={52} linked={false} variant="onLight" />
-            <p className="mt-1.5 w-full text-left text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0073E3]">
-              Past | Present | Future Vehicle Insights
-            </p>
+            {reportTitle ? (
+              <p className="mt-2 max-w-md text-left text-[11px] font-bold leading-snug text-[#0f172a]">
+                {reportTitle}
+              </p>
+            ) : (
+              <p className="mt-1.5 w-full text-left text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0073E3]">
+                Past | Present | Future Vehicle Insights
+              </p>
+            )}
           </div>
           <div className="report-shell-header-meta shrink-0 space-y-1 text-right text-[10px] font-semibold uppercase leading-normal tracking-wide text-slate-500">
             <p className="m-0">Generated: {formatReportDate(generatedAt)}</p>
@@ -48,7 +59,9 @@ export function ReportShell({
       <footer className="report-shell-footer mt-auto flex shrink-0 items-end justify-between gap-4 border-t border-slate-200 px-6 py-4 sm:px-8">
         <Logo height={34} linked={false} variant="onLight" />
         <p className="text-right text-xs font-medium uppercase tracking-wide text-slate-400">
-          {[reportReference, pageLabel].filter(Boolean).join(" | ")}
+          {showReportRefInFooter && reportReference
+            ? [reportReference, pageLabel].filter(Boolean).join(" | ")
+            : (pageLabel ?? "")}
         </p>
       </footer>
     </article>

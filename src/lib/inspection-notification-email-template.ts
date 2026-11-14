@@ -5,7 +5,7 @@ import {
 
 /** LAV Digital Self Inspection — primary email heading (subject + title). */
 export const LAV_DIGITAL_SELF_INSPECTION_EMAIL_HEADING =
-  "Lender Asset Verification - Digital Self Inspection";
+  "Lender Asset Verification Report - Digital Self Inspection";
 import {
   BRANDED_EMAIL_BLUE,
   BRANDED_EMAIL_NAVY,

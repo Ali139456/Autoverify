@@ -55,8 +55,15 @@
   align-items: start;
 }
 
+.lav-report-page1-grid--details-only {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 @media (max-width: 900px) {
   .lav-report-page1-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .lav-report-page1-grid--details-only {
     grid-template-columns: 1fr 1fr;
   }
   .lav-report-hero-photo {
@@ -195,12 +202,20 @@
 }
 
 .lav-report-photo-tile-img {
-  max-height: 240px;
+  max-height: 280px;
+}
+
+.lav-report-photo-tile-image--large .lav-report-photo-tile-img {
+  max-height: 320px;
+  min-height: 200px;
 }
 
 @media (min-width: 768px) {
   .lav-report-photo-tile-image {
     min-height: 180px;
+  }
+  .lav-report-photo-tile-image--large {
+    min-height: 220px;
   }
 }
 

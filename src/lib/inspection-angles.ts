@@ -46,11 +46,6 @@ export const LAV_DIGITAL_INSPECTION_ANGLES = [
   { id: "dashboard", label: "Odometer reading" },
   { id: "vin_plate", label: "VIN identification" },
   { id: "service_record", label: "Registration papers (optional)", optional: true },
-  {
-    id: "owner_licence",
-    label: "Driver licence of owner (optional)",
-    optional: true,
-  },
 ] as const;
 
 export type InspectionAngleDef = {

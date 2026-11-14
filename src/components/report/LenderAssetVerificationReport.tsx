@@ -12,6 +12,7 @@ import {
   LAV_REPORT_DISCLAIMER_TITLE,
 } from "@/lib/lav/lav-disclaimer";
 import { InspectionPhotoEvidenceCaption } from "./InspectionPhotoEvidence";
+import { ReportGeneralDisclaimer } from "./ReportGeneralDisclaimer";
 import { ReportShell } from "./ReportShell";
 import "./lav-report.css";
 
@@ -37,14 +38,22 @@ function ConditionOption({
 function LavPhotoTile({
   slot,
   odometerDisplay,
+  large,
 }: {
   slot: { title: string; photo: InspectionPhoto | null };
   odometerDisplay?: string | null;
+  large?: boolean;
 }) {
   const url = slot.photo ? getInspectionPhotoUrl(slot.photo) : null;
   return (
     <figure className="overflow-hidden rounded-lg border border-slate-200 bg-white">
-      <div className="lav-report-photo-tile-image flex min-h-[140px] items-center justify-center bg-slate-100 sm:min-h-[160px]">
+      <div
+        className={`lav-report-photo-tile-image flex items-center justify-center bg-slate-100 ${
+          large
+            ? "lav-report-photo-tile-image--large min-h-[200px]"
+            : "min-h-[140px] sm:min-h-[160px]"
+        }`}
+      >
         {url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -77,7 +86,7 @@ export function LenderAssetVerificationReport({
   report,
   photos,
   inspectUrl,
-  pageCount = { body: 3, total: 3 },
+  pageCount = { body: 2, total: 2 },
 }: {
   report: VehicleReport;
   damage?: null;
@@ -94,9 +103,9 @@ export function LenderAssetVerificationReport({
     reportId: report.id,
     generatedAt: report.createdAt,
     reportReference: vm.reportRef,
+    reportTitle: vm.title,
+    showReportRefInFooter: false,
   };
-
-  const heroUrl = vm.heroPhoto ? getInspectionPhotoUrl(vm.heroPhoto) : null;
 
   return (
     <div className="lav-report-stack mx-auto max-w-5xl px-3 pb-12 pt-4 sm:px-6">
@@ -106,11 +115,9 @@ export function LenderAssetVerificationReport({
           pageLabel={pageLabel(1)}
           className="report-shell-lav !overflow-visible"
         >
-          <h1 className="lav-report-title">{vm.title}</h1>
+          <h2 className="lav-report-section-heading !mt-0">Vehicle details</h2>
 
-          <h2 className="lav-report-section-heading mt-4">Vehicle details</h2>
-
-          <div className="lav-report-page1-grid">
+          <div className="lav-report-page1-grid lav-report-page1-grid--details-only">
             <div className="lav-report-field">
               <label>Make</label>
               <p>{vm.make}</p>
@@ -118,19 +125,6 @@ export function LenderAssetVerificationReport({
             <div className="lav-report-field">
               <label>Model</label>
               <p>{vm.model}</p>
-            </div>
-            <div className="lav-report-hero-photo">
-              {heroUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={heroUrl}
-                  alt="Front of vehicle showing registration plate"
-                />
-              ) : (
-                <span className="px-3 text-center text-xs text-slate-400">
-                  Vehicle photo
-                </span>
-              )}
             </div>
             <div className="lav-report-field">
               <label>Badge</label>
@@ -147,6 +141,10 @@ export function LenderAssetVerificationReport({
             <div className="lav-report-field">
               <label>Registration plate</label>
               <p>{vm.regoDisplay}</p>
+            </div>
+            <div className="lav-report-field">
+              <label>State</label>
+              <p>{vm.registrationState}</p>
             </div>
             <div className="lav-report-field">
               <label>Registration expiry</label>
@@ -178,6 +176,31 @@ export function LenderAssetVerificationReport({
             </div>
           </div>
 
+          <h2 className="lav-report-section-heading">Verification photos</h2>
+          <p className="mb-3 text-xs text-slate-500">
+            Date, time stamped and geo tagged images from digital self inspection.
+          </p>
+
+          <div className="lav-report-photo-grid lav-report-photo-grid--walkaround">
+            {vm.walkaround.map((slot) => (
+              <LavPhotoTile
+                key={slot.angleId}
+                slot={slot}
+                large
+                odometerDisplay={vm.odometer}
+              />
+            ))}
+          </div>
+          <div className="lav-report-photo-grid lav-report-photo-grid--id mt-4">
+            {vm.identification.map((slot) => (
+              <LavPhotoTile
+                key={slot.angleId}
+                slot={slot}
+                odometerDisplay={vm.odometer}
+              />
+            ))}
+          </div>
+
           {inspectUrl ? (
             <p className="report-no-print mt-4 text-sm text-slate-600">
               Vendor capture link:{" "}
@@ -193,34 +216,8 @@ export function LenderAssetVerificationReport({
 
       <div className="report-page-break">
         <ReportShell {...shellProps} pageLabel={pageLabel(2)} className="report-shell-lav">
-          <h2 className="lav-report-section-heading !mt-0">
-            Verification photos
-          </h2>
-          <p className="mb-3 text-xs text-slate-500">
-            Date, time stamped and geo tagged images from digital self inspection.
-          </p>
-
-          <div className="lav-report-photo-grid lav-report-photo-grid--walkaround">
-            {vm.walkaround.map((slot) => (
-              <LavPhotoTile
-                key={slot.angleId}
-                slot={slot}
-                odometerDisplay={vm.odometer}
-              />
-            ))}
-          </div>
-          <div className="lav-report-photo-grid lav-report-photo-grid--id mt-4">
-            {vm.identification.map((slot) => (
-              <LavPhotoTile
-                key={slot.angleId}
-                slot={slot}
-                odometerDisplay={vm.odometer}
-              />
-            ))}
-          </div>
-
           {valuationRows.length > 0 ? (
-            <div className="report-supplementary report-present-value mt-8 rounded-xl border border-slate-200 bg-slate-50 p-5">
+            <div className="report-supplementary report-present-value rounded-xl border border-slate-200 bg-slate-50 p-5">
               <h3 className="text-xs font-bold uppercase tracking-wide text-slate-900">
                 Valuation
               </h3>
@@ -242,12 +239,8 @@ export function LenderAssetVerificationReport({
               </div>
             </div>
           ) : null}
-        </ReportShell>
-      </div>
 
-      <div className="report-page-break">
-        <ReportShell {...shellProps} pageLabel={pageLabel(3)} className="report-shell-lav">
-          <div className="lav-report-disclaimer">
+          <div className="lav-report-disclaimer mt-8">
             <h3>{LAV_REPORT_DISCLAIMER_TITLE}</h3>
             {LAV_REPORT_DISCLAIMER_SECTIONS.map((section) => (
               <section key={section.heading}>
@@ -257,6 +250,8 @@ export function LenderAssetVerificationReport({
             ))}
             <footer>{LAV_REPORT_DISCLAIMER_FOOTER}</footer>
           </div>
+
+          <ReportGeneralDisclaimer />
         </ReportShell>
       </div>
     </div>

@@ -39,8 +39,10 @@ const ID_ANGLES = [
   { id: "dashboard", title: "Odometer reading" },
   { id: "vin_plate", title: "VIN identification" },
   { id: "service_record", title: "Registration papers" },
-  { id: "owner_licence", title: "Driver licence of owner" },
 ] as const;
+
+export const LAV_DIGITAL_REPORT_TITLE =
+  "Lender Asset Verification Report - Digital Self Inspection";
 
 function normalizeAssetType(raw: string | undefined): string {
   const t = raw?.trim() || "Car";
@@ -137,7 +139,7 @@ export function buildLavReportViewModel(
 
   return {
     reportRef: formatReportReference(vehicle),
-    title: "Lender Asset Verification Inspection Report",
+    title: LAV_DIGITAL_REPORT_TITLE,
     assetType: normalizeAssetType(report.lavContext?.assetType),
     assetTypes: LAV_ASSET_TYPE_OPTIONS,
     bookingRef:
@@ -151,7 +153,8 @@ export function buildLavReportViewModel(
     vin: v?.vin?.trim() || vehicle.vin?.trim() || "—",
     regoPlate,
     regoState,
-    regoDisplay: regoState ? `${regoPlate} ${regoState}` : regoPlate,
+    regoDisplay: regoPlate,
+    registrationState: regoState || "—",
     registrationExpiry: expiry,
     odometer,
     body: vehicle.bodyType?.trim() || "—",
