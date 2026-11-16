@@ -2,7 +2,16 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import {
+  ArrowRight,
+  Bike,
+  Car,
+  Caravan,
+  LayoutGrid,
+  Ship,
+  Tractor,
+  Truck,
+} from "lucide-react";
 import { useRef } from "react";
 import {
   LenderBookingForm,
@@ -11,18 +20,17 @@ import {
 import "./lender-asset-verification.css";
 
 const SAMPLE_PDF = "/samples/lender-asset-verification-car-sample.pdf";
-const LAV_ASSET_BASE = "/lender-asset-verification/assets";
 const HERO_INSPECTION_IMAGE =
   "/lender-asset-verification/hero-digital-inspection.png";
 
 const SECURED_ASSET_TYPES = [
-  { label: "Cars", image: `${LAV_ASSET_BASE}/cars.png` },
-  { label: "Bikes", image: `${LAV_ASSET_BASE}/bikes.png` },
-  { label: "Boats", image: `${LAV_ASSET_BASE}/boats.png` },
-  { label: "Heavy vehicles", image: `${LAV_ASSET_BASE}/heavy-vehicles.png` },
-  { label: "Equipment", image: `${LAV_ASSET_BASE}/equipment.png` },
-  { label: "Caravans", image: `${LAV_ASSET_BASE}/caravans.png` },
-  { label: "Other assets", image: `${LAV_ASSET_BASE}/other.png` },
+  { label: "Cars", Icon: Car },
+  { label: "Bikes", Icon: Bike },
+  { label: "Boats", Icon: Ship },
+  { label: "Heavy vehicles", Icon: Truck },
+  { label: "Equipment", Icon: Tractor },
+  { label: "Caravans", Icon: Caravan },
+  { label: "Other assets", Icon: LayoutGrid },
 ] as const;
 
 export function LenderAssetVerificationSite() {
@@ -32,17 +40,16 @@ export function LenderAssetVerificationSite() {
     <div className="lav w-full min-w-0 max-w-full overflow-x-clip">
       <section className="hero">
         <div className="av-site-container hero-stack">
-          <div className="lav-hero-photo">
+          <figure className="lav-hero-photo relative mx-auto aspect-[4/3] w-full max-w-xl overflow-hidden rounded-2xl border border-white/10 bg-[#06080f] shadow-lg shadow-black/40">
             <Image
               src={HERO_INSPECTION_IMAGE}
               alt="Auto Verifi inspector capturing a vehicle VIN with a phone"
-              width={1600}
-              height={900}
+              fill
               priority
-              className="lav-hero-photo-img"
-              sizes="(min-width: 1080px) 67.5rem, 100vw"
+              className="object-cover object-[48%_42%]"
+              sizes="(max-width: 1024px) 100vw, 36rem"
             />
-          </div>
+          </figure>
           <div className="lav-hero-body relative min-w-0 text-center">
             <span className="eyebrow">For lenders, brokers &amp; introducers</span>
             <h1 className="lav-hero-title">
@@ -88,16 +95,10 @@ export function LenderAssetVerificationSite() {
             <h2 id="secured-assets-heading">We verify all secured assets</h2>
           </div>
           <ul className="secured-assets-grid">
-            {SECURED_ASSET_TYPES.map(({ label, image }) => (
+            {SECURED_ASSET_TYPES.map(({ label, Icon }) => (
               <li key={label} className="secured-asset-card">
-                <span className="secured-asset-thumb" aria-hidden>
-                  <Image
-                    src={image}
-                    alt=""
-                    width={128}
-                    height={86}
-                    className="secured-asset-thumb-img"
-                  />
+                <span className="secured-asset-icon" aria-hidden>
+                  <Icon className="h-[22px] w-[22px]" strokeWidth={1.75} />
                 </span>
                 <span className="secured-asset-label">{label}</span>
               </li>

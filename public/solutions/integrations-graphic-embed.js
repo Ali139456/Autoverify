@@ -64,8 +64,8 @@
     const canvas = document.querySelector("[data-canvas-width]");
     if (canvas instanceof HTMLElement) {
       canvas.style.transform = "translateY(-108px)";
-      canvas.style.height = "1000px";
-      canvas.style.maxHeight = "1000px";
+      canvas.style.height = "1080px";
+      canvas.style.maxHeight = "1080px";
       canvas.style.overflow = "hidden";
     }
 
