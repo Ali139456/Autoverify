@@ -58,19 +58,21 @@ function SolutionCard({
   icon: LucideIcon;
 }) {
   return (
-    <article className="relative flex h-full flex-col overflow-visible rounded-2xl border border-white/10 bg-[#0a1230]/90 p-6 sm:p-7">
-      {card.showVerifiedBadge ? (
-        <Image
-          src={VERIFIED_VEHICLE_BADGE}
-          alt=""
-          width={88}
-          height={88}
-          className="pointer-events-none absolute -right-1 -top-2 z-[1] h-[4.25rem] w-[4.25rem] sm:-right-0.5 sm:-top-3 sm:h-[4.75rem] sm:w-[4.75rem]"
-          aria-hidden
-        />
-      ) : null}
-      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-500/15 text-accent-400">
-        <Icon className="h-5 w-5" aria-hidden />
+    <article className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0a1230]/90 p-6 sm:p-7">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent-500/15 text-accent-400">
+          <Icon className="h-5 w-5" aria-hidden />
+        </div>
+        {card.showVerifiedBadge ? (
+          <Image
+            src={VERIFIED_VEHICLE_BADGE}
+            alt=""
+            width={72}
+            height={72}
+            className="pointer-events-none h-[3.25rem] w-[3.25rem] shrink-0 object-contain sm:h-14 sm:w-14"
+            aria-hidden
+          />
+        ) : null}
       </div>
       <h3 className="mt-5 text-xl font-bold text-white">{card.title}</h3>
       <p className="mt-3 text-sm leading-relaxed text-slate-400">
