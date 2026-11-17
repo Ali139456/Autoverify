@@ -22,10 +22,9 @@ import {
   LAV_REPORT_DISCLAIMER_TITLE,
 } from "./lav/lav-disclaimer";
 import {
-  REPORT_GENERAL_DISCLAIMER_PARAGRAPHS,
-  REPORT_GENERAL_DISCLAIMER_TITLE,
-  REPORT_TERMS_URL,
-} from "./report-disclaimer";
+  lavGeneralDisclaimerParagraphs,
+} from "./lav/lav-disclaimer";
+import { REPORT_TERMS_URL } from "./report-disclaimer";
 import { formatReportReference, getInspectionPhotoUrl } from "./report-design";
 import { REPORT_LOGO_PNG_PATH } from "./report-logo-size";
 import { publicPdfImage, type PdfImageSource } from "./pdf-local-image";
@@ -94,14 +93,14 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: "#e2e8f0",
     padding: 5,
-    minHeight: 120,
+    minHeight: 155,
   },
   photoBoxId: {
     width: "31%",
     borderWidth: 0.5,
     borderColor: "#e2e8f0",
     padding: 5,
-    minHeight: 115,
+    minHeight: 130,
   },
   photoTitle: {
     fontSize: 7,
@@ -234,7 +233,7 @@ export function LavReportPdf({
     ["Colour", vm.colour],
   ];
 
-  const [generalTerms, ...generalRest] = REPORT_GENERAL_DISCLAIMER_PARAGRAPHS;
+  const [generalTerms, ...generalRest] = lavGeneralDisclaimerParagraphs();
 
   return (
     <Document title={vm.title}>
@@ -271,19 +270,7 @@ export function LavReportPdf({
               title={slot.title}
               photo={slot.photo}
               boxStyle={styles.photoBoxWalkaround}
-              imageHeight={108}
-              odometerDisplay={vm.odometer}
-            />
-          ))}
-        </View>
-        <View style={styles.photoRowId}>
-          {vm.identification.map((slot) => (
-            <PdfPhotoSlot
-              key={slot.angleId}
-              title={slot.title}
-              photo={slot.photo}
-              boxStyle={styles.photoBoxId}
-              imageHeight={82}
+              imageHeight={138}
               odometerDisplay={vm.odometer}
             />
           ))}
@@ -293,6 +280,22 @@ export function LavReportPdf({
 
       <Page size="A4" style={styles.page}>
         <LavPdfHeader report={report} title={vm.title} />
+        <Text style={styles.section}>Verification photos</Text>
+        <Text style={{ fontSize: 7, color: GREY, marginBottom: 4 }}>
+          Odometer, VIN and registration paper captures.
+        </Text>
+        <View style={styles.photoRowId}>
+          {vm.identification.map((slot) => (
+            <PdfPhotoSlot
+              key={slot.angleId}
+              title={slot.title}
+              photo={slot.photo}
+              boxStyle={styles.photoBoxId}
+              imageHeight={100}
+              odometerDisplay={vm.odometer}
+            />
+          ))}
+        </View>
         {valuationRows.length > 0 ? (
           <>
             <Text style={styles.section}>Valuation</Text>
@@ -312,7 +315,7 @@ export function LavReportPdf({
         <Text
           style={[
             styles.disclaimerHeading,
-            { marginTop: valuationRows.length > 0 ? 12 : 0 },
+            { marginTop: valuationRows.length > 0 ? 12 : 8 },
           ]}
         >
           {LAV_REPORT_DISCLAIMER_TITLE}
@@ -324,12 +327,6 @@ export function LavReportPdf({
           </View>
         ))}
         <Text style={[styles.disclaimerBody, { marginTop: 8 }]}>
-          {LAV_REPORT_DISCLAIMER_FOOTER}
-        </Text>
-        <Text style={[styles.disclaimerHeading, { marginTop: 10, fontSize: 9 }]}>
-          {REPORT_GENERAL_DISCLAIMER_TITLE}
-        </Text>
-        <Text style={styles.disclaimerBody}>
           {generalTerms} ({REPORT_TERMS_URL}).
         </Text>
         {generalRest.map((paragraph) => (
@@ -337,6 +334,9 @@ export function LavReportPdf({
             {paragraph}
           </Text>
         ))}
+        <Text style={[styles.disclaimerBody, { marginTop: 10 }]}>
+          {LAV_REPORT_DISCLAIMER_FOOTER}
+        </Text>
         <LavPdfFooter pageLabel={`2 / ${LAV_TOTAL_PAGES}`} />
       </Page>
     </Document>

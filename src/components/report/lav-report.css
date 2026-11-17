@@ -177,10 +177,6 @@
   }
 }
 
-.lav-report-photo-grid--id {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
 .lav-report-photo-grid--walkaround {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -192,12 +188,12 @@
 }
 
 .lav-report-photo-grid--id {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 640px) {
   .lav-report-photo-grid--id {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -206,8 +202,8 @@
 }
 
 .lav-report-photo-tile-image--large .lav-report-photo-tile-img {
-  max-height: 320px;
-  min-height: 200px;
+  max-height: 400px;
+  min-height: 240px;
 }
 
 @media (min-width: 768px) {
@@ -215,7 +211,7 @@
     min-height: 180px;
   }
   .lav-report-photo-tile-image--large {
-    min-height: 220px;
+    min-height: 260px;
   }
 }
 

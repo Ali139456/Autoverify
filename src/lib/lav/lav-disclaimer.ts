@@ -1,3 +1,5 @@
+import { REPORT_GENERAL_DISCLAIMER_PARAGRAPHS } from "@/lib/report-disclaimer";
+
 export const LAV_REPORT_DISCLAIMER_TITLE = "Disclaimer";
 
 export const LAV_REPORT_DISCLAIMER_SECTIONS: { heading: string; body: string }[] =
@@ -30,3 +32,15 @@ export const LAV_REPORT_DISCLAIMER_SECTIONS: { heading: string; body: string }[]
 
 export const LAV_REPORT_DISCLAIMER_FOOTER =
   "© Auto Verifi. All rights reserved. Confidential – prepared for the commissioning client and its authorised representatives.";
+
+/** LAV reports: general disclaimer without the physical-inspection sentence. */
+export function lavGeneralDisclaimerParagraphs(): string[] {
+  const [terms, information, purpose] = REPORT_GENERAL_DISCLAIMER_PARAGRAPHS;
+  const purposeBody = purpose
+    .replace(
+      /\s*Where appropriate, users should independently verify material information and obtain a physical vehicle inspection before making a decision\./,
+      "",
+    )
+    .trim();
+  return [terms, information, purposeBody];
+}

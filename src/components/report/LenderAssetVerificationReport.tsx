@@ -12,7 +12,7 @@ import {
   LAV_REPORT_DISCLAIMER_TITLE,
 } from "@/lib/lav/lav-disclaimer";
 import { InspectionPhotoEvidenceCaption } from "./InspectionPhotoEvidence";
-import { ReportGeneralDisclaimer } from "./ReportGeneralDisclaimer";
+import { LavReportGeneralDisclaimer } from "./LavReportGeneralDisclaimer";
 import { ReportShell } from "./ReportShell";
 import "./lav-report.css";
 
@@ -50,7 +50,7 @@ function LavPhotoTile({
       <div
         className={`lav-report-photo-tile-image flex items-center justify-center bg-slate-100 ${
           large
-            ? "lav-report-photo-tile-image--large min-h-[200px]"
+            ? "lav-report-photo-tile-image--large min-h-[240px]"
             : "min-h-[140px] sm:min-h-[160px]"
         }`}
       >
@@ -191,16 +191,6 @@ export function LenderAssetVerificationReport({
               />
             ))}
           </div>
-          <div className="lav-report-photo-grid lav-report-photo-grid--id mt-4">
-            {vm.identification.map((slot) => (
-              <LavPhotoTile
-                key={slot.angleId}
-                slot={slot}
-                odometerDisplay={vm.odometer}
-              />
-            ))}
-          </div>
-
           {inspectUrl ? (
             <p className="report-no-print mt-4 text-sm text-slate-600">
               Vendor capture link:{" "}
@@ -216,8 +206,23 @@ export function LenderAssetVerificationReport({
 
       <div className="report-page-break">
         <ReportShell {...shellProps} pageLabel={pageLabel(2)} className="report-shell-lav">
+          <h2 className="lav-report-section-heading !mt-0">Verification photos</h2>
+          <p className="mb-3 text-xs text-slate-500">
+            Odometer, VIN and registration paper captures.
+          </p>
+          <div className="lav-report-photo-grid lav-report-photo-grid--id">
+            {vm.identification.map((slot) => (
+              <LavPhotoTile
+                key={slot.angleId}
+                slot={slot}
+                large
+                odometerDisplay={vm.odometer}
+              />
+            ))}
+          </div>
+
           {valuationRows.length > 0 ? (
-            <div className="report-supplementary report-present-value rounded-xl border border-slate-200 bg-slate-50 p-5">
+            <div className="report-supplementary report-present-value mt-8 rounded-xl border border-slate-200 bg-slate-50 p-5">
               <h3 className="text-xs font-bold uppercase tracking-wide text-slate-900">
                 Valuation
               </h3>
@@ -248,10 +253,13 @@ export function LenderAssetVerificationReport({
                 <p>{section.body}</p>
               </section>
             ))}
-            <footer>{LAV_REPORT_DISCLAIMER_FOOTER}</footer>
           </div>
 
-          <ReportGeneralDisclaimer />
+          <LavReportGeneralDisclaimer />
+
+          <footer className="lav-report-copyright mt-6 text-[11px] leading-relaxed text-slate-500">
+            {LAV_REPORT_DISCLAIMER_FOOTER}
+          </footer>
         </ReportShell>
       </div>
     </div>

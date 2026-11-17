@@ -39,29 +39,30 @@ export function LenderAssetVerificationSite() {
   return (
     <div className="lav w-full min-w-0 max-w-full overflow-x-clip">
       <section className="hero">
-        <div className="av-site-container hero-stack">
-          <figure className="lav-hero-photo relative mx-auto aspect-[4/3] w-full max-w-xl overflow-hidden rounded-2xl border border-white/10 bg-[#06080f] shadow-lg shadow-black/40">
+        <div className="av-site-container hero-grid lg:grid-cols-2">
+          <figure className="lav-hero-photo relative aspect-[4/3] w-full min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-[#06080f] shadow-lg shadow-black/40">
             <Image
               src={HERO_INSPECTION_IMAGE}
               alt="Auto Verifi inspector capturing a vehicle VIN with a phone"
               fill
               priority
               className="object-cover object-[48%_42%]"
-              sizes="(max-width: 1024px) 100vw, 36rem"
+              sizes="(max-width: 1024px) 100vw, 50vw"
             />
           </figure>
-          <div className="lav-hero-body relative min-w-0 text-center">
+          <div className="lav-hero-right relative flex min-w-0 flex-col gap-6 text-left">
+            <div className="lav-hero-body relative min-w-0">
             <span className="eyebrow">For lenders, brokers &amp; introducers</span>
             <h1 className="lav-hero-title">
               <span className="line">Lender asset verification.</span>
               <span className="line">Verified in minutes.</span>
               <span className="line">Australia wide</span>
             </h1>
-            <p className="lead mx-auto mt-4 max-w-xl text-sm text-slate-400 sm:mt-5 sm:text-base">
+            <p className="lead mt-4 max-w-xl text-sm text-slate-400 sm:mt-5 sm:text-base">
               We verify asset existence, vehicle identifiers and confirm current
               condition.
             </p>
-            <div className="lav-hero-ctas mx-auto mt-6 grid w-full max-w-xl grid-cols-1 gap-2 sm:mt-8 sm:grid-cols-2 sm:gap-2">
+            <div className="lav-hero-ctas mt-6 grid w-full max-w-xl grid-cols-1 gap-2 sm:mt-8 sm:grid-cols-2 sm:gap-2">
               <a
                 href="#book"
                 className="btn-shine group flex h-10 min-w-0 items-center justify-center gap-1 rounded-lg bg-accent-500 px-2.5 text-xs font-bold leading-tight text-white transition hover:bg-accent-600 sm:px-4 sm:text-sm"
@@ -84,6 +85,56 @@ export function LenderAssetVerificationSite() {
                   aria-hidden
                 />
               </Link>
+            </div>
+            </div>
+            <div className="hero-visual relative mx-auto w-full min-w-0 max-w-full lg:mx-0">
+              <div className="frame" aria-hidden="true">
+                <span className="c tl" />
+                <span className="c tr" />
+                <span className="c bl" />
+                <span className="c br" />
+                <div className="ring" />
+                <div className="floor" />
+                <div className="mini-report">
+                  <div className="t">
+                    Verification summary – Digital Self Inspection
+                  </div>
+                  <div className="row">
+                    <span>Vehicle Identifiers and Verification</span>
+                    <span className="pill">Matched</span>
+                  </div>
+                  <div className="row">
+                    <span>Odometer captured</span>
+                    <span className="pill">Yes</span>
+                  </div>
+                  <div className="row">
+                    <span>VIN identification captured</span>
+                    <span className="pill">Yes</span>
+                  </div>
+                  <div className="row row-photo-evidence">
+                    <span>Photos – vehicle verification</span>
+                    <span className="v">
+                      Date, time stamped and geo tagged images
+                    </span>
+                  </div>
+                  <div className="row row-condition">
+                    <span>Condition</span>
+                    <span className="v">Verified from image capture</span>
+                  </div>
+                  <div className="row">
+                    <span>Registration papers</span>
+                    <span className="v">Date and time stamped image</span>
+                  </div>
+                  <div className="row">
+                    <span>Vehicle valuation</span>
+                    <span className="v muted">Optional</span>
+                  </div>
+                  <div className="row">
+                    <span>Report delivered</span>
+                    <span className="v">Real time</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

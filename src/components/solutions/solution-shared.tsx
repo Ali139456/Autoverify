@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { IntegrationsEcosystemGraphic } from "./IntegrationsEcosystemGraphic";
 import {
@@ -24,6 +25,8 @@ import {
   type SolutionOfferingCard,
   type SolutionTab,
 } from "@/content/solutions-hub";
+
+const VERIFIED_VEHICLE_BADGE = "/solutions/verified-vehicle-badge.png";
 
 export const CONSUMER_ICONS: Record<string, LucideIcon> = {
   buy: ShoppingCart,
@@ -55,7 +58,17 @@ function SolutionCard({
   icon: LucideIcon;
 }) {
   return (
-    <article className="flex h-full flex-col rounded-2xl border border-white/10 bg-[#0a1230]/90 p-6 sm:p-7">
+    <article className="relative flex h-full flex-col overflow-visible rounded-2xl border border-white/10 bg-[#0a1230]/90 p-6 sm:p-7">
+      {card.showVerifiedBadge ? (
+        <Image
+          src={VERIFIED_VEHICLE_BADGE}
+          alt=""
+          width={88}
+          height={88}
+          className="pointer-events-none absolute -right-1 -top-2 z-[1] h-[4.25rem] w-[4.25rem] sm:-right-0.5 sm:-top-3 sm:h-[4.75rem] sm:w-[4.75rem]"
+          aria-hidden
+        />
+      ) : null}
       <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-500/15 text-accent-400">
         <Icon className="h-5 w-5" aria-hidden />
       </div>

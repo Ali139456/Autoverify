@@ -13,6 +13,8 @@ export type SolutionOfferingCard = {
   bullets: string[];
   /** Non-clickable “Coming soon” CTA instead of Enquire. */
   comingSoon?: boolean;
+  /** Verified vehicle badge on the card (business solutions). */
+  showVerifiedBadge?: boolean;
 };
 
 export const CONSUMER_OFFERINGS: SolutionOfferingCard[] = [
@@ -58,6 +60,7 @@ export const BUSINESS_OFFERINGS: SolutionOfferingCard[] = [
   {
     id: "marketplace",
     title: "Marketplace",
+    showVerifiedBadge: true,
     description:
       "Listing verification that earns trust at first glance and lifts conversion.",
     bullets: [
@@ -82,6 +85,7 @@ export const BUSINESS_OFFERINGS: SolutionOfferingCard[] = [
   {
     id: "dealer",
     title: "Dealer",
+    showVerifiedBadge: true,
     description:
       "Inventory intelligence and pre-sale verification that builds buyer trust and moves stock faster.",
     bullets: [
