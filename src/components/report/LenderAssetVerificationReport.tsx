@@ -1,6 +1,9 @@
 import type { InspectionPhoto, VehicleReport } from "@/lib/types";
 import { getInspectionPhotoUrl } from "@/lib/report-design";
-import { buildLavReportViewModel } from "@/lib/lav/lav-report-view";
+import {
+  buildLavReportViewModel,
+  isLavSampleReport,
+} from "@/lib/lav/lav-report-view";
 import {
   formatLavValuationRange,
   lavValuationHasData,
@@ -37,11 +40,9 @@ function ConditionOption({
 
 function LavPhotoTile({
   slot,
-  odometerDisplay,
   large,
 }: {
   slot: { title: string; photo: InspectionPhoto | null };
-  odometerDisplay?: string | null;
   large?: boolean;
 }) {
   const url = slot.photo ? getInspectionPhotoUrl(slot.photo) : null;
@@ -74,7 +75,7 @@ function LavPhotoTile({
         {slot.photo ? (
           <InspectionPhotoEvidenceCaption
             photo={slot.photo}
-            lavOdometerDisplay={odometerDisplay}
+            lavEvidenceLabels
           />
         ) : null}
       </figcaption>
@@ -95,6 +96,7 @@ export function LenderAssetVerificationReport({
   pageCount?: { body: number; total: number };
 }) {
   const vm = buildLavReportViewModel(report, photos, null);
+  const isSample = isLavSampleReport(report);
   const pageLabel = (n: number) => `${n} / ${pageCount.total}`;
   const valuationRows = lavValuationHasData(report.valuation)
     ? lavValuationRows(report.valuation)
@@ -108,7 +110,11 @@ export function LenderAssetVerificationReport({
   };
 
   return (
-    <div className="lav-report-stack mx-auto max-w-5xl px-3 pb-12 pt-4 sm:px-6">
+    <div
+      className={`lav-report-stack mx-auto max-w-5xl px-3 pb-12 pt-4 sm:px-6${
+        isSample ? " report-is-sample" : ""
+      }`}
+    >
       <div className="report-page-break">
         <ReportShell
           {...shellProps}
@@ -176,19 +182,13 @@ export function LenderAssetVerificationReport({
             </div>
           </div>
 
-          <h2 className="lav-report-section-heading">Verification photos</h2>
-          <p className="mb-3 text-xs text-slate-500">
-            Date, time stamped and geo tagged images from digital self inspection.
-          </p>
+          <h2 className="lav-report-section-heading lav-report-section-heading--title">
+            Vehicle verification photos
+          </h2>
 
           <div className="lav-report-photo-grid lav-report-photo-grid--walkaround">
             {vm.walkaround.map((slot) => (
-              <LavPhotoTile
-                key={slot.angleId}
-                slot={slot}
-                large
-                odometerDisplay={vm.odometer}
-              />
+              <LavPhotoTile key={slot.angleId} slot={slot} large />
             ))}
           </div>
           {inspectUrl ? (
@@ -206,18 +206,12 @@ export function LenderAssetVerificationReport({
 
       <div className="report-page-break">
         <ReportShell {...shellProps} pageLabel={pageLabel(2)} className="report-shell-lav">
-          <h2 className="lav-report-section-heading !mt-0">Verification photos</h2>
-          <p className="mb-3 text-xs text-slate-500">
-            Odometer, VIN and registration paper captures.
-          </p>
+          <h2 className="lav-report-section-heading lav-report-section-heading--title !mt-0">
+            Vehicle verification photos
+          </h2>
           <div className="lav-report-photo-grid lav-report-photo-grid--id">
             {vm.identification.map((slot) => (
-              <LavPhotoTile
-                key={slot.angleId}
-                slot={slot}
-                large
-                odometerDisplay={vm.odometer}
-              />
+              <LavPhotoTile key={slot.angleId} slot={slot} large />
             ))}
           </div>
 

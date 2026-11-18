@@ -29,7 +29,7 @@ export type LavReportPhotoSlot = {
 };
 
 const WALKAROUND_ANGLES = [
-  { id: "front", title: "Front showing registration plate" },
+  { id: "front", title: "Front" },
   { id: "left_side", title: "Passenger side" },
   { id: "rear", title: "Rear" },
   { id: "right_side", title: "Driver side" },
@@ -41,8 +41,10 @@ const ID_ANGLES = [
   { id: "service_record", title: "Registration papers" },
 ] as const;
 
-export const LAV_DIGITAL_REPORT_TITLE =
-  "Lender Asset Verification Report - Digital Self Inspection";
+export const LAV_REPORT_TITLE = "Lender Asset Verification Report";
+
+/** @deprecated Use {@link LAV_REPORT_TITLE} */
+export const LAV_DIGITAL_REPORT_TITLE = LAV_REPORT_TITLE;
 
 function normalizeAssetType(raw: string | undefined): string {
   const t = raw?.trim() || "Car";
@@ -139,7 +141,7 @@ export function buildLavReportViewModel(
 
   return {
     reportRef: formatReportReference(vehicle),
-    title: LAV_DIGITAL_REPORT_TITLE,
+    title: LAV_REPORT_TITLE,
     assetType: normalizeAssetType(report.lavContext?.assetType),
     assetTypes: LAV_ASSET_TYPE_OPTIONS,
     bookingRef:

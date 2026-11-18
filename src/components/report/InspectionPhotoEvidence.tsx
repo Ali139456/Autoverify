@@ -7,14 +7,14 @@ import type { InspectionPhoto } from "@/lib/types";
 /** Timestamp + location shown beneath the photo (never overlaid on the image). */
 export function InspectionPhotoEvidenceCaption({
   photo,
-  lavOdometerDisplay,
+  lavEvidenceLabels,
 }: {
   photo: InspectionPhoto;
-  /** When set, use LAV labelled captions (GPS / date / odometer). */
-  lavOdometerDisplay?: string | null;
+  /** When true, use LAV labelled captions (GPS / date only). */
+  lavEvidenceLabels?: boolean;
 }) {
-  const lines = lavOdometerDisplay
-    ? formatLavInspectionPhotoEvidenceLines(photo, lavOdometerDisplay)
+  const lines = lavEvidenceLabels
+    ? formatLavInspectionPhotoEvidenceLines(photo)
     : formatInspectionPhotoEvidenceLines(photo);
   if (lines.length === 0) return null;
 

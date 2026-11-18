@@ -10,7 +10,7 @@ const SAMPLE_WALKAROUND_FILES: Record<string, string> = {
   rear: "rear.jpg",
   right_side: "right-side.jpg",
   dashboard: "odometer.jpg",
-  vin_plate: "vin-plate.jpg",
+  vin_plate: "vin-plate-clean.jpg",
   service_record: "registration-papers.jpg",
 };
 

@@ -10,7 +10,7 @@ import {
   View,
 } from "@react-pdf/renderer";
 import { formatLavInspectionPhotoEvidenceLines } from "./inspection-photo-evidence";
-import { buildLavReportViewModel } from "./lav/lav-report-view";
+import { buildLavReportViewModel, isLavSampleReport } from "./lav/lav-report-view";
 import {
   formatLavValuationRange,
   lavValuationHasData,
@@ -121,6 +121,26 @@ const styles = StyleSheet.create({
   disclaimerHeading: { fontSize: 10, fontWeight: 700, marginBottom: 6 },
   disclaimerSub: { fontSize: 8, fontWeight: 700, marginBottom: 2 },
   disclaimerBody: { fontSize: 7, color: GREY, lineHeight: 1.45, marginBottom: 6 },
+  sampleWatermarkLayer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 100,
+  },
+  sampleWatermarkText: {
+    width: 520,
+    textAlign: "center",
+    fontSize: 96,
+    fontWeight: 700,
+    color: "#94a3b8",
+    opacity: 0.24,
+    letterSpacing: 22,
+    transform: "rotate(-35deg)",
+  },
 });
 
 function LavPdfFooter({ pageLabel }: { pageLabel: string }) {
@@ -164,23 +184,27 @@ function lavPdfPhotoSrc(photo: InspectionPhoto): PdfImageSource | string | null 
   return url;
 }
 
+function LavPdfSampleWatermark() {
+  return (
+    <View style={styles.sampleWatermarkLayer} fixed>
+      <Text style={styles.sampleWatermarkText}>SAMPLE</Text>
+    </View>
+  );
+}
+
 function PdfPhotoSlot({
   title,
   photo,
   boxStyle,
   imageHeight = 48,
-  odometerDisplay,
 }: {
   title: string;
   photo: InspectionPhoto | null;
   boxStyle: typeof styles.photoBoxWalkaround;
   imageHeight?: number;
-  odometerDisplay?: string | null;
 }) {
   const src = photo ? lavPdfPhotoSrc(photo) : null;
-  const meta = photo
-    ? formatLavInspectionPhotoEvidenceLines(photo, odometerDisplay)
-    : [];
+  const meta = photo ? formatLavInspectionPhotoEvidenceLines(photo) : [];
   return (
     <View style={boxStyle}>
       <Text style={styles.photoTitle}>{title}</Text>
@@ -218,6 +242,7 @@ export function LavReportPdf({
   const valuationRows = lavValuationHasData(report.valuation)
     ? lavValuationRows(report.valuation)
     : [];
+  const sample = isLavSampleReport(report);
 
   const detailRows: [string, string][] = [
     ["Make", vm.make],
@@ -238,6 +263,7 @@ export function LavReportPdf({
   return (
     <Document title={vm.title}>
       <Page size="A4" style={styles.page}>
+        {sample ? <LavPdfSampleWatermark /> : null}
         <LavPdfHeader report={report} title={vm.title} />
         <Text style={styles.section}>Vehicle details</Text>
         <View style={styles.grid3}>
@@ -259,9 +285,8 @@ export function LavReportPdf({
                 ? "✓ Poor"
                 : "To be confirmed from image capture"}
         </Text>
-        <Text style={[styles.section, { marginTop: 8 }]}>Verification photos</Text>
-        <Text style={{ fontSize: 7, color: GREY, marginBottom: 4 }}>
-          Date, time stamped and geo tagged images from digital self inspection.
+        <Text style={[styles.section, { marginTop: 8 }]}>
+          Vehicle verification photos
         </Text>
         <View style={styles.photoRow}>
           {vm.walkaround.map((slot) => (
@@ -271,7 +296,6 @@ export function LavReportPdf({
               photo={slot.photo}
               boxStyle={styles.photoBoxWalkaround}
               imageHeight={138}
-              odometerDisplay={vm.odometer}
             />
           ))}
         </View>
@@ -279,11 +303,9 @@ export function LavReportPdf({
       </Page>
 
       <Page size="A4" style={styles.page}>
+        {sample ? <LavPdfSampleWatermark /> : null}
         <LavPdfHeader report={report} title={vm.title} />
-        <Text style={styles.section}>Verification photos</Text>
-        <Text style={{ fontSize: 7, color: GREY, marginBottom: 4 }}>
-          Odometer, VIN and registration paper captures.
-        </Text>
+        <Text style={styles.section}>Vehicle verification photos</Text>
         <View style={styles.photoRowId}>
           {vm.identification.map((slot) => (
             <PdfPhotoSlot
@@ -292,7 +314,6 @@ export function LavReportPdf({
               photo={slot.photo}
               boxStyle={styles.photoBoxId}
               imageHeight={100}
-              odometerDisplay={vm.odometer}
             />
           ))}
         </View>

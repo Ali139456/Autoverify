@@ -53,10 +53,9 @@ export function formatInspectionPhotoEvidenceLine(photo: InspectionPhoto): strin
   return lines.length > 0 ? lines.join(" · ") : null;
 }
 
-/** LAV report / sample PDF — labelled GPS, timestamp, and vehicle odometer. */
+/** LAV report / sample PDF — labelled GPS and timestamp beneath each photo. */
 export function formatLavInspectionPhotoEvidenceLines(
   photo: InspectionPhoto,
-  odometerDisplay?: string | null,
 ): string[] {
   const lines: string[] = [];
   const where = formatInspectionPhotoLocation(photo);
@@ -65,9 +64,6 @@ export function formatLavInspectionPhotoEvidenceLines(
   );
   if (where) lines.push(`GPS location: ${where}`);
   if (when) lines.push(`Date and time: ${when}`);
-  if (odometerDisplay?.trim()) {
-    lines.push(`Odometer: ${odometerDisplay.trim()}`);
-  }
   return lines;
 }
 

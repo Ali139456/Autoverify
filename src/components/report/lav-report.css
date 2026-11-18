@@ -48,6 +48,12 @@
   color: #0073e3;
 }
 
+.lav-report-section-heading--title {
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
 .lav-report-page1-grid {
   display: grid;
   grid-template-columns: 1fr 1fr minmax(140px, 34%);

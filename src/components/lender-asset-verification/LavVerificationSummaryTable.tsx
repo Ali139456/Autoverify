@@ -41,7 +41,7 @@ const SUMMARY_ROWS: SummaryRow[] = [
     label: "Photos – vehicle verification",
     Icon: Camera,
     digital: "Digital – Date/time/geo tagged images",
-    physical: "Physical image capture – geo capture",
+    physical: "Physical image capture-geo tagged",
   },
   {
     label: "Condition",
@@ -58,14 +58,14 @@ const SUMMARY_ROWS: SummaryRow[] = [
   {
     label: "Vehicle valuation",
     Icon: BarChart3,
-    digital: "Data ingest matching rego/VIN",
-    physical: "Data ingest matching rego/VIN",
+    digital: "Licensed Valuation Data",
+    physical: "Licensed Valuation Data",
   },
   {
     label: "Report delivered",
     Icon: Laptop,
-    digital: "Real time",
-    physical: "Real time",
+    digital: "Instant",
+    physical: "Instant onsite",
   },
 ];
 

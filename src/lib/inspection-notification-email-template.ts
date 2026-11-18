@@ -2,16 +2,16 @@ import {
   AI_DAMAGE_FOLLOW_UP_EMAIL_PROMISE,
   AI_DAMAGE_PROCESSING_SHORT,
 } from "@/lib/damage-processing-copy";
-
-/** LAV Digital Self Inspection — primary email heading (subject + title). */
-export const LAV_DIGITAL_SELF_INSPECTION_EMAIL_HEADING =
-  "Lender Asset Verification Report - Digital Self Inspection";
+import { LAV_REPORT_TITLE } from "@/lib/lav/lav-report-view";
 import {
   BRANDED_EMAIL_BLUE,
   BRANDED_EMAIL_NAVY,
   buildBrandedEmailLayout,
   escapeBrandedEmailHtml,
 } from "@/lib/branded-email-layout";
+
+/** LAV report — primary email heading (subject + title). */
+export const LAV_DIGITAL_SELF_INSPECTION_EMAIL_HEADING = LAV_REPORT_TITLE;
 
 function vehicleLine(vehicleLabel: string, regoSuffix: string): string {
   return `<strong style="color:${BRANDED_EMAIL_NAVY};">${escapeBrandedEmailHtml(vehicleLabel)}</strong>${escapeBrandedEmailHtml(regoSuffix)}`;
