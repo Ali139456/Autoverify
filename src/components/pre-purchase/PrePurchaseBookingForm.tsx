@@ -252,7 +252,7 @@ export function PrePurchaseBookingForm() {
         disabled={busy}
         className="w-full rounded-lg bg-accent-500 px-4 py-3 text-sm font-bold text-white transition hover:bg-accent-600 disabled:opacity-60"
       >
-        {busy ? "Submitting…" : `Pay $${PPI_PRICE_INC_GST} and book`}
+        {busy ? "Submitting…" : "Book Pre Purchase Inspection"}
       </button>
     </form>
   );

@@ -1865,6 +1865,7 @@ function PdfPhotoGroup({
   photoImageHeight = 64,
   photoObjectFit = "cover",
   columnsPerRow = 4,
+  showAngleLabels = true,
 }: {
   title: string;
   photos: InspectionPhoto[];
@@ -1873,6 +1874,7 @@ function PdfPhotoGroup({
   photoObjectFit?: "cover" | "contain";
   /** Fixed grid columns so partial rows align with full rows (e.g. 2 additional photos). */
   columnsPerRow?: 2 | 3 | 4;
+  showAngleLabels?: boolean;
 }) {
   if (photos.length === 0) return null;
   const hasRecordOnlyPhoto = photos.some((photo) =>
@@ -1934,7 +1936,9 @@ function PdfPhotoGroup({
                       />
                     )}
                   </View>
-                  <Text style={styles.photoCaption}>{label}</Text>
+                  {showAngleLabels ? (
+                    <Text style={styles.photoCaption}>{label}</Text>
+                  ) : null}
                   {evidenceLines.map((line) => (
                     <Text key={line} style={styles.photoEvidenceCaption}>
                       {line}
@@ -2003,6 +2007,7 @@ function InsightsPlusWalkaroundPhotosPage({
           photos={walkaroundPhotos}
           photoImageHeight={80}
           photoObjectFit="cover"
+          showAngleLabels={false}
         />
       </View>
     </PdfPageShell>

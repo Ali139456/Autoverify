@@ -40,12 +40,31 @@ export default async function InspectPage({
     );
   }
 
+  const vehiclePrefilled =
+    Boolean(
+      report?.lavVerification?.autograbSource &&
+        report.lavVerification.autograbSource !== "manual",
+    ) ||
+    Boolean(
+      report?.lavVerification?.identifiersMatched &&
+        report.vehicle.make?.trim() &&
+        (report.vehicle.rego?.trim() || report.vehicle.vin?.trim()),
+    );
+
   return (
     <InspectionCapture
       token={token}
       reportId={inspection.reportId}
       angles={angles}
       lavDigital={lavDigital}
+      vehiclePrefilled={vehiclePrefilled}
+      initialLookupIdentifier={
+        report?.vehicle.rego?.trim() ||
+        report?.lavVerification?.rego?.trim() ||
+        report?.vehicle.vin?.trim() ||
+        ""
+      }
+      initialLookupState={report?.vehicle.state ?? "NSW"}
       initialVin={
         report?.lavVerification?.vin?.trim() ||
         report?.vehicle.vin?.trim() ||

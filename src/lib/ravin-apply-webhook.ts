@@ -18,16 +18,19 @@ export async function applyRavinWebhookPayload(
   const hadDamage = Boolean(report?.damage?.findings?.length);
 
   const ravinPhotos = extractRavinPhotos(payload);
+  const ownerPhotos = inspection.photos ?? [];
   const mergedPhotos =
-    ravinPhotos.length > 0
-      ? ravinPhotos.map((photo) => ({
-          angle: photo.angle,
-          label: photo.label,
-          storagePath: photo.url,
-          externalUrl: photo.url,
-          uploadedAt: new Date().toISOString(),
-        }))
-      : inspection.photos;
+    ownerPhotos.length > 0
+      ? ownerPhotos
+      : ravinPhotos.length > 0
+        ? ravinPhotos.map((photo) => ({
+            angle: photo.angle,
+            label: photo.label,
+            storagePath: photo.url,
+            externalUrl: photo.url,
+            uploadedAt: new Date().toISOString(),
+          }))
+        : [];
 
   const damage = parseRavinWebhookPayload(payload, mergedPhotos.length);
 

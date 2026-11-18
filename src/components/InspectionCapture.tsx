@@ -95,12 +95,39 @@ function tryCloseInspectionTab(): boolean {
 
 type LavConditionChoice = "good" | "fair" | "poor";
 
+const LAV_LOOKUP_STATES = [
+  "NSW",
+  "VIC",
+  "QLD",
+  "WA",
+  "SA",
+  "TAS",
+  "ACT",
+  "NT",
+] as const;
+
+type LavVehicleSummary = {
+  make: string;
+  model: string;
+  year: number;
+  vin: string;
+  rego: string;
+  state: string;
+  colour: string;
+  bodyType: string;
+  registrationExpiry: string | null;
+  odometer: number | null;
+};
+
 export function InspectionCapture({
   token,
   reportId,
   initialPhotos = [],
   angles: initialAngles = INSPECTION_ANGLES,
   lavDigital = false,
+  vehiclePrefilled = false,
+  initialLookupIdentifier = "",
+  initialLookupState = "NSW",
   initialVin = "",
 }: {
   token: string;
@@ -108,6 +135,10 @@ export function InspectionCapture({
   initialPhotos?: UploadedPhoto[];
   angles?: readonly InspectionAngleDef[];
   lavDigital?: boolean;
+  /** Booking already ran NEVDIS / AutoGrab — skip capture-time lookup step. */
+  vehiclePrefilled?: boolean;
+  initialLookupIdentifier?: string;
+  initialLookupState?: string;
   initialVin?: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -161,6 +192,15 @@ export function InspectionCapture({
   const [conditionGrade, setConditionGrade] = useState<LavConditionChoice | "">(
     "",
   );
+  const [vehicleLookupDone, setVehicleLookupDone] = useState(vehiclePrefilled);
+  const [lookupIdentifier, setLookupIdentifier] = useState(
+    initialLookupIdentifier,
+  );
+  const [lookupState, setLookupState] = useState(initialLookupState);
+  const [lookupLoading, setLookupLoading] = useState(false);
+  const [vehicleSummary, setVehicleSummary] = useState<LavVehicleSummary | null>(
+    null,
+  );
 
   const fetchPhotosFromServer = useCallback(async (): Promise<
     UploadedPhoto[] | null
@@ -208,15 +248,51 @@ export function InspectionCapture({
   }, [fetchPhotosFromServer, applyServerPhotos]);
 
   useEffect(() => {
-    if (!lavDigital) return;
+    if (!lavDigital || !vehiclePrefilled) return;
+    setVehicleLookupDone(true);
     void fetch(`/api/inspections/${token}/lav-details`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ refreshVehicle: true }),
     }).catch(() => {
-      // Non-blocking — booking data remains on the report if lookup fails.
+      // Booking data remains on the report if refresh fails.
     });
-  }, [lavDigital, token]);
+  }, [lavDigital, token, vehiclePrefilled]);
+
+  async function runLavVehicleLookup() {
+    const query = lookupIdentifier.trim();
+    if (!query) {
+      setError("Enter the registration plate or VIN.");
+      return;
+    }
+    setLookupLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/inspections/${token}/lav-details`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lookupQuery: query,
+          lookupState: lookupState,
+        }),
+      });
+      const data = await readJsonResponse<{
+        error?: string;
+        vehicle?: LavVehicleSummary;
+      }>(res, "Vehicle lookup failed.");
+      if (!res.ok) throw new Error(data.error ?? "Vehicle lookup failed.");
+      if (data.vehicle) setVehicleSummary(data.vehicle);
+      if (data.vehicle?.vin) {
+        setCaptureVin(data.vehicle.vin);
+        setVinSaved(true);
+      }
+      setVehicleLookupDone(true);
+    } catch (err) {
+      setError(inspectionErrorMessage(err, "Vehicle lookup failed."));
+    } finally {
+      setLookupLoading(false);
+    }
+  }
 
   async function saveLavVin() {
     const vin = captureVin.trim().toUpperCase().replace(/\s+/g, "");
@@ -368,6 +444,16 @@ export function InspectionCapture({
       }
 
       if (lavDigital) {
+        if (!vehicleLookupDone) {
+          throw new Error(
+            "Look up the vehicle by registration or VIN before submitting.",
+          );
+        }
+        if (!odometerSaved) {
+          throw new Error(
+            "Enter and save the odometer reading on the dashboard photo step before submitting.",
+          );
+        }
         if (!conditionGrade) {
           throw new Error(
             "Select the overall vehicle condition (good, fair or poor) before submitting.",
@@ -492,6 +578,77 @@ export function InspectionCapture({
               <Sparkles className="h-5 w-5" aria-hidden />
             )}
             {submitting ? "Submitting…" : "Submit images"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (lavDigital && !vehicleLookupDone) {
+    return (
+      <div className="inspect-capture-page mx-auto min-h-[100dvh] max-w-lg bg-ink-950 px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] text-white">
+        <Logo variant="onDark" height={36} linked={false} className="mb-4" />
+        <h1 className="text-xl font-extrabold leading-snug tracking-tight">
+          Vehicle details
+        </h1>
+        <p className="mt-2 text-sm leading-relaxed text-slate-400">
+          Enter the registration plate (with state) or VIN. We verify the
+          vehicle against NEVDIS and populate your lender asset verification
+          report. You will enter the odometer reading when you photograph the
+          dashboard.
+        </p>
+        <div className="mt-6 space-y-4 rounded-2xl border border-white/10 bg-ink-900/80 p-5">
+          <div>
+            <label
+              htmlFor="lav-lookup-identifier"
+              className="text-xs font-semibold uppercase tracking-wide text-slate-400"
+            >
+              Registration or VIN
+            </label>
+            <input
+              id="lav-lookup-identifier"
+              value={lookupIdentifier}
+              onChange={(e) => setLookupIdentifier(e.target.value)}
+              placeholder="Plate or 17-character VIN"
+              className="mt-2 w-full rounded-lg border border-white/15 bg-ink-950 px-3 py-2.5 text-sm text-white"
+              autoComplete="off"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="lav-lookup-state"
+              className="text-xs font-semibold uppercase tracking-wide text-slate-400"
+            >
+              Registration state
+            </label>
+            <select
+              id="lav-lookup-state"
+              value={lookupState}
+              onChange={(e) => setLookupState(e.target.value)}
+              className="mt-2 w-full rounded-lg border border-white/15 bg-ink-950 px-3 py-2.5 text-sm text-white"
+            >
+              {LAV_LOOKUP_STATES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </div>
+          {error ? (
+            <p className="text-sm font-medium text-red-300" role="alert">
+              {error}
+            </p>
+          ) : null}
+          <button
+            type="button"
+            disabled={lookupLoading}
+            onClick={() => void runLavVehicleLookup()}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-accent-500 disabled:opacity-60"
+          >
+            {lookupLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            ) : null}
+            {lookupLoading ? "Looking up…" : "Look up vehicle"}
           </button>
         </div>
       </div>

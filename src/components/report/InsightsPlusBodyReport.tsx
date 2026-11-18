@@ -25,9 +25,11 @@ import { InspectionPhotoEvidenceCaption } from "./InspectionPhotoEvidence";
 function PhotoTile({
   photo,
   caption,
+  showAngleLabel = true,
 }: {
   photo: InspectionPhoto;
   caption?: string;
+  showAngleLabel?: boolean;
 }) {
   const url = getInspectionPhotoUrl(photo);
   const isFrontRego = photo.angle === "front";
@@ -35,6 +37,7 @@ function PhotoTile({
     getInspectionAngleLabel(photo.angle),
     photo.angle,
   );
+  const imageAlt = showAngleLabel ? tileLabel : "Walkaround photo";
   return (
     <figure className="report-photo-tile overflow-hidden rounded-lg border border-slate-200 bg-white">
       <div className="relative flex min-h-[180px] items-center justify-center bg-slate-100 sm:min-h-[220px]">
@@ -42,7 +45,7 @@ function PhotoTile({
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={url}
-            alt={tileLabel}
+            alt={imageAlt}
             className="max-h-[200px] w-full max-w-full object-contain object-center sm:max-h-[240px]"
           />
         ) : (
@@ -52,12 +55,14 @@ function PhotoTile({
         )}
       </div>
       <figcaption className="border-t border-slate-200 px-2 py-1.5">
-        <p className="text-[10px] font-bold leading-snug text-slate-900 sm:text-[11px]">
-          {tileLabel}
-          {isFrontRego ? (
-            <span className="font-normal text-slate-600"> (rego visible)</span>
-          ) : null}
-        </p>
+        {showAngleLabel ? (
+          <p className="text-[10px] font-bold leading-snug text-slate-900 sm:text-[11px]">
+            {tileLabel}
+            {isFrontRego ? (
+              <span className="font-normal text-slate-600"> (rego visible)</span>
+            ) : null}
+          </p>
+        ) : null}
         <InspectionPhotoEvidenceCaption photo={photo} />
         {caption ? (
           <p className="mt-0.5 text-[10px] text-red-600">{caption}</p>
@@ -73,6 +78,8 @@ function PhotoGroup({
   damageByPanel,
   note,
   gridClassName,
+  showAngleLabels = true,
+  showDamageCaptionsOnTiles = true,
 }: {
   title: string;
   photos: InspectionPhoto[];
@@ -80,6 +87,8 @@ function PhotoGroup({
   note?: string;
   /** Additional photos: two-up layout (matches PDF / print). */
   gridClassName?: string;
+  showAngleLabels?: boolean;
+  showDamageCaptionsOnTiles?: boolean;
 }) {
   if (photos.length === 0) return null;
   const hasRecordOnlyPhoto = photos.some((photo) =>
@@ -103,7 +112,12 @@ function PhotoGroup({
           <PhotoTile
             key={`${photo.angle}-${photo.uploadedAt}`}
             photo={photo}
-            caption={damageByPanel.get(photo.angle.toLowerCase())}
+            showAngleLabel={showAngleLabels}
+            caption={
+              showDamageCaptionsOnTiles
+                ? damageByPanel.get(photo.angle.toLowerCase())
+                : undefined
+            }
           />
         ))}
       </div>
@@ -216,6 +230,8 @@ export function InsightsPlusBodyReport({
               title="Walkaround photos"
               photos={walkaroundPhotos}
               damageByPanel={damageByPanel}
+              showAngleLabels={false}
+              showDamageCaptionsOnTiles={false}
             />
           </div>
         </ReportShell>

@@ -18,8 +18,15 @@ function formatPayload(payload: PrePurchaseBookingPayload): string {
     `Rego: ${payload.vehicleRego} (${payload.vehicleState})`,
     `VIN: ${payload.vehicleVin || "—"}`,
     "",
-    `Paid: $${payload.priceIncGst.toFixed(2)} inc GST`,
-  ].join("\n");
+    payload.promoCode
+      ? `Promo: ${payload.promoCode}`
+      : null,
+    payload.priceIncGst > 0
+      ? `Paid: $${payload.priceIncGst.toFixed(2)} inc GST`
+      : `Paid: $0 (fee ${PPI_PRICE_INC_GST} inc GST waived${payload.promoCode ? ` — ${payload.promoCode}` : ""})`,
+  ]
+    .filter((line): line is string => line != null)
+    .join("\n");
 }
 
 export async function notifyPrePurchaseBooking(
