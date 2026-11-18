@@ -91,6 +91,25 @@
     max-width:min(100%,27.5rem);
   }
 }
+.lav .lav-hero-stack{display:flex;flex-direction:column;gap:2rem;width:100%}
+@media (min-width:640px){.lav .lav-hero-stack{gap:2.5rem}}
+@media (min-width:1024px){.lav .lav-hero-stack{gap:2.25rem}}
+.lav .lav-hero-summary-row{
+  display:flex;
+  justify-content:center;
+  width:100%;
+  margin-inline:auto;
+}
+.lav .lav-hero-summary-row .lav-verification-summary{
+  width:100%;
+  max-width:min(100%,36rem);
+}
+@media (min-width:640px){
+  .lav .lav-hero-summary-row .lav-verification-summary{max-width:min(100%,40rem)}
+}
+@media (min-width:1024px){
+  .lav .lav-hero-summary-row .lav-verification-summary{max-width:min(100%,44rem)}
+}
 .lav .lav-verification-summary{
   border:1px solid var(--line-2);
   border-radius:12px;
