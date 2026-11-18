@@ -41,7 +41,7 @@ export function LenderAssetVerificationSite() {
     <div className="lav w-full min-w-0 max-w-full overflow-x-clip">
       <section className="hero">
         <div className="av-site-container hero-grid lg:grid-cols-2">
-          <div className="lav-hero-left mx-auto flex w-full max-w-md min-w-0 flex-col items-center gap-6 lg:mx-0 lg:max-w-[22.5rem]">
+          <div className="lav-hero-left flex w-full min-w-0 flex-col items-center gap-5">
             <figure className="lav-hero-photo relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-white/10 bg-[#06080f] shadow-lg shadow-black/40">
               <Image
                 src={HERO_INSPECTION_IMAGE}
@@ -49,7 +49,7 @@ export function LenderAssetVerificationSite() {
                 fill
                 priority
                 className="object-cover object-[48%_42%]"
-                sizes="(max-width: 1024px) 100vw, 22.5rem"
+                sizes="(max-width: 1024px) 100vw, 27.5rem"
               />
             </figure>
             <LavVerificationSummaryTable />

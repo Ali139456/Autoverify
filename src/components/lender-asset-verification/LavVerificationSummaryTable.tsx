@@ -80,7 +80,7 @@ function MethodCell({ text }: { text: string }) {
 
 export function LavVerificationSummaryTable() {
   return (
-    <div className="lav-verification-summary mx-auto w-full max-w-md">
+    <div className="lav-verification-summary w-full">
       <p className="lav-verification-summary-title">
         Verification summary – what we verify and how
       </p>
