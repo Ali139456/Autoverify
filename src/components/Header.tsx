@@ -22,6 +22,21 @@ const INSPECTION_PAGE_LINKS = [
   { href: "#contact", label: "Contact" },
 ];
 
+type HeaderCta = "buy" | "book" | "request";
+
+function resolveHeaderCta(pathname: string): HeaderCta {
+  if (
+    pathname.startsWith("/inspections/lender-asset-verification") ||
+    pathname.startsWith("/inspections/pre-purchase")
+  ) {
+    return "book";
+  }
+  if (pathname.startsWith("/vehicleinspections")) {
+    return "request";
+  }
+  return "buy";
+}
+
 const navLinkClass = (active: boolean) =>
   `inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded-full px-3 text-[13px] font-medium leading-none transition lg:px-4 lg:text-sm ${
     active
@@ -241,10 +256,12 @@ function InspectionsDropdown({ onNavigate }: { onNavigate?: () => void }) {
 
 function HeaderMobileMenu({
   isInspectionPage,
+  headerCta,
   links,
   onBuyReport,
 }: {
   isInspectionPage: boolean;
+  headerCta: HeaderCta;
   links: ReadonlyArray<{ href: string; label: string }>;
   onBuyReport: () => void;
 }) {
@@ -373,13 +390,13 @@ function HeaderMobileMenu({
             )}
           </nav>
           <div className="relative shrink-0 border-t border-white/10 bg-ink-950/90 px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-md">
-            {isInspectionPage ? (
+            {headerCta !== "buy" ? (
               <Link
-                href="#contact"
+                href={headerCta === "book" ? "#book" : "#contact"}
                 onClick={() => setOpen(false)}
                 className="btn-shine group flex items-center justify-center gap-2 rounded-full bg-[#0073E3] px-5 py-3.5 text-sm font-bold text-white shadow-[0_12px_40px_rgba(0,115,227,0.35)] transition hover:bg-[#0062c2]"
               >
-                Request an inspection
+                {headerCta === "book" ? "Book an inspection" : "Request an inspection"}
                 <ArrowRight
                   className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
                   aria-hidden
@@ -410,9 +427,11 @@ function HeaderMobileMenu({
 
 function HeaderBuyReportActions({
   isInspectionPage,
+  headerCta,
   links,
 }: {
   isInspectionPage: boolean;
+  headerCta: HeaderCta;
   links: ReadonlyArray<{ href: string; label: string }>;
 }) {
   const [buyReportOpen, setBuyReportOpen] = useState(false);
@@ -420,10 +439,22 @@ function HeaderBuyReportActions({
   return (
     <>
       <div className="flex shrink-0 items-center gap-2 xl:gap-3 xl:border-l xl:border-white/10 xl:pl-3">
-        {isInspectionPage ? (
-          <Link href="#contact" className={buyReportClass}>
-            <span className="hidden 2xl:inline">Request an inspection</span>
-            <span className="2xl:hidden">Request</span>
+        {headerCta !== "buy" ? (
+          <Link
+            href={headerCta === "book" ? "#book" : "#contact"}
+            className={buyReportClass}
+          >
+            {headerCta === "book" ? (
+              <>
+                <span className="hidden 2xl:inline">Book an inspection</span>
+                <span className="2xl:hidden">Book</span>
+              </>
+            ) : (
+              <>
+                <span className="hidden 2xl:inline">Request an inspection</span>
+                <span className="2xl:hidden">Request</span>
+              </>
+            )}
             <ArrowRight
               className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
               aria-hidden
@@ -445,6 +476,7 @@ function HeaderBuyReportActions({
 
         <HeaderMobileMenu
           isInspectionPage={isInspectionPage}
+          headerCta={headerCta}
           links={links}
           onBuyReport={() => setBuyReportOpen(true)}
         />
@@ -462,6 +494,7 @@ export function Header() {
   const [locationHash, setLocationHash] = useState("");
   const pathname = usePathname();
   const isInspectionPage = pathname.startsWith("/vehicleinspections");
+  const headerCta = resolveHeaderCta(pathname);
   const links = isInspectionPage ? INSPECTION_PAGE_LINKS : [];
 
   useEffect(() => {
@@ -532,6 +565,7 @@ export function Header() {
           <HeaderBuyReportActions
             key={pathname}
             isInspectionPage={isInspectionPage}
+            headerCta={headerCta}
             links={links}
           />
         </div>
