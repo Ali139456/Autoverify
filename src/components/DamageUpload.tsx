@@ -3,7 +3,11 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Camera, Loader2, Upload } from "lucide-react";
-import { MANUAL_DAMAGE_UPLOAD_MAX_PHOTOS } from "@/lib/inspection-angles";
+import {
+  INSPECTION_ANGLES,
+  MANUAL_DAMAGE_UPLOAD_MAX_PHOTOS,
+} from "@/lib/inspection-angles";
+import { prepareInspectionPhoto } from "@/lib/prepare-inspection-photo";
 
 const MANUAL_PHOTO_CHECKLIST = [
   "Exterior walkaround (passenger/driver corners, roof, windscreen, mirrors, full body sides, boot open)",
@@ -13,6 +17,8 @@ const MANUAL_PHOTO_CHECKLIST = [
   "VIN identification photo",
   "# Keys and registration papers",
 ] as const;
+
+const ANGLE_IDS = INSPECTION_ANGLES.map((angle) => angle.id);
 
 async function readJsonResponse<T extends object>(
   res: Response,
@@ -27,7 +33,12 @@ async function readJsonResponse<T extends object>(
   try {
     return JSON.parse(raw) as T;
   } catch {
-    const snippet = raw.trim().slice(0, 120);
+    const snippet = raw.trim().slice(0, 200);
+    if (/FUNCTION_PAYLOAD_TOO_LARGE|Request Entity Too Large/i.test(snippet)) {
+      throw new Error(
+        "Upload too large for one request. We resize photos automatically — refresh the page and try again, or use fewer images.",
+      );
+    }
     throw new Error(
       snippet.startsWith("<")
         ? `${fallback} Server error (HTTP ${res.status}). Try fewer or smaller photos.`
@@ -41,6 +52,7 @@ export function DamageUpload({ reportId }: { reportId: string }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function analyze() {
@@ -50,21 +62,44 @@ export function DamageUpload({ reportId }: { reportId: string }) {
     }
     setLoading(true);
     setError(null);
+    setProgress(null);
     try {
-      const form = new FormData();
-      form.append("reportId", reportId);
-      files.forEach((f) => form.append("photos", f));
-      const res = await fetch("/api/damage/analyze", {
-        method: "POST",
-        body: form,
-      });
-      const data = await readJsonResponse<{ error?: string }>(
-        res,
-        "Analysis failed.",
-      );
-      if (!res.ok) throw new Error(data.error ?? "Analysis failed.");
+      const prepared: File[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const angleId = ANGLE_IDS[i] ?? `photo_${i + 1}`;
+        setProgress(`Preparing photo ${i + 1} of ${files.length}…`);
+        prepared.push(await prepareInspectionPhoto(files[i], angleId));
+      }
+
+      for (let i = 0; i < prepared.length; i++) {
+        const angleId = ANGLE_IDS[i];
+        if (!angleId) {
+          throw new Error("Too many photos selected for the checklist.");
+        }
+        setProgress(`Uploading photo ${i + 1} of ${prepared.length}…`);
+        const form = new FormData();
+        form.append("reportId", reportId);
+        form.append("angle", angleId);
+        form.append("photo", prepared[i]);
+        if (i === prepared.length - 1) {
+          form.append("finalize", "1");
+        }
+        const res = await fetch("/api/damage/analyze", {
+          method: "POST",
+          body: form,
+        });
+        const data = await readJsonResponse<{ error?: string; message?: string }>(
+          res,
+          "Analysis failed.",
+        );
+        if (!res.ok) {
+          throw new Error(data.error ?? "Analysis failed.");
+        }
+      }
+
       setFiles([]);
       if (inputRef.current) inputRef.current.value = "";
+      setProgress(null);
       router.refresh();
     } catch (err) {
       const message =
@@ -76,6 +111,7 @@ export function DamageUpload({ reportId }: { reportId: string }) {
       );
     } finally {
       setLoading(false);
+      setProgress(null);
     }
   }
 
@@ -93,6 +129,11 @@ export function DamageUpload({ reportId }: { reportId: string }) {
       </ul>
       <p className="mt-3 text-xs font-medium leading-relaxed text-slate-200">
         The report updates automatically after AI analysis completes.
+      </p>
+      <p className="mt-2 text-xs leading-relaxed text-slate-500">
+        Photos are resized and sent one at a time so large camera rolls work on
+        mobile. Production Insights+ uses Ravin computer vision (webhook after
+        upload), not a separate OpenAI step.
       </p>
       <input
         ref={inputRef}
@@ -125,7 +166,9 @@ export function DamageUpload({ reportId }: { reportId: string }) {
         ) : (
           <Upload className="h-4 w-4" aria-hidden />
         )}
-        {loading ? "Analyzing photos…" : "Run AI damage analysis"}
+        {loading
+          ? progress ?? "Analyzing photos…"
+          : "Run AI damage analysis"}
       </button>
       {error && (
         <p className="mt-3 text-sm font-medium text-red-400" role="alert">
