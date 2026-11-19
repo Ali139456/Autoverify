@@ -25,9 +25,11 @@ import {
 } from "@/lib/capture-geolocation";
 import { mergeInspectionPhotosByAngle } from "@/lib/merge-inspection-photos";
 import {
+  findFirstOptionalIncompleteStep,
   findNextCaptureStepIndex,
   normalizeCaptureAngleId,
   persistCaptureStep,
+  resolveInitialCaptureScreen,
   resolveInitialCaptureStep,
   uploadedAngleIds,
 } from "@/lib/inspection-capture-step";
@@ -129,6 +131,8 @@ export function InspectionCapture({
   initialLookupIdentifier = "",
   initialLookupState = "NSW",
   initialVin = "",
+  initialOdometerKm = "",
+  initialOdometerSaved = false,
 }: {
   token: string;
   reportId: string;
@@ -140,6 +144,8 @@ export function InspectionCapture({
   initialLookupIdentifier?: string;
   initialLookupState?: string;
   initialVin?: string;
+  initialOdometerKm?: string;
+  initialOdometerSaved?: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const uploadingRef = useRef(false);
@@ -154,9 +160,7 @@ export function InspectionCapture({
     [initialPhotos, lavDigital],
   );
   const [screen, setScreen] = useState<"capture" | "submit">(() =>
-    allRequiredAnglesUploaded(initialUploaded, initialAngles)
-      ? "submit"
-      : "capture",
+    resolveInitialCaptureScreen(initialPhotos, initialAngles, lavDigital),
   );
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -185,8 +189,9 @@ export function InspectionCapture({
   const captureDuration = lavDigital
     ? "Capture the required images on this phone."
     : "This usually takes about 5 minutes to complete.";
-  const [odometerKm, setOdometerKm] = useState("");
-  const [odometerSaved, setOdometerSaved] = useState(false);
+  const [odometerKm, setOdometerKm] = useState(initialOdometerKm);
+  const [odometerSaved, setOdometerSaved] = useState(initialOdometerSaved);
+  const lavOdometerComplete = odometerSaved;
   const [captureVin, setCaptureVin] = useState(initialVin);
   const [vinSaved, setVinSaved] = useState(false);
   const [conditionGrade, setConditionGrade] = useState<LavConditionChoice | "">(
@@ -407,7 +412,13 @@ export function InspectionCapture({
       const uploaded = uploadedAngleIds(merged, lavDigital);
       const complete = allRequiredAnglesUploaded(uploaded, angles);
       if (complete) {
-        setScreen("submit");
+        const optionalStep = findFirstOptionalIncompleteStep(uploaded, angles);
+        if (optionalStep >= 0) {
+          persistCaptureStep(reportId, optionalStep);
+          setStepIndex(optionalStep);
+        } else {
+          setScreen("submit");
+        }
       } else {
         const nextStep = findNextCaptureStepIndex(
           uploaded,
@@ -449,9 +460,9 @@ export function InspectionCapture({
             "Look up the vehicle by registration or VIN before submitting.",
           );
         }
-        if (!odometerSaved) {
+        if (!lavOdometerComplete) {
           throw new Error(
-            "Enter and save the odometer reading on the dashboard photo step before submitting.",
+            "Enter and save the odometer reading (km) before submitting.",
           );
         }
         if (!conditionGrade) {
@@ -506,6 +517,38 @@ export function InspectionCapture({
     }
   }
 
+  function returnToPhotoCapture(preferredStep?: number) {
+    setError(null);
+    setScreen("capture");
+    if (preferredStep != null) {
+      persistCaptureStep(reportId, preferredStep);
+      setStepIndex(preferredStep);
+      return;
+    }
+    if (lavDigital && !lavOdometerComplete) {
+      const dashboardIndex = angles.findIndex((angle) => angle.id === "dashboard");
+      if (dashboardIndex >= 0) {
+        persistCaptureStep(reportId, dashboardIndex);
+        setStepIndex(dashboardIndex);
+        return;
+      }
+    }
+    const optionalStep = findFirstOptionalIncompleteStep(uploadedAngles, angles);
+    if (optionalStep >= 0) {
+      persistCaptureStep(reportId, optionalStep);
+      setStepIndex(optionalStep);
+      return;
+    }
+    persistCaptureStep(reportId, 0);
+    setStepIndex(0);
+  }
+
+  const lavOptionalRegStep = lavDigital
+    ? angles.findIndex((angle) => angle.id === "service_record")
+    : -1;
+  const lavRegPapersMissing =
+    lavOptionalRegStep >= 0 && !uploadedAngles.has("service_record");
+
   if (screen === "submit" && allPhotosComplete && !doneMessage) {
     return (
       <div className="inspect-capture-page mx-auto flex min-h-[100dvh] max-w-lg flex-col px-4 py-8 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]">
@@ -530,30 +573,84 @@ export function InspectionCapture({
             )}
           </p>
           {lavDigital ? (
-            <div className="mt-6 w-full max-w-sm text-left">
-              <label
-                htmlFor="lav-condition-grade"
-                className="text-xs font-semibold uppercase tracking-wide text-slate-400"
-              >
-                Overall vehicle condition <span className="text-amber-300">*</span>
-              </label>
-              <select
-                id="lav-condition-grade"
-                value={conditionGrade}
-                onChange={(e) =>
-                  setConditionGrade(e.target.value as LavConditionChoice | "")
-                }
-                className="mt-2 w-full rounded-lg border border-white/15 bg-ink-950 px-3 py-2.5 text-sm text-white"
-              >
-                <option value="">Select…</option>
-                <option value="good">Good</option>
-                <option value="fair">Fair</option>
-                <option value="poor">Poor</option>
-              </select>
-              <p className="mt-2 text-xs leading-relaxed text-slate-500">
-                Your lender sees this on the verification report — no AI condition
-                assessment is used for asset verification.
-              </p>
+            <div className="mt-6 w-full max-w-sm space-y-5 text-left">
+              {!lavOdometerComplete ? (
+                <div>
+                  <label
+                    htmlFor="lav-submit-odometer-km"
+                    className="text-xs font-semibold uppercase tracking-wide text-slate-400"
+                  >
+                    Odometer (km) <span className="text-amber-300">*</span>
+                  </label>
+                  <div className="mt-2 flex gap-2">
+                    <input
+                      id="lav-submit-odometer-km"
+                      inputMode="numeric"
+                      value={odometerKm}
+                      onChange={(e) => {
+                        setOdometerKm(e.target.value);
+                        setOdometerSaved(false);
+                      }}
+                      placeholder="e.g. 51890"
+                      className="min-w-0 flex-1 rounded-lg border border-white/15 bg-ink-950 px-3 py-2.5 text-sm text-white"
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        void saveLavOdometer().catch((err) =>
+                          setError(
+                            inspectionErrorMessage(err, "Could not save odometer."),
+                          ),
+                        )
+                      }
+                      className="shrink-0 rounded-lg border border-white/15 px-3 py-2 text-xs font-bold text-white"
+                    >
+                      Save
+                    </button>
+                  </div>
+                  <p className="mt-2 text-xs leading-relaxed text-slate-500">
+                    Enter the reading from your dashboard photo, then tap Save.
+                  </p>
+                </div>
+              ) : (
+                <p className="text-xs text-emerald-400">
+                  Odometer saved on your report.
+                </p>
+              )}
+              <div>
+                <label
+                  htmlFor="lav-condition-grade"
+                  className="text-xs font-semibold uppercase tracking-wide text-slate-400"
+                >
+                  Overall vehicle condition <span className="text-amber-300">*</span>
+                </label>
+                <select
+                  id="lav-condition-grade"
+                  value={conditionGrade}
+                  onChange={(e) =>
+                    setConditionGrade(e.target.value as LavConditionChoice | "")
+                  }
+                  className="mt-2 w-full rounded-lg border border-white/15 bg-ink-950 px-3 py-2.5 text-sm text-white"
+                >
+                  <option value="">Select…</option>
+                  <option value="good">Good</option>
+                  <option value="fair">Fair</option>
+                  <option value="poor">Poor</option>
+                </select>
+                <p className="mt-2 text-xs leading-relaxed text-slate-500">
+                  Your lender sees this on the verification report — no AI condition
+                  assessment is used for asset verification.
+                </p>
+              </div>
+              {lavRegPapersMissing ? (
+                <button
+                  type="button"
+                  onClick={() => returnToPhotoCapture(lavOptionalRegStep)}
+                  className="w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2.5 text-left text-sm font-semibold text-accent-200 underline-offset-2 hover:bg-white/10"
+                >
+                  Add registration papers (optional)
+                </button>
+              ) : null}
             </div>
           ) : null}
           {error ? (
@@ -566,9 +663,20 @@ export function InspectionCapture({
           ) : null}
           <button
             type="button"
+            onClick={() => returnToPhotoCapture()}
+            disabled={submitting}
+            className="mt-8 w-full max-w-sm rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10 disabled:opacity-50"
+          >
+            Back to photos
+          </button>
+          <button
+            type="button"
             onClick={() => void submitInspection()}
-            disabled={submitting || (lavDigital && !conditionGrade)}
-            className="mt-8 inline-flex w-full max-w-sm items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent-600 to-accent-500 px-6 py-4 text-base font-bold text-white shadow-lg shadow-accent-900/40 transition hover:from-accent-500 hover:to-accent-400 disabled:opacity-50"
+            disabled={
+              submitting ||
+              (lavDigital && (!conditionGrade || !lavOdometerComplete))
+            }
+            className="mt-3 inline-flex w-full max-w-sm items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent-600 to-accent-500 px-6 py-4 text-base font-bold text-white shadow-lg shadow-accent-900/40 transition hover:from-accent-500 hover:to-accent-400 disabled:opacity-50"
           >
             {submitting ? (
               <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
@@ -715,7 +823,7 @@ export function InspectionCapture({
             onClick={() => setStepIndex((value) => Math.max(0, value - 1))}
             disabled={stepIndex === 0 || uploading}
             className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 disabled:opacity-40"
-            aria-label="Previous angle"
+            aria-label="Previous image"
           >
             <ChevronLeft className="h-5 w-5" aria-hidden />
           </button>
@@ -754,7 +862,7 @@ export function InspectionCapture({
             }
             disabled={stepIndex === angles.length - 1 || uploading}
             className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 disabled:opacity-40"
-            aria-label="Next angle"
+            aria-label="Next image"
           >
             <ChevronRight className="h-5 w-5" aria-hidden />
           </button>
@@ -768,8 +876,8 @@ export function InspectionCapture({
           )}
           <p className="mt-3 text-sm text-slate-300">
             {uploadedAngles.has(currentAngle.id)
-              ? "Photo uploaded for this angle."
-              : "Use your phone camera to capture this angle clearly."}
+              ? "Photo uploaded for this image."
+              : "Use your phone camera to capture this image clearly."}
           </p>
 
           <input
@@ -938,7 +1046,7 @@ export function InspectionCapture({
         <>
           {!lavDigital ? (
             <p className="mt-4 text-center text-xs text-slate-500">
-              You can submit once at least one photo has uploaded. If one angle
+              You can submit once at least one photo has uploaded. If one image
               fails, skip it and submit the rest.
             </p>
           ) : null}

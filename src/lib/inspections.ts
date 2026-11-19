@@ -285,7 +285,7 @@ export async function uploadInspectionPhoto(input: {
   locationLabel?: string | null;
 }): Promise<InspectionPhoto> {
   if (!isValidInspectionAngleId(input.angle)) {
-    throw new Error("Invalid photo angle.");
+    throw new Error("Invalid photo.");
   }
 
   const supabase = createServerClient();

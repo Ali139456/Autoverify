@@ -40,6 +40,13 @@ export function findFirstIncompleteCaptureStep(
 }
 
 /** Next step after upload — required angles in order before optional angles. */
+export function findFirstOptionalIncompleteStep(
+  uploaded: Set<string>,
+  angles: readonly InspectionAngleDef[],
+): number {
+  return angles.findIndex((angle) => angle.optional && !uploaded.has(angle.id));
+}
+
 export function findNextCaptureStepIndex(
   uploaded: Set<string>,
   fromStep: number,
@@ -95,6 +102,10 @@ export function resolveInitialCaptureStep(
   lavDigital: boolean,
 ): number {
   const uploaded = uploadedAngleIds(photos, lavDigital);
+  if (allRequiredAnglesUploaded(uploaded, angles)) {
+    const optionalStep = findFirstOptionalIncompleteStep(uploaded, angles);
+    if (optionalStep >= 0) return optionalStep;
+  }
   const firstIncomplete = findFirstIncompleteCaptureStep(uploaded, angles);
   const persisted = readPersistedCaptureStep(reportId);
   if (persisted == null) return firstIncomplete;
@@ -109,4 +120,15 @@ export function resolveInitialCaptureStep(
   if (atPersisted && !uploaded.has(atPersisted.id)) return clamped;
 
   return Math.max(firstIncomplete, clamped);
+}
+
+export function resolveInitialCaptureScreen(
+  photos: ReadonlyArray<{ angle: string }>,
+  angles: readonly InspectionAngleDef[],
+  lavDigital: boolean,
+): "capture" | "submit" {
+  const uploaded = uploadedAngleIds(photos, lavDigital);
+  if (!allRequiredAnglesUploaded(uploaded, angles)) return "capture";
+  if (findFirstOptionalIncompleteStep(uploaded, angles) >= 0) return "capture";
+  return "submit";
 }

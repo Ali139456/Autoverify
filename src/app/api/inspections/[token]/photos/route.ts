@@ -62,7 +62,7 @@ export async function POST(
   const file = form.get("photo");
 
   if (!isValidInspectionAngleId(angle)) {
-    return NextResponse.json({ error: "Invalid photo angle." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid photo." }, { status: 400 });
   }
 
   if (!(file instanceof File) || file.size === 0) {

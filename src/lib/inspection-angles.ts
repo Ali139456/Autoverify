@@ -165,7 +165,7 @@ export function getInspectionAngleHint(id: string): string | undefined {
     return "Capture the full windscreen and front glass from outside the vehicle.";
   }
   if (id === "roof") {
-    return "Photograph the roof from an angle that shows its full length and condition.";
+    return "Photograph the roof so its full length and condition are clearly visible.";
   }
   if (id === "mirror_passenger" || id === "mirror_driver") {
     return "Close-up of the exterior door mirror including the mirror housing.";

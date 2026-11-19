@@ -70,6 +70,14 @@ export default async function InspectPage({
         report?.vehicle.vin?.trim() ||
         ""
       }
+      initialOdometerKm={
+        report?.vehicle.odometer != null ? String(report.vehicle.odometer) : ""
+      }
+      initialOdometerSaved={Boolean(
+        report?.vehicle.odometer != null &&
+          (report.vehicle.odometerSource?.toLowerCase().includes("capture") ??
+            false),
+      )}
       initialPhotos={inspection.photos.map((photo) => ({
         angle: photo.angle,
         label: photo.label,

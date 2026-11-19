@@ -54,6 +54,17 @@ export function DamageUpload({ reportId }: { reportId: string }) {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  function addFilesFromPicker(picked: FileList | null) {
+    if (!picked?.length) return;
+    setSuccess(null);
+    setFiles((prev) => {
+      const merged = [...prev, ...Array.from(picked)];
+      return merged.slice(0, MANUAL_DAMAGE_UPLOAD_MAX_PHOTOS);
+    });
+    if (inputRef.current) inputRef.current.value = "";
+  }
 
   async function analyze() {
     if (files.length === 0) {
@@ -62,6 +73,7 @@ export function DamageUpload({ reportId }: { reportId: string }) {
     }
     setLoading(true);
     setError(null);
+    setSuccess(null);
     setProgress(null);
     try {
       const prepared: File[] = [];
@@ -97,6 +109,11 @@ export function DamageUpload({ reportId }: { reportId: string }) {
         }
       }
 
+      const lastMsg =
+        prepared.length === 1
+          ? "1 photo saved — Ravin analysis is running. This page will refresh when complete."
+          : `${prepared.length} photos saved — Ravin analysis is running. This page will refresh when complete.`;
+      setSuccess(lastMsg);
       setFiles([]);
       if (inputRef.current) inputRef.current.value = "";
       setProgress(null);
@@ -131,30 +148,62 @@ export function DamageUpload({ reportId }: { reportId: string }) {
         The report updates automatically after AI analysis completes.
       </p>
       <p className="mt-2 text-xs leading-relaxed text-slate-500">
-        Photos are resized and sent one at a time so large camera rolls work on
-        mobile. Production Insights+ uses Ravin computer vision (webhook after
-        upload), not a separate OpenAI step.
+        Add photos one at a time or select several together, then tap{" "}
+        <span className="text-slate-400">Run AI damage analysis</span> to save
+        and send them. Insights+ uses Ravin today; an internal OpenAI comparison
+        lab is on the roadmap.
       </p>
       <input
         ref={inputRef}
         type="file"
         accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
         multiple
-        onChange={(e) =>
-          setFiles(
-            Array.from(e.target.files ?? []).slice(
-              0,
-              MANUAL_DAMAGE_UPLOAD_MAX_PHOTOS,
-            ),
-          )
-        }
-        className="mx-auto mt-4 block text-sm text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-ink-700 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-accent-700"
+        onChange={(e) => addFilesFromPicker(e.target.files)}
+        className="sr-only"
+        aria-hidden
       />
-      {files.length > 0 && (
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+        <button
+          type="button"
+          disabled={loading || files.length >= MANUAL_DAMAGE_UPLOAD_MAX_PHOTOS}
+          onClick={() => inputRef.current?.click()}
+          className="rounded-lg border border-white/15 bg-ink-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-ink-600 disabled:opacity-50"
+        >
+          {files.length === 0 ? "Choose photos" : "Add more photos"}
+        </button>
+        {files.length > 0 ? (
+          <button
+            type="button"
+            disabled={loading}
+            onClick={() => {
+              setFiles([]);
+              setError(null);
+              setSuccess(null);
+              if (inputRef.current) inputRef.current.value = "";
+            }}
+            className="rounded-lg px-3 py-2 text-xs font-semibold text-slate-400 underline-offset-2 hover:text-slate-200 hover:underline disabled:opacity-50"
+          >
+            Clear selection
+          </button>
+        ) : null}
+      </div>
+      {files.length > 0 ? (
         <p className="mt-2 text-xs text-slate-500">
-          {files.length} photo{files.length > 1 ? "s" : ""} selected
+          {files.length} of {MANUAL_DAMAGE_UPLOAD_MAX_PHOTOS} photos ready
         </p>
+      ) : (
+        <p className="mt-2 text-xs text-slate-500">No photos selected yet</p>
       )}
+      {files.length > 0 ? (
+        <ul className="mx-auto mt-2 max-w-md list-inside list-disc text-left text-[11px] text-slate-500">
+          {files.map((file, index) => (
+            <li key={`${file.name}-${file.lastModified}-${index}`}>
+              {ANGLE_IDS[index] ? `${ANGLE_IDS[index]}: ` : ""}
+              {file.name}
+            </li>
+          ))}
+        </ul>
+      ) : null}
       <button
         type="button"
         onClick={() => void analyze()}
@@ -170,6 +219,11 @@ export function DamageUpload({ reportId }: { reportId: string }) {
           ? progress ?? "Analyzing photos…"
           : "Run AI damage analysis"}
       </button>
+      {success && (
+        <p className="mt-3 text-sm font-medium text-emerald-400" role="status">
+          {success}
+        </p>
+      )}
       {error && (
         <p className="mt-3 text-sm font-medium text-red-400" role="alert">
           {error}
