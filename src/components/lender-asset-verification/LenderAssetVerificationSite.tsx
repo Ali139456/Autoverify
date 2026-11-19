@@ -68,7 +68,7 @@ export function LenderAssetVerificationSite() {
             </p>
             <div className="lav-hero-ctas mt-6 grid w-full max-w-xl grid-cols-1 gap-2 sm:mt-8 sm:grid-cols-2 sm:gap-2">
               <a
-                href="#book"
+                href="#options"
                 className="btn-shine group flex h-10 min-w-0 items-center justify-center gap-1 rounded-lg bg-accent-500 px-2.5 text-xs font-bold leading-tight text-white transition hover:bg-accent-600 sm:px-4 sm:text-sm"
               >
                 Book an inspection

@@ -37,6 +37,14 @@ function resolveHeaderCta(pathname: string): HeaderCta {
   return "buy";
 }
 
+/** LAV: choose digital vs physical first; PPI: straight to booking form. */
+function resolveBookAnchorHref(pathname: string): string {
+  if (pathname.startsWith("/inspections/lender-asset-verification")) {
+    return "#options";
+  }
+  return "#book";
+}
+
 const navLinkClass = (active: boolean) =>
   `inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded-full px-3 text-[13px] font-medium leading-none transition lg:px-4 lg:text-sm ${
     active
@@ -392,7 +400,11 @@ function HeaderMobileMenu({
           <div className="relative shrink-0 border-t border-white/10 bg-ink-950/90 px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-md">
             {headerCta !== "buy" ? (
               <Link
-                href={headerCta === "book" ? "#book" : "#contact"}
+                href={
+                  headerCta === "book"
+                    ? resolveBookAnchorHref(pathname)
+                    : "#contact"
+                }
                 onClick={() => setOpen(false)}
                 className="btn-shine group flex items-center justify-center gap-2 rounded-full bg-[#0073E3] px-5 py-3.5 text-sm font-bold text-white shadow-[0_12px_40px_rgba(0,115,227,0.35)] transition hover:bg-[#0062c2]"
               >
@@ -428,10 +440,12 @@ function HeaderMobileMenu({
 function HeaderBuyReportActions({
   isInspectionPage,
   headerCta,
+  pathname,
   links,
 }: {
   isInspectionPage: boolean;
   headerCta: HeaderCta;
+  pathname: string;
   links: ReadonlyArray<{ href: string; label: string }>;
 }) {
   const [buyReportOpen, setBuyReportOpen] = useState(false);
@@ -441,7 +455,11 @@ function HeaderBuyReportActions({
       <div className="flex shrink-0 items-center gap-2 xl:gap-3 xl:border-l xl:border-white/10 xl:pl-3">
         {headerCta !== "buy" ? (
           <Link
-            href={headerCta === "book" ? "#book" : "#contact"}
+            href={
+              headerCta === "book"
+                ? resolveBookAnchorHref(pathname)
+                : "#contact"
+            }
             className={buyReportClass}
           >
             {headerCta === "book" ? (
@@ -566,6 +584,7 @@ export function Header() {
             key={pathname}
             isInspectionPage={isInspectionPage}
             headerCta={headerCta}
+            pathname={pathname}
             links={links}
           />
         </div>
