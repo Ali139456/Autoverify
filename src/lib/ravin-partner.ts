@@ -6,7 +6,7 @@ const RAVIN_SITE_ID = Number(process.env.RAVIN_SITE_ID ?? "49");
 const RAVIN_CLIENT_ID = process.env.RAVIN_CLIENT_ID?.trim() || "autoverifi";
 const RAVIN_PROVIDER = process.env.RAVIN_PROVIDER ?? "consumer";
 const RAVIN_INSPECTOR_PATH =
-  process.env.RAVIN_INSPECTOR_PATH?.trim() || "inspector2/page/tmp";
+  process.env.RAVIN_INSPECTOR_PATH?.trim() || "inspector-lite/page/tmp";
 const RAVIN_LINK_EXPIRE_IN = Number(
   process.env.RAVIN_LINK_EXPIRE_IN ??
     process.env.RAVIN_LINK_EXPIRED_IN ??
@@ -20,8 +20,8 @@ const RAVIN_LOGIN_EXPIRE_IN = Number(
 
 /**
  * Ravin app flavour sent to `partnerInvite` and added to inspector-lite URLs only.
- * Leave unset / empty for the **full inspection** journey (`RAVIN_INSPECTOR_PATH` e.g. inspector2).
- * Set to `lite` only when you intentionally want Inspector Lite (image-upload walkthrough).
+ * Default path is **Inspector Lite** (`inspector-lite/page/tmp` + `image-upload=true`).
+ * For legacy full inspection, set `RAVIN_INSPECTOR_PATH=inspector2/page/tmp`.
  */
 const RAVIN_APP_TYPE = (process.env.RAVIN_APP_TYPE ?? "").trim().toLowerCase();
 
@@ -36,7 +36,7 @@ export type RavinLiteLinkConfig = {
   usesImageUpload: boolean;
 };
 
-/** Configured Ravin hosted inspector path (default full inspection — inspector2). */
+/** Configured Ravin hosted inspector path (default Inspector Lite). */
 function effectiveInspectorPath(): string {
   return RAVIN_INSPECTOR_PATH.replace(/^\/+/, "").replace(/\/+$/, "");
 }
@@ -117,7 +117,7 @@ export function isRavinInspectorUrl(url: string): boolean {
   }
 }
 
-/** Normalize Ravin inspector URLs without rewriting inspector2 → inspector-lite. */
+/** Normalize Ravin inspector URLs to match `RAVIN_INSPECTOR_PATH` (lite + image-upload when configured). */
 export function coerceRavinInspectorLiteUrl(url: string): string {
   if (!url.trim()) return url;
   return normalizeInspectorUrl(url);
@@ -139,6 +139,18 @@ function normalizeInspectorUrl(url: string): string {
 
   try {
     const parsed = new URL(withScheme);
+    if (effectiveInspectorPath().includes("inspector-lite")) {
+      const code = parsed.searchParams.get("code")?.trim();
+      if (code) {
+        return buildInspectorLiteUrl(code);
+      }
+      if (parsed.pathname.includes("inspector2")) {
+        parsed.pathname = parsed.pathname.replace(
+          /inspector2\/page\/tmp\/?/gi,
+          "inspector-lite/page/tmp/",
+        );
+      }
+    }
     applyLiteQueryParams(parsed);
     return parsed.toString();
   } catch {
