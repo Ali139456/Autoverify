@@ -210,7 +210,11 @@ export function InsightsPlusBodyReport({
                   autoShowQr={!inspectUrl}
                 />
                 <div className="mt-4">
-                  <DamageUpload reportId={report.id} />
+                  <DamageUpload
+                    reportId={report.id}
+                    savedPhotoCount={photos.length}
+                    analysisInProgress={!damage && photos.length > 0}
+                  />
                 </div>
               </div>
             )}

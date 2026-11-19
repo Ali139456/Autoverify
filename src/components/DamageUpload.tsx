@@ -47,7 +47,17 @@ async function readJsonResponse<T extends object>(
   }
 }
 
-export function DamageUpload({ reportId }: { reportId: string }) {
+export function DamageUpload({
+  reportId,
+  savedPhotoCount = 0,
+  analysisInProgress = false,
+}: {
+  reportId: string;
+  /** Photos already stored on the inspection for this report. */
+  savedPhotoCount?: number;
+  /** Ravin run started but `damage` not on the report yet. */
+  analysisInProgress?: boolean;
+}) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<File[]>([]);
@@ -68,6 +78,19 @@ export function DamageUpload({ reportId }: { reportId: string }) {
 
   async function analyze() {
     if (files.length === 0) {
+      if (analysisInProgress && savedPhotoCount > 0) {
+        setError(null);
+        setSuccess(
+          `${savedPhotoCount} photo${savedPhotoCount === 1 ? "" : "s"} already uploaded — Ravin analysis is in progress. This page updates automatically (usually within about 5 minutes). To add more, use Add more photos first.`,
+        );
+        return;
+      }
+      if (savedPhotoCount > 0) {
+        setError(
+          "Use Add more photos to select additional images, then tap Run AI damage analysis.",
+        );
+        return;
+      }
       setError("Select at least one photo of the vehicle first.");
       return;
     }
@@ -144,9 +167,20 @@ export function DamageUpload({ reportId }: { reportId: string }) {
           <li key={item}>{item}</li>
         ))}
       </ul>
-      <p className="mt-3 text-xs font-medium leading-relaxed text-slate-200">
-        The report updates automatically after AI analysis completes.
-      </p>
+      {analysisInProgress && savedPhotoCount > 0 ? (
+        <p
+          className="mt-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs font-medium leading-relaxed text-emerald-200"
+          role="status"
+        >
+          {savedPhotoCount} photo{savedPhotoCount === 1 ? "" : "s"} saved — AI
+          analysis is running. Wait for this page to refresh, or add more photos
+          below and run again.
+        </p>
+      ) : (
+        <p className="mt-3 text-xs font-medium leading-relaxed text-slate-200">
+          The report updates automatically after AI analysis completes.
+        </p>
+      )}
       <p className="mt-2 text-xs leading-relaxed text-slate-500">
         Add photos one at a time or select several together, then tap{" "}
         <span className="text-slate-400">Run AI damage analysis</span> to save
@@ -207,7 +241,7 @@ export function DamageUpload({ reportId }: { reportId: string }) {
       <button
         type="button"
         onClick={() => void analyze()}
-        disabled={loading}
+        disabled={loading || files.length === 0}
         className="mx-auto mt-4 flex items-center gap-2 rounded-lg bg-accent-600 px-6 py-2.5 font-semibold text-white transition hover:bg-accent-500 disabled:opacity-60"
       >
         {loading ? (
