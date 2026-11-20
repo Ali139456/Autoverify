@@ -76,7 +76,9 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
 
         <div className="report-no-print w-full min-w-0 sm:flex sm:justify-end">
 
-          <ReportPrintActions />
+          <ReportPrintActions
+            downloadPdfUrl={`/api/sample-report/pdf?tier=${tier}`}
+          />
 
         </div>
 

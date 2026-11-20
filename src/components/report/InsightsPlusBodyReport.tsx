@@ -191,7 +191,7 @@ export function InsightsPlusBodyReport({
 
   return (
     <>
-      <div className="report-page-break report-sheet-pin-footer report-insights-plus-walkaround-sheet">
+      <div className="report-page-break report-page-flow report-sheet-pin-footer report-insights-plus-walkaround-sheet">
         <ReportShell
           {...shellProps}
           pageLabel={photosPageLabel}

@@ -1589,21 +1589,34 @@ html.dark body {
     page-break-inside: avoid !important;
   }
 
+  /* Walkaround grid can exceed one A4 — never clip with fixed sheet height. */
   #report-print-area > .report-insights-plus-walkaround-sheet.report-sheet-pin-footer {
     height: auto !important;
-    min-height: 279.5mm !important;
+    min-height: 0 !important;
     max-height: none !important;
     overflow: visible !important;
+    break-after: page !important;
+    page-break-after: always !important;
   }
 
   #report-print-area
     > .report-insights-plus-walkaround-sheet.report-sheet-pin-footer
     > .report-shell {
     height: auto !important;
-    min-height: 279.5mm !important;
+    min-height: 0 !important;
     max-height: none !important;
     break-inside: auto !important;
     page-break-inside: auto !important;
+  }
+
+  .report-shell-insights-plus-photos .report-photo-grid {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+
+  .report-shell-insights-plus-photos .report-photo-tile {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
   /* Additional photos: one pinned A4 — larger tiles, less empty space at bottom. */
