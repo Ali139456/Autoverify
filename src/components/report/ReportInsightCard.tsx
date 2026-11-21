@@ -115,7 +115,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
 
     <div className="report-insight-card flex h-full min-h-[104px] min-w-0 max-w-full flex-col gap-3 overflow-visible rounded-xl border border-slate-200 bg-slate-100 p-3.5 sm:p-4 [hyphens:none] [&_*]:[hyphens:none] [&_a]:[overflow-wrap:break-word] [&_li:not(.report-insight-card-title)]:min-w-0 [&_li:not(.report-insight-card-title)]:hyphens-none [&_li:not(.report-insight-card-title)]:[overflow-wrap:normal] [&_li:not(.report-insight-card-title)]:[word-break:normal] [&_p:not(.report-insight-card-title)]:min-w-0 [&_p:not(.report-insight-card-title)]:hyphens-none [&_p:not(.report-insight-card-title)]:[overflow-wrap:normal] [&_p:not(.report-insight-card-title)]:[word-break:normal]">
 
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex items-start gap-2">
 
         <InsightCategoryIcon
 
@@ -125,7 +125,7 @@ export function ReportInsightCard({ insight }: { insight: ReportInsight }) {
 
         />
 
-        <p className="report-insight-card-title flex-1 text-right text-xs font-bold uppercase leading-snug text-slate-900 [hyphens:none] [overflow-wrap:normal] [word-break:normal]">
+        <p className="report-insight-card-title min-w-0 flex-1 text-left text-xs font-bold uppercase leading-snug text-slate-900 [hyphens:none] [overflow-wrap:normal] [word-break:normal]">
 
           {insight.title}
 

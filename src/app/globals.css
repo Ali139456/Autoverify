@@ -338,7 +338,7 @@ html.dark body {
   position: absolute;
   left: 50%;
   top: 50%;
-  z-index: 40;
+  z-index: 100;
   width: 195%;
   max-width: none;
   text-align: center;
@@ -359,7 +359,7 @@ html.dark body {
 .report-is-sample .report-shell-body,
 .report-is-sample .report-shell-footer {
   position: relative;
-  z-index: 1;
+  z-index: 0;
 }
 
 .report-shell-header {
@@ -565,6 +565,17 @@ html.dark body {
 .report-view .report-insight-card a {
   overflow-wrap: break-word;
   word-break: normal;
+}
+
+.report-view .report-insight-card-title {
+  text-align: left;
+}
+
+.report-view .report-insight-card p[style*="E87722"],
+.report-view .report-insight-card p.text-amber-600 {
+  display: block;
+  width: 100%;
+  text-align: left;
 }
 
 .report-view .report-status-items span {
