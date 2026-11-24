@@ -10,6 +10,8 @@ const PUBLIC_PATHS = [
   "/api/sample-report",
   "/api/report",
   "/about",
+  "/sydneyprepurchase",
+  "/inspections/pre-purchase",
 ];
 
 const LIVE_HOSTS = new Set(["autoverifi.com.au", "www.autoverifi.com.au"]);
@@ -65,6 +67,10 @@ export function isPublicWhileComingSoon(pathname: string): boolean {
       (path) => pathname === path || pathname.startsWith(`${path}/`),
     )
   ) {
+    return true;
+  }
+
+  if (pathname.startsWith("/api/inspections/pre-purchase")) {
     return true;
   }
 

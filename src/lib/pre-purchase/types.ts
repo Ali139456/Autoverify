@@ -19,4 +19,5 @@ export type PrePurchaseBookingPayload = {
   priceIncGst: number;
   /** Promo applied at checkout, if any (e.g. AVFREE). */
   promoCode: string;
+  vehicleCategory: string;
 };

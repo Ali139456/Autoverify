@@ -69,6 +69,7 @@ export async function POST(req: NextRequest) {
             ? session.amount_total / 100
             : PPI_PRICE_INC_GST,
         promoCode: String(meta.ppiPromoCode ?? "").trim(),
+        vehicleCategory: String(meta.ppiVehicleCategory ?? "passenger"),
       };
       const vehicleBits = String(meta.ppiVehicle ?? "").trim().split(/\s+/);
       if (vehicleBits.length >= 3) {

@@ -7,8 +7,25 @@ import {
 import { PPI_CUSTOMER_BOOKING_HEADING } from "./confirmation-email";
 import type { PrePurchaseBookingPayload } from "./types";
 
+const PPI_CHECKOUT_CANCEL_PATHS = new Set([
+  "/inspections/pre-purchase",
+  "/sydneyprepurchase",
+]);
+
+function resolvePpiCancelUrl(
+  baseUrl: string,
+  cancelReturnPath?: string,
+): string {
+  const path =
+    cancelReturnPath && PPI_CHECKOUT_CANCEL_PATHS.has(cancelReturnPath)
+      ? cancelReturnPath
+      : "/inspections/pre-purchase";
+  return `${baseUrl}${path}#book`;
+}
+
 export async function createPrePurchaseStripeCheckoutSession(
   payload: PrePurchaseBookingPayload,
+  cancelReturnPath?: string,
 ): Promise<string | null> {
   if (!isStripeConfigured()) return null;
 
@@ -49,9 +66,10 @@ export async function createPrePurchaseStripeCheckoutSession(
       ppiAddress: payload.addressLine.slice(0, 500),
       ppiAccess: payload.accessNotes.slice(0, 500),
       ppiVin: payload.vehicleVin.slice(0, 500),
+      ppiVehicleCategory: payload.vehicleCategory.slice(0, 64),
     },
     success_url: `${baseUrl}/inspections/pre-purchase/booking/success?ref=${encodeURIComponent(payload.bookingRef)}&session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${baseUrl}/inspections/pre-purchase#book`,
+    cancel_url: resolvePpiCancelUrl(baseUrl, cancelReturnPath),
   });
 
   return session.url;

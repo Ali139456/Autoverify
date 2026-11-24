@@ -19,6 +19,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
+      url: `${baseUrl}/sydneyprepurchase`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 1,
+    },
+    {
       url: `${baseUrl}/terms`,
       lastModified: new Date(),
       changeFrequency: "yearly",
@@ -51,6 +57,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/sydneyprepurchase`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.95,
     },
     {
       url: `${baseUrl}/inspections/lender-asset-verification`,

@@ -1,17 +1,62 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   isSydneyMetroPostcode,
   PPI_PRICE_INC_GST,
 } from "@/lib/pre-purchase/parse-booking-body";
+import {
+  listPriceForPpiVehicleCategory,
+  normalizePpiVehicleCategory,
+  type PpiVehicleCategory,
+} from "@/lib/pre-purchase/vehicle-pricing";
 
 const AU_STATES = ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "ACT", "NT"] as const;
 
-export function PrePurchaseBookingForm() {
+const VEHICLE_CATEGORY_OPTIONS: { value: PpiVehicleCategory; label: string }[] =
+  [
+    { value: "passenger", label: "Passenger car / SUV ($290)" },
+    { value: "commercial", label: "Ute, van or 4WD ($290)" },
+    { value: "ev", label: "EV or hybrid ($290)" },
+    { value: "caravan", label: "Caravan / trailer ($390)" },
+    { value: "motorcycle", label: "Motorcycle ($190)" },
+  ];
+
+type PrePurchaseBookingFormProps = {
+  variant?: "light" | "dark";
+  cancelReturnPath?: string;
+  showVehicleCategory?: boolean;
+  defaultVehicleCategory?: PpiVehicleCategory;
+};
+
+export function PrePurchaseBookingForm({
+  variant = "light",
+  cancelReturnPath,
+  showVehicleCategory = false,
+  defaultVehicleCategory = "passenger",
+}: PrePurchaseBookingFormProps = {}) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [vehicleCategory, setVehicleCategory] = useState<PpiVehicleCategory>(
+    defaultVehicleCategory,
+  );
+
+  const listPrice = useMemo(
+    () => listPriceForPpiVehicleCategory(vehicleCategory),
+    [vehicleCategory],
+  );
+
+  const dark = variant === "dark";
+  const fieldClass = dark
+    ? "mt-1 w-full rounded-lg border border-white/15 bg-[#0c1528] px-3 py-2 text-sm text-white placeholder:text-slate-500"
+    : "mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-ink-950";
+  const labelClass = dark
+    ? "text-xs font-semibold text-slate-300"
+    : "text-xs font-semibold text-slate-600";
+  const legendClass = dark
+    ? "col-span-full text-sm font-bold text-white"
+    : "col-span-full text-sm font-bold text-slate-900 dark:text-white";
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -20,7 +65,13 @@ export function PrePurchaseBookingForm() {
     setBusy(true);
     const form = e.currentTarget;
     const data = new FormData(form);
-    const body = Object.fromEntries(data.entries());
+    const body = Object.fromEntries(data.entries()) as Record<string, FormDataEntryValue>;
+    body.vehicleCategory = normalizePpiVehicleCategory(
+      body.vehicleCategory ?? vehicleCategory,
+    );
+    if (cancelReturnPath) {
+      body.cancelReturnPath = cancelReturnPath;
+    }
     const postcode = String(body.postcode ?? "").trim();
     if (!isSydneyMetroPostcode(postcode)) {
       setError(
@@ -34,7 +85,7 @@ export function PrePurchaseBookingForm() {
       const res = await fetch("/api/inspections/pre-purchase/booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify(body as Record<string, string>),
       });
       const json = (await res.json()) as {
         error?: string;
@@ -71,17 +122,60 @@ export function PrePurchaseBookingForm() {
     <form
       id="book"
       onSubmit={onSubmit}
-      className="ppi-form mx-auto max-w-2xl space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-ink-900"
+      className={
+        dark
+          ? "ppi-form ppi-form-dark mx-auto max-w-2xl space-y-6 rounded-2xl border border-white/10 bg-[#0a1122] p-6 shadow-xl shadow-black/30 [&_input]:border-white/15 [&_input]:bg-[#0c1528] [&_input]:text-white [&_legend]:text-white [&_select]:border-white/15 [&_select]:bg-[#0c1528] [&_select]:text-white [&_span]:text-slate-300 [&_textarea]:border-white/15 [&_textarea]:bg-[#0c1528] [&_textarea]:text-white"
+          : "ppi-form mx-auto max-w-2xl space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-ink-900"
+      }
     >
       <div>
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+        <h2
+          className={
+            dark
+              ? "text-2xl font-bold text-white"
+              : "text-2xl font-bold text-slate-900 dark:text-white"
+          }
+        >
           Book a pre-purchase inspection
         </h2>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+        <p
+          className={
+            dark
+              ? "mt-2 text-sm text-slate-400"
+              : "mt-2 text-sm text-slate-600 dark:text-slate-400"
+          }
+        >
           Mobile inspection at the seller&apos;s location.{" "}
-          <strong>${PPI_PRICE_INC_GST}</strong> inc GST.
+          <strong className={dark ? "text-white" : ""}>
+            ${showVehicleCategory ? listPrice : PPI_PRICE_INC_GST}
+          </strong>{" "}
+          inc GST.
         </p>
       </div>
+
+      {showVehicleCategory ? (
+        <label className="block">
+          <span className={labelClass}>Inspection type</span>
+          <select
+            name="vehicleCategory"
+            value={vehicleCategory}
+            onChange={(e) =>
+              setVehicleCategory(
+                normalizePpiVehicleCategory(e.target.value),
+              )
+            }
+            className={fieldClass}
+          >
+            {VEHICLE_CATEGORY_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : (
+        <input type="hidden" name="vehicleCategory" value="passenger" />
+      )}
 
       <fieldset className="grid gap-4 sm:grid-cols-2">
         <legend className="col-span-full text-sm font-bold text-slate-900 dark:text-white">

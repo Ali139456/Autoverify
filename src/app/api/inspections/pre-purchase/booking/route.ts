@@ -49,7 +49,14 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const checkoutUrl = await createPrePurchaseStripeCheckoutSession(payload);
+    const cancelReturnPath =
+      typeof body.cancelReturnPath === "string"
+        ? body.cancelReturnPath.trim()
+        : undefined;
+    const checkoutUrl = await createPrePurchaseStripeCheckoutSession(
+      payload,
+      cancelReturnPath,
+    );
     if (!checkoutUrl) {
       await notifyPrePurchaseBooking(payload, false);
       return NextResponse.json({

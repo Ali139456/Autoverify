@@ -14,6 +14,7 @@ function formatPayload(payload: PrePurchaseBookingPayload): string {
     `Access: ${payload.accessNotes || "—"}`,
     `Preferred time: ${payload.preferredWhen || "—"}`,
     "",
+    `Vehicle type: ${payload.vehicleCategory || "passenger"}`,
     `Vehicle: ${payload.vehicleYear} ${payload.vehicleMake} ${payload.vehicleModel}`,
     `Rego: ${payload.vehicleRego} (${payload.vehicleState})`,
     `VIN: ${payload.vehicleVin || "—"}`,

@@ -1,7 +1,12 @@
 import { applyPercentDiscount, lookupPromoCode } from "@/lib/promo-codes";
 import { clampText, isReasonableEmail } from "@/lib/security";
 import type { PrePurchaseBookingPayload } from "./types";
+import {
+  listPriceForPpiVehicleCategory,
+  normalizePpiVehicleCategory,
+} from "./vehicle-pricing";
 
+/** Default Sydney passenger / SUV pre-purchase price (inc GST). */
 export const PPI_PRICE_INC_GST = 290;
 
 export function isSydneyMetroPostcode(postcode: string): boolean {
@@ -48,10 +53,12 @@ export function parsePrePurchaseBookingBody(
   if (promoRaw.trim() && !promo) {
     return { error: "That discount code is not valid." };
   }
-  const listCents = Math.round(PPI_PRICE_INC_GST * 100);
+  const vehicleCategory = normalizePpiVehicleCategory(body.vehicleCategory);
+  const listPrice = listPriceForPpiVehicleCategory(vehicleCategory);
+  const listCents = Math.round(listPrice * 100);
   const priceCents = promo
     ? applyPercentDiscount(listCents, promo.percentOff)
-  : listCents;
+    : listCents;
 
   return {
     payload: {
@@ -72,6 +79,7 @@ export function parsePrePurchaseBookingBody(
       preferredWhen: clampText(body.preferredWhen, 200),
       priceIncGst: priceCents / 100,
       promoCode: promo?.code ?? "",
+      vehicleCategory,
     },
   };
 }

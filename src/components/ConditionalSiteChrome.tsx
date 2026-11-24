@@ -20,6 +20,7 @@ export function ConditionalSiteChrome({
   );
   const isContactPage = pathname === "/contact";
   const isPrePurchasePage = pathname.startsWith("/inspections/pre-purchase");
+  const isSydneyPpiLanding = pathname === "/sydneyprepurchase";
   const hideFooterPurchaseCta =
     pathname.startsWith("/check") ||
     pathname.startsWith("/checkout") ||
@@ -33,7 +34,12 @@ export function ConditionalSiteChrome({
     pathname === "/" && comingSoonMode && !previewAccess;
   const isInspectionApp = pathname.startsWith("/inspect/");
 
-  if (isComingSoonHome || isInspectionApp || isPreviewLogin) {
+  if (
+    isComingSoonHome ||
+    isInspectionApp ||
+    isPreviewLogin ||
+    isSydneyPpiLanding
+  ) {
     return <main className="flex-1">{children}</main>;
   }
 

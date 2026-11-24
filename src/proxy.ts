@@ -24,6 +24,7 @@ const INSPECTION_PATH_ALIASES: Record<string, string> = {
   "/vehicleinspection": "/vehicleinspections",
   "/vehicle-inspection": "/vehicleinspections",
   "/vehicle-inspections": "/vehicleinspections",
+  "/sydney-prepurchase": "/sydneyprepurchase",
 };
 
 function withNoCacheForLiveComingSoon(
