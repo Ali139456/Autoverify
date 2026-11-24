@@ -58,8 +58,8 @@ const INSIGHT_PILLARS = [
       },
       {
         icon: Camera,
-        title: "AI powered condition scan",
-        text: "Guided photos to assess exterior, tyres and interior (Insights+).",
+        title: "Current condition verification",
+        text: "Guided photos to confirm exterior, tyres and interior condition (Insights+).",
       },
     ],
   },
@@ -86,7 +86,7 @@ const FAQS: FaqItem[] = [
   },
   {
     q: "How is Auto Verifi different from other car history checks?",
-    a: "Most car history websites only show you the past. Auto Verifi combines past records (write-offs, finance, theft), current market data (valuation and comparable listings), future value insights and AI-powered condition assessment to provide a blend of past, present and future vehicle intelligence.",
+    a: "Most car history websites only show you the past. Auto Verifi combines past records (write-offs, finance, theft), current market data (valuation and comparable listings), future value insights and current condition verification to provide a blend of past, present and future vehicle intelligence.",
   },
   {
     q: "How fast do I get my report?",

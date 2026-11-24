@@ -38,7 +38,10 @@ import {
   INSPECTION_RECORD_ONLY_FOOTNOTE_WITH_STAR,
   isRecordOnlyInspectionPhoto,
 } from "./inspection-angles";
-import { AI_DAMAGE_PROCESSING_PDF } from "./damage-processing-copy";
+import {
+  GUIDED_PHOTOGRAPHIC_ASSESSMENT_DISCLAIMER_BODY,
+  GUIDED_PHOTOGRAPHIC_ASSESSMENT_DISCLAIMER_TITLE,
+} from "./guided-photo-disclaimer";
 import {
   hasVehicleSpecContent,
   visibleSpecDataRows,
@@ -1867,7 +1870,7 @@ function PdfPhotoGroup({
   columnsPerRow = 4,
   showAngleLabels = true,
 }: {
-  title: string;
+  title?: string;
   photos: InspectionPhoto[];
   note?: string;
   photoImageHeight?: number;
@@ -1882,7 +1885,7 @@ function PdfPhotoGroup({
   );
   return (
     <View style={[styles.section, { marginTop: 10 }]}>
-      <Text style={styles.sectionTitle}>{title}</Text>
+      {title ? <Text style={styles.sectionTitle}>{title}</Text> : null}
       {note ? (
         <Text style={[styles.para, { marginTop: 2, fontSize: 6.5 }]}>{note}</Text>
       ) : null}
@@ -1970,16 +1973,38 @@ function PdfPhotoGroup({
   );
 }
 
+function PdfGuidedPhotoDisclaimer() {
+  return (
+    <View style={{ marginTop: 14 }} wrap={false}>
+      <Text
+        style={{
+          fontFamily: PDF_SANS,
+          fontSize: 7.5,
+          fontWeight: 700,
+          color: "#0f172a",
+        }}
+      >
+        {GUIDED_PHOTOGRAPHIC_ASSESSMENT_DISCLAIMER_TITLE}
+      </Text>
+      <Text style={[styles.para, { marginTop: 4, fontSize: 7 }]}>
+        {GUIDED_PHOTOGRAPHIC_ASSESSMENT_DISCLAIMER_BODY}
+      </Text>
+    </View>
+  );
+}
+
 function InsightsPlusWalkaroundPhotosPage({
   report,
   photos,
   pageLabel,
+  showDisclaimer,
 }: {
   report: VehicleReport;
   photos: InspectionPhoto[];
   pageLabel: string;
+  showDisclaimer?: boolean;
 }) {
-  const { vehicle, damage } = report;
+  const { vehicle } = report;
   const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
   const walkaroundPhotos = photos.filter(
     (photo) => !isRecordOnlyInspectionPhoto(photo.angle),
@@ -1991,24 +2016,23 @@ function InsightsPlusWalkaroundPhotosPage({
         <Text style={styles.title}>Auto Verifi Insights+ Report</Text>
         <Text style={styles.vehicleName}>{vehicleTitle}</Text>
         <View style={styles.plusHeading}>
-          <Text style={styles.plusTitle}>Current Body Condition</Text>
-          <Text style={styles.plusSub}>AI-Powered Image Analysis</Text>
+          <Text style={styles.plusSub}>Condition verification</Text>
         </View>
 
-        {!damage && photos.length === 0 ? (
+        {photos.length === 0 ? (
           <Text style={[styles.para, { marginTop: 12 }]}>
-            Guided walkaround photos and AI damage analysis will appear here once the
-            mobile inspection is completed.
+            Guided condition photos will appear here once the mobile capture is
+            completed.
           </Text>
         ) : null}
 
         <PdfPhotoGroup
-          title="Walkaround Photos"
           photos={walkaroundPhotos}
           photoImageHeight={80}
           photoObjectFit="cover"
-          showAngleLabels={false}
+          showAngleLabels
         />
+        {showDisclaimer ? <PdfGuidedPhotoDisclaimer /> : null}
       </View>
     </PdfPageShell>
   );
@@ -2044,96 +2068,7 @@ function InsightsPlusAdditionalPhotosPage({
           photoObjectFit="cover"
           columnsPerRow={4}
         />
-      </View>
-    </PdfPageShell>
-  );
-}
-
-function InsightsPlusDamagePage({
-  report,
-  photos,
-  pageLabel,
-  trailing,
-}: {
-  report: VehicleReport;
-  photos: InspectionPhoto[];
-  pageLabel: string;
-  trailing?: React.ReactNode;
-}) {
-  const { vehicle, damage } = report;
-  const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
-
-  return (
-    <PdfPageShell report={report} pageLabel={pageLabel}>
-      <View style={styles.body}>
-        <Text style={[styles.para, { fontSize: 8, color: GREY }]}>
-          Auto Verifi Insights+ · {vehicleTitle}
-        </Text>
-        <Text style={[styles.sectionTitle, { marginTop: 4 }]}>Detected Damage</Text>
-
-        {damage && damage.findings.length === 0 && photos.length > 0 ? (
-          <Text style={[styles.para, { marginTop: 6, color: RIDE_SHARE_GREEN }]}>
-            No visible damage detected in the AI analysis.
-          </Text>
-        ) : null}
-
-        {damage && damage.findings.length > 0 ? (
-          <View style={styles.section}>
-            {chunkFactoryFeatures(damage.findings, 2).map((row, rowIndex) => (
-              <View
-                key={rowIndex}
-                style={{ flexDirection: "row", alignItems: "stretch" }}
-                wrap={false}
-              >
-                {row.map((f, i) => {
-                  const damageImageUrl = resolvePdfImageSrc(
-                    resolveDamageFindingImageUrl(f, photos),
-                  );
-                  return (
-                    <View
-                      key={`${rowIndex}-${i}`}
-                      style={[
-                        styles.damageCard,
-                        i === row.length - 1 ? { marginRight: 0 } : {},
-                      ]}
-                    >
-                      {damageImageUrl ? (
-                        <Image
-                          src={damageImageUrl}
-                          style={[styles.photoImage, { objectFit: "contain" }]}
-                        />
-                      ) : null}
-                      <Text
-                        style={{
-                          marginTop: 4,
-                          fontFamily: PDF_SANS,
-    fontWeight: 700,
-                          fontSize: 8.5,
-                        }}
-                      >
-                        {f.panel}
-                      </Text>
-                      <Text style={{ marginTop: 2, fontSize: 8, color: "#dc2626" }}>
-                        {f.type} · {f.severity}
-                      </Text>
-                      {f.description ? (
-                        <Text style={{ marginTop: 2, fontSize: 7.5, color: GREY }}>
-                          {f.description}
-                        </Text>
-                      ) : null}
-                    </View>
-                  );
-                })}
-              </View>
-            ))}
-          </View>
-        ) : !damage ? (
-          <Text style={[styles.para, { marginTop: 8 }]}>
-            {AI_DAMAGE_PROCESSING_PDF}
-          </Text>
-        ) : null}
-
-        {trailing}
+        <PdfGuidedPhotoDisclaimer />
       </View>
     </PdfPageShell>
   );
@@ -2156,7 +2091,7 @@ export function ReportPdf({
     (photo) => isRecordOnlyInspectionPhoto(photo.angle),
   );
   const insightsPlusPageCount = isPlus
-    ? 2 + (hasAdditionalInspectionPhotos ? 1 : 0)
+    ? 1 + (hasAdditionalInspectionPhotos ? 1 : 0)
     : 0;
   const keyInsights = buildKeyInsights(report);
   const totalPages =
@@ -2195,6 +2130,7 @@ export function ReportPdf({
             report={report}
             photos={photos}
             pageLabel={nextPageLabel()}
+            showDisclaimer={!hasAdditionalInspectionPhotos}
           />
           {hasAdditionalInspectionPhotos ? (
             <InsightsPlusAdditionalPhotosPage
@@ -2203,11 +2139,6 @@ export function ReportPdf({
               pageLabel={nextPageLabel()}
             />
           ) : null}
-          <InsightsPlusDamagePage
-            report={report}
-            photos={photos}
-            pageLabel={nextPageLabel()}
-          />
         </>
       ) : null}
       <CarBuyingChecklistPage

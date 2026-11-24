@@ -145,8 +145,8 @@ function TierCard({
             />
             <span className={compact ? "text-pretty sm:whitespace-nowrap" : "whitespace-nowrap"}>
               {compact
-                ? "Includes AI condition scan"
-                : "Includes AI powered condition scan"}
+                ? "Includes current condition images"
+                : "*Includes current condition images"}
             </span>
           </p>
         ) : compact ? (
@@ -155,7 +155,7 @@ function TierCard({
             aria-hidden
           >
             <Sparkles className="h-2.5 w-2.5 shrink-0" />
-            <span>Includes AI condition scan</span>
+            <span>Includes current condition images</span>
           </p>
         ) : null}
       </div>

@@ -42,8 +42,8 @@ export function countVehicleReportPages(
     );
   }
   if (includesDamage) {
-    pages += 2; // Walkaround photos + damage
-    if (_hasAdditionalInspectionPhotos) pages += 1; // Additional photos (wheels, interior, records)
+    pages += 1; // Condition verification photos
+    if (_hasAdditionalInspectionPhotos) pages += 1; // Additional photos (keys, registration papers)
   }
   pages += 1; // Car buying checklist + general disclaimer
   if (hasPpsrAppendix) pages += PPSR_CERTIFICATE_SHEET_COUNT;

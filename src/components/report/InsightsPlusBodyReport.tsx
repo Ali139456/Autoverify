@@ -1,14 +1,8 @@
 import type { ReactNode } from "react";
-import { AlertTriangle, Camera, CheckCircle2 } from "lucide-react";
-import {
-  AI_DAMAGE_PROCESSING_DAMAGE_SECTION,
-  AI_DAMAGE_PROCESSING_WALKAROUND_BANNER,
-} from "@/lib/damage-processing-copy";
+import { Camera } from "lucide-react";
 import {
   getInspectionPhotoUrl,
   formatReportReference,
-  resolveDamageFindingImageUrl,
-  buildDamageCaptionByPhotoAngle,
 } from "@/lib/report-design";
 import {
   INSPECTION_RECORD_ONLY_FOOTNOTE_WITH_STAR,
@@ -21,14 +15,13 @@ import { InspectionStarter } from "@/components/InspectionStarter";
 import { DamageUpload } from "@/components/DamageUpload";
 import { ReportShell } from "./ReportShell";
 import { InspectionPhotoEvidenceCaption } from "./InspectionPhotoEvidence";
+import { ReportGuidedPhotoDisclaimer } from "./ReportGuidedPhotoDisclaimer";
 
 function PhotoTile({
   photo,
-  caption,
   showAngleLabel = true,
 }: {
   photo: InspectionPhoto;
-  caption?: string;
   showAngleLabel?: boolean;
 }) {
   const url = getInspectionPhotoUrl(photo);
@@ -37,7 +30,7 @@ function PhotoTile({
     getInspectionAngleLabel(photo.angle),
     photo.angle,
   );
-  const imageAlt = showAngleLabel ? tileLabel : "Walkaround photo";
+  const imageAlt = showAngleLabel ? tileLabel : "Condition verification photo";
   return (
     <figure className="report-photo-tile overflow-hidden rounded-lg border border-slate-200 bg-white">
       <div className="relative flex min-h-[180px] items-center justify-center bg-slate-100 sm:min-h-[220px]">
@@ -64,9 +57,6 @@ function PhotoTile({
           </p>
         ) : null}
         <InspectionPhotoEvidenceCaption photo={photo} />
-        {caption ? (
-          <p className="mt-0.5 text-[10px] text-red-600">{caption}</p>
-        ) : null}
       </figcaption>
     </figure>
   );
@@ -75,20 +65,17 @@ function PhotoTile({
 function PhotoGroup({
   title,
   photos,
-  damageByPanel,
   note,
   gridClassName,
   showAngleLabels = true,
-  showDamageCaptionsOnTiles = true,
+  trailing,
 }: {
-  title: string;
+  title?: string;
   photos: InspectionPhoto[];
-  damageByPanel: Map<string, string>;
   note?: string;
-  /** Additional photos: two-up layout (matches PDF / print). */
   gridClassName?: string;
   showAngleLabels?: boolean;
-  showDamageCaptionsOnTiles?: boolean;
+  trailing?: ReactNode;
 }) {
   if (photos.length === 0) return null;
   const hasRecordOnlyPhoto = photos.some((photo) =>
@@ -96,9 +83,11 @@ function PhotoGroup({
   );
   return (
     <div className="report-inspection-photos">
-      <h3 className="text-xs font-bold uppercase tracking-[0.16em] text-slate-900">
-        {title}
-      </h3>
+      {title ? (
+        <h3 className="text-xs font-bold uppercase tracking-[0.16em] text-slate-900">
+          {title}
+        </h3>
+      ) : null}
       {note ? (
         <p className="mt-1 text-[11px] leading-relaxed text-slate-500">{note}</p>
       ) : null}
@@ -113,11 +102,6 @@ function PhotoGroup({
             key={`${photo.angle}-${photo.uploadedAt}`}
             photo={photo}
             showAngleLabel={showAngleLabels}
-            caption={
-              showDamageCaptionsOnTiles
-                ? damageByPanel.get(photo.angle.toLowerCase())
-                : undefined
-            }
           />
         ))}
       </div>
@@ -126,6 +110,7 @@ function PhotoGroup({
           {INSPECTION_RECORD_ONLY_FOOTNOTE_WITH_STAR}
         </p>
       ) : null}
+      {trailing}
     </div>
   );
 }
@@ -139,11 +124,8 @@ function InsightsPlusTitleBlock({ vehicleTitle }: { vehicleTitle: string }) {
       <p className="mt-2 text-lg font-bold text-[#0073E3]">{vehicleTitle}</p>
       <div className="mt-4 border-l-4 border-[#0073E3] pl-4">
         <h2 className="text-sm font-extrabold uppercase tracking-[0.16em] text-slate-900">
-          Current Body Condition
+          Condition verification
         </h2>
-        <p className="mt-1 text-base font-bold text-[#0073E3]">
-          AI-Powered Image Analysis
-        </p>
       </div>
     </div>
   );
@@ -156,7 +138,6 @@ export function InsightsPlusBodyReport({
   showActions = false,
   photosPageLabel,
   additionalPhotosPageLabel,
-  damagePageLabel,
   trailingContent,
 }: {
   report: VehicleReport;
@@ -165,17 +146,11 @@ export function InsightsPlusBodyReport({
   showActions?: boolean;
   photosPageLabel: string;
   additionalPhotosPageLabel?: string;
-  damagePageLabel: string;
-  /** Rendered at the end of the damage page body (e.g. the general disclaimer). */
+  /** Rendered at the end of the last Insights+ sheet (e.g. general disclaimer). */
   trailingContent?: ReactNode;
 }) {
-  const { vehicle, damage } = report;
+  const { vehicle } = report;
   const vehicleTitle = `${vehicle.make} ${vehicle.model} ${vehicle.variant} ${vehicle.year}`.trim();
-
-  const damageByPanel =
-    damage?.findings.length && photos.length
-      ? buildDamageCaptionByPhotoAngle(damage.findings, photos)
-      : new Map<string, string>();
 
   const walkaroundPhotos = photos.filter(
     (photo) => !isRecordOnlyInspectionPhoto(photo.angle),
@@ -188,6 +163,7 @@ export function InsightsPlusBodyReport({
     generatedAt: report.createdAt,
     reportReference: formatReportReference(report.vehicle),
   };
+  const disclaimerOnLastSheet = additionalPhotos.length === 0;
 
   return (
     <>
@@ -200,7 +176,7 @@ export function InsightsPlusBodyReport({
           <div className="report-insights-plus-photos-body space-y-6">
             <InsightsPlusTitleBlock vehicleTitle={vehicleTitle} />
 
-            {showActions && !damage && (
+            {showActions ? (
               <div className="report-no-print rounded-xl border border-slate-200 bg-slate-50 p-4">
                 <InspectionStarter
                   reportId={report.id}
@@ -213,30 +189,27 @@ export function InsightsPlusBodyReport({
                   <DamageUpload
                     reportId={report.id}
                     savedPhotoCount={photos.length}
-                    analysisInProgress={!damage && photos.length > 0}
+                    analysisInProgress={false}
                   />
                 </div>
               </div>
-            )}
+            ) : null}
 
-            {damage ? null : photos.length > 0 ? (
-              <p className="report-no-print rounded-xl border border-dashed border-[#0073E3]/40 bg-[#0073E3]/5 px-4 py-4 text-sm text-slate-600">
-                {AI_DAMAGE_PROCESSING_WALKAROUND_BANNER}
+            {photos.length === 0 ? (
+              <p className="text-sm text-slate-500">
+                Complete the guided photo capture to show current condition images
+                in this report.
               </p>
-            ) : (
-              <p className="report-no-print rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-500">
-                Complete the guided mobile walkaround to populate AI damage analysis
-                and inspection photos in this report.
-              </p>
-            )}
+            ) : null}
 
-            <PhotoGroup
-              title="Walkaround photos"
-              photos={walkaroundPhotos}
-              damageByPanel={damageByPanel}
-              showAngleLabels={false}
-              showDamageCaptionsOnTiles={false}
-            />
+            <PhotoGroup photos={walkaroundPhotos} showAngleLabels />
+
+            {disclaimerOnLastSheet ? (
+              <>
+                <ReportGuidedPhotoDisclaimer className="mt-6" />
+                {trailingContent}
+              </>
+            ) : null}
           </div>
         </ReportShell>
       </div>
@@ -255,95 +228,19 @@ export function InsightsPlusBodyReport({
               <PhotoGroup
                 title="Additional photos"
                 photos={additionalPhotos}
-                damageByPanel={damageByPanel}
                 note="Keys and Registration paper records from the guided inspection."
                 gridClassName="report-photo-grid report-photo-grid-additional mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-3"
+                trailing={
+                  <>
+                    <ReportGuidedPhotoDisclaimer className="mt-6" />
+                    {trailingContent}
+                  </>
+                }
               />
             </div>
           </ReportShell>
         </div>
       ) : null}
-
-      <div className="report-page-break report-sheet-pin-footer">
-        <ReportShell
-          {...shellProps}
-          pageLabel={damagePageLabel}
-          className="report-shell-insights-plus report-shell-insights-plus-damage !overflow-visible"
-        >
-          <div className="report-insights-plus-damage-body space-y-6">
-            <div className="report-insights-plus-damage-heading">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">
-                Auto Verifi Insights+ · {vehicleTitle}
-              </p>
-              <h2 className="mt-1 text-lg font-extrabold text-slate-900">
-                Detected damage
-              </h2>
-            </div>
-
-            {damage && damage.findings.length === 0 && photos.length > 0 ? (
-              <p className="inline-flex items-center gap-2 text-sm font-medium text-emerald-600">
-                <CheckCircle2 className="h-4 w-4" aria-hidden />
-                No visible damage detected in the AI analysis.
-              </p>
-            ) : null}
-
-            {damage && damage.findings.length > 0 ? (
-              <div className="report-detected-damage">
-                <div className="mt-1 grid gap-3 sm:grid-cols-2">
-                  {damage.findings.map((finding, i) => {
-                    const damageImageUrl = resolveDamageFindingImageUrl(
-                      finding,
-                      photos,
-                    );
-                    return (
-                      <div
-                        key={`${finding.panel}-${i}`}
-                        className="report-damage-card flex overflow-hidden rounded-lg border border-red-100 bg-red-50/50"
-                      >
-                        {damageImageUrl ? (
-                          <div className="relative flex w-[42%] shrink-0 items-center justify-center bg-slate-100">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={damageImageUrl}
-                              alt={`${finding.panel} — ${finding.type}`}
-                              className="max-h-full w-full object-contain object-center"
-                            />
-                          </div>
-                        ) : null}
-                        <div className="flex items-start gap-2 p-3">
-                          <AlertTriangle
-                            className="mt-0.5 h-4 w-4 shrink-0 text-red-500"
-                            aria-hidden
-                          />
-                          <div>
-                            <p className="text-sm font-bold text-slate-900">
-                              {finding.panel}
-                            </p>
-                            <p className="text-xs text-red-700">
-                              {finding.type} · {finding.severity}
-                            </p>
-                            {finding.description ? (
-                              <p className="mt-1 text-[11px] leading-snug text-slate-600">
-                                {finding.description}
-                              </p>
-                            ) : null}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ) : !damage ? (
-              <p className="text-sm text-slate-500">
-                {AI_DAMAGE_PROCESSING_DAMAGE_SECTION}
-              </p>
-            ) : null}
-
-            {trailingContent}
-          </div>
-        </ReportShell>
-      </div>
     </>
   );
 }

@@ -64,11 +64,11 @@ export const REPORT_TIERS: Record<ReportTier, ReportTierConfig> = {
     priceCents: INSIGHTS_PLUS_PRICE_CENTS,
     stripePriceId: process.env.STRIPE_INSIGHTS_PLUS_PRICE_ID,
     tagline:
-      "Complete vehicle intelligence with AI-powered condition analysis and future value insights",
+      "Guided walk around images showing current condition of exterior, interior, tyres, VIN verification and current odometer reading",
     highlights: [
       "Everything in Auto Verifi Insights",
       "Predicted future valuation",
-      "AI powered condition scan of exterior, tyres and interior to detect any damage",
+      "Current condition verification — guided photos to confirm exterior, tyres and interior condition (Insights+)",
     ],
   },
 };

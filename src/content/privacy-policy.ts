@@ -90,7 +90,7 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
           "identify and verify vehicles;",
           "undertake identity and ownership verification;",
           "provide vehicle history intelligence;",
-          "perform AI-assisted vehicle condition analysis;",
+          "perform image or AI assisted vehicle condition verification and analysis;",
           "provide market-value and transaction intelligence;",
           "respond to enquiries and provide customer support;",
           "operate and secure Auto Verifi accounts;",

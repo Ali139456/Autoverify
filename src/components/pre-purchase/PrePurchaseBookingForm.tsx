@@ -146,10 +146,9 @@ export function PrePurchaseBookingForm({
           }
         >
           Mobile inspection at the seller&apos;s location.{" "}
-          <strong className={dark ? "text-white" : ""}>
-            ${showVehicleCategory ? listPrice : PPI_PRICE_INC_GST}
-          </strong>{" "}
-          inc GST.
+          <span className="font-semibold text-accent-500">
+            ${showVehicleCategory ? listPrice : PPI_PRICE_INC_GST} incl. GST
+          </span>
         </p>
       </div>
 

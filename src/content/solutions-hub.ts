@@ -25,7 +25,7 @@ export const CONSUMER_OFFERINGS: SolutionOfferingCard[] = [
       "Verify before you buy. Get the full past, present and future intelligence of any vehicle before you commit.",
     bullets: [
       "History and title verification",
-      "AI powered current condition assessment",
+      "Current condition images",
       "Current and Future valuation outlook",
       "Pre Purchase Inspections",
       "Lender Asset Verification",
@@ -38,7 +38,7 @@ export const CONSUMER_OFFERINGS: SolutionOfferingCard[] = [
       "Sell with proof. Verified condition and history that earns buyer trust and supports your asking price.",
     bullets: [
       "History and title verification",
-      "Current Condition assessment",
+      "Current condition verification",
       "Verified listing badge",
     ],
   },
@@ -119,6 +119,7 @@ export const BUSINESS_OFFERINGS: SolutionOfferingCard[] = [
   {
     id: "car-rental",
     title: "Car Rental",
+    comingSoon: true,
     description:
       "Fleet condition and return verification that protects revenue and reduces disputes.",
     bullets: [
@@ -141,6 +142,7 @@ export const BUSINESS_OFFERINGS: SolutionOfferingCard[] = [
   {
     id: "fmo",
     title: "FMO",
+    comingSoon: true,
     description:
       "Fleet-Wide Vehicle Verification and condition assessment across your fleet.",
     bullets: [

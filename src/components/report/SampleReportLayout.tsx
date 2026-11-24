@@ -133,7 +133,6 @@ export function SampleReportLayout({ tier }: { tier: ReportTier }) {
                 ? `${reportPage++} / ${pageCount}`
                 : undefined
             }
-            damagePageLabel={`${reportPage++} / ${pageCount}`}
           />
         ) : null}
 

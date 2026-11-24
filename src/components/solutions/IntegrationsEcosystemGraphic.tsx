@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 
 const CANVAS_WIDTH = 1440;
-/** Legend footer removed; ≥1022px at 1440w after −108px crop (native canvas 1130). */
-const CANVAS_HEIGHT = 1080;
+/** Native Base44 canvas height (meta hz:canvas-height). */
+const CANVAS_HEIGHT = 1130;
 
 export function IntegrationsEcosystemGraphic({ src }: { src: string }) {
   const shellRef = useRef<HTMLDivElement>(null);

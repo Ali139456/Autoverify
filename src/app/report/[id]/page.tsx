@@ -210,7 +210,6 @@ export default async function ReportPage({
                 ? `${reportPage++} / ${pageCount}`
                 : undefined
             }
-            damagePageLabel={`${reportPage++} / ${pageCount}`}
           />
         )}
 

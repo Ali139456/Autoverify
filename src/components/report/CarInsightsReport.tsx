@@ -340,7 +340,7 @@ export function CarInsightsReport({
 
                 <p className="font-bold text-slate-900">
 
-                  Upgrade to Auto Verifi Insights+ for AI powered condition scan and more
+                  Upgrade to Auto Verifi Insights+ for current condition verification and more
 
                   insights.
 

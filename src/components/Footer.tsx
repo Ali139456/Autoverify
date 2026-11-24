@@ -26,7 +26,7 @@ const CHECKS = [
   "Vehicle specifications",
   "Market valuation & comparables",
   "Future predicted valuation insights",
-  "AI powered exterior, tyres and interior condition assessment",
+  "Current condition images verifying exterior, tyres, interior, odometer and VIN",
 ];
 
 const OFFICE_ADDRESS = "Level 35, 100 Barangaroo Avenue, Sydney NSW 2000";
