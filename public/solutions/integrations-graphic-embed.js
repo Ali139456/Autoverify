@@ -63,9 +63,10 @@
 
     const canvas = document.querySelector("[data-canvas-width]");
     if (canvas instanceof HTMLElement) {
+      // Crop retired legend (top ~108px) but keep full 1130px canvas so bottom-row copy is not clipped.
       canvas.style.transform = "translateY(-108px)";
-      canvas.style.height = "1080px";
-      canvas.style.maxHeight = "1080px";
+      canvas.style.height = "1130px";
+      canvas.style.maxHeight = "1130px";
       canvas.style.overflow = "hidden";
     }
 

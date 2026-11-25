@@ -5,9 +5,9 @@ import { useEffect, useRef, useState } from "react";
 const CANVAS_WIDTH = 1440;
 /** Native Base44 canvas height (meta hz:canvas-height). */
 const CANVAS_HEIGHT = 1130;
-/** Bottom row labels/descenders extend past the export box — extend iframe viewport. */
-const IFRAME_HEIGHT_SLOP = 96;
-const IFRAME_HEIGHT = CANVAS_HEIGHT + IFRAME_HEIGHT_SLOP;
+/** Crop shift applied in integrations-graphic-embed.js (legend removal). */
+const EMBED_CROP_SHIFT = 108;
+const IFRAME_HEIGHT = CANVAS_HEIGHT + EMBED_CROP_SHIFT;
 
 export function IntegrationsEcosystemGraphic({ src }: { src: string }) {
   const shellRef = useRef<HTMLDivElement>(null);
