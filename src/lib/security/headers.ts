@@ -38,12 +38,13 @@ export function applySecurityHeaders(
           "form-action 'self' https://checkout.stripe.com",
           "frame-ancestors 'self'",
           "object-src 'none'",
-          "script-src 'self' 'unsafe-inline'",
+          // vercel.live = optional Vercel toolbar / Live feedback on deployed previews (not app code).
+          "script-src 'self' 'unsafe-inline' https://vercel.live",
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
           "font-src 'self' https://fonts.gstatic.com data:",
           "img-src 'self' data: blob: https:",
-          "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com",
-          "frame-src 'self'",
+          "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://vercel.live wss://vercel.live",
+          "frame-src 'self' https://vercel.live",
         ].join("; "),
       );
     }
