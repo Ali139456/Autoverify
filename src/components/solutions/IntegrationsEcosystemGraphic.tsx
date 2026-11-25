@@ -5,9 +5,9 @@ import { useEffect, useRef, useState } from "react";
 const CANVAS_WIDTH = 1440;
 /** Native Base44 canvas height (meta hz:canvas-height). */
 const CANVAS_HEIGHT = 1130;
-/** Crop shift applied in integrations-graphic-embed.js (legend removal). */
+/** Vertical crop in integrations-graphic-embed.js when the footer legend is removed. */
 const EMBED_CROP_SHIFT = 108;
-const IFRAME_HEIGHT = CANVAS_HEIGHT + EMBED_CROP_SHIFT;
+const VISIBLE_HEIGHT = CANVAS_HEIGHT - EMBED_CROP_SHIFT;
 
 export function IntegrationsEcosystemGraphic({ src }: { src: string }) {
   const shellRef = useRef<HTMLDivElement>(null);
@@ -30,7 +30,7 @@ export function IntegrationsEcosystemGraphic({ src }: { src: string }) {
     return () => observer.disconnect();
   }, []);
 
-  const frameHeight = IFRAME_HEIGHT * scale;
+  const frameHeight = VISIBLE_HEIGHT * scale;
 
   return (
     <div
@@ -47,7 +47,7 @@ export function IntegrationsEcosystemGraphic({ src }: { src: string }) {
           className="integrations-ecosystem-graphic absolute left-0 top-0 border-0 bg-transparent"
           style={{
             width: CANVAS_WIDTH,
-            height: IFRAME_HEIGHT,
+            height: CANVAS_HEIGHT,
             transform: `scale(${scale})`,
             transformOrigin: "top left",
           }}
