@@ -30,6 +30,7 @@ export function ConditionalSiteChrome({
     isLenderAssetPage ||
     isPrePurchasePage;
   const isPreviewLogin = pathname === "/preview";
+  const isAdminPage = pathname === "/admin";
   const isComingSoonHome =
     pathname === "/" && comingSoonMode && !previewAccess;
   const isInspectionApp = pathname.startsWith("/inspect/");
@@ -38,6 +39,7 @@ export function ConditionalSiteChrome({
     isComingSoonHome ||
     isInspectionApp ||
     isPreviewLogin ||
+    isAdminPage ||
     isSydneyPpiLanding
   ) {
     return <main className="flex-1">{children}</main>;

@@ -101,6 +101,19 @@ export async function getLavBookingByStripeSession(
   return rowToRecord(data as LavBookingRow);
 }
 
+export async function listLavBookings(limit = 200): Promise<LavBookingRecord[]> {
+  if (!isSupabaseServerConfigured()) return [];
+  const supabase = createServerClient();
+  const { data, error } = await supabase
+    .from("lav_bookings")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row) => rowToRecord(row as LavBookingRow));
+}
+
 export async function updateLavBooking(
   bookingRef: string,
   patch: Partial<{

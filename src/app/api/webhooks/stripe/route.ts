@@ -6,6 +6,7 @@ import { notifyPrePurchaseBooking } from "@/lib/pre-purchase/booking-email";
 import { sendPrePurchaseCustomerConfirmationEmail } from "@/lib/pre-purchase/confirmation-email";
 import type { PrePurchaseBookingPayload } from "@/lib/pre-purchase/types";
 import { PPI_PRICE_INC_GST } from "@/lib/pre-purchase/parse-booking-body";
+import { savePpiBooking } from "@/lib/pre-purchase/booking-store";
 import {
   getLavBookingByStripeSession,
   updateLavBooking,
@@ -84,6 +85,9 @@ export async function POST(req: NextRequest) {
         payload.suburb =
           suburbLine.replace(/\s*NSW\s*2\d{3}\s*$/i, "").trim() || payload.suburb;
       }
+      await savePpiBooking(payload, "paid", session.id).catch((err) => {
+        console.error("[webhooks/stripe] PPI save failed:", err);
+      });
       await notifyPrePurchaseBooking(payload, true).catch((err) => {
         console.error("[webhooks/stripe] PPI notify failed:", err);
       });

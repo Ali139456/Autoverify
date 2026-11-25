@@ -5,6 +5,7 @@ import { parsePrePurchaseBookingBody } from "@/lib/pre-purchase/parse-booking-bo
 import { createPrePurchaseStripeCheckoutSession } from "@/lib/pre-purchase/stripe-checkout";
 import type { PrePurchaseBookingPayload } from "@/lib/pre-purchase/types";
 import { sendPrePurchaseCustomerConfirmationEmail } from "@/lib/pre-purchase/confirmation-email";
+import { savePpiBooking } from "@/lib/pre-purchase/booking-store";
 import { getBaseUrl, isStripeConfigured } from "@/lib/stripe";
 import { guardBrowserPost, readBoundedJson } from "@/lib/security";
 
@@ -26,6 +27,9 @@ export async function POST(req: NextRequest) {
 
     const unitCents = Math.round(payload.priceIncGst * 100);
     if (unitCents <= 0) {
+      await savePpiBooking(payload, "paid").catch((err) => {
+        console.error("[ppi-booking] save failed:", err);
+      });
       await notifyPrePurchaseBooking(payload, true);
       await sendPrePurchaseCustomerConfirmationEmail(payload).catch((err) => {
         console.error("[ppi-booking] customer email failed:", err);
@@ -53,11 +57,11 @@ export async function POST(req: NextRequest) {
       typeof body.cancelReturnPath === "string"
         ? body.cancelReturnPath.trim()
         : undefined;
-    const checkoutUrl = await createPrePurchaseStripeCheckoutSession(
+    const checkout = await createPrePurchaseStripeCheckoutSession(
       payload,
       cancelReturnPath,
     );
-    if (!checkoutUrl) {
+    if (!checkout) {
       await notifyPrePurchaseBooking(payload, false);
       return NextResponse.json({
         ok: true,
@@ -67,10 +71,16 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    await savePpiBooking(payload, "pending_payment", checkout.sessionId).catch(
+      (err) => {
+        console.error("[ppi-booking] save failed:", err);
+      },
+    );
+
     return NextResponse.json({
       ok: true,
       bookingRef: payload.bookingRef,
-      checkoutUrl,
+      checkoutUrl: checkout.url,
     });
   } catch (err) {
     console.error("[ppi-booking]", err);

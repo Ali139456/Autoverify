@@ -86,6 +86,10 @@ export function isPublicWhileComingSoon(pathname: string): boolean {
     return true;
   }
 
+  if (pathname === "/admin" || pathname.startsWith("/api/admin/")) {
+    return true;
+  }
+
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/logo/") ||

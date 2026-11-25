@@ -26,7 +26,7 @@ function resolvePpiCancelUrl(
 export async function createPrePurchaseStripeCheckoutSession(
   payload: PrePurchaseBookingPayload,
   cancelReturnPath?: string,
-): Promise<string | null> {
+): Promise<{ url: string; sessionId: string } | null> {
   if (!isStripeConfigured()) return null;
 
   const stripe = getStripe();
@@ -72,5 +72,6 @@ export async function createPrePurchaseStripeCheckoutSession(
     cancel_url: resolvePpiCancelUrl(baseUrl, cancelReturnPath),
   });
 
-  return session.url;
+  if (!session.url) return null;
+  return { url: session.url, sessionId: session.id };
 }
