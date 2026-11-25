@@ -5,6 +5,9 @@ import { useEffect, useRef, useState } from "react";
 const CANVAS_WIDTH = 1440;
 /** Native Base44 canvas height (meta hz:canvas-height). */
 const CANVAS_HEIGHT = 1130;
+/** Bottom row labels/descenders extend past the export box — extend iframe viewport. */
+const IFRAME_HEIGHT_SLOP = 96;
+const IFRAME_HEIGHT = CANVAS_HEIGHT + IFRAME_HEIGHT_SLOP;
 
 export function IntegrationsEcosystemGraphic({ src }: { src: string }) {
   const shellRef = useRef<HTMLDivElement>(null);
@@ -27,7 +30,7 @@ export function IntegrationsEcosystemGraphic({ src }: { src: string }) {
     return () => observer.disconnect();
   }, []);
 
-  const frameHeight = CANVAS_HEIGHT * scale;
+  const frameHeight = IFRAME_HEIGHT * scale;
 
   return (
     <div
@@ -36,7 +39,7 @@ export function IntegrationsEcosystemGraphic({ src }: { src: string }) {
     >
       <div
         className="relative w-full overflow-hidden"
-        style={{ height: frameHeight }}
+        style={{ height: Math.ceil(frameHeight) }}
       >
         <iframe
           src={src}
@@ -44,7 +47,7 @@ export function IntegrationsEcosystemGraphic({ src }: { src: string }) {
           className="integrations-ecosystem-graphic absolute left-0 top-0 border-0 bg-transparent"
           style={{
             width: CANVAS_WIDTH,
-            height: CANVAS_HEIGHT,
+            height: IFRAME_HEIGHT,
             transform: `scale(${scale})`,
             transformOrigin: "top left",
           }}
