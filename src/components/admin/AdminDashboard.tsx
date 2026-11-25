@@ -11,11 +11,48 @@ import {
   LayoutList,
   Loader2,
   RefreshCw,
+  Search,
+  X,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import type { AdminJobRow, AdminJobType } from "@/lib/admin/jobs";
 
 const PAGE_SIZE = 20;
+
+type HasReportFilter = "all" | "yes" | "no";
+
+const HAS_REPORT_OPTIONS: { value: HasReportFilter; label: string }[] = [
+  { value: "all", label: "All bookings" },
+  { value: "yes", label: "With report link" },
+  { value: "no", label: "No report link" },
+];
+
+function normalizeQuery(q: string): string {
+  return q.trim().toLowerCase();
+}
+
+function rowSearchText(row: AdminJobRow): string {
+  return [
+    row.id,
+    row.typeLabel,
+    row.status,
+    row.customerName,
+    row.customerEmail,
+    row.customerPhone,
+    row.vehicleSummary,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
+function statusLabel(status: string): string {
+  return status.replace(/_/g, " ");
+}
+
+const fieldClass =
+  "rounded-xl border border-white/10 bg-ink-950/80 px-3 py-2 text-sm text-white outline-none transition focus:border-accent-500/40";
+const selectClass = `${fieldClass} min-w-0`;
 
 const TYPE_OPTIONS: { value: "all" | AdminJobType; label: string }[] = [
   { value: "all", label: "All" },
@@ -70,6 +107,11 @@ export function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState<"all" | AdminJobType>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [hasReportFilter, setHasReportFilter] = useState<HasReportFilter>("all");
   const [sortNewestFirst, setSortNewestFirst] = useState(true);
   const [page, setPage] = useState(1);
 
@@ -97,12 +139,58 @@ export function AdminDashboard() {
 
   useEffect(() => {
     setPage(1);
-  }, [typeFilter, sortNewestFirst]);
+  }, [
+    typeFilter,
+    statusFilter,
+    searchQuery,
+    dateFrom,
+    dateTo,
+    hasReportFilter,
+    sortNewestFirst,
+  ]);
+
+  const statusOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const row of jobs) set.add(row.status);
+    return [...set].sort((a, b) => statusLabel(a).localeCompare(statusLabel(b)));
+  }, [jobs]);
+
+  const filtersActive =
+    typeFilter !== "all" ||
+    statusFilter !== "all" ||
+    searchQuery.trim() !== "" ||
+    dateFrom !== "" ||
+    dateTo !== "" ||
+    hasReportFilter !== "all";
 
   const filtered = useMemo(() => {
     let rows = jobs;
     if (typeFilter !== "all") {
       rows = rows.filter((row) => row.type === typeFilter);
+    }
+    if (statusFilter !== "all") {
+      rows = rows.filter((row) => row.status === statusFilter);
+    }
+    const q = normalizeQuery(searchQuery);
+    if (q) {
+      rows = rows.filter((row) => rowSearchText(row).includes(q));
+    }
+    if (dateFrom) {
+      const fromMs = Date.parse(`${dateFrom}T00:00:00`);
+      if (Number.isFinite(fromMs)) {
+        rows = rows.filter((row) => Date.parse(row.createdAt) >= fromMs);
+      }
+    }
+    if (dateTo) {
+      const toMs = Date.parse(`${dateTo}T23:59:59.999`);
+      if (Number.isFinite(toMs)) {
+        rows = rows.filter((row) => Date.parse(row.createdAt) <= toMs);
+      }
+    }
+    if (hasReportFilter === "yes") {
+      rows = rows.filter((row) => Boolean(row.href));
+    } else if (hasReportFilter === "no") {
+      rows = rows.filter((row) => !row.href);
     }
     rows = [...rows].sort((a, b) => {
       const da = Date.parse(a.createdAt);
@@ -110,7 +198,25 @@ export function AdminDashboard() {
       return sortNewestFirst ? db - da : da - db;
     });
     return rows;
-  }, [jobs, sortNewestFirst, typeFilter]);
+  }, [
+    jobs,
+    sortNewestFirst,
+    typeFilter,
+    statusFilter,
+    searchQuery,
+    dateFrom,
+    dateTo,
+    hasReportFilter,
+  ]);
+
+  function clearFilters() {
+    setTypeFilter("all");
+    setStatusFilter("all");
+    setSearchQuery("");
+    setDateFrom("");
+    setDateTo("");
+    setHasReportFilter("all");
+  }
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
@@ -170,20 +276,113 @@ export function AdminDashboard() {
 
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <StatsSummary loading={loading} total={filtered.length} />
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setSortNewestFirst((v) => !v)}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-ink-900/60 px-3.5 py-2 text-sm font-medium text-slate-200 transition hover:border-white/20"
-            >
-              {sortNewestFirst ? (
-                <ArrowDown className="h-4 w-4 text-accent-400" aria-hidden />
-              ) : (
-                <ArrowUp className="h-4 w-4 text-accent-400" aria-hidden />
-              )}
-              {sortNewestFirst ? "Newest first" : "Oldest first"}
-            </button>
+          <SortToggle
+            sortNewestFirst={sortNewestFirst}
+            onToggle={() => setSortNewestFirst((v) => !v)}
+          />
+        </div>
+
+        <div className="mt-5 rounded-2xl border border-white/10 bg-ink-900/40 p-4 sm:p-5">
+          <label className="block text-sm">
+            <span className="sr-only">Search bookings</span>
+            <span className="relative flex items-center">
+              <Search
+                className="pointer-events-none absolute left-3.5 h-4 w-4 text-slate-500"
+                aria-hidden
+              />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search ref, customer, email, phone, vehicle, status…"
+                className={`${fieldClass} w-full py-2.5 pl-10 pr-10`}
+                autoComplete="off"
+              />
+              {searchQuery ? (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2 rounded-lg p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+                  aria-label="Clear search"
+                >
+                  <X className="h-4 w-4" aria-hidden />
+                </button>
+              ) : null}
+            </span>
+          </label>
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <label className="block text-sm">
+              <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Status
+              </span>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className={`${selectClass} w-full`}
+              >
+                <option value="all">All statuses</option>
+                {statusOptions.map((status) => (
+                  <option key={status} value={status}>
+                    {statusLabel(status)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block text-sm">
+              <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                From date
+              </span>
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                className={`${fieldClass} w-full`}
+              />
+            </label>
+            <label className="block text-sm">
+              <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                To date
+              </span>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                className={`${fieldClass} w-full`}
+              />
+            </label>
+            <label className="block text-sm">
+              <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Report
+              </span>
+              <select
+                value={hasReportFilter}
+                onChange={(e) =>
+                  setHasReportFilter(e.target.value as HasReportFilter)
+                }
+                className={`${selectClass} w-full`}
+              >
+                {HAS_REPORT_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
+
+          {filtersActive ? (
+            <div className="mt-4 flex justify-end">
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-accent-300 transition hover:text-accent-200"
+              >
+                <X className="h-3.5 w-3.5" aria-hidden />
+                Clear all filters
+              </button>
+            </div>
+          ) : null}
         </div>
 
         <nav
@@ -245,7 +444,9 @@ export function AdminDashboard() {
                 {!loading && filtered.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="px-4 py-16 text-center text-slate-400">
-                      No bookings yet for this filter.
+                      {jobs.length === 0
+                        ? "No bookings yet."
+                        : "No bookings match your search and filters."}
                     </td>
                   </tr>
                 ) : null}
@@ -365,6 +566,29 @@ export function AdminDashboard() {
         </div>
       </main>
     </div>
+  );
+}
+
+function SortToggle({
+  sortNewestFirst,
+  onToggle,
+}: {
+  sortNewestFirst: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-ink-900/60 px-3.5 py-2 text-sm font-medium text-slate-200 transition hover:border-white/20"
+    >
+      {sortNewestFirst ? (
+        <ArrowDown className="h-4 w-4 text-accent-400" aria-hidden />
+      ) : (
+        <ArrowUp className="h-4 w-4 text-accent-400" aria-hidden />
+      )}
+      {sortNewestFirst ? "Newest first" : "Oldest first"}
+    </button>
   );
 }
 
