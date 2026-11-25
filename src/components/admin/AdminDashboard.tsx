@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowDown,
@@ -12,6 +12,7 @@ import {
   Loader2,
   RefreshCw,
   Search,
+  SlidersHorizontal,
   X,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
@@ -114,6 +115,8 @@ export function AdminDashboard() {
   const [hasReportFilter, setHasReportFilter] = useState<HasReportFilter>("all");
   const [sortNewestFirst, setSortNewestFirst] = useState(true);
   const [page, setPage] = useState(1);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const filtersRef = useRef<HTMLDivElement>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -184,6 +187,46 @@ export function AdminDashboard() {
     dateFrom !== "" ||
     dateTo !== "" ||
     hasReportFilter !== "all";
+
+  const panelFiltersActive =
+    statusFilter !== "all" ||
+    dateFrom !== "" ||
+    dateTo !== "" ||
+    hasReportFilter !== "all";
+
+  const panelFilterCount = useMemo(() => {
+    let n = 0;
+    if (statusFilter !== "all") n += 1;
+    if (dateFrom) n += 1;
+    if (dateTo) n += 1;
+    if (hasReportFilter !== "all") n += 1;
+    return n;
+  }, [statusFilter, dateFrom, dateTo, hasReportFilter]);
+
+  useEffect(() => {
+    if (!filtersOpen) return;
+    function onPointerDown(event: MouseEvent) {
+      if (!filtersRef.current?.contains(event.target as Node)) {
+        setFiltersOpen(false);
+      }
+    }
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setFiltersOpen(false);
+    }
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [filtersOpen]);
+
+  function clearPanelFilters() {
+    setStatusFilter("all");
+    setDateFrom("");
+    setDateTo("");
+    setHasReportFilter("all");
+  }
 
   const filtered = useMemo(() => {
     let rows = jobs;
@@ -296,119 +339,36 @@ export function AdminDashboard() {
           </p>
         ) : null}
 
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <StatsSummary loading={loading} total={filtered.length} />
-          <SortToggle
-            sortNewestFirst={sortNewestFirst}
-            onToggle={() => setSortNewestFirst((v) => !v)}
-          />
         </div>
 
-        <div className="mt-5 rounded-2xl border border-white/10 bg-ink-900/40 p-4 sm:p-5">
-          <label className="block text-sm">
-            <span className="sr-only">Search bookings</span>
-            <span className="relative flex items-center">
-              <Search
-                className="pointer-events-none absolute left-3.5 h-4 w-4 text-slate-500"
-                aria-hidden
-              />
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search ref, customer, email, phone, vehicle, status…"
-                className={`${fieldClass} w-full py-2.5 pl-10 pr-10`}
-                autoComplete="off"
-              />
-              {searchQuery ? (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-2 rounded-lg p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-white"
-                  aria-label="Clear search"
-                >
-                  <X className="h-4 w-4" aria-hidden />
-                </button>
-              ) : null}
-            </span>
-          </label>
-
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <label className="block text-sm">
-              <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Status
-              </span>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className={`${selectClass} w-full`}
-              >
-                <option value="all">All statuses</option>
-                {statusOptions.map((status) => (
-                  <option key={status} value={status}>
-                    {statusLabel(status)}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="block text-sm">
-              <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                From date
-              </span>
-              <input
-                type="date"
-                value={dateFrom}
-                onChange={(e) => setDateFrom(e.target.value)}
-                className={`${fieldClass} w-full`}
-              />
-            </label>
-            <label className="block text-sm">
-              <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                To date
-              </span>
-              <input
-                type="date"
-                value={dateTo}
-                onChange={(e) => setDateTo(e.target.value)}
-                className={`${fieldClass} w-full`}
-              />
-            </label>
-            <label className="block text-sm">
-              <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Report
-              </span>
-              <select
-                value={hasReportFilter}
-                onChange={(e) =>
-                  setHasReportFilter(e.target.value as HasReportFilter)
-                }
-                className={`${selectClass} w-full`}
-              >
-                {HAS_REPORT_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          {filtersActive ? (
-            <div className="mt-4 flex justify-end">
-              <button
-                type="button"
-                onClick={clearFilters}
-                className="inline-flex items-center gap-1.5 text-sm font-medium text-accent-300 transition hover:text-accent-200"
-              >
-                <X className="h-3.5 w-3.5" aria-hidden />
-                Clear all filters
-              </button>
-            </div>
-          ) : null}
-        </div>
+        <AdminSearchToolbar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          sortNewestFirst={sortNewestFirst}
+          onSortToggle={() => setSortNewestFirst((v) => !v)}
+          filtersOpen={filtersOpen}
+          onFiltersToggle={() => setFiltersOpen((v) => !v)}
+          panelFilterCount={panelFilterCount}
+          filtersRef={filtersRef}
+          statusFilter={statusFilter}
+          onStatusChange={setStatusFilter}
+          statusOptions={statusOptions}
+          dateFrom={dateFrom}
+          dateTo={dateTo}
+          onDateFromChange={setDateFrom}
+          onDateToChange={setDateTo}
+          hasReportFilter={hasReportFilter}
+          onHasReportChange={setHasReportFilter}
+          panelFiltersActive={panelFiltersActive}
+          onClearPanel={clearPanelFilters}
+          filtersActive={filtersActive}
+          onClearAll={clearFilters}
+        />
 
         <nav
-          className="mt-5 flex flex-wrap gap-2"
+          className="mt-3 flex flex-wrap gap-1.5"
           aria-label="Filter by booking type"
         >
           {TYPE_OPTIONS.map((opt) => {
@@ -418,7 +378,7 @@ export function AdminDashboard() {
                 key={opt.value}
                 type="button"
                 onClick={() => setTypeFilter(opt.value)}
-                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                className={`rounded-full px-3 py-1.5 text-xs font-semibold sm:px-4 sm:py-2 sm:text-sm transition ${
                   active
                     ? "bg-accent-500 text-white shadow-lg shadow-accent-600/25"
                     : "border border-white/10 bg-white/5 text-slate-300 hover:border-white/20 hover:text-white"
@@ -591,26 +551,229 @@ export function AdminDashboard() {
   );
 }
 
-function SortToggle({
+function AdminSearchToolbar({
+  searchQuery,
+  onSearchChange,
   sortNewestFirst,
-  onToggle,
+  onSortToggle,
+  filtersOpen,
+  onFiltersToggle,
+  panelFilterCount,
+  filtersRef,
+  statusFilter,
+  onStatusChange,
+  statusOptions,
+  dateFrom,
+  dateTo,
+  onDateFromChange,
+  onDateToChange,
+  hasReportFilter,
+  onHasReportChange,
+  panelFiltersActive,
+  onClearPanel,
+  filtersActive,
+  onClearAll,
 }: {
+  searchQuery: string;
+  onSearchChange: (value: string) => void;
   sortNewestFirst: boolean;
-  onToggle: () => void;
+  onSortToggle: () => void;
+  filtersOpen: boolean;
+  onFiltersToggle: () => void;
+  panelFilterCount: number;
+  filtersRef: React.RefObject<HTMLDivElement | null>;
+  statusFilter: string;
+  onStatusChange: (value: string) => void;
+  statusOptions: string[];
+  dateFrom: string;
+  dateTo: string;
+  onDateFromChange: (value: string) => void;
+  onDateToChange: (value: string) => void;
+  hasReportFilter: HasReportFilter;
+  onHasReportChange: (value: HasReportFilter) => void;
+  panelFiltersActive: boolean;
+  onClearPanel: () => void;
+  filtersActive: boolean;
+  onClearAll: () => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onToggle}
-      className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-ink-900/60 px-3.5 py-2 text-sm font-medium text-slate-200 transition hover:border-white/20"
-    >
-      {sortNewestFirst ? (
-        <ArrowDown className="h-4 w-4 text-accent-400" aria-hidden />
-      ) : (
-        <ArrowUp className="h-4 w-4 text-accent-400" aria-hidden />
-      )}
-      {sortNewestFirst ? "Newest first" : "Oldest first"}
-    </button>
+    <div className="mt-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <label className="block min-w-0 flex-1 text-sm">
+          <span className="sr-only">Search bookings</span>
+          <span className="relative flex items-center">
+            <Search
+              className="pointer-events-none absolute left-3 h-4 w-4 text-slate-500"
+              aria-hidden
+            />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              placeholder="Search ref, customer, email, phone, vehicle…"
+              className={`${fieldClass} w-full py-2 pl-9 pr-9 text-sm`}
+              autoComplete="off"
+            />
+            {searchQuery ? (
+              <button
+                type="button"
+                onClick={() => onSearchChange("")}
+                className="absolute right-1.5 rounded-lg p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+                aria-label="Clear search"
+              >
+                <X className="h-4 w-4" aria-hidden />
+              </button>
+            ) : null}
+          </span>
+        </label>
+
+        <div className="flex shrink-0 items-center gap-2">
+          <div className="relative" ref={filtersRef}>
+            <button
+              type="button"
+              onClick={onFiltersToggle}
+              aria-expanded={filtersOpen}
+              aria-haspopup="dialog"
+              className={`inline-flex items-center gap-2 rounded-xl border px-3.5 py-2 text-sm font-semibold transition ${
+                filtersOpen || panelFilterCount > 0
+                  ? "border-accent-500/40 bg-accent-500/15 text-accent-200"
+                  : "border-white/10 bg-ink-900/60 text-slate-200 hover:border-white/20"
+              }`}
+            >
+              <SlidersHorizontal className="h-4 w-4" aria-hidden />
+              Filters
+              {panelFilterCount > 0 ? (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-accent-500 px-1.5 text-[11px] font-bold text-white">
+                  {panelFilterCount}
+                </span>
+              ) : null}
+            </button>
+
+            {filtersOpen ? (
+              <div
+                role="dialog"
+                aria-label="Booking filters"
+                className="absolute right-0 z-40 mt-2 w-[min(calc(100vw-2rem),20rem)] rounded-2xl border border-white/10 bg-ink-900 p-4 shadow-2xl shadow-black/50"
+              >
+                <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
+                  Refine list
+                </p>
+                <div className="mt-3 space-y-3">
+                  <label className="block text-sm">
+                    <span className="mb-1 block text-xs text-slate-400">Status</span>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => onStatusChange(e.target.value)}
+                      className={`${selectClass} w-full`}
+                    >
+                      <option value="all">All statuses</option>
+                      {statusOptions.map((status) => (
+                        <option key={status} value={status}>
+                          {statusLabel(status)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <FilterDateRange
+                    dateFrom={dateFrom}
+                    dateTo={dateTo}
+                    onDateFromChange={onDateFromChange}
+                    onDateToChange={onDateToChange}
+                  />
+                  <label className="block text-sm">
+                    <span className="mb-1 block text-xs text-slate-400">Report link</span>
+                    <select
+                      value={hasReportFilter}
+                      onChange={(e) =>
+                        onHasReportChange(e.target.value as HasReportFilter)
+                      }
+                      className={`${selectClass} w-full`}
+                    >
+                      {HAS_REPORT_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+                {panelFiltersActive ? (
+                  <button
+                    type="button"
+                    onClick={onClearPanel}
+                    className="mt-4 w-full rounded-lg border border-white/10 py-2 text-xs font-medium text-slate-300 transition hover:bg-white/5"
+                  >
+                    Reset filters
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+
+          <button
+            type="button"
+            onClick={onSortToggle}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-ink-900/60 px-3 py-2 text-sm font-medium text-slate-200 transition hover:border-white/20"
+            title={sortNewestFirst ? "Newest first" : "Oldest first"}
+          >
+            {sortNewestFirst ? (
+              <ArrowDown className="h-4 w-4 text-accent-400" aria-hidden />
+            ) : (
+              <ArrowUp className="h-4 w-4 text-accent-400" aria-hidden />
+            )}
+            <span className="hidden sm:inline">
+              {sortNewestFirst ? "Newest" : "Oldest"}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {filtersActive ? (
+        <button
+          type="button"
+          onClick={onClearAll}
+          className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-accent-300 transition hover:text-accent-200"
+        >
+          <X className="h-3 w-3" aria-hidden />
+          Clear search &amp; filters
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+function FilterDateRange({
+  dateFrom,
+  dateTo,
+  onDateFromChange,
+  onDateToChange,
+}: {
+  dateFrom: string;
+  dateTo: string;
+  onDateFromChange: (value: string) => void;
+  onDateToChange: (value: string) => void;
+}) {
+  return (
+    <div className="grid grid-cols-2 gap-2">
+      <label className="block text-sm">
+        <span className="mb-1 block text-xs text-slate-400">From</span>
+        <input
+          type="date"
+          value={dateFrom}
+          onChange={(e) => onDateFromChange(e.target.value)}
+          className={`${fieldClass} w-full px-2 text-xs`}
+        />
+      </label>
+      <label className="block text-sm">
+        <span className="mb-1 block text-xs text-slate-400">To</span>
+        <input
+          type="date"
+          value={dateTo}
+          onChange={(e) => onDateToChange(e.target.value)}
+          className={`${fieldClass} w-full px-2 text-xs`}
+        />
+      </label>
+    </div>
   );
 }
 
