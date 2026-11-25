@@ -118,16 +118,38 @@ export function AdminDashboard() {
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
+    const maxAttempts = 3;
+    let lastMessage = "Could not load jobs.";
+
     try {
-      const res = await fetch("/api/admin/jobs", { cache: "no-store" });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error ?? "Could not load jobs.");
+      for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+        try {
+          const res = await fetch("/api/admin/jobs", {
+            cache: "no-store",
+            credentials: "same-origin",
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            lastMessage = data.error ?? "Could not load jobs.";
+            if (res.status >= 500 && attempt < maxAttempts) {
+              await new Promise((r) => setTimeout(r, 350 * attempt));
+              continue;
+            }
+            throw new Error(lastMessage);
+          }
+          setJobs(data.jobs ?? []);
+          setConfigured(Boolean(data.configured));
+          return;
+        } catch (err) {
+          if (attempt < maxAttempts) {
+            await new Promise((r) => setTimeout(r, 350 * attempt));
+            continue;
+          }
+          throw err;
+        }
       }
-      setJobs(data.jobs ?? []);
-      setConfigured(Boolean(data.configured));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not load jobs.");
+      setError(err instanceof Error ? err.message : lastMessage);
     } finally {
       setLoading(false);
     }

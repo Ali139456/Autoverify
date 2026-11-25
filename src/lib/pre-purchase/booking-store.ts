@@ -95,6 +95,15 @@ export async function updatePpiBooking(
   return rowToRecord(data as PpiBookingRow);
 }
 
+function isMissingPpiTableError(message: string, code?: string): boolean {
+  const lower = message.toLowerCase();
+  return (
+    code === "42P01" ||
+    lower.includes("ppi_bookings") ||
+    lower.includes("does not exist")
+  );
+}
+
 export async function listPpiBookings(limit = 200): Promise<PpiBookingRecord[]> {
   if (!isSupabaseServerConfigured()) return [];
   const supabase = createServerClient();
@@ -104,6 +113,11 @@ export async function listPpiBookings(limit = 200): Promise<PpiBookingRecord[]> 
     .order("created_at", { ascending: false })
     .limit(limit);
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    if (isMissingPpiTableError(error.message, error.code)) {
+      return [];
+    }
+    throw new Error(error.message);
+  }
   return (data ?? []).map((row) => rowToRecord(row as PpiBookingRow));
 }

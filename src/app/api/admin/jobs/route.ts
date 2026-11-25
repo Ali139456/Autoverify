@@ -6,8 +6,10 @@ import {
   hasAdminAccess,
   isAdminProtectionConfigured,
 } from "@/lib/admin-auth";
-import { listAdminJobs } from "@/lib/admin/jobs";
+import { loadAdminJobsWithRetry } from "@/lib/admin/load-jobs";
 import { guardRateLimit, secureJson } from "@/lib/security";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   const rateLimited = guardRateLimit(req, "admin-jobs", 60, 60 * 1000);
@@ -24,8 +26,8 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const { jobs, configured } = await listAdminJobs();
-    return NextResponse.json({ jobs, configured });
+    const { jobs, configured, warnings } = await loadAdminJobsWithRetry(3);
+    return NextResponse.json({ jobs, configured, warnings });
   } catch (err) {
     console.error("[admin/jobs]", err);
     return NextResponse.json(

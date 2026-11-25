@@ -1,4 +1,4 @@
-import type { VehicleReport } from "@/lib/types";
+import type { ReportTier, VehicleIdentity } from "@/lib/types";
 import { resolveReportTier } from "@/lib/pricing";
 import { createServerClient, isSupabaseServerConfigured } from "@/lib/supabase/server";
 import { listPpiBookings } from "@/lib/pre-purchase/booking-store";
@@ -44,45 +44,83 @@ function typeLabel(type: AdminJobType): string {
   }
 }
 
-function vehicleSummaryFromReport(report: VehicleReport | null): string | null {
-  if (!report?.vehicle) return null;
-  const { rego, state, make, model, year } = report.vehicle;
-  const bits = [
-    rego && state ? `${rego} ${state}` : rego,
-    [year, make, model].filter(Boolean).join(" "),
-  ].filter(Boolean);
+function vehicleSummaryFromParts(
+  vehicle: VehicleIdentity | null | undefined,
+  rego: string | null,
+  state: string | null,
+): string | null {
+  const regoLine =
+    vehicle?.rego && vehicle.state
+      ? `${vehicle.rego} ${vehicle.state}`
+      : vehicle?.rego ?? (rego ? [rego, state].filter(Boolean).join(" ") : null);
+  const ymm = vehicle
+    ? [vehicle.year, vehicle.make, vehicle.model].filter(Boolean).join(" ")
+    : null;
+  const bits = [regoLine, ymm].filter(Boolean);
   return bits.length ? bits.join(" · ") : null;
 }
+
+type ReportListRow = {
+  id: string;
+  status: string;
+  customer_email: string | null;
+  customer_phone: string | null;
+  rego: string | null;
+  state: string | null;
+  stripe_session_id: string | null;
+  created_at: string;
+  tier?: ReportTier | string | null;
+  hist_email?: string | null;
+  hist_phone?: string | null;
+  vehicle?: VehicleIdentity | null;
+};
+
+const REPORT_LIST_SELECT =
+  "id, status, customer_email, customer_phone, rego, state, stripe_session_id, created_at, tier:history_data->tier, hist_email:history_data->customerEmail, hist_phone:history_data->customerPhone, vehicle:history_data->vehicle";
 
 async function listReportJobs(limit = 250): Promise<AdminJobRow[]> {
   if (!isSupabaseServerConfigured()) return [];
   const supabase = createServerClient();
-  const { data, error } = await supabase
+  let data: ReportListRow[] | null = null;
+
+  const slim = await supabase
     .from("reports")
-    .select("id, status, customer_email, customer_phone, rego, state, stripe_session_id, created_at, history_data")
+    .select(REPORT_LIST_SELECT)
     .order("created_at", { ascending: false })
     .limit(limit);
 
-  if (error) throw new Error(error.message);
+  if (!slim.error) {
+    data = (slim.data ?? []) as ReportListRow[];
+  } else {
+    const full = await supabase
+      .from("reports")
+      .select(
+        "id, status, customer_email, customer_phone, rego, state, stripe_session_id, created_at, history_data",
+      )
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    if (full.error) throw new Error(full.error.message);
+    data = (full.data ?? []).map((raw) => {
+      const row = raw as {
+        history_data: { tier?: ReportTier; customerEmail?: string; customerPhone?: string; vehicle?: VehicleIdentity } | null;
+      } & Omit<ReportListRow, "tier" | "hist_email" | "hist_phone" | "vehicle">;
+      return {
+        ...row,
+        tier: row.history_data?.tier ?? null,
+        hist_email: row.history_data?.customerEmail ?? null,
+        hist_phone: row.history_data?.customerPhone ?? null,
+        vehicle: row.history_data?.vehicle ?? null,
+      };
+    });
+  }
 
   const rows: AdminJobRow[] = [];
-  for (const raw of data ?? []) {
-    const row = raw as {
-      id: string;
-      status: string;
-      customer_email: string | null;
-      customer_phone: string | null;
-      stripe_session_id: string | null;
-      created_at: string;
-      history_data: VehicleReport | null;
-    };
-
+  for (const row of data ?? []) {
     if (row.status === "pending_payment" && !row.stripe_session_id) {
       continue;
     }
 
-    const history = row.history_data;
-    const tier = resolveReportTier(history?.tier);
+    const tier = resolveReportTier(row.tier as ReportTier | undefined);
     const type = reportTypeFromTier(tier);
 
     rows.push({
@@ -91,9 +129,9 @@ async function listReportJobs(limit = 250): Promise<AdminJobRow[]> {
       typeLabel: typeLabel(type),
       status: row.status,
       customerName: null,
-      customerEmail: row.customer_email ?? history?.customerEmail ?? null,
-      customerPhone: row.customer_phone ?? history?.customerPhone ?? null,
-      vehicleSummary: vehicleSummaryFromReport(history),
+      customerEmail: row.customer_email ?? row.hist_email ?? null,
+      customerPhone: row.customer_phone ?? row.hist_phone ?? null,
+      vehicleSummary: vehicleSummaryFromParts(row.vehicle, row.rego, row.state),
       amountAud: null,
       createdAt: row.created_at,
       href: `/report/${encodeURIComponent(row.id)}`,
@@ -103,8 +141,9 @@ async function listReportJobs(limit = 250): Promise<AdminJobRow[]> {
   return rows;
 }
 
-function lavToJob(record: LavBookingRecord): AdminJobRow {
+function lavToJob(record: LavBookingRecord): AdminJobRow | null {
   const p = record.payload;
+  if (!p?.bookingRef) return null;
   const firstAsset = p.assets?.[0];
   const vehicle =
     firstAsset?.rego && firstAsset?.regoState
@@ -128,8 +167,9 @@ function lavToJob(record: LavBookingRecord): AdminJobRow {
   };
 }
 
-function ppiToJob(record: Awaited<ReturnType<typeof listPpiBookings>>[number]): AdminJobRow {
+function ppiToJob(record: Awaited<ReturnType<typeof listPpiBookings>>[number]): AdminJobRow | null {
   const p = record.payload;
+  if (!p?.bookingRef) return null;
   return {
     id: record.bookingRef,
     type: "pre_purchase",
@@ -147,27 +187,48 @@ function ppiToJob(record: Awaited<ReturnType<typeof listPpiBookings>>[number]): 
   };
 }
 
+async function settleList<T>(
+  label: string,
+  run: () => Promise<T[]>,
+  warnings: string[],
+): Promise<T[]> {
+  try {
+    return await run();
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`[admin/jobs] ${label} failed:`, err);
+    warnings.push(`${label}: ${message}`);
+    return [];
+  }
+}
+
 export async function listAdminJobs(): Promise<{
   jobs: AdminJobRow[];
   configured: boolean;
+  warnings?: string[];
 }> {
   if (!isSupabaseServerConfigured()) {
     return { jobs: [], configured: false };
   }
 
+  const warnings: string[] = [];
   const [reports, lav, ppi] = await Promise.all([
-    listReportJobs(),
-    listLavBookings(),
-    listPpiBookings(),
+    settleList("reports", () => listReportJobs(), warnings),
+    settleList("lender asset", () => listLavBookings(), warnings),
+    settleList("pre-purchase", () => listPpiBookings(), warnings),
   ]);
 
   const jobs = [
     ...reports,
-    ...lav.map(lavToJob),
-    ...ppi.map(ppiToJob),
+    ...lav.map(lavToJob).filter((row): row is AdminJobRow => row !== null),
+    ...ppi.map(ppiToJob).filter((row): row is AdminJobRow => row !== null),
   ].sort(
     (a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt),
   );
 
-  return { jobs, configured: true };
+  if (jobs.length === 0 && warnings.length > 0) {
+    throw new Error(warnings.join("; "));
+  }
+
+  return { jobs, configured: true, warnings: warnings.length ? warnings : undefined };
 }
