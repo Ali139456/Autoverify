@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { PrePurchaseBookingForm } from "./PrePurchaseBookingForm";
 
-const PPI_HERO_IMAGE = "/vehicle-inspections/pre-purchase-hero.jpg";
+const PPI_HERO_IMAGE = "/vehicle-inspections/pre-purchase-hero.png";
 
 export function PrePurchaseSite() {
   return (
@@ -14,7 +14,7 @@ export function PrePurchaseSite() {
                 src={PPI_HERO_IMAGE}
                 alt="Qualified mobile inspector assessing a vehicle before purchase"
                 fill
-                className="object-cover object-[42%_45%]"
+                className="object-cover object-[42%_45%] brightness-[1.06] contrast-[1.03]"
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 priority
               />

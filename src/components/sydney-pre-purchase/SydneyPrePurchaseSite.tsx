@@ -27,7 +27,7 @@ import {
   SYDNEY_PPI_PHONE_HREF,
 } from "@/lib/pre-purchase/sydney-landing-content";
 
-const HERO_IMAGE = "/vehicle-inspections/pre-purchase-hero.jpg";
+const HERO_IMAGE = "/vehicle-inspections/pre-purchase-hero.png";
 /** Booking stepper / checkout lives off the marketing landing for now. */
 const BOOKING_HREF = "/inspections/pre-purchase#book";
 
@@ -236,7 +236,7 @@ export function SydneyPrePurchaseSite() {
             src={HERO_IMAGE}
             alt="Auto Verifi inspector at vehicle"
             fill
-            className="object-cover object-[42%_45%]"
+            className="object-cover object-[42%_45%] brightness-[1.06] contrast-[1.03]"
             sizes="(max-width: 1024px) 100vw, 54vw"
             priority
           />
