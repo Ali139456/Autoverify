@@ -7,7 +7,6 @@ import {
   INSPECTION_ANGLE_IDS,
 } from "./inspection-angles";
 import { buildVehicleSpecSheet } from "./vehicle-spec-sheet";
-import type { ManufacturerWarrantyServiceInfo } from "./types";
 import type {
   DamageAnalysis,
   InspectionPhoto,
@@ -59,16 +58,6 @@ const SAMPLE_WALKAROUND_FILES: Record<string, string> = {
 };
 
 const SAMPLE_WALKAROUND_ANGLES = INSPECTION_ANGLE_IDS;
-
-/** Mercedes C300 sample — Denise copy for Key Insights servicing / warranty. */
-const SAMPLE_MANUFACTURER_WARRANTY_SERVICE: ManufacturerWarrantyServiceInfo = {
-  warrantyYears: 5,
-  warrantyKm: null,
-  warrantyKmUnlimited: true,
-  warrantyAntiCorrosionYears: null,
-  regularServiceKm: 25_000,
-  regularServiceMonths: 12,
-};
 
 const SAMPLE_DAMAGE: DamageAnalysis = {
   analyzedPhotos: SAMPLE_WALKAROUND_ANGLES.length,
@@ -301,7 +290,7 @@ function buildMercedesSampleCore() {
     futureValue,
     ai,
     vehicleSpec,
-    manufacturerWarrantyService: SAMPLE_MANUFACTURER_WARRANTY_SERVICE,
+    manufacturerWarrantyService: null,
   };
 }
 

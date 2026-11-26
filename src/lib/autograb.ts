@@ -29,12 +29,7 @@ import type {
 } from "./types";
 import { mapSourcingHistoryPayload } from "./sourcing-odometer-history";
 import { applyRegistrationExpiryInference } from "./registration-info";
-import {
-  DEMO_MANUFACTURER_WARRANTY_SERVICE,
-  fetchManufacturerWarrantyService,
-  isInfoAgentConfigured,
-  isInfoAgentDemoRegistration,
-} from "./infoagent";
+import { isInfoAgentDemoRegistration } from "./infoagent";
 import {
   AutograbAssetCategory,
   buildRegistrationLookupQuery,
@@ -391,26 +386,7 @@ async function lookupViaAutograb(
     result.valuation,
     result.registration,
   );
-  await attachManufacturerWarrantyService(result, options.preview);
   return result;
-}
-
-async function attachManufacturerWarrantyService(
-  result: VehicleLookupResult,
-  preview?: boolean,
-): Promise<void> {
-  if (preview) return;
-  if (isInfoAgentConfigured()) {
-    result.manufacturerWarrantyService = await fetchManufacturerWarrantyService({
-      rego: result.vehicle.rego,
-      state: result.vehicle.state,
-      vin: result.vehicle.vin,
-    });
-    return;
-  }
-  if (!AUTOGRAB_API_KEY) {
-    result.manufacturerWarrantyService = DEMO_MANUFACTURER_WARRANTY_SERVICE;
-  }
 }
 
 function applyCustomerOdometer(
@@ -545,7 +521,6 @@ async function lookupViaVin(
     result.valuation,
     result.registration,
   );
-  await attachManufacturerWarrantyService(result, options.preview);
   return result;
 }
 
@@ -689,7 +664,6 @@ async function lookupViaCatalogueVehicleId(
     result.valuation,
     result.registration,
   );
-  await attachManufacturerWarrantyService(result, options.preview);
   return result;
 }
 
@@ -2057,7 +2031,6 @@ function buildDemoResult(
     market,
     ai,
     vehicleSpec,
-    manufacturerWarrantyService: DEMO_MANUFACTURER_WARRANTY_SERVICE,
   };
 }
 

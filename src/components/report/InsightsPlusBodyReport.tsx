@@ -12,7 +12,6 @@ import {
 } from "@/lib/inspection-angles";
 import type { InspectionPhoto, VehicleReport } from "@/lib/types";
 import { InspectionStarter } from "@/components/InspectionStarter";
-import { DamageUpload } from "@/components/DamageUpload";
 import { ReportShell } from "./ReportShell";
 import { InspectionPhotoEvidenceCaption } from "./InspectionPhotoEvidence";
 import { ReportGuidedPhotoDisclaimer } from "./ReportGuidedPhotoDisclaimer";
@@ -185,13 +184,6 @@ export function InsightsPlusBodyReport({
                   ownerPhone={report.ownerPhone}
                   autoShowQr={!inspectUrl}
                 />
-                <div className="mt-4">
-                  <DamageUpload
-                    reportId={report.id}
-                    savedPhotoCount={photos.length}
-                    analysisInProgress={false}
-                  />
-                </div>
               </div>
             ) : null}
 

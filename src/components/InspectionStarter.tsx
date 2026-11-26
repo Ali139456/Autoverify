@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link2, Loader2, QrCode, Smartphone } from "lucide-react";
+import { Link2, Loader2, QrCode } from "lucide-react";
 import { InspectionQrModal } from "@/components/InspectionQrModal";
 
 type InspectionStarterProps = {
@@ -22,12 +22,8 @@ export function InspectionStarter({
   const [inspectUrl, setInspectUrl] = useState<string | null>(initialInspectUrl);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [smsSent, setSmsSent] = useState(false);
-  const [smsSentToPurchaser, setSmsSentToPurchaser] = useState(false);
   const [smsError, setSmsError] = useState<string | null>(null);
-  const [smsNotice, setSmsNotice] = useState<string | null>(null);
   const [ravinWarning, setRavinWarning] = useState<string | null>(null);
-  const [provider, setProvider] = useState<"ravin" | "internal" | null>(null);
   const [modalOpen, setModalOpen] = useState(() => {
     try {
       const key = `autoverifi-inspection-submitted:${reportId}`;
@@ -69,10 +65,7 @@ export function InspectionStarter({
   ) => {
     setLoading(true);
     setError(null);
-    setSmsSent(false);
-    setSmsSentToPurchaser(false);
     setSmsError(null);
-    setSmsNotice(null);
     setRavinWarning(null);
 
     try {
@@ -115,12 +108,8 @@ export function InspectionStarter({
         throw new Error("Inspection link was not returned. Please try again.");
       }
       setInspectUrl(data.internalInspectUrl ?? data.inspectUrl ?? null);
-      setProvider(data.provider ?? null);
       setRavinWarning(data.ravinWarning ?? null);
-      setSmsSent(Boolean(data.smsSent));
-      setSmsSentToPurchaser(Boolean(data.smsSentToPurchaser));
       setSmsError(data.smsError ?? null);
-      setSmsNotice(data.smsNotice ?? null);
       if (openModal) setModalOpen(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not create inspection link.");
@@ -151,37 +140,16 @@ export function InspectionStarter({
   return (
     <>
       <div className="rounded-2xl border border-accent-500/20 bg-ink-950/70 p-5">
-        <div className="flex items-start gap-3">
-          <span className="rounded-xl border border-accent-500/30 bg-accent-500/10 p-2">
-            <Smartphone className="h-5 w-5 text-accent-400" aria-hidden />
-          </span>
-          <div>
-            <h3 className="font-bold text-white">AI condition check</h3>
-            <p className="mt-1 text-sm text-slate-400">
-              After payment, we text the inspection link to the owner&apos;s mobile and
-              to your number from checkout (when different), so you can complete the
-              scan with the car or forward the link to the owner.
-            </p>
-            {ownerPhone && (
-              <p className="mt-2 text-xs text-slate-500">
-                Owner SMS: <span className="font-medium text-slate-300">{ownerPhone}</span>
-                {customerPhone && customerPhone !== ownerPhone ? (
-                  <>
-                    {" "}
-                    · Purchaser SMS:{" "}
-                    <span className="font-medium text-slate-300">{customerPhone}</span>
-                  </>
-                ) : null}
-              </p>
-            )}
-          </div>
-        </div>
+        <p className="text-sm font-medium text-emerald-400">
+          Auto Verifi guided photo walkthrough — scan the QR code or open the link on the
+          owner&apos;s phone to complete the AI condition scan.
+        </p>
 
         <button
           type="button"
           onClick={openQrModal}
           disabled={loading}
-          className="mt-5 inline-flex items-center gap-2 rounded-xl bg-accent-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-accent-500 disabled:opacity-60"
+          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-accent-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-accent-500 disabled:opacity-60"
         >
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
@@ -190,54 +158,17 @@ export function InspectionStarter({
           ) : (
             <Link2 className="h-4 w-4" aria-hidden />
           )}
-          {loading
-            ? "Preparing mobile link…"
-            : inspectUrl
-              ? "Show QR code"
-              : "Start condition check"}
+          {loading ? "Preparing mobile link…" : "Click QR code for image capture link"}
         </button>
 
-        {smsSent && (
-          <p className="mt-3 text-sm font-medium text-emerald-400">
-            {smsSentToPurchaser
-              ? "Inspection link sent by SMS to the owner and to your mobile."
-              : "Inspection link sent by SMS to the vehicle owner."}
-          </p>
-        )}
         {smsError && (
           <p className="mt-3 text-sm font-medium text-amber-400" role="alert">
             {smsError}
           </p>
         )}
-        {smsNotice && !smsError && (
-          <p className="mt-3 text-sm text-slate-400">{smsNotice}</p>
-        )}
-
-        {provider === "internal" && (
-          <p className="mt-3 text-sm font-medium text-emerald-400">
-            Auto Verifi guided photo walkaround — scan the QR code or open the link on the
-            owner&apos;s phone to complete the AI condition scan.
-          </p>
-        )}
         {ravinWarning && (
-          <p className="mt-2 text-sm text-amber-300" role="alert">
+          <p className="mt-3 text-sm text-amber-300" role="alert">
             {ravinWarning}
-          </p>
-        )}
-        {provider === "internal" && (
-          <button
-            type="button"
-            onClick={() => void startInspection(false, true)}
-            disabled={loading}
-            className="mt-3 text-xs font-bold text-accent-400 underline hover:text-accent-300 disabled:opacity-50"
-          >
-            Refresh inspection link
-          </button>
-        )}
-
-        {inspectUrl && !modalOpen && (
-          <p className="mt-3 text-xs text-slate-500">
-            Mobile inspection link is ready. Open the QR code to continue on another device.
           </p>
         )}
 
