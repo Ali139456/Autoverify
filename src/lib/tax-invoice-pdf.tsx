@@ -20,6 +20,8 @@ import {
 } from "./report-logo-size";
 import { publicPdfImage } from "./pdf-local-image";
 import { formatReportReference } from "./report-design";
+import { PPI_CUSTOMER_BOOKING_HEADING } from "./pre-purchase/constants";
+import type { PrePurchaseBookingPayload } from "./pre-purchase/types";
 import type { VehicleReport } from "./types";
 
 const BLUE = "#0073E3";
@@ -345,6 +347,132 @@ export function TaxInvoicePdf({
           </View>
           <View style={styles.amountRow}>
             <Text style={styles.colDesc}>{productDescription}</Text>
+            <Text style={styles.colAmt}>
+              {formatMoney(listPriceCents, currency)}
+            </Text>
+          </View>
+          {discountCents > 0 ? (
+            <View style={styles.amountRow}>
+              <Text style={styles.colDesc}>{discountLabel}</Text>
+              <Text style={styles.colAmt}>
+                {formatMoney(-discountCents, currency)}
+              </Text>
+            </View>
+          ) : null}
+          <View style={styles.amountRow}>
+            <Text style={styles.colDesc}>GST (10%)</Text>
+            <Text style={styles.colAmt}>{formatMoney(gstCents, currency)}</Text>
+          </View>
+          <View style={styles.amountTotalRow}>
+            <Text style={[styles.colDesc, styles.totalLabel]}>
+              TOTAL PAID (INC. GST)
+            </Text>
+            <Text style={[styles.colAmt, styles.totalAmt]}>
+              {formatMoney(amountPaidCents, currency)}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.pageFooter} fixed>
+          <Image src={LOGO} style={styles.footerLogo} />
+          <Text style={styles.footerMeta}>{company.website}</Text>
+        </View>
+      </Page>
+    </Document>
+  );
+}
+
+export type PpiTaxInvoicePdfProps = {
+  payload: PrePurchaseBookingPayload;
+  invoiceDate: Date;
+  listPriceCents: number;
+  amountPaidCents: number;
+  currency?: string;
+};
+
+export function PpiTaxInvoicePdf({
+  payload,
+  invoiceDate,
+  listPriceCents,
+  amountPaidCents,
+  currency = "aud",
+}: PpiTaxInvoicePdfProps) {
+  const company = getCompanyDetails();
+  const invoiceNumber = payload.bookingRef;
+  const vehicleLabel =
+    `${payload.vehicleYear} ${payload.vehicleMake} ${payload.vehicleModel}`.trim();
+  const regoLine = payload.vehicleRego
+    ? `${payload.vehicleRego} (${payload.vehicleState})`
+    : "—";
+  const vinLine = payload.vehicleVin?.trim() || "—";
+  const discountCents = Math.max(0, listPriceCents - amountPaidCents);
+  const { gstCents } = splitGstInclusive(amountPaidCents);
+  const promoCode = payload.promoCode?.trim();
+  const discountLabel = promoCode
+    ? `Promotion discount (${promoCode.toUpperCase()})`
+    : "Promotion discount";
+
+  return (
+    <Document title={`Tax Invoice ${invoiceNumber}`}>
+      <Page size="A4" style={styles.page}>
+        <View style={styles.topRow}>
+          <View style={{ alignItems: "flex-start" }}>
+            <Image src={LOGO} style={styles.logo} />
+            <Text style={styles.tagline}>
+              Past | Present | Future Vehicle Insights
+            </Text>
+          </View>
+          <Text style={styles.taxTitle}>TAX INVOICE</Text>
+        </View>
+
+        <View style={styles.twoCol}>
+          <View style={styles.box}>
+            <View style={styles.boxHeader}>
+              <Text style={styles.boxHeaderText}>Supplier</Text>
+            </View>
+            <View style={styles.boxBody}>
+              <Text style={styles.boxLineBold}>{company.legalName}</Text>
+              <Text>ABN: {formatAbnDisplay(company.abn || "76692062061")}</Text>
+              <Text>{company.address}</Text>
+              <Text>{company.website}</Text>
+            </View>
+          </View>
+          <View style={styles.box}>
+            <View style={styles.boxHeader}>
+              <Text style={styles.boxHeaderText}>Invoice details</Text>
+            </View>
+            <View style={styles.boxBody}>
+              <Text>Invoice no: {invoiceNumber}</Text>
+              <Text>Invoice date: {formatLongAuDate(invoiceDate)}</Text>
+              <Text style={styles.boxLineBold}>Payment status: PAID</Text>
+            </View>
+          </View>
+        </View>
+
+        <Text style={styles.sectionTitle}>Supply details</Text>
+        <KeyValueTable
+          rows={[
+            { label: "Description", value: PPI_CUSTOMER_BOOKING_HEADING },
+            { label: "Customer", value: payload.contactName.trim() || "—" },
+            { label: "Vehicle", value: vehicleLabel || "—" },
+            { label: "Registration", value: regoLine },
+            { label: "VIN", value: vinLine },
+            { label: "Booking reference", value: payload.bookingRef },
+          ]}
+        />
+
+        <Text style={styles.sectionTitle}>Amount</Text>
+        <View style={styles.amountTable}>
+          <View style={styles.amountHead}>
+            <Text style={[styles.amountHeadText, styles.colDesc]}>
+              Description
+            </Text>
+            <Text style={[styles.amountHeadText, styles.colAmt]}>
+              Amount (inc. GST)
+            </Text>
+          </View>
+          <View style={styles.amountRow}>
+            <Text style={styles.colDesc}>{PPI_CUSTOMER_BOOKING_HEADING}</Text>
             <Text style={styles.colAmt}>
               {formatMoney(listPriceCents, currency)}
             </Text>

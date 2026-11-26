@@ -14,6 +14,10 @@ import {
   getReportTierConfig,
   resolveReportTier,
 } from "./pricing";
+import {
+  NEXT_STEPS_TO_PURCHASE_ITEMS,
+  NEXT_STEPS_TO_PURCHASE_TITLE,
+} from "./car-buying-checklist";
 import type { ReportTier, VehicleReport } from "./types";
 
 const BRAND_BLUE = "#0073E3";
@@ -300,24 +304,16 @@ export function buildPurchaseConfirmationEmailHtml(
           </tr>
           <tr>
             <td style="background:#f8fafc;padding:22px 32px;border-left:1px solid #dbeafe;border-right:1px solid #dbeafe;">
-              <h2 style="margin:0 0 14px;font-size:16px;font-weight:800;color:${BRAND_NAVY};">Next steps to purchase</h2>
+              <h2 style="margin:0 0 14px;font-size:16px;font-weight:800;color:${BRAND_NAVY};">${escapeHtml(NEXT_STEPS_TO_PURCHASE_TITLE)}</h2>
               <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;">
-                ${nextStepRow(
-                  "Pre-purchase inspection",
-                  null,
-                  "Book a professional inspection before you buy (use Google to research a credible mobile pre-purchase inspections provider).",
-                )}
-                ${nextStepRow(
-                  "Payment escrow",
-                  "https://www.veme.me",
-                  "Secure your payment with an independent escrow service.",
-                )}
-                ${nextStepRow(
-                  "Registration and transport",
-                  "https://www.intraffic.com.au",
-                  "Arrange registration transfers and vehicle transport.",
-                  true,
-                )}
+                ${NEXT_STEPS_TO_PURCHASE_ITEMS.map((item, index) =>
+                  nextStepRow(
+                    item.title,
+                    item.href ?? null,
+                    item.body,
+                    index === NEXT_STEPS_TO_PURCHASE_ITEMS.length - 1,
+                  ),
+                ).join("")}
               </table>
             </td>
           </tr>

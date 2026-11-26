@@ -28,9 +28,8 @@ import {
 } from "./p-plate-reference";
 import { formatInspectionPhotoEvidenceLines } from "./inspection-photo-evidence";
 import {
-  CAR_BUYING_CHECKLIST_INTRO,
-  CAR_BUYING_CHECKLIST_ITEMS,
-  CAR_BUYING_CHECKLIST_TITLE,
+  NEXT_STEPS_TO_PURCHASE_ITEMS,
+  NEXT_STEPS_TO_PURCHASE_TITLE,
 } from "./car-buying-checklist";
 import {
   formatInspectionPhotoTileLabel,
@@ -1751,56 +1750,57 @@ function CarBuyingChecklistPage({
   return (
     <PdfPageShell report={report} pageLabel={pageLabel}>
       <View style={styles.body}>
-        <Text style={styles.title}>{CAR_BUYING_CHECKLIST_TITLE}</Text>
-        <Text style={[styles.para, { marginTop: 8 }]}>{CAR_BUYING_CHECKLIST_INTRO}</Text>
+        <Text style={styles.title}>{NEXT_STEPS_TO_PURCHASE_TITLE}</Text>
 
-        <View style={{ marginTop: 12 }}>
-          {CAR_BUYING_CHECKLIST_ITEMS.map((item, index) => (
+        <View
+          style={{
+            marginTop: 12,
+            borderWidth: PDF_BORDER_OUTER,
+            borderColor: BORDER_SLATE_200,
+            borderRadius: 8,
+            overflow: "hidden",
+            backgroundColor: "#ffffff",
+          }}
+        >
+          {NEXT_STEPS_TO_PURCHASE_ITEMS.map((item, index) => (
             <View
               key={item.title}
               style={{
-                flexDirection: "row",
-                marginBottom: 8,
-                padding: 10,
-                backgroundColor: LIGHT,
-                borderRadius: 8,
-                borderWidth: PDF_BORDER_OUTER,
-                borderColor: BORDER_SLATE_200,
+                paddingHorizontal: 14,
+                paddingVertical: 12,
+                borderBottomWidth:
+                  index < NEXT_STEPS_TO_PURCHASE_ITEMS.length - 1
+                    ? PDF_BORDER_INNER
+                    : 0,
+                borderBottomColor: BORDER_SLATE_200,
               }}
               wrap={false}
             >
-              <View
+              <Text
                 style={{
-                  width: 18,
-                  height: 18,
-                  borderRadius: 9,
-                  backgroundColor: BLUE,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginRight: 10,
+                  fontSize: 9,
+                  fontFamily: PDF_SANS,
+                  fontWeight: 700,
+                  color: "#0f172a",
                 }}
               >
-                <Text style={{ color: "#ffffff", fontSize: 8.5, fontFamily: PDF_SANS,
-    fontWeight: 700 }}>
-                  {index + 1}
-                </Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 9, fontFamily: PDF_SANS,
-    fontWeight: 700, color: "#0f172a" }}>
-                  {item.title}
-                </Text>
-                <Text style={[styles.para, { marginTop: 3 }]}>{item.body}</Text>
-                {item.href ? (
-                  <Link
-                    src={item.href}
-                    style={{ marginTop: 4, fontSize: 8, color: BLUE, fontFamily: PDF_SANS,
-    fontWeight: 700 }}
-                  >
-                    {item.linkLabel ?? item.href}
-                  </Link>
-                ) : null}
-              </View>
+                {item.title}
+              </Text>
+              <Text style={[styles.para, { marginTop: 4 }]}>{item.body}</Text>
+              {item.href ? (
+                <Link
+                  src={item.href}
+                  style={{
+                    marginTop: 5,
+                    fontSize: 8.5,
+                    color: BLUE,
+                    fontFamily: PDF_SANS,
+                    fontWeight: 700,
+                  }}
+                >
+                  {item.linkLabel ?? item.href}
+                </Link>
+              ) : null}
             </View>
           ))}
         </View>
@@ -2099,7 +2099,7 @@ export function ReportPdf({
     2 + // Valuations + market; P-plate & ride-share
     specPageCount +
     insightsPlusPageCount +
-    1; // Car buying checklist + general disclaimer (PPSR PDF merged after)
+    1; // Next steps to purchase + general disclaimer (PPSR PDF merged after)
   let pageNumber = 1;
   const nextPageLabel = () => `${pageNumber++} / ${totalPages}`;
   const introLeadLabel = nextPageLabel();

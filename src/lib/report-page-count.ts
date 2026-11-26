@@ -45,7 +45,7 @@ export function countVehicleReportPages(
     pages += 1; // Condition verification photos
     if (_hasAdditionalInspectionPhotos) pages += 1; // Additional photos (keys, registration papers)
   }
-  pages += 1; // Car buying checklist + general disclaimer
+  pages += 1; // Next steps to purchase + general disclaimer
   if (hasPpsrAppendix) pages += PPSR_CERTIFICATE_SHEET_COUNT;
   return pages;
 }

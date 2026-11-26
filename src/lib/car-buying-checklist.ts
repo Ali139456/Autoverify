@@ -1,32 +1,46 @@
-/** "Car Buying Checklist" page shown before the PPSR appendix on every report. */
+/** Final report sheet before PPSR — matches purchase confirmation email footer. */
 
-export const CAR_BUYING_CHECKLIST_TITLE = "Car Buying Checklist";
+export const NEXT_STEPS_TO_PURCHASE_TITLE = "Next steps to purchase";
 
-export const CAR_BUYING_CHECKLIST_INTRO =
-  "After receiving your Auto Verifi report, there are a few more steps to complete in your car buying journey:";
+export const PRE_PURCHASE_INSPECTION_URL =
+  "https://autoverifi.com.au/inspections/pre-purchase";
 
-export type CarBuyingChecklistItem = {
+export type NextStepsToPurchaseItem = {
   title: string;
   body: string;
   linkLabel?: string;
   href?: string;
 };
 
-export const CAR_BUYING_CHECKLIST_ITEMS: readonly CarBuyingChecklistItem[] = [
-  {
-    title: "Independent mechanical inspection",
-    body: "For added confidence before buying your used car, engage an independent mechanic to conduct a thorough physical inspection on the vehicle before buying.",
-  },
-  {
-    title: "Payment Escrow",
-    body: "Always use a payment escrow when exchanging money and transferring ownership on a privately purchased vehicle.",
-    linkLabel: "www.veme.me",
-    href: "https://www.veme.me",
-  },
-  {
-    title: "Registration and Transport",
-    body: "If you need assistance transferring ownership and transporting your car.",
-    linkLabel: "www.intraffic.com.au",
-    href: "https://www.intraffic.com.au",
-  },
-];
+export const NEXT_STEPS_TO_PURCHASE_ITEMS: readonly NextStepsToPurchaseItem[] =
+  [
+    {
+      title: "Pre-purchase inspection",
+      body: "Book a professional inspection before you buy (use Google to research a credible mobile pre-purchase inspections provider).",
+      linkLabel: "autoverifi.com.au/inspections/pre-purchase",
+      href: PRE_PURCHASE_INSPECTION_URL,
+    },
+    {
+      title: "Payment escrow",
+      body: "Secure your payment with an independent escrow service.",
+      linkLabel: "www.veme.me",
+      href: "https://www.veme.me",
+    },
+    {
+      title: "Registration and transport",
+      body: "Arrange registration transfers and vehicle transport.",
+      linkLabel: "www.intraffic.com.au",
+      href: "https://www.intraffic.com.au",
+    },
+  ];
+
+/** @deprecated Use NEXT_STEPS_TO_PURCHASE_* — kept for imports during rename. */
+export const CAR_BUYING_CHECKLIST_TITLE = NEXT_STEPS_TO_PURCHASE_TITLE;
+
+/** @deprecated No longer shown on reports (email layout has no intro line). */
+export const CAR_BUYING_CHECKLIST_INTRO = "";
+
+export type CarBuyingChecklistItem = NextStepsToPurchaseItem;
+
+/** @deprecated Use NEXT_STEPS_TO_PURCHASE_ITEMS */
+export const CAR_BUYING_CHECKLIST_ITEMS = NEXT_STEPS_TO_PURCHASE_ITEMS;

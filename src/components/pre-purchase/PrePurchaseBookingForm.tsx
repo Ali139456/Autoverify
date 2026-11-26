@@ -247,16 +247,6 @@ export function PrePurchaseBookingForm({
             className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-ink-950"
           />
         </label>
-        <label className="block sm:col-span-2">
-          <span className="text-xs font-semibold text-slate-600">
-            Preferred date &amp; time
-          </span>
-          <input
-            name="preferredWhen"
-            placeholder="e.g. Weekday after 3pm"
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-ink-950"
-          />
-        </label>
       </fieldset>
 
       <fieldset className="grid gap-4 sm:grid-cols-2">
@@ -324,7 +314,6 @@ export function PrePurchaseBookingForm({
         <input
           name="promoCode"
           autoComplete="off"
-          placeholder="e.g. AVFREE"
           className="mt-1 w-full max-w-xs rounded-lg border border-slate-300 px-3 py-2 text-sm uppercase dark:border-slate-600 dark:bg-ink-950"
         />
       </label>

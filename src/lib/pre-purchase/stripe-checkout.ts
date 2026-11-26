@@ -4,7 +4,7 @@ import {
   isStripeConfigured,
   REPORT_CURRENCY,
 } from "@/lib/stripe";
-import { PPI_CUSTOMER_BOOKING_HEADING } from "./confirmation-email";
+import { PPI_CUSTOMER_BOOKING_HEADING } from "./constants";
 import type { PrePurchaseBookingPayload } from "./types";
 
 const PPI_CHECKOUT_CANCEL_PATHS = new Set([
