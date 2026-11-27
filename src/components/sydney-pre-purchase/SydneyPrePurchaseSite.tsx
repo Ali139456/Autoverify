@@ -23,6 +23,7 @@ import { PPI_SAMPLE_REPORT_HREF } from "@/lib/pre-purchase/sample-report";
 import { SYDNEY_PPI_SERVICES } from "@/lib/pre-purchase/sydney-ppi-services";
 import {
   SYDNEY_PPI_BOOK_HREF,
+  SYDNEY_PPI_WHAT_WE_CHECK_HREF,
   sydneyPpiServiceHref,
 } from "@/lib/pre-purchase/sydney-ppi-paths";
 import {
@@ -121,13 +122,12 @@ export function SydneyPrePurchaseSite() {
               Book inspection
               <ArrowRight className="h-[1.125rem] w-[1.125rem]" aria-hidden />
             </Link>
-            <button
-              type="button"
-              onClick={() => scrollToSection("what-we-check")}
+            <Link
+              href={SYDNEY_PPI_WHAT_WE_CHECK_HREF}
               className="inline-flex h-12 items-center rounded-full border border-white/35 px-7 text-base font-semibold text-white transition hover:border-white/60"
             >
               See what we check
-            </button>
+            </Link>
           </div>
         </div>
         <figure className="relative aspect-[4/3] w-full min-h-[240px] overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-black/50 sm:rounded-3xl lg:aspect-auto lg:min-h-[min(34rem,52vh)] lg:max-h-[34rem]">

@@ -53,7 +53,7 @@ export function SydneyPpiServiceDetail({ service }: { service: SydneyPpiService 
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </Link>
               <Link
-                href="/sydneyprepurchase#what-we-check"
+                href="/sydneyprepurchase/what-we-check"
                 className="inline-flex h-12 items-center justify-center rounded-full border border-white/30 px-7 text-sm font-semibold text-white"
               >
                 Full 100+ point list

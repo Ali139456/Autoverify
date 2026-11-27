@@ -11,7 +11,12 @@ import {
   SYDNEY_PPI_PHONE_HREF,
 } from "@/lib/pre-purchase/sydney-landing-content";
 import {
+  SYDNEY_PPI_ABOUT_HREF,
   SYDNEY_PPI_BOOK_HREF,
+  SYDNEY_PPI_HOME,
+  SYDNEY_PPI_HOW_IT_WORKS_HREF,
+  SYDNEY_PPI_SERVICES_HREF,
+  SYDNEY_PPI_WHAT_WE_CHECK_HREF,
   sydneyPpiServiceHref,
 } from "@/lib/pre-purchase/sydney-ppi-paths";
 export const PAGE_CONTAINER =
@@ -21,14 +26,16 @@ export function scrollToSection(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 }
 
-const SYDNEY_PPI_HOME = "/sydneyprepurchase";
-
 const NAV_LINKS = [
-  { href: SYDNEY_PPI_HOME, label: "Pre Purchase Inspections" },
-  { href: `${SYDNEY_PPI_HOME}#what-we-check`, label: "What we check" },
-  { href: `${SYDNEY_PPI_HOME}#how-it-works`, label: "How it works" },
-  { href: `${SYDNEY_PPI_HOME}#about-report`, label: "About" },
+  { href: SYDNEY_PPI_SERVICES_HREF, label: "Pre Purchase Inspections" },
+  { href: SYDNEY_PPI_WHAT_WE_CHECK_HREF, label: "What we check" },
+  { href: SYDNEY_PPI_HOW_IT_WORKS_HREF, label: "How it works" },
+  { href: SYDNEY_PPI_ABOUT_HREF, label: "About" },
 ] as const;
+
+function isNavActive(pathname: string, href: string) {
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export function SydneyPpiHeader() {
   const [open, setOpen] = useState(false);
@@ -66,15 +73,21 @@ export function SydneyPpiHeader() {
           aria-label="Sydney pre-purchase"
           className="hidden min-w-0 items-center justify-center gap-3 xl:gap-5 lg:flex"
         >
-          {NAV_LINKS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="whitespace-nowrap text-[12.5px] font-medium leading-none text-slate-300 transition hover:text-white xl:text-[13.5px]"
-            >
-              {item.label}
-            </Link>
-          ))}
+          {NAV_LINKS.map((item) => {
+            const active = isNavActive(pathname, item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`whitespace-nowrap text-[12.5px] font-medium leading-none transition hover:text-white xl:text-[13.5px] ${
+                  active ? "text-white" : "text-slate-300"
+                }`}
+                aria-current={active ? "page" : undefined}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="flex items-center justify-end gap-2 sm:gap-2.5">
@@ -200,7 +213,7 @@ export function SydneyPpiFooter() {
             <ul className="mt-4 space-y-2.5 text-sm text-slate-400">
               <li>
                 <Link
-                  href="/sydneyprepurchase#what-we-check"
+                  href={SYDNEY_PPI_WHAT_WE_CHECK_HREF}
                   className="transition hover:text-white"
                 >
                   What we check
@@ -208,7 +221,7 @@ export function SydneyPpiFooter() {
               </li>
               <li>
                 <Link
-                  href="/sydneyprepurchase#how-it-works"
+                  href={SYDNEY_PPI_HOW_IT_WORKS_HREF}
                   className="transition hover:text-white"
                 >
                   How it works
@@ -216,7 +229,7 @@ export function SydneyPpiFooter() {
               </li>
               <li>
                 <Link
-                  href="/sydneyprepurchase#about-report"
+                  href={SYDNEY_PPI_ABOUT_HREF}
                   className="transition hover:text-white"
                 >
                   About us
@@ -224,7 +237,7 @@ export function SydneyPpiFooter() {
               </li>
               <li>
                 <Link
-                  href="/sydneyprepurchase#faq"
+                  href={SYDNEY_PPI_HOW_IT_WORKS_HREF}
                   className="transition hover:text-white"
                 >
                   Frequently asked questions
