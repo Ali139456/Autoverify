@@ -35,71 +35,83 @@ export function SydneyPpiHeader() {
   const pathname = usePathname();
   const onSydneyHome = pathname === SYDNEY_PPI_HOME;
 
+  const phoneDisplay = SYDNEY_PPI_PHONE.replace(/ /g, "\u00a0");
+
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-[#04070d]/90 backdrop-blur-md">
       <div
-        className={`${PAGE_CONTAINER} flex items-center justify-between gap-4 py-4 lg:py-[1.125rem]`}
+        className={`${PAGE_CONTAINER} grid h-[4.25rem] grid-cols-[auto_1fr_auto] items-center gap-3 sm:h-[4.5rem] sm:gap-4`}
       >
-        {onSydneyHome ? (
-          <button
-            type="button"
-            className="shrink-0 cursor-pointer border-0 bg-transparent p-0"
-            aria-label="Back to top"
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          >
-            <Logo variant="onDark" height={42} linked={false} />
-          </button>
-        ) : (
-          <Logo
-            variant="onDark"
-            height={42}
-            href={SYDNEY_PPI_HOME}
-            className="shrink-0"
-          />
-        )}
+        <div className="min-w-0 justify-self-start">
+          {onSydneyHome ? (
+            <button
+              type="button"
+              className="cursor-pointer border-0 bg-transparent p-0"
+              aria-label="Back to top"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            >
+              <Logo variant="onDark" height={36} linked={false} />
+            </button>
+          ) : (
+            <Logo
+              variant="onDark"
+              height={36}
+              href={SYDNEY_PPI_HOME}
+              className="shrink-0"
+            />
+          )}
+        </div>
 
-        <nav className="hidden items-center gap-7 xl:gap-8 lg:flex">
+        <nav
+          aria-label="Sydney pre-purchase"
+          className="hidden min-w-0 items-center justify-center gap-3 xl:gap-5 lg:flex"
+        >
           {NAV_LINKS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="text-[15px] font-medium text-slate-300 transition hover:text-white"
+              className="whitespace-nowrap text-[12.5px] font-medium leading-none text-slate-300 transition hover:text-white xl:text-[13.5px]"
             >
               {item.label}
             </Link>
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2.5 lg:flex">
-          <Link
-            href={SYDNEY_PPI_BOOK_HREF}
-            className="inline-flex h-10 items-center rounded-full bg-accent-500 px-5 text-[15px] font-bold text-white transition hover:bg-accent-600"
-          >
-            Book inspection
-          </Link>
-          <a
-            href={`mailto:${AUTOVERIFI_CONTACT_EMAIL}`}
-            className="inline-flex h-10 items-center rounded-full border border-white/25 px-5 text-[15px] font-semibold text-white transition hover:border-white/50"
-          >
-            Contact us
-          </a>
-          <a
-            href={SYDNEY_PPI_PHONE_HREF}
-            className="inline-flex items-center gap-2 pl-1 text-[15px] font-semibold text-white"
-          >
-            <Phone className="h-[1.125rem] w-[1.125rem] text-accent-400" aria-hidden />
-            {SYDNEY_PPI_PHONE}
-          </a>
-        </div>
+        <div className="flex items-center justify-end gap-2 sm:gap-2.5">
+          <div className="hidden items-center gap-2 xl:gap-2.5 lg:flex">
+            <Link
+              href={SYDNEY_PPI_BOOK_HREF}
+              className="inline-flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-accent-500 px-4 text-[12.5px] font-bold leading-none text-white transition hover:bg-accent-600 xl:h-[2.375rem] xl:px-5 xl:text-[13.5px]"
+            >
+              Book inspection
+            </Link>
+            <a
+              href={`mailto:${AUTOVERIFI_CONTACT_EMAIL}`}
+              className="inline-flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-full border border-white/25 px-3.5 text-[12.5px] font-semibold leading-none text-white transition hover:border-white/50 xl:h-[2.375rem] xl:px-4 xl:text-[13.5px]"
+            >
+              Contact us
+            </a>
+            <a
+              href={SYDNEY_PPI_PHONE_HREF}
+              className="inline-flex items-center gap-1.5 whitespace-nowrap pl-0.5 text-[12.5px] font-semibold leading-none text-white xl:text-[13.5px]"
+            >
+              <Phone
+                className="h-3.5 w-3.5 shrink-0 text-accent-400 xl:h-4 xl:w-4"
+                aria-hidden
+              />
+              {phoneDisplay}
+            </a>
+          </div>
 
-        <button
-          type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/15 text-white lg:hidden"
-          aria-label={open ? "Close menu" : "Open menu"}
-          onClick={() => setOpen((v) => !v)}
-        >
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+          <button
+            type="button"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 text-white lg:hidden"
+            aria-label={open ? "Close menu" : "Open menu"}
+            onClick={() => setOpen((v) => !v)}
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
 
       {open ? (
