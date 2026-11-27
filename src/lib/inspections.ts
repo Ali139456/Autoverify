@@ -426,3 +426,32 @@ export async function resolveInspectionPhotoUrls(
     }),
   );
 }
+
+/**
+ * Embed walkaround JPEGs as data URLs for @react-pdf (remote signed URLs often fail server-side).
+ */
+export async function loadInspectionPhotosForPdf(
+  inspection: InspectionSession,
+): Promise<InspectionPhoto[]> {
+  const ordered = sortInspectionPhotos(inspection.photos ?? []);
+  if (ordered.length === 0) return ordered;
+
+  try {
+    const downloads = await downloadInspectionPhotos(inspection);
+    const byAngle = new Map(downloads.map((file) => [file.angle, file]));
+    return ordered.map((photo) => {
+      const file = byAngle.get(photo.angle);
+      if (!file) return photo;
+      const contentType = file.contentType?.startsWith("image/")
+        ? file.contentType
+        : "image/jpeg";
+      return {
+        ...photo,
+        externalUrl: `data:${contentType};base64,${file.data.toString("base64")}`,
+      };
+    });
+  } catch (err) {
+    console.error("[inspections] PDF photo embed failed:", err);
+    return resolveInspectionPhotoUrls(ordered);
+  }
+}

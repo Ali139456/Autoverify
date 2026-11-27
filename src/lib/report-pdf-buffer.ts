@@ -2,6 +2,7 @@ import { createElement, ReactElement } from "react";
 import { DocumentProps, renderToBuffer } from "@react-pdf/renderer";
 import {
   getInspectionByReportId,
+  loadInspectionPhotosForPdf,
   resolveInspectionPhotoUrls,
 } from "./inspections";
 import {
@@ -22,9 +23,10 @@ export async function generateReportPdfBuffer(
   report: VehicleReport,
 ): Promise<Buffer> {
   const inspection = await getInspectionByReportId(report.id);
-  let photos: InspectionPhoto[] = await resolveInspectionPhotoUrls(
-    inspection?.photos ?? [],
-  );
+  let photos: InspectionPhoto[] =
+    inspection && (inspection.photos?.length ?? 0) > 0
+      ? await loadInspectionPhotosForPdf(inspection)
+      : await resolveInspectionPhotoUrls(inspection?.photos ?? []);
   if (photos.length === 0 && report.id.startsWith("SAMPLE-")) {
     photos = buildSampleInspectionPhotos();
   }

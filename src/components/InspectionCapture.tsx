@@ -185,7 +185,7 @@ export function InspectionCapture({
   const allPhotosComplete = allRequiredAnglesUploaded(uploadedAngles, angles);
   const captureTitle = lavDigital
     ? "Digital self inspection — Asset lender verification"
-    : "AI condition assessment";
+    : "Current Condition via Image Capture";
   const captureDuration = lavDigital
     ? "Capture the required images on this phone."
     : "This usually takes about 5 minutes to complete.";
@@ -567,8 +567,8 @@ export function InspectionCapture({
               </>
             ) : (
               <>
-                All {angles.length} photos are uploaded. Submit now to send
-                them for AI condition assessment on your Insights+ report.
+                All {angles.length} photos are uploaded. Submit now to add
+                condition images to your Insights+ report.
               </>
             )}
           </p>

@@ -770,7 +770,12 @@ export function formatReportDate(iso: string): string {
 }
 
 export function getInspectionPhotoUrl(photo: InspectionPhoto): string | null {
-  if (photo.externalUrl?.startsWith("http")) return photo.externalUrl;
+  if (
+    photo.externalUrl?.startsWith("http") ||
+    photo.externalUrl?.startsWith("data:")
+  ) {
+    return photo.externalUrl;
+  }
   if (photo.storagePath.startsWith("http")) return photo.storagePath;
   if (photo.storagePath.startsWith("/")) return photo.storagePath;
   return null;
