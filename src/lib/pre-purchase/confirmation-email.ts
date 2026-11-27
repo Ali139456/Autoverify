@@ -90,8 +90,7 @@ export async function sendPrePurchaseCustomerConfirmationEmail(
   <tr><td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;font-size:13px;"><strong>Booking ref</strong><br />${escapeBrandedEmailHtml(payload.bookingRef)}</td></tr>
   <tr><td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;font-size:13px;"><strong>Vehicle</strong><br />${escapeBrandedEmailHtml(vehicle)}</td></tr>
   <tr><td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;font-size:13px;"><strong>Rego</strong><br />${escapeBrandedEmailHtml(payload.vehicleRego)} ${escapeBrandedEmailHtml(payload.vehicleState)}</td></tr>
-  <tr><td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;font-size:13px;"><strong>Location</strong><br />${escapeBrandedEmailHtml(location || "—")}</td></tr>
-  <tr><td style="padding:12px 14px;font-size:13px;"><strong>Preferred time</strong><br />${escapeBrandedEmailHtml(payload.preferredWhen || "We'll contact you to schedule")}</td></tr>
+  <tr><td style="padding:12px 14px;font-size:13px;"><strong>Location</strong><br />${escapeBrandedEmailHtml(location || "—")}</td></tr>
 </table>
 ${buildPpiTaxInvoiceSummaryHtml(payload)}
 <p style="margin:16px 0 0;font-size:14px;line-height:1.6;color:#475569;"><strong>Our team will confirm the inspection date and inspector details by email or phone within 24 hours.</strong></p>`;

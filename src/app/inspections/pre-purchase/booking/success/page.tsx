@@ -19,7 +19,7 @@ export default async function PrePurchaseBookingSuccessPage({
         ) : null}
         <p>
           We will schedule the inspection and be in touch within 24 hours to
-          confirm your inspection time and date.
+          confirm your inspection date and time.
         </p>
       </div>
       <Link

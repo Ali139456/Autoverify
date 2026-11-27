@@ -1,4 +1,6 @@
 import Image from "next/image";
+import Link from "next/link";
+import { PPI_SAMPLE_REPORT_HREF } from "@/lib/pre-purchase/sample-report";
 import { PrePurchaseBookingForm } from "./PrePurchaseBookingForm";
 
 const PPI_HERO_IMAGE = "/vehicle-inspections/pre-purchase-hero.png";
@@ -39,6 +41,16 @@ export function PrePurchaseSite() {
                   Digital report instantly once inspection is completed
                 </li>
               </ul>
+              <p className="mt-6">
+                <Link
+                  href={PPI_SAMPLE_REPORT_HREF}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-accent-600 underline-offset-2 hover:underline dark:text-accent-400"
+                >
+                  Download sample pre-purchase report (PDF)
+                </Link>
+              </p>
             </div>
           </div>
           <PrePurchaseBookingForm />

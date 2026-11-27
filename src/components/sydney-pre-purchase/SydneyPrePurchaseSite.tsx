@@ -26,6 +26,7 @@ import {
   SYDNEY_PPI_PHONE,
   SYDNEY_PPI_PHONE_HREF,
 } from "@/lib/pre-purchase/sydney-landing-content";
+import { PPI_SAMPLE_REPORT_HREF } from "@/lib/pre-purchase/sample-report";
 
 const HERO_IMAGE = "/vehicle-inspections/pre-purchase-hero.png";
 /** Booking stepper / checkout lives off the marketing landing for now. */
@@ -408,10 +409,12 @@ export function SydneyPrePurchaseSite() {
               <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
             <Link
-              href="/sample-report"
+              href={PPI_SAMPLE_REPORT_HREF}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex h-11 items-center gap-2 rounded-full border border-white/30 px-6 text-sm font-semibold text-white"
             >
-              View a sample report
+              Download sample report (PDF)
               <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
             <div className="flex flex-wrap gap-4 text-xs text-slate-400 sm:ml-4">
