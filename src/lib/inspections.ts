@@ -389,7 +389,34 @@ export function getInspectionProgress(photos: InspectionPhoto[]) {
   };
 }
 
-/** Signed URLs for private Supabase bucket paths (web report + PDF render). */
+/** Supabase object key under `inspection-photos` (not a public URL). */
+export function isPersistedInspectionStoragePath(storagePath: string): boolean {
+  const path = storagePath.trim();
+  if (!path || path.startsWith("http") || path.startsWith("/")) return false;
+  return path.includes("/");
+}
+
+/**
+ * Stable same-origin URLs for the web report — no expiring Supabase signed URLs in HTML.
+ */
+export function attachInspectionPhotoWebUrls(
+  reportId: string,
+  photos: InspectionPhoto[],
+): InspectionPhoto[] {
+  const id = reportId.trim().toUpperCase();
+  return sortInspectionPhotos(photos).map((photo) => {
+    if (!isPersistedInspectionStoragePath(photo.storagePath)) {
+      return photo;
+    }
+    const query = new URLSearchParams({ angle: photo.angle });
+    return {
+      ...photo,
+      externalUrl: `/api/report/${encodeURIComponent(id)}/inspection-photo?${query.toString()}`,
+    };
+  });
+}
+
+/** Signed URLs — legacy fallback only (prefer attachInspectionPhotoWebUrls on the web). */
 const INSPECTION_PHOTO_SIGNED_URL_TTL_SEC = 60 * 60 * 24;
 
 export async function resolveInspectionPhotoUrls(
@@ -404,7 +431,10 @@ export async function resolveInspectionPhotoUrls(
 
   return Promise.all(
     ordered.map(async (photo) => {
-      if (photo.externalUrl?.startsWith("http")) {
+      if (
+        photo.externalUrl?.startsWith("http") &&
+        !isPersistedInspectionStoragePath(photo.storagePath)
+      ) {
         return photo;
       }
       if (
@@ -419,12 +449,27 @@ export async function resolveInspectionPhotoUrls(
         .createSignedUrl(photo.storagePath, INSPECTION_PHOTO_SIGNED_URL_TTL_SEC);
 
       if (error || !data?.signedUrl) {
+        console.error(
+          `[inspections] signed URL failed angle=${photo.angle}:`,
+          error?.message,
+        );
         return photo;
       }
 
       return { ...photo, externalUrl: data.signedUrl };
     }),
   );
+}
+
+/** Fail fast when DB lists a photo that is missing from storage. */
+export async function assertInspectionPhotosInStorage(
+  inspection: InspectionSession,
+): Promise<void> {
+  const paths = sortInspectionPhotos(inspection.photos ?? []).filter((photo) =>
+    isPersistedInspectionStoragePath(photo.storagePath),
+  );
+  if (paths.length === 0) return;
+  await downloadInspectionPhotos({ ...inspection, photos: paths });
 }
 
 /**

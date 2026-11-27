@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
+  assertInspectionPhotosInStorage,
   downloadInspectionPhotos,
   getInspectionById,
   getInspectionByToken,
@@ -85,6 +86,7 @@ export async function POST(
       });
     }
 
+    await assertInspectionPhotosInStorage(freshInspection);
     const photoFiles = await downloadInspectionPhotos(freshInspection);
 
     await updateInspection(inspection.id, {

@@ -16,7 +16,7 @@ import {
   getInspectionByReportId,
   getInspectionOwnerUrl,
   isInspectionExpired,
-  resolveInspectionPhotoUrls,
+  attachInspectionPhotoWebUrls,
 } from "@/lib/inspections";
 import { getBaseUrl } from "@/lib/stripe";
 import { PresentAndFutureValueReportPage } from "@/components/report/PresentAndFutureValueReportPage";
@@ -79,7 +79,8 @@ export default async function ReportPage({
       ? stored
       : { ...stored, registration };
   const inspection = await getInspectionByReportId(id);
-  const inspectionPhotos = await resolveInspectionPhotoUrls(
+  const inspectionPhotos = attachInspectionPhotoWebUrls(
+    id,
     inspection?.photos ?? [],
   );
   const inspectUrlForOwner =
