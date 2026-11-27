@@ -22,22 +22,25 @@ export function SydneyPrePurchaseBookPage() {
   return (
     <div className="min-h-screen bg-black text-white">
       <SydneyPpiHeader />
-      <section className="border-b border-white/10 bg-[#03060c]">
-        <div className={`${PAGE_CONTAINER} py-12 sm:py-14`}>
-          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-accent-400">
-            Booking request
-          </p>
-          <h1 className="mt-4 max-w-2xl text-3xl font-extrabold text-white sm:text-4xl">
-            Book inspection
-          </h1>
-          <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-400">
-            Send the vehicle details and the suburb it is in. We reply with a
-            fixed price and the next available inspection time — usually within
-            one business day.
-          </p>
-        </div>
-      </section>
-      <PrePurchaseBookingSection defaultVehicleCategory={defaultCategory} />
+      <PrePurchaseBookingSection
+        defaultVehicleCategory={defaultCategory}
+        containerClassName={PAGE_CONTAINER}
+        pageIntro={
+          <>
+            <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-accent-400">
+              Booking request
+            </p>
+            <h1 className="mt-3 text-[clamp(1.85rem,4vw,2.5rem)] font-extrabold leading-tight text-white">
+              Book inspection
+            </h1>
+            <p className="mt-3 max-w-xl text-[0.95rem] leading-relaxed text-slate-400 sm:text-base">
+              Send the vehicle details and the suburb it is in. We reply with a
+              fixed price and the next available inspection time — usually
+              within one business day.
+            </p>
+          </>
+        }
+      />
       <SydneyPpiFooter />
     </div>
   );

@@ -40,7 +40,7 @@ export function PrePurchaseBookingForm({
 
   const dark = variant === "dark";
   const fieldClass = dark
-    ? "mt-1.5 w-full rounded-lg border border-white/15 bg-[#0c1528] px-3 py-2.5 text-sm text-white placeholder:text-slate-500"
+    ? "mt-1.5 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-white shadow-inner shadow-black/20 placeholder:text-slate-500 focus:border-white/25 focus:outline-none focus:ring-2 focus:ring-accent-500/35"
     : "mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm dark:border-slate-600 dark:bg-ink-950";
   const labelClass = dark
     ? "text-xs font-semibold text-slate-300"
@@ -173,94 +173,105 @@ export function PrePurchaseBookingForm({
         <input type="hidden" name="vehicleCategory" value={vehicleCategory} />
       )}
 
-      <label className="block">
-        <span className={labelClass}>Full name</span>
-        <input
-          required
-          name="contactName"
-          autoComplete="name"
-          placeholder="Jordan Smith"
-          className={fieldClass}
-        />
-      </label>
+      <div className="grid gap-5 sm:grid-cols-2">
+        <label className="block">
+          <span className={labelClass}>Full name</span>
+          <input
+            required
+            name="contactName"
+            autoComplete="name"
+            placeholder="Jordan Smith"
+            className={fieldClass}
+          />
+        </label>
 
-      <label className="block">
-        <span className={labelClass}>Phone</span>
-        <input
-          required
-          name="contactPhone"
-          autoComplete="tel"
-          placeholder="0400 000 000"
-          className={fieldClass}
-        />
-      </label>
+        <label className="block">
+          <span className={labelClass}>Phone</span>
+          <input
+            required
+            name="contactPhone"
+            autoComplete="tel"
+            placeholder="0400 000 000"
+            className={fieldClass}
+          />
+        </label>
 
-      <label className="block">
-        <span className={labelClass}>Email</span>
-        <input
-          required
-          type="email"
-          name="contactEmail"
-          autoComplete="email"
-          placeholder="you@email.com"
-          className={fieldClass}
-        />
-      </label>
+        <label className="block">
+          <span className={labelClass}>Email</span>
+          <input
+            required
+            type="email"
+            name="contactEmail"
+            autoComplete="email"
+            placeholder="you@email.com"
+            className={fieldClass}
+          />
+        </label>
 
-      <label className="block">
-        <span className={labelClass}>Suburb or postcode</span>
-        <input
-          required
-          name="suburbPostcode"
-          autoComplete="postal-code"
-          placeholder="Parramatta 2150"
-          className={fieldClass}
-        />
-      </label>
+        <label className="block">
+          <span className={labelClass}>Suburb or postcode</span>
+          <input
+            required
+            name="suburbPostcode"
+            autoComplete="postal-code"
+            placeholder="Parramatta 2150"
+            className={fieldClass}
+          />
+        </label>
 
-      <label className="block">
-        <span className={labelClass}>Make, model and year</span>
-        <input
-          required
-          name="vehicleDescription"
-          placeholder="2019 Toyota Hilux SR5"
-          className={fieldClass}
-        />
-      </label>
+        <label className="block">
+          <span className={labelClass}>Make, model and year</span>
+          <input
+            required
+            name="vehicleDescription"
+            placeholder="2019 Toyota Hilux SR5"
+            className={fieldClass}
+          />
+        </label>
 
-      <label className="block">
-        <span className={labelClass}>Who is selling it?</span>
-        <select name="sellerType" defaultValue="private" className={fieldClass}>
-          {SELLER_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-      </label>
+        <label className="block">
+          <span className={labelClass}>Who is selling it?</span>
+          <select
+            name="sellerType"
+            defaultValue="private"
+            className={fieldClass}
+          >
+            {SELLER_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </label>
 
-      <label className="block">
-        <span className={labelClass}>Listing link (optional)</span>
-        <input
-          name="listingUrl"
-          type="url"
-          inputMode="url"
-          placeholder="https://"
-          className={fieldClass}
-        />
-      </label>
+        <label className="block">
+          <span className={labelClass}>Listing link (optional)</span>
+          <input
+            name="listingUrl"
+            type="url"
+            inputMode="url"
+            placeholder="https://..."
+            className={fieldClass}
+          />
+        </label>
 
-      <label className="block">
-        <span className={labelClass}>Preferred date (optional)</span>
-        <input name="preferredDate" type="date" className={fieldClass} />
-      </label>
+        <label className="block">
+          <span className={labelClass}>Preferred date (optional)</span>
+          <input
+            name="preferredDate"
+            type="date"
+            className={`${fieldClass}${dark ? " ppi-date-dark" : ""}`}
+          />
+        </label>
+      </div>
 
       <label className="block">
         <span className={labelClass}>Anything we should know? (optional)</span>
         <textarea
           name="accessNotes"
-          rows={3}
-          className={fieldClass}
+          rows={4}
+          placeholder="Seller availability, known issues, or the fault you are most worried about."
+          className={`${fieldClass} resize-y min-h-[7rem]`}
         />
       </label>
 
@@ -278,7 +289,7 @@ export function PrePurchaseBookingForm({
       <button
         type="submit"
         disabled={busy}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent-500 px-4 py-3.5 text-sm font-bold text-white transition hover:bg-accent-600 disabled:opacity-60"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent-500 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-accent-600 disabled:opacity-60 sm:w-auto sm:min-w-[15.5rem]"
       >
         {busy ? "Sending…" : "Request this inspection"}
         <ArrowRight className="h-4 w-4" aria-hidden />

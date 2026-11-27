@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, Phone, X } from "lucide-react";
 import { Logo } from "@/components/Logo";
@@ -20,30 +21,48 @@ export function scrollToSection(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 }
 
+const SYDNEY_PPI_HOME = "/sydneyprepurchase";
+
+const NAV_LINKS = [
+  { href: SYDNEY_PPI_HOME, label: "Pre Purchase Inspections" },
+  { href: `${SYDNEY_PPI_HOME}#what-we-check`, label: "What we check" },
+  { href: `${SYDNEY_PPI_HOME}#how-it-works`, label: "How it works" },
+  { href: `${SYDNEY_PPI_HOME}#about-report`, label: "About" },
+] as const;
+
 export function SydneyPpiHeader() {
   const [open, setOpen] = useState(false);
-
-  const nav = [
-    { id: "what-we-check", label: "What we check", onLanding: true },
-    { id: "how-it-works", label: "How it works", onLanding: true },
-    { id: "about-report", label: "About", onLanding: true },
-    { id: "faq", label: "FAQs", onLanding: true },
-  ];
+  const pathname = usePathname();
+  const onSydneyHome = pathname === SYDNEY_PPI_HOME;
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-[#04070d]/90 backdrop-blur-md">
       <div
         className={`${PAGE_CONTAINER} flex items-center justify-between gap-4 py-4 lg:py-[1.125rem]`}
       >
-        <Link href="/sydneyprepurchase" className="shrink-0">
-          <Logo variant="onDark" height={42} linked={false} />
-        </Link>
+        {onSydneyHome ? (
+          <button
+            type="button"
+            className="shrink-0 cursor-pointer border-0 bg-transparent p-0"
+            aria-label="Back to top"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          >
+            <Logo variant="onDark" height={42} linked={false} />
+          </button>
+        ) : (
+          <Logo
+            variant="onDark"
+            height={42}
+            href={SYDNEY_PPI_HOME}
+            className="shrink-0"
+          />
+        )}
 
         <nav className="hidden items-center gap-7 xl:gap-8 lg:flex">
-          {nav.map((item) => (
+          {NAV_LINKS.map((item) => (
             <Link
-              key={item.id}
-              href={`/sydneyprepurchase#${item.id}`}
+              key={item.href}
+              href={item.href}
               className="text-[15px] font-medium text-slate-300 transition hover:text-white"
             >
               {item.label}
@@ -86,10 +105,10 @@ export function SydneyPpiHeader() {
       {open ? (
         <div className="border-t border-white/10 bg-[#04070d] px-4 py-4 lg:hidden">
           <div className="flex flex-col gap-3">
-            {nav.map((item) => (
+            {NAV_LINKS.map((item) => (
               <Link
-                key={item.id}
-                href={`/sydneyprepurchase#${item.id}`}
+                key={item.href}
+                href={item.href}
                 onClick={() => setOpen(false)}
                 className="text-left text-sm font-medium text-slate-200"
               >

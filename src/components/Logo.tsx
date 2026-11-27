@@ -11,6 +11,8 @@ type LogoProps = {
   maxWidth?: string;
   priority?: boolean;
   linked?: boolean;
+  /** When `linked`, destination (default `/`). Sydney PPI uses `/sydneyprepurchase`. */
+  href?: string;
   /**
    * onLight — all-blue wordmark (light backgrounds).
    * onDark — blue AUTO + white VERIFI (dark header/footer).
@@ -25,6 +27,7 @@ export function Logo({
   maxWidth = "min(280px, 58vw)",
   priority = false,
   linked = true,
+  href = "/",
   variant = "onLight",
 }: LogoProps) {
   const width = Math.round(height * LOGO_ASPECT);
@@ -64,7 +67,7 @@ export function Logo({
   if (!linked) return image;
 
   return (
-    <Link href="/" className="inline-flex shrink-0 items-center">
+    <Link href={href} className="inline-flex shrink-0 items-center">
       {image}
     </Link>
   );

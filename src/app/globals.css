@@ -67,6 +67,10 @@ html.dark body {
   }
 }
 
+.ppi-form-dark input.ppi-date-dark {
+  color-scheme: dark;
+}
+
 .plate-input {
   letter-spacing: 0.15em;
   text-transform: uppercase;

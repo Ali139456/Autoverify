@@ -20,7 +20,7 @@ export function ConditionalSiteChrome({
   );
   const isContactPage = pathname === "/contact";
   const isPrePurchasePage = pathname.startsWith("/inspections/pre-purchase");
-  const isSydneyPpiLanding = pathname === "/sydneyprepurchase";
+  const isSydneyPpiSite = pathname.startsWith("/sydneyprepurchase");
   const hideFooterPurchaseCta =
     pathname.startsWith("/check") ||
     pathname.startsWith("/checkout") ||
@@ -28,7 +28,8 @@ export function ConditionalSiteChrome({
     pathname.startsWith("/sample-report") ||
     isContactPage ||
     isLenderAssetPage ||
-    isPrePurchasePage;
+    isPrePurchasePage ||
+    isSydneyPpiSite;
   const isPreviewLogin = pathname === "/preview";
   const isAdminPage = pathname === "/admin";
   const isComingSoonHome =
@@ -40,9 +41,11 @@ export function ConditionalSiteChrome({
     isInspectionApp ||
     isPreviewLogin ||
     isAdminPage ||
-    isSydneyPpiLanding
+    isSydneyPpiSite
   ) {
-    return <main className="flex-1">{children}</main>;
+    return (
+      <main className="flex-1 bg-black text-white">{children}</main>
+    );
   }
 
   return (
