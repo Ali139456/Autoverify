@@ -20,8 +20,7 @@ import {
   sydneyPpiServiceHref,
 } from "@/lib/pre-purchase/sydney-ppi-paths";
 /** Same horizontal rhythm as the sticky header — use on every content band. */
-export const PAGE_CONTAINER =
-  "mx-auto box-border w-full min-w-0 max-w-[82rem] px-5 sm:px-8 lg:px-10 xl:px-12";
+export const PAGE_CONTAINER = "sydney-ppi-container";
 
 export function scrollToSection(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });

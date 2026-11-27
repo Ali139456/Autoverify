@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { PAGE_CONTAINER } from "./sydney-ppi-chrome";
 
 /** Full-width Sydney PPI page shell (matches header/footer width). */
 export function SydneyPpiPage({ children }: { children: ReactNode }) {
@@ -27,7 +26,7 @@ export function SydneyPpiSection({
       id={id}
       className={`w-full min-w-0 ${className}`.trim()}
     >
-      <div className={`${PAGE_CONTAINER} ${innerClassName}`.trim()}>
+      <div className={`sydney-ppi-container ${innerClassName}`.trim()}>
         {children}
       </div>
     </section>

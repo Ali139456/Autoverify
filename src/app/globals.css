@@ -67,6 +67,38 @@ html.dark body {
   }
 }
 
+/** Sydney pre-purchase — shared horizontal rhythm with sticky header (not Tailwind-only). */
+.sydney-ppi-container {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 77.5rem;
+  margin-inline: auto;
+  padding-inline: max(1.5rem, env(safe-area-inset-left, 0px))
+    max(1.5rem, env(safe-area-inset-right, 0px));
+}
+
+@media (min-width: 640px) {
+  .sydney-ppi-container {
+    padding-inline: max(2rem, env(safe-area-inset-left, 0px))
+      max(2rem, env(safe-area-inset-right, 0px));
+  }
+}
+
+@media (min-width: 1024px) {
+  .sydney-ppi-container {
+    padding-inline: max(2.5rem, env(safe-area-inset-left, 0px))
+      max(2.5rem, env(safe-area-inset-right, 0px));
+  }
+}
+
+@media (min-width: 1280px) {
+  .sydney-ppi-container {
+    padding-inline: max(3rem, env(safe-area-inset-left, 0px))
+      max(3rem, env(safe-area-inset-right, 0px));
+  }
+}
+
 .ppi-form-dark input.ppi-date-dark {
   color-scheme: dark;
 }
