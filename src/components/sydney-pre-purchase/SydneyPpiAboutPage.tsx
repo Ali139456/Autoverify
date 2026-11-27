@@ -2,17 +2,14 @@ import {
   SYDNEY_PPI_ABOUT_INTRO,
   SYDNEY_PPI_FOUNDERS,
 } from "@/lib/pre-purchase/sydney-ppi-founders";
-import {
-  SydneyPpiFooter,
-  SydneyPpiHeader,
-  PAGE_CONTAINER,
-} from "./sydney-ppi-chrome";
+import { SydneyPpiFooter, SydneyPpiHeader } from "./sydney-ppi-chrome";
+import { SydneyPpiPage, SydneyPpiSection } from "./sydney-ppi-layout";
 import { SydneyPpiPageHero } from "./SydneyPpiPageHero";
 import { SydneyPpiCtaBand } from "./SydneyPpiCtaBand";
 
 export function SydneyPpiAboutPage() {
   return (
-    <div className="min-h-screen bg-black text-white">
+    <SydneyPpiPage>
       <SydneyPpiHeader />
       <SydneyPpiPageHero
         eyebrow="About us"
@@ -20,7 +17,7 @@ export function SydneyPpiAboutPage() {
         description={SYDNEY_PPI_ABOUT_INTRO}
       />
 
-      <section className={`${PAGE_CONTAINER} py-14 sm:py-16 lg:py-20`}>
+      <SydneyPpiSection innerClassName="py-14 sm:py-16 lg:py-20">
         <div className="grid gap-4 sm:grid-cols-2">
           {SYDNEY_PPI_FOUNDERS.map((founder) => (
             <article
@@ -46,10 +43,10 @@ export function SydneyPpiAboutPage() {
             </article>
           ))}
         </div>
-      </section>
+      </SydneyPpiSection>
 
       <SydneyPpiCtaBand />
       <SydneyPpiFooter />
-    </div>
+    </SydneyPpiPage>
   );
 }

@@ -13,7 +13,7 @@ export function SydneyPpiCtaBand({
   const faqIsHash = faqHref.startsWith("#");
 
   return (
-    <section className="border-t border-white/10 py-16 sm:py-20">
+    <section className="w-full min-w-0 border-t border-white/10 py-16 sm:py-20">
       <div className={PAGE_CONTAINER}>
         <div className="w-full rounded-3xl border border-white/10 bg-gradient-to-br from-[#0c1528] to-[#060a14] p-8 sm:p-10 lg:p-12">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent-400">

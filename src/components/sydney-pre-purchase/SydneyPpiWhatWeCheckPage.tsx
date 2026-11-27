@@ -3,11 +3,8 @@ import { ArrowRight, Check } from "lucide-react";
 import { PPI_INSPECTION_GROUPS } from "@/lib/pre-purchase/sydney-landing-content";
 import { PPI_SAMPLE_REPORT_HREF } from "@/lib/pre-purchase/sample-report";
 import { SYDNEY_PPI_BOOK_HREF } from "@/lib/pre-purchase/sydney-ppi-paths";
-import {
-  SydneyPpiFooter,
-  SydneyPpiHeader,
-  PAGE_CONTAINER,
-} from "./sydney-ppi-chrome";
+import { SydneyPpiFooter, SydneyPpiHeader } from "./sydney-ppi-chrome";
+import { SydneyPpiPage, SydneyPpiSection } from "./sydney-ppi-layout";
 import { SydneyPpiPageHero } from "./SydneyPpiPageHero";
 import { SydneyPpiCtaBand } from "./SydneyPpiCtaBand";
 
@@ -38,7 +35,7 @@ const STATS = [
 
 export function SydneyPpiWhatWeCheckPage() {
   return (
-    <div className="min-h-screen bg-black text-white">
+    <SydneyPpiPage>
       <SydneyPpiHeader />
       <SydneyPpiPageHero
         eyebrow="The checklist"
@@ -46,7 +43,7 @@ export function SydneyPpiWhatWeCheckPage() {
         description="A comprehensive check covering body and paint, mechanical, chassis and suspension, brakes and tyres, interior and electrics, diagnostics, compliance and history, and a road test — so you can buy with confidence."
       />
 
-      <section className={`${PAGE_CONTAINER} py-14 sm:py-16 lg:py-20`}>
+      <SydneyPpiSection innerClassName="py-14 sm:py-16 lg:py-20">
         <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-accent-400">
           The 100+ point inspection
         </h2>
@@ -95,9 +92,12 @@ export function SydneyPpiWhatWeCheckPage() {
             </div>
           ))}
         </div>
-      </section>
+      </SydneyPpiSection>
 
-      <section className={`${PAGE_CONTAINER} border-t border-white/10 py-14 sm:py-16`}>
+      <SydneyPpiSection
+        className="border-t border-white/10"
+        innerClassName="py-14 sm:py-16"
+      >
         <h2 className="text-2xl font-bold text-white sm:text-3xl">
           How findings are graded
         </h2>
@@ -120,44 +120,45 @@ export function SydneyPpiWhatWeCheckPage() {
             </div>
           ))}
         </div>
-      </section>
+      </SydneyPpiSection>
 
-      <section className="border-t border-white/10 bg-[#03060c] py-14 sm:py-16">
-        <div className={PAGE_CONTAINER}>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent-400">
-            The deliverable
-          </p>
-          <h2 className="mt-3 max-w-3xl text-2xl font-extrabold text-white sm:text-3xl">
-            A report you can act on, not a list of jargon
-          </h2>
-          <p className="mt-4 max-w-2xl text-slate-400">
-            Everything found on site becomes a graded finding with a photograph.
-            Forward it to the seller, take it to a mechanic, or use it to walk
-            away.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center gap-4">
-            <Link
-              href={SYDNEY_PPI_BOOK_HREF}
-              className="inline-flex h-11 items-center gap-2 rounded-full bg-accent-500 px-6 text-sm font-bold text-white"
-            >
-              Book inspection
-              <ArrowRight className="h-4 w-4" aria-hidden />
-            </Link>
-            <Link
-              href={PPI_SAMPLE_REPORT_HREF}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex h-11 items-center gap-2 rounded-full border border-white/30 px-6 text-sm font-semibold text-white"
-            >
-              View a sample report
-              <ArrowRight className="h-4 w-4" aria-hidden />
-            </Link>
-          </div>
+      <SydneyPpiSection
+        className="border-t border-white/10 bg-[#03060c]"
+        innerClassName="py-14 sm:py-16"
+      >
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent-400">
+          The deliverable
+        </p>
+        <h2 className="mt-3 max-w-3xl text-2xl font-extrabold text-white sm:text-3xl">
+          A report you can act on, not a list of jargon
+        </h2>
+        <p className="mt-4 max-w-2xl text-slate-400">
+          Everything found on site becomes a graded finding with a photograph.
+          Forward it to the seller, take it to a mechanic, or use it to walk
+          away.
+        </p>
+        <div className="mt-8 flex flex-wrap items-center gap-4">
+          <Link
+            href={SYDNEY_PPI_BOOK_HREF}
+            className="inline-flex h-11 items-center gap-2 rounded-full bg-accent-500 px-6 text-sm font-bold text-white"
+          >
+            Book inspection
+            <ArrowRight className="h-4 w-4" aria-hidden />
+          </Link>
+          <Link
+            href={PPI_SAMPLE_REPORT_HREF}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex h-11 items-center gap-2 rounded-full border border-white/30 px-6 text-sm font-semibold text-white"
+          >
+            View a sample report
+            <ArrowRight className="h-4 w-4" aria-hidden />
+          </Link>
         </div>
-      </section>
+      </SydneyPpiSection>
 
       <SydneyPpiCtaBand />
       <SydneyPpiFooter />
-    </div>
+    </SydneyPpiPage>
   );
 }

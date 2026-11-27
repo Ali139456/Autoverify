@@ -10,7 +10,7 @@ export function SydneyPpiPageHero({
   description?: string;
 }) {
   return (
-    <section className="relative overflow-hidden border-b border-white/10 bg-black">
+    <section className="relative w-full min-w-0 overflow-hidden border-b border-white/10 bg-black">
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_55%_at_50%_-15%,rgba(0,115,227,0.32),transparent_65%)]"
         aria-hidden

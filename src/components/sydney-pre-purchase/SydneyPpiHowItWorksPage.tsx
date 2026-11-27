@@ -3,11 +3,8 @@ import {
   PPI_FAQ,
   PPI_HOW_IT_WORKS,
 } from "@/lib/pre-purchase/sydney-landing-content";
-import {
-  SydneyPpiFooter,
-  SydneyPpiHeader,
-  PAGE_CONTAINER,
-} from "./sydney-ppi-chrome";
+import { SydneyPpiFooter, SydneyPpiHeader } from "./sydney-ppi-chrome";
+import { SydneyPpiPage, SydneyPpiSection } from "./sydney-ppi-layout";
 import { SydneyPpiPageHero } from "./SydneyPpiPageHero";
 import { SydneyPpiCtaBand } from "./SydneyPpiCtaBand";
 import { SydneyPpiFaqAccordion } from "./SydneyPpiFaqAccordion";
@@ -23,14 +20,14 @@ const FAQ_SLICE = PPI_FAQ.slice(2, 8);
 
 export function SydneyPpiHowItWorksPage() {
   return (
-    <div className="min-h-screen bg-black text-white">
+    <SydneyPpiPage>
       <SydneyPpiHeader />
       <SydneyPpiPageHero
         eyebrow="The process"
         title="How a mobile pre-purchase inspection works"
       />
 
-      <section className={`${PAGE_CONTAINER} py-14 sm:py-16 lg:py-20`}>
+      <SydneyPpiSection innerClassName="py-14 sm:py-16 lg:py-20">
         <ol className="grid gap-5 sm:grid-cols-2">
           {PPI_HOW_IT_WORKS.map((step) => (
             <li
@@ -68,24 +65,25 @@ export function SydneyPpiHowItWorksPage() {
             ))}
           </ul>
         </div>
-      </section>
+      </SydneyPpiSection>
 
-      <section className="border-t border-white/10 bg-[#03060c] py-14 sm:py-16 lg:py-20">
-        <div className={PAGE_CONTAINER}>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent-400">
-            Common questions
-          </p>
-          <h2 className="mt-3 text-3xl font-extrabold text-white sm:text-4xl">
-            Everything else you might ask
-          </h2>
-          <div className="mt-10">
-            <SydneyPpiFaqAccordion items={FAQ_SLICE} />
-          </div>
+      <SydneyPpiSection
+        className="border-t border-white/10 bg-[#03060c]"
+        innerClassName="py-14 sm:py-16 lg:py-20"
+      >
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent-400">
+          Common questions
+        </p>
+        <h2 className="mt-3 text-3xl font-extrabold text-white sm:text-4xl">
+          Everything else you might ask
+        </h2>
+        <div className="mt-10">
+          <SydneyPpiFaqAccordion items={FAQ_SLICE} />
         </div>
-      </section>
+      </SydneyPpiSection>
 
       <SydneyPpiCtaBand />
       <SydneyPpiFooter />
-    </div>
+    </SydneyPpiPage>
   );
 }

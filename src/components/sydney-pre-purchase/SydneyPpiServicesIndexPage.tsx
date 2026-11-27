@@ -2,11 +2,8 @@ import Link from "next/link";
 import { ArrowRight, Bike, Car, Truck, Zap } from "lucide-react";
 import { SYDNEY_PPI_SERVICES } from "@/lib/pre-purchase/sydney-ppi-services";
 import { sydneyPpiServiceHref } from "@/lib/pre-purchase/sydney-ppi-paths";
-import {
-  SydneyPpiFooter,
-  SydneyPpiHeader,
-  PAGE_CONTAINER,
-} from "./sydney-ppi-chrome";
+import { SydneyPpiFooter, SydneyPpiHeader } from "./sydney-ppi-chrome";
+import { SydneyPpiPage, SydneyPpiSection } from "./sydney-ppi-layout";
 import { SydneyPpiPageHero } from "./SydneyPpiPageHero";
 import { SydneyPpiCtaBand } from "./SydneyPpiCtaBand";
 
@@ -20,14 +17,14 @@ const ICONS = {
 
 export function SydneyPpiServicesIndexPage() {
   return (
-    <div className="min-h-screen bg-black text-white">
+    <SydneyPpiPage>
       <SydneyPpiHeader />
       <SydneyPpiPageHero
         eyebrow="Inspection services"
         title="Choose the inspection that matches the vehicle."
         description="Each vehicle type has its own checklist, its own common failures and its own repair costs. We inspect every type onsite, anywhere across Sydney and surrounding regions."
       />
-      <div className={`${PAGE_CONTAINER} py-14 sm:py-16 lg:py-20`}>
+      <SydneyPpiSection innerClassName="py-14 sm:py-16 lg:py-20">
         <div className="divide-y divide-white/10 border-y border-white/10">
           {SYDNEY_PPI_SERVICES.map((service) => {
             const Icon = ICONS[service.categoryId];
@@ -67,9 +64,9 @@ export function SydneyPpiServicesIndexPage() {
             );
           })}
         </div>
-      </div>
+      </SydneyPpiSection>
       <SydneyPpiCtaBand />
       <SydneyPpiFooter />
-    </div>
+    </SydneyPpiPage>
   );
 }

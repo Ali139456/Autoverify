@@ -18,7 +18,7 @@ export function PrePurchaseBookingSection({
   pageIntro?: React.ReactNode;
 } = {}) {
   return (
-    <section className="bg-black pb-16 pt-12 sm:pb-20 sm:pt-14">
+    <section className="w-full min-w-0 bg-black pb-16 pt-12 sm:pb-20 sm:pt-14">
       <div className={containerClassName}>
         {pageIntro ? (
           <div className="mb-10 max-w-2xl sm:mb-12">{pageIntro}</div>

@@ -19,8 +19,9 @@ import {
   SYDNEY_PPI_WHAT_WE_CHECK_HREF,
   sydneyPpiServiceHref,
 } from "@/lib/pre-purchase/sydney-ppi-paths";
+/** Same horizontal rhythm as the sticky header — use on every content band. */
 export const PAGE_CONTAINER =
-  "mx-auto w-full max-w-[82rem] px-5 sm:px-8 lg:px-10 xl:px-12";
+  "mx-auto box-border w-full min-w-0 max-w-[82rem] px-5 sm:px-8 lg:px-10 xl:px-12";
 
 export function scrollToSection(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -45,7 +46,7 @@ export function SydneyPpiHeader() {
   const phoneDisplay = SYDNEY_PPI_PHONE.replace(/ /g, "\u00a0");
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#04070d]/90 backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full min-w-0 border-b border-white/10 bg-[#04070d]/90 backdrop-blur-md">
       <div
         className={`${PAGE_CONTAINER} grid h-[4.25rem] grid-cols-[auto_1fr_auto] items-center gap-3 sm:h-[4.5rem] sm:gap-4`}
       >
@@ -128,7 +129,9 @@ export function SydneyPpiHeader() {
       </div>
 
       {open ? (
-        <div className="border-t border-white/10 bg-[#04070d] px-4 py-4 lg:hidden">
+        <div
+          className={`border-t border-white/10 bg-[#04070d] py-4 lg:hidden ${PAGE_CONTAINER}`}
+        >
           <div className="flex flex-col gap-3">
             {NAV_LINKS.map((item) => (
               <Link
@@ -170,7 +173,7 @@ const FOOTER_INSPECTION_LINKS = [
 
 export function SydneyPpiFooter() {
   return (
-    <footer className="border-t border-white/10 bg-black py-12 sm:py-14">
+    <footer className="w-full min-w-0 border-t border-white/10 bg-black py-12 sm:py-14">
       <div className={PAGE_CONTAINER}>
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-12">
           <div className="min-w-0 space-y-4">

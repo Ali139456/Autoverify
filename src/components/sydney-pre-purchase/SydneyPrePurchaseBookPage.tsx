@@ -6,6 +6,7 @@ import {
   SydneyPpiHeader,
   PAGE_CONTAINER,
 } from "./sydney-ppi-chrome";
+import { SydneyPpiPage } from "./sydney-ppi-layout";
 import { PrePurchaseBookingSection } from "@/components/pre-purchase/PrePurchaseBookingSection";
 import {
   normalizePpiVehicleCategory,
@@ -20,7 +21,7 @@ export function SydneyPrePurchaseBookPage() {
   ) as PpiVehicleCategory;
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <SydneyPpiPage>
       <SydneyPpiHeader />
       <PrePurchaseBookingSection
         defaultVehicleCategory={defaultCategory}
@@ -42,6 +43,6 @@ export function SydneyPrePurchaseBookPage() {
         }
       />
       <SydneyPpiFooter />
-    </div>
+    </SydneyPpiPage>
   );
 }

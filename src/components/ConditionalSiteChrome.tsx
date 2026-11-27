@@ -44,7 +44,9 @@ export function ConditionalSiteChrome({
     isSydneyPpiSite
   ) {
     return (
-      <main className="flex-1 bg-black text-white">{children}</main>
+      <main className="flex min-w-0 w-full flex-1 flex-col overflow-x-clip bg-black text-white">
+        {children}
+      </main>
     );
   }
 

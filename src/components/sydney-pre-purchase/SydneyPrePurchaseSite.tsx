@@ -32,6 +32,7 @@ import {
   SydneyPpiHeader,
   scrollToSection,
 } from "./sydney-ppi-chrome";
+import { SydneyPpiPage, SydneyPpiSection } from "./sydney-ppi-layout";
 
 const HERO_IMAGE = "/vehicle-inspections/pre-purchase-hero.png";
 
@@ -51,7 +52,10 @@ function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <section id="faq" className="scroll-mt-24 border-t border-white/10 py-16 sm:py-20">
+    <section
+      id="faq"
+      className="scroll-mt-24 w-full min-w-0 border-t border-white/10 py-16 sm:py-20"
+    >
       <div className={PAGE_CONTAINER}>
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent-400">
           Common questions
@@ -95,11 +99,11 @@ function FaqSection() {
 
 export function SydneyPrePurchaseSite() {
   return (
-    <div className="min-h-screen bg-black text-white">
+    <SydneyPpiPage>
       <SydneyPpiHeader />
 
-      <section
-        className={`${PAGE_CONTAINER} grid gap-10 py-12 sm:gap-12 sm:py-16 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,1.08fr)] lg:items-center lg:gap-x-12 lg:py-20 xl:gap-x-16 xl:py-24`}
+      <SydneyPpiSection
+        innerClassName="grid gap-10 py-12 sm:gap-12 sm:py-16 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,1.08fr)] lg:items-center lg:gap-x-12 lg:py-20 xl:gap-x-16 xl:py-24"
       >
         <div className="min-w-0 lg:max-w-[38rem]">
           <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-accent-400 sm:text-xs sm:tracking-[0.2em]">
@@ -140,13 +144,13 @@ export function SydneyPrePurchaseSite() {
             priority
           />
         </figure>
-      </section>
+      </SydneyPpiSection>
 
-      <section
+      <SydneyPpiSection
         id="what-we-check"
-        className="scroll-mt-24 border-t border-white/10 bg-[#03060c] py-16 sm:py-20"
+        className="scroll-mt-24 border-t border-white/10 bg-[#03060c]"
+        innerClassName="py-16 sm:py-20"
       >
-        <div className={PAGE_CONTAINER}>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent-400">
             What we inspect
           </p>
@@ -238,14 +242,13 @@ export function SydneyPrePurchaseSite() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
+      </SydneyPpiSection>
 
-      <section
+      <SydneyPpiSection
         id="how-it-works"
-        className="scroll-mt-24 border-t border-white/10 py-16 sm:py-20"
+        className="scroll-mt-24 border-t border-white/10"
+        innerClassName="py-16 sm:py-20"
       >
-        <div className={PAGE_CONTAINER}>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent-400">
             How it works
           </p>
@@ -270,14 +273,13 @@ export function SydneyPrePurchaseSite() {
               </article>
             ))}
           </div>
-        </div>
-      </section>
+      </SydneyPpiSection>
 
-      <section
+      <SydneyPpiSection
         id="about-report"
-        className="scroll-mt-24 border-t border-white/10 bg-[#03060c] py-16 sm:py-20"
+        className="scroll-mt-24 border-t border-white/10 bg-[#03060c]"
+        innerClassName="py-16 sm:py-20"
       >
-        <div className={PAGE_CONTAINER}>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent-400">
             The deliverable
           </p>
@@ -333,13 +335,14 @@ export function SydneyPrePurchaseSite() {
               </span>
             </div>
           </div>
-        </div>
-      </section>
+      </SydneyPpiSection>
 
       <FaqSection />
 
-      <section className="border-t border-white/10 py-16 sm:py-20">
-        <div className={PAGE_CONTAINER}>
+      <SydneyPpiSection
+        className="border-t border-white/10"
+        innerClassName="py-16 sm:py-20"
+      >
           <div className="w-full rounded-3xl border border-white/10 bg-gradient-to-br from-[#0c1528] to-[#060a14] p-8 sm:p-10 lg:p-12">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent-400">
               Ready when you are
@@ -383,10 +386,9 @@ export function SydneyPrePurchaseSite() {
               </span>
             ))}
           </div>
-        </div>
-      </section>
+      </SydneyPpiSection>
 
       <SydneyPpiFooter />
-    </div>
+    </SydneyPpiPage>
   );
 }
