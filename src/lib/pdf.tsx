@@ -830,7 +830,7 @@ function PdfInsightCard({
                 <View style={{ width: "100%" }}>
                   {insight.lines.map((line, lineIndex) => (
                     <Text
-                      key={line.text}
+                      key={`${line.variant}-${lineIndex}-${line.text.slice(0, 12)}`}
                       style={{
                         fontSize:
                           insight.id === "rideshare"
@@ -840,6 +840,7 @@ function PdfInsightCard({
                         color: pdfRideShareLineColor(line.variant),
                         marginTop: lineIndex === 0 ? 0 : 2,
                         lineHeight: PDF_INSIGHT_LINE,
+                        textAlign: insight.id === "rideshare" ? "left" : undefined,
                       }}
                     >
                       {reportInsightCopy(line.text)}

@@ -89,12 +89,24 @@ export function reportInsightCopy(text: string): string {
   return text
     .replace(/\bVerify ANCAP rating here:/gi, "Verify\u00A0ANCAP\u00A0rating\u00A0here:")
     .replace(
+      /\bContact the vehicle owner or selling dealer for service history records and confirm any outstanding services or upcoming servicing\/ repair requirements\./gi,
+      "Contact the vehicle\u00A0owner or selling\u00A0dealer for service\u00A0history records and confirm any outstanding\u00A0services or upcoming\u00A0servicing/repair\u00A0requirements.",
+    )
+    .replace(
       /\bContact the vehicle owner or selling dealer for service history records and review owners manual\/vehicle handbook for servicing intervals and guidelines\./gi,
-      "Contact the vehicle\u00A0owner or selling\u00A0dealer for service\u00A0history records and review owners\u00A0manual/vehicle\u00A0handbook for servicing\u00A0intervals and\u00A0guidelines.",
+      SERVICE_HISTORY_DETAIL,
+    )
+    .replace(
+      /\bContact Authorised Dealer \/ Service Centre and quote VIN to confirm remaining Manufacturer's warranty, or check the Owner's Handbook and Service records\./gi,
+      MANUFACTURER_WARRANTY_CONFIRM_DETAIL,
+    )
+    .replace(
+      /\bContact Authorised Dealer\/Services centre and quote VIN to confirm remaining Manufacturer's warranty, or check the Owner's Handbook and Service records\./gi,
+      MANUFACTURER_WARRANTY_CONFIRM_DETAIL,
     )
     .replace(
       /\bContact Authorised Dealer\/service centre and quote VIN to confirm remaining Manufacturer's warranty\./gi,
-      "Contact\u00A0Authorised\u00A0Dealer/service\u00A0centre and quote VIN to confirm remaining Manufacturer's warranty.",
+      MANUFACTURER_WARRANTY_CONFIRM_DETAIL,
     )
     .replace(
       /\bCheck state specific requirements\. Refer table below\./gi,
@@ -119,6 +131,16 @@ export function reportInsightCopy(text: string): string {
     .replace(/\bEncumbered\b/g, "Encumbered")
     .replace(/\bCheck state specific\b/gi, "Check\u00A0state\u00A0specific");
 }
+
+/** Ride share tile footer — split so narrow cards keep “Check state specific” on one line. */
+export const RIDE_SHARE_CHECK_REQUIREMENTS_LINE =
+  "Check\u00A0state\u00A0specific\u00A0requirements.";
+export const RIDE_SHARE_REFER_TABLE_LINE = "Refer\u00A0table\u00A0below.";
+
+const RIDE_SHARE_ACTION_FOOTER_LINES: ReportInsightLine[] = [
+  { text: RIDE_SHARE_CHECK_REQUIREMENTS_LINE, variant: "action" },
+  { text: RIDE_SHARE_REFER_TABLE_LINE, variant: "action" },
+];
 
 export function hasOdometerHistory(vehicle: VehicleReport["vehicle"]): boolean {
   return Boolean(vehicle.odometerHistory && vehicle.odometerHistory.length > 0);
@@ -195,10 +217,10 @@ export const ANCAP_SAFETY_RATINGS_LINK_LABEL = "ancap.com.au/safety-ratings";
 export const VEHICLE_RECALLS_GOV_AU_URL = "https://www.vehiclerecalls.gov.au";
 
 export const SERVICE_HISTORY_DETAIL =
-  "Contact the vehicle owner or selling dealer for service history records and confirm any outstanding services or upcoming servicing / repair requirements. Owners manual/vehicle handbook contains manufacturers recommended servicing intervals and guidelines.";
+  "Contact the vehicle\u00A0owner or selling\u00A0dealer for service\u00A0history records and confirm any outstanding\u00A0services or upcoming\u00A0servicing/repair\u00A0requirements.";
 
 export const MANUFACTURER_WARRANTY_CONFIRM_DETAIL =
-  "Contact Authorised Dealer/Services centre and quote VIN to confirm remaining Manufacturer's warranty, or check the Owner's Handbook and Service records.";
+  "Contact\u00A0Authorised\u00A0Dealer / Service\u00A0Centre and quote VIN to confirm remaining Manufacturer's\u00A0warranty, or check the Owner's\u00A0Handbook and Service\u00A0records.";
 
 /** Warranty remaining / expiry line for the overview block (when AutoGrab supplies a value). */
 export function formatWarrantyRemainingDisplay(
@@ -561,10 +583,7 @@ function buildRideShareKeyInsight(report: VehicleReport): ReportInsight {
         { text: "Age — eligible", variant: "eligible" },
         { text: "Doors — eligible", variant: "eligible" },
         { text: "Passenger capacity — eligible", variant: "eligible" },
-        {
-          text: "Check state\u00A0specific\u00A0requirements. Refer\u00A0table\u00A0below.",
-          variant: "action",
-        },
+        ...RIDE_SHARE_ACTION_FOOTER_LINES,
       ],
     };
   }
@@ -578,10 +597,7 @@ function buildRideShareKeyInsight(report: VehicleReport): ReportInsight {
       quickLine("Age", check.ageCheck),
       quickLine("Doors", check.doorsCheck),
       quickLine("Passenger capacity", check.passengersCheck),
-      {
-        text: "Check state\u00A0specific\u00A0requirements. Refer\u00A0table\u00A0below.",
-        variant: "action",
-      },
+      ...RIDE_SHARE_ACTION_FOOTER_LINES,
     ],
   };
 }
@@ -723,7 +739,7 @@ export function buildKeyInsights(report: VehicleReport): ReportInsight[] {
     },
     {
       id: "servicing-guidelines",
-      title: "Servicing Guidelines and Service History",
+      title: "Service History",
       ...formatServicingGuidelines(report.manufacturerWarrantyService),
     },
     buildRideShareKeyInsight(report),

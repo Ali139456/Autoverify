@@ -578,6 +578,10 @@ html.dark body {
   text-align: left;
 }
 
+.report-view .report-insight-card[data-insight-id="rideshare"] p {
+  text-align: left;
+}
+
 .report-view .report-status-items span {
   hyphens: none;
   -webkit-hyphens: none;
