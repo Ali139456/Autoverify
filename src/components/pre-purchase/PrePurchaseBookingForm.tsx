@@ -1,30 +1,25 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { ArrowRight } from "lucide-react";
+import { useState } from "react";
 import {
-  isSydneyMetroPostcode,
-  PPI_PRICE_INC_GST,
-} from "@/lib/pre-purchase/parse-booking-body";
-import {
-  listPriceForPpiVehicleCategory,
   normalizePpiVehicleCategory,
   type PpiVehicleCategory,
 } from "@/lib/pre-purchase/vehicle-pricing";
+import { SYDNEY_PPI_SERVICES } from "@/lib/pre-purchase/sydney-ppi-services";
 
-const AU_STATES = ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "ACT", "NT"] as const;
-
-const VEHICLE_CATEGORY_OPTIONS: { value: PpiVehicleCategory; label: string }[] =
-  [
-    { value: "passenger", label: "Passenger car / SUV ($290)" },
-    { value: "commercial", label: "Ute, van or 4WD ($290)" },
-    { value: "ev", label: "EV or hybrid ($290)" },
-    { value: "caravan", label: "Caravan / trailer ($390)" },
-    { value: "motorcycle", label: "Motorcycle ($190)" },
-  ];
+const SELLER_OPTIONS = [
+  { value: "private", label: "Private seller" },
+  { value: "dealer", label: "Dealer" },
+  { value: "auction", label: "Auction" },
+  { value: "unknown", label: "Not sure" },
+] as const;
 
 type PrePurchaseBookingFormProps = {
   variant?: "light" | "dark";
   cancelReturnPath?: string;
+  /** Quote-first flow (no Stripe on submit). */
+  requestFlow?: boolean;
   showVehicleCategory?: boolean;
   defaultVehicleCategory?: PpiVehicleCategory;
 };
@@ -32,7 +27,8 @@ type PrePurchaseBookingFormProps = {
 export function PrePurchaseBookingForm({
   variant = "light",
   cancelReturnPath,
-  showVehicleCategory = false,
+  requestFlow = false,
+  showVehicleCategory = true,
   defaultVehicleCategory = "passenger",
 }: PrePurchaseBookingFormProps = {}) {
   const [busy, setBusy] = useState(false);
@@ -42,21 +38,13 @@ export function PrePurchaseBookingForm({
     defaultVehicleCategory,
   );
 
-  const listPrice = useMemo(
-    () => listPriceForPpiVehicleCategory(vehicleCategory),
-    [vehicleCategory],
-  );
-
   const dark = variant === "dark";
   const fieldClass = dark
-    ? "mt-1 w-full rounded-lg border border-white/15 bg-[#0c1528] px-3 py-2 text-sm text-white placeholder:text-slate-500"
-    : "mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-ink-950";
+    ? "mt-1.5 w-full rounded-lg border border-white/15 bg-[#0c1528] px-3 py-2.5 text-sm text-white placeholder:text-slate-500"
+    : "mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm dark:border-slate-600 dark:bg-ink-950";
   const labelClass = dark
     ? "text-xs font-semibold text-slate-300"
     : "text-xs font-semibold text-slate-600";
-  const legendClass = dark
-    ? "col-span-full text-sm font-bold text-white"
-    : "col-span-full text-sm font-bold text-slate-900 dark:text-white";
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -69,16 +57,11 @@ export function PrePurchaseBookingForm({
     body.vehicleCategory = normalizePpiVehicleCategory(
       body.vehicleCategory ?? vehicleCategory,
     );
+    if (requestFlow) {
+      body.requestFlow = "true";
+    }
     if (cancelReturnPath) {
       body.cancelReturnPath = cancelReturnPath;
-    }
-    const postcode = String(body.postcode ?? "").trim();
-    if (!isSydneyMetroPostcode(postcode)) {
-      setError(
-        "Use a 4-digit Sydney metro postcode between 2000 and 2234 (e.g. Mosman 2088).",
-      );
-      setBusy(false);
-      return;
     }
 
     try {
@@ -95,7 +78,7 @@ export function PrePurchaseBookingForm({
         bookingRef?: string;
       };
       if (!res.ok) {
-        setError(json.error ?? "Booking failed.");
+        setError(json.error ?? "Could not send your request.");
         return;
       }
       if (json.successUrl) {
@@ -108,7 +91,7 @@ export function PrePurchaseBookingForm({
       }
       setMessage(
         json.message ??
-          `Booking ${json.bookingRef ?? ""} received. We'll confirm by email.`,
+          `Request ${json.bookingRef ?? ""} received. We'll be in touch shortly.`,
       );
       form.reset();
     } catch {
@@ -118,54 +101,68 @@ export function PrePurchaseBookingForm({
     }
   }
 
+  const categoryOptions = SYDNEY_PPI_SERVICES.map((service) => {
+    const note = service.priceNote ? ` (${service.priceNote})` : "";
+    return {
+      value: service.categoryId,
+      label: `${service.label} — ${service.priceLabel}${note}`,
+    };
+  });
+
   return (
     <form
       id="book"
       onSubmit={onSubmit}
       className={
         dark
-          ? "ppi-form ppi-form-dark mx-auto max-w-2xl space-y-6 rounded-2xl border border-white/10 bg-[#0a1122] p-6 shadow-xl shadow-black/30 [&_input]:border-white/15 [&_input]:bg-[#0c1528] [&_input]:text-white [&_legend]:text-white [&_select]:border-white/15 [&_select]:bg-[#0c1528] [&_select]:text-white [&_span]:text-slate-300 [&_textarea]:border-white/15 [&_textarea]:bg-[#0c1528] [&_textarea]:text-white"
-          : "ppi-form mx-auto max-w-2xl space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-ink-900"
+          ? "ppi-form ppi-form-dark space-y-5 rounded-2xl border border-white/10 bg-gradient-to-br from-[#0a1a3f] via-[#0c1d4d] to-[#0a0f2e] p-6 sm:p-8"
+          : "ppi-form mx-auto max-w-2xl space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-ink-900"
       }
     >
       <div>
+        <p
+          className={
+            dark
+              ? "text-[11px] font-bold uppercase tracking-[0.2em] text-accent-400"
+              : "text-[11px] font-bold uppercase tracking-[0.2em] text-accent-500"
+          }
+        >
+          Booking request
+        </p>
         <h2
           className={
             dark
-              ? "text-2xl font-bold text-white"
-              : "text-2xl font-bold text-slate-900 dark:text-white"
+              ? "mt-2 text-2xl font-bold text-white sm:text-[1.65rem]"
+              : "mt-2 text-2xl font-bold text-slate-900 dark:text-white sm:text-[1.65rem]"
           }
         >
-          Book a pre-purchase inspection
+          Book inspection
         </h2>
         <p
           className={
             dark
-              ? "mt-2 text-sm text-slate-400"
-              : "mt-2 text-sm text-slate-600 dark:text-slate-400"
+              ? "mt-3 text-sm leading-relaxed text-slate-400"
+              : "mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400"
           }
         >
-          Mobile inspection at the seller&apos;s location.{" "}
-          <span className="font-semibold text-accent-500">
-            ${showVehicleCategory ? listPrice : PPI_PRICE_INC_GST} incl. GST
-          </span>
+          Send the vehicle details and the suburb it is in. We reply with a fixed
+          price and the next available inspection time — usually within one
+          business day.
         </p>
       </div>
 
       {showVehicleCategory ? (
         <label className="block">
-          <span className={labelClass}>Inspection type</span>
+          <span className={labelClass}>Vehicle type</span>
           <select
             name="vehicleCategory"
             value={vehicleCategory}
             onChange={(e) =>
-              setVehicleCategory(
-                normalizePpiVehicleCategory(e.target.value),
-              )
+              setVehicleCategory(normalizePpiVehicleCategory(e.target.value))
             }
             className={fieldClass}
           >
-            {VEHICLE_CATEGORY_OPTIONS.map((opt) => (
+            {categoryOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
               </option>
@@ -173,158 +170,107 @@ export function PrePurchaseBookingForm({
           </select>
         </label>
       ) : (
-        <input type="hidden" name="vehicleCategory" value="passenger" />
+        <input type="hidden" name="vehicleCategory" value={vehicleCategory} />
       )}
 
-      <fieldset className="grid gap-4 sm:grid-cols-2">
-        <legend className="col-span-full text-sm font-bold text-slate-900 dark:text-white">
-          Your details
-        </legend>
-        <label className="block sm:col-span-2">
-          <span className="text-xs font-semibold text-slate-600">Full name</span>
-          <input
-            required
-            name="contactName"
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-ink-950"
-          />
-        </label>
-        <label className="block">
-          <span className="text-xs font-semibold text-slate-600">Email</span>
-          <input
-            required
-            type="email"
-            name="contactEmail"
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-ink-950"
-          />
-        </label>
-        <label className="block">
-          <span className="text-xs font-semibold text-slate-600">Mobile</span>
-          <input
-            required
-            name="contactPhone"
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-ink-950"
-          />
-        </label>
-      </fieldset>
-
-      <fieldset className="grid gap-4 sm:grid-cols-2">
-        <legend className="col-span-full text-sm font-bold text-slate-900 dark:text-white">
-          Inspection location
-        </legend>
-        <label className="block sm:col-span-2">
-          <span className="text-xs font-semibold text-slate-600">Street address</span>
-          <input
-            name="addressLine"
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-ink-950"
-          />
-        </label>
-        <label className="block">
-          <span className="text-xs font-semibold text-slate-600">Suburb</span>
-          <input
-            required
-            name="suburb"
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-ink-950"
-          />
-        </label>
-        <label className="block">
-          <span className="text-xs font-semibold text-slate-600">Postcode (NSW 2000–2234)</span>
-          <input
-            required
-            name="postcode"
-            type="text"
-            inputMode="numeric"
-            autoComplete="postal-code"
-            maxLength={4}
-            placeholder="2088"
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-ink-950"
-          />
-        </label>
-        <label className="block sm:col-span-2">
-          <span className="text-xs font-semibold text-slate-600">Access / parking notes</span>
-          <textarea
-            name="accessNotes"
-            rows={2}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-ink-950"
-          />
-        </label>
-      </fieldset>
-
-      <fieldset className="grid gap-4 sm:grid-cols-2">
-        <legend className="col-span-full text-sm font-bold text-slate-900 dark:text-white">
-          Vehicle
-        </legend>
-        <label className="block">
-          <span className="text-xs font-semibold text-slate-600">Year</span>
-          <input
-            required
-            name="vehicleYear"
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-ink-950"
-          />
-        </label>
-        <label className="block">
-          <span className="text-xs font-semibold text-slate-600">Make</span>
-          <input
-            required
-            name="vehicleMake"
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-ink-950"
-          />
-        </label>
-        <label className="block sm:col-span-2">
-          <span className="text-xs font-semibold text-slate-600">Model</span>
-          <input
-            required
-            name="vehicleModel"
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-ink-950"
-          />
-        </label>
-        <label className="block">
-          <span className="text-xs font-semibold text-slate-600">Registration</span>
-          <input
-            name="vehicleRego"
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-ink-950"
-          />
-        </label>
-        <label className="block">
-          <span className="text-xs font-semibold text-slate-600">State</span>
-          <select
-            name="vehicleState"
-            defaultValue="NSW"
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-ink-950"
-          >
-            {AU_STATES.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="block sm:col-span-2">
-          <span className="text-xs font-semibold text-slate-600">VIN (if no rego yet)</span>
-          <input
-            name="vehicleVin"
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-ink-950"
-          />
-        </label>
-      </fieldset>
+      <label className="block">
+        <span className={labelClass}>Full name</span>
+        <input
+          required
+          name="contactName"
+          autoComplete="name"
+          placeholder="Jordan Smith"
+          className={fieldClass}
+        />
+      </label>
 
       <label className="block">
-        <span className="text-xs font-semibold text-slate-600">
-          Discount code (optional)
-        </span>
+        <span className={labelClass}>Phone</span>
         <input
-          name="promoCode"
-          autoComplete="off"
-          className="mt-1 w-full max-w-xs rounded-lg border border-slate-300 px-3 py-2 text-sm uppercase dark:border-slate-600 dark:bg-ink-950"
+          required
+          name="contactPhone"
+          autoComplete="tel"
+          placeholder="0400 000 000"
+          className={fieldClass}
+        />
+      </label>
+
+      <label className="block">
+        <span className={labelClass}>Email</span>
+        <input
+          required
+          type="email"
+          name="contactEmail"
+          autoComplete="email"
+          placeholder="you@email.com"
+          className={fieldClass}
+        />
+      </label>
+
+      <label className="block">
+        <span className={labelClass}>Suburb or postcode</span>
+        <input
+          required
+          name="suburbPostcode"
+          autoComplete="postal-code"
+          placeholder="Parramatta 2150"
+          className={fieldClass}
+        />
+      </label>
+
+      <label className="block">
+        <span className={labelClass}>Make, model and year</span>
+        <input
+          required
+          name="vehicleDescription"
+          placeholder="2019 Toyota Hilux SR5"
+          className={fieldClass}
+        />
+      </label>
+
+      <label className="block">
+        <span className={labelClass}>Who is selling it?</span>
+        <select name="sellerType" defaultValue="private" className={fieldClass}>
+          {SELLER_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className="block">
+        <span className={labelClass}>Listing link (optional)</span>
+        <input
+          name="listingUrl"
+          type="url"
+          inputMode="url"
+          placeholder="https://"
+          className={fieldClass}
+        />
+      </label>
+
+      <label className="block">
+        <span className={labelClass}>Preferred date (optional)</span>
+        <input name="preferredDate" type="date" className={fieldClass} />
+      </label>
+
+      <label className="block">
+        <span className={labelClass}>Anything we should know? (optional)</span>
+        <textarea
+          name="accessNotes"
+          rows={3}
+          className={fieldClass}
         />
       </label>
 
       {error ? (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+        <p className="rounded-lg border border-red-500/40 bg-red-950/40 px-3 py-2 text-sm text-red-200">
           {error}
         </p>
       ) : null}
       {message ? (
-        <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
+        <p className="rounded-lg border border-emerald-500/40 bg-emerald-950/30 px-3 py-2 text-sm text-emerald-100">
           {message}
         </p>
       ) : null}
@@ -332,9 +278,10 @@ export function PrePurchaseBookingForm({
       <button
         type="submit"
         disabled={busy}
-        className="w-full rounded-lg bg-accent-500 px-4 py-3 text-sm font-bold text-white transition hover:bg-accent-600 disabled:opacity-60"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent-500 px-4 py-3.5 text-sm font-bold text-white transition hover:bg-accent-600 disabled:opacity-60"
       >
-        {busy ? "Submitting…" : "Book Pre Purchase Inspection"}
+        {busy ? "Sending…" : "Request this inspection"}
+        <ArrowRight className="h-4 w-4" aria-hidden />
       </button>
     </form>
   );

@@ -9,32 +9,34 @@ import {
   Bike,
   Car,
   Check,
-  Menu,
-  Phone,
   Truck,
-  X,
   Zap,
 } from "lucide-react";
-import { Logo } from "@/components/Logo";
-import { AUTOVERIFI_CONTACT_EMAIL } from "@/lib/site-contact";
 import {
   PPI_FAQ,
   PPI_HOW_IT_WORKS,
   PPI_INSPECTION_GROUPS,
   PPI_VEHICLE_TYPES,
   SYDNEY_INSPECTION_AREAS,
-  SYDNEY_PPI_PHONE,
-  SYDNEY_PPI_PHONE_HREF,
 } from "@/lib/pre-purchase/sydney-landing-content";
 import { PPI_SAMPLE_REPORT_HREF } from "@/lib/pre-purchase/sample-report";
+import { SYDNEY_PPI_SERVICES } from "@/lib/pre-purchase/sydney-ppi-services";
+import {
+  SYDNEY_PPI_BOOK_HREF,
+  sydneyPpiServiceHref,
+} from "@/lib/pre-purchase/sydney-ppi-paths";
+import {
+  PAGE_CONTAINER,
+  SydneyPpiFooter,
+  SydneyPpiHeader,
+  scrollToSection,
+} from "./sydney-ppi-chrome";
 
 const HERO_IMAGE = "/vehicle-inspections/pre-purchase-hero.png";
-/** Booking stepper / checkout lives off the marketing landing for now. */
-const BOOKING_HREF = "/inspections/pre-purchase#book";
 
-/** Base44 mock reads larger; scale container/type for 100% browser zoom. */
-const PAGE_CONTAINER =
-  "mx-auto w-full max-w-[82rem] px-5 sm:px-8 lg:px-10 xl:px-12";
+const SLUG_BY_CATEGORY = Object.fromEntries(
+  SYDNEY_PPI_SERVICES.map((s) => [s.categoryId, s.slug]),
+) as Record<string, string>;
 
 const VEHICLE_ICONS = {
   passenger: Car,
@@ -43,110 +45,6 @@ const VEHICLE_ICONS = {
   caravan: Truck,
   motorcycle: Bike,
 } as const;
-
-function scrollTo(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-}
-
-function SydneyHeader() {
-  const [open, setOpen] = useState(false);
-
-  const nav = [
-    { id: "what-we-check", label: "What we check" },
-    { id: "how-it-works", label: "How it works" },
-    { id: "about-report", label: "About" },
-    { id: "faq", label: "FAQs" },
-  ];
-
-  return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#04070d]/90 backdrop-blur-md">
-      <div
-        className={`${PAGE_CONTAINER} flex items-center justify-between gap-4 py-4 lg:py-[1.125rem]`}
-      >
-        <Link href="/sydneyprepurchase" className="shrink-0">
-          <Logo variant="onDark" height={42} linked={false} />
-        </Link>
-
-        <nav className="hidden items-center gap-7 xl:gap-8 lg:flex">
-          {nav.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => scrollTo(item.id)}
-              className="text-[15px] font-medium text-slate-300 transition hover:text-white"
-            >
-              {item.label}
-            </button>
-          ))}
-        </nav>
-
-        <div className="hidden items-center gap-2.5 lg:flex">
-          <Link
-            href={BOOKING_HREF}
-            className="inline-flex h-10 items-center rounded-full bg-accent-500 px-5 text-[15px] font-bold text-white transition hover:bg-accent-600"
-          >
-            Book inspection
-          </Link>
-          <a
-            href={`mailto:${AUTOVERIFI_CONTACT_EMAIL}`}
-            className="inline-flex h-10 items-center rounded-full border border-white/25 px-5 text-[15px] font-semibold text-white transition hover:border-white/50"
-          >
-            Contact us
-          </a>
-          <a
-            href={SYDNEY_PPI_PHONE_HREF}
-            className="inline-flex items-center gap-2 pl-1 text-[15px] font-semibold text-white"
-          >
-            <Phone className="h-[1.125rem] w-[1.125rem] text-accent-400" aria-hidden />
-            {SYDNEY_PPI_PHONE}
-          </a>
-        </div>
-
-        <button
-          type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/15 text-white lg:hidden"
-          aria-label={open ? "Close menu" : "Open menu"}
-          onClick={() => setOpen((v) => !v)}
-        >
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
-      </div>
-
-      {open ? (
-        <div className="border-t border-white/10 bg-[#04070d] px-4 py-4 lg:hidden">
-          <div className="flex flex-col gap-3">
-            {nav.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => {
-                  setOpen(false);
-                  scrollTo(item.id);
-                }}
-                className="text-left text-sm font-medium text-slate-200"
-              >
-                {item.label}
-              </button>
-            ))}
-            <a
-              href={SYDNEY_PPI_PHONE_HREF}
-              className="text-sm font-semibold text-white"
-            >
-              {SYDNEY_PPI_PHONE}
-            </a>
-            <Link
-              href={BOOKING_HREF}
-              onClick={() => setOpen(false)}
-              className="mt-2 inline-flex h-10 items-center justify-center rounded-full bg-accent-500 text-sm font-bold text-white"
-            >
-              Book inspection
-            </Link>
-          </div>
-        </div>
-      ) : null}
-    </header>
-  );
-}
 
 function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -197,7 +95,7 @@ function FaqSection() {
 export function SydneyPrePurchaseSite() {
   return (
     <div className="min-h-screen bg-black text-white">
-      <SydneyHeader />
+      <SydneyPpiHeader />
 
       <section
         className={`${PAGE_CONTAINER} grid gap-10 py-12 sm:gap-12 sm:py-16 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,1.08fr)] lg:items-center lg:gap-x-12 lg:py-20 xl:gap-x-16 xl:py-24`}
@@ -217,7 +115,7 @@ export function SydneyPrePurchaseSite() {
           </p>
           <div className="mt-9 flex flex-wrap gap-3 sm:mt-10">
             <Link
-              href={BOOKING_HREF}
+              href={SYDNEY_PPI_BOOK_HREF}
               className="inline-flex h-12 items-center gap-2.5 rounded-full bg-accent-500 px-7 text-base font-bold text-white transition hover:bg-accent-600"
             >
               Book inspection
@@ -225,7 +123,7 @@ export function SydneyPrePurchaseSite() {
             </Link>
             <button
               type="button"
-              onClick={() => scrollTo("what-we-check")}
+              onClick={() => scrollToSection("what-we-check")}
               className="inline-flex h-12 items-center rounded-full border border-white/35 px-7 text-base font-semibold text-white transition hover:border-white/60"
             >
               See what we check
@@ -255,13 +153,18 @@ export function SydneyPrePurchaseSite() {
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {PPI_VEHICLE_TYPES.map((card) => {
               const Icon = VEHICLE_ICONS[card.id];
+              const slug = SLUG_BY_CATEGORY[card.id];
+              const href = slug
+                ? sydneyPpiServiceHref(slug)
+                : SYDNEY_PPI_BOOK_HREF;
               return (
-                <article
+                <Link
                   key={card.id}
-                  className="relative rounded-2xl border border-white/10 bg-[#0c1528] p-5"
+                  href={href}
+                  className="group relative block rounded-2xl border border-white/10 bg-[#0c1528] p-5 transition hover:border-white/25"
                 >
                   <ArrowUpRight
-                    className="absolute right-4 top-4 h-4 w-4 text-slate-500"
+                    className="absolute right-4 top-4 h-4 w-4 text-slate-500 transition group-hover:text-accent-400"
                     aria-hidden
                   />
                   <div className="mb-4 inline-flex rounded-lg border border-white/10 bg-white/5 p-2">
@@ -277,7 +180,7 @@ export function SydneyPrePurchaseSite() {
                   <p className="mt-4 text-sm font-bold text-white">
                     ${card.price} incl. GST
                   </p>
-                </article>
+                </Link>
               );
             })}
           </div>
@@ -402,7 +305,7 @@ export function SydneyPrePurchaseSite() {
           </div>
           <div className="mt-10 flex flex-wrap items-center gap-4">
             <Link
-              href={BOOKING_HREF}
+              href={SYDNEY_PPI_BOOK_HREF}
               className="inline-flex h-11 items-center gap-2 rounded-full bg-accent-500 px-6 text-sm font-bold text-white"
             >
               Book inspection
@@ -451,7 +354,7 @@ export function SydneyPrePurchaseSite() {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                href={BOOKING_HREF}
+                href={SYDNEY_PPI_BOOK_HREF}
                 className="inline-flex h-12 items-center gap-2 rounded-full bg-accent-500 px-7 text-base font-bold text-white"
               >
                 Book inspection
@@ -459,7 +362,7 @@ export function SydneyPrePurchaseSite() {
               </Link>
               <button
                 type="button"
-                onClick={() => scrollTo("faq")}
+                onClick={() => scrollToSection("faq")}
                 className="inline-flex h-12 items-center rounded-full border border-white/30 px-7 text-base font-semibold text-white"
               >
                 Read the FAQs
@@ -483,140 +386,7 @@ export function SydneyPrePurchaseSite() {
         </div>
       </section>
 
-      <footer className="border-t border-white/10 bg-black py-12 sm:py-14">
-        <div className={PAGE_CONTAINER}>
-          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-12">
-            <div className="min-w-0 space-y-4">
-              <Logo variant="onDark" height={36} linked={false} />
-              <p className="max-w-sm text-sm leading-relaxed text-slate-400">
-                Independent mobile pre-purchase inspections for cars, light
-                commercial vehicles, caravans and motorcycles. We travel to the
-                vehicle and report the same day.
-              </p>
-              <Link
-                href={BOOKING_HREF}
-                className="text-sm font-semibold text-accent-400 transition hover:text-accent-300"
-              >
-                Book inspection
-              </Link>
-            </div>
-
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">
-                Pre purchase inspections
-              </p>
-              <ul className="mt-4 space-y-2.5 text-sm text-slate-400">
-                <li>
-                  <Link
-                    href={BOOKING_HREF}
-                    className="transition hover:text-white"
-                  >
-                    Passenger vehicles inspection
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href={BOOKING_HREF}
-                    className="transition hover:text-white"
-                  >
-                    Utes, vans &amp; 4WDs inspection
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href={BOOKING_HREF}
-                    className="transition hover:text-white"
-                  >
-                    Electric vehicles inspection
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href={BOOKING_HREF}
-                    className="transition hover:text-white"
-                  >
-                    Caravans inspection
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href={BOOKING_HREF}
-                    className="transition hover:text-white"
-                  >
-                    Motorcycles inspection
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">
-                Company
-              </p>
-              <ul className="mt-4 space-y-2.5 text-sm text-slate-400">
-                <li>
-                  <button
-                    type="button"
-                    onClick={() => scrollTo("what-we-check")}
-                    className="text-left transition hover:text-white"
-                  >
-                    What we check
-                  </button>
-                </li>
-                <li>
-                  <button
-                    type="button"
-                    onClick={() => scrollTo("how-it-works")}
-                    className="text-left transition hover:text-white"
-                  >
-                    How it works
-                  </button>
-                </li>
-                <li>
-                  <button
-                    type="button"
-                    onClick={() => scrollTo("about-report")}
-                    className="text-left transition hover:text-white"
-                  >
-                    About us
-                  </button>
-                </li>
-                <li>
-                  <button
-                    type="button"
-                    onClick={() => scrollTo("faq")}
-                    className="text-left transition hover:text-white"
-                  >
-                    Frequently asked questions
-                  </button>
-                </li>
-                <li>
-                  <a
-                    href={`mailto:${AUTOVERIFI_CONTACT_EMAIL}?subject=Sydney%20pre-purchase%20quote`}
-                    className="transition hover:text-white"
-                  >
-                    Request a quote
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="mt-12 flex flex-col gap-4 border-t border-white/10 pt-6 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-            <p>© 2026 AUTOVERIFi. Independent vehicle inspections.</p>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <Link href="/terms" className="transition hover:text-slate-300">
-                Terms of Service
-              </Link>
-              <Link href="/privacy" className="transition hover:text-slate-300">
-                Privacy Policy
-              </Link>
-              <span className="hidden text-slate-600 sm:inline">|</span>
-              <span>Servicing Sydney and surrounding regions.</span>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <SydneyPpiFooter />
     </div>
   );
 }

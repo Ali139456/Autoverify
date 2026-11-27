@@ -65,6 +65,8 @@ export async function POST(req: NextRequest) {
         vehicleModel: "",
         vehicleYear: "",
         preferredWhen: meta.ppiWhen ?? "",
+        sellerType: String(meta.ppiSellerType ?? ""),
+        listingUrl: String(meta.ppiListingUrl ?? ""),
         priceIncGst:
           session.amount_total != null
             ? session.amount_total / 100

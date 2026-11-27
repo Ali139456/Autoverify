@@ -69,7 +69,9 @@ function buildPpiTaxInvoiceSummaryHtml(
 
 export async function sendPrePurchaseCustomerConfirmationEmail(
   payload: PrePurchaseBookingPayload,
+  options?: { requestAckOnly?: boolean },
 ): Promise<void> {
+  const requestAck = options?.requestAckOnly === true;
   const apiKey = process.env.RESEND_API_KEY?.trim();
   if (!apiKey) return;
 
@@ -86,10 +88,22 @@ export async function sendPrePurchaseCustomerConfirmationEmail(
     .filter((s) => s.trim())
     .join(", ");
 
-  const bodyHtml = `<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border:1px solid #e2e8f0;border-radius:10px;border-collapse:separate;overflow:hidden;margin-top:4px;">
+  const regoRow = payload.vehicleRego?.trim()
+    ? `<tr><td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;font-size:13px;"><strong>Rego</strong><br />${escapeBrandedEmailHtml(payload.vehicleRego)} ${escapeBrandedEmailHtml(payload.vehicleState)}</td></tr>`
+    : "";
+
+  const bodyHtml = requestAck
+    ? `<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border:1px solid #e2e8f0;border-radius:10px;border-collapse:separate;overflow:hidden;margin-top:4px;">
+  <tr><td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;font-size:13px;"><strong>Reference</strong><br />${escapeBrandedEmailHtml(payload.bookingRef)}</td></tr>
+  <tr><td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;font-size:13px;"><strong>Vehicle</strong><br />${escapeBrandedEmailHtml(vehicle)}</td></tr>
+  ${regoRow}
+  <tr><td style="padding:12px 14px;font-size:13px;"><strong>Suburb</strong><br />${escapeBrandedEmailHtml(`${payload.suburb} NSW ${payload.postcode}`)}</td></tr>
+</table>
+<p style="margin:16px 0 0;font-size:14px;line-height:1.6;color:#475569;">We will reply with a fixed price and the next available inspection time — usually within one business day.</p>`
+    : `<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border:1px solid #e2e8f0;border-radius:10px;border-collapse:separate;overflow:hidden;margin-top:4px;">
   <tr><td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;font-size:13px;"><strong>Booking ref</strong><br />${escapeBrandedEmailHtml(payload.bookingRef)}</td></tr>
   <tr><td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;font-size:13px;"><strong>Vehicle</strong><br />${escapeBrandedEmailHtml(vehicle)}</td></tr>
-  <tr><td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;font-size:13px;"><strong>Rego</strong><br />${escapeBrandedEmailHtml(payload.vehicleRego)} ${escapeBrandedEmailHtml(payload.vehicleState)}</td></tr>
+  ${regoRow}
   <tr><td style="padding:12px 14px;font-size:13px;"><strong>Location</strong><br />${escapeBrandedEmailHtml(location || "—")}</td></tr>
 </table>
 ${buildPpiTaxInvoiceSummaryHtml(payload)}
@@ -98,21 +112,25 @@ ${buildPpiTaxInvoiceSummaryHtml(payload)}
   const html = buildBrandedEmailLayout({
     baseUrl,
     eyebrow: PPI_CUSTOMER_BOOKING_HEADING,
-    title: "Booking confirmed",
-    headerMetaLabel: "Booked",
-    introHtml: `Hi ${escapeBrandedEmailHtml(payload.contactName)}, thanks — your pre-purchase inspection is confirmed.`,
+    title: requestAck ? "Request received" : "Booking confirmed",
+    headerMetaLabel: requestAck ? "Received" : "Booked",
+    introHtml: requestAck
+      ? `Hi ${escapeBrandedEmailHtml(payload.contactName)}, thanks — we received your inspection request.`
+      : `Hi ${escapeBrandedEmailHtml(payload.contactName)}, thanks — your pre-purchase inspection is confirmed.`,
     bodyHtml,
   });
 
   const attachments: { filename: string; content: string }[] = [];
-  try {
-    const invoicePdf = await generatePpiTaxInvoicePdfBuffer(payload);
-    attachments.push({
-      filename: "Auto-Verifi-Tax-Invoice.pdf",
-      content: invoicePdf.toString("base64"),
-    });
-  } catch (err) {
-    console.error("[ppi-booking] tax invoice PDF failed:", err);
+  if (!requestAck) {
+    try {
+      const invoicePdf = await generatePpiTaxInvoicePdfBuffer(payload);
+      attachments.push({
+        filename: "Auto-Verifi-Tax-Invoice.pdf",
+        content: invoicePdf.toString("base64"),
+      });
+    } catch (err) {
+      console.error("[ppi-booking] tax invoice PDF failed:", err);
+    }
   }
 
   const to = [payload.contactEmail.trim().toLowerCase()];

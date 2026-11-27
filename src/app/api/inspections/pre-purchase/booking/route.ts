@@ -15,7 +15,9 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = (await readBoundedJson(req)) as Record<string, unknown>;
-    const parsed = parsePrePurchaseBookingBody(body);
+    const requestFlow =
+      body.requestFlow === true || String(body.requestFlow) === "true";
+    const parsed = parsePrePurchaseBookingBody(body, { requestFlow });
     if ("error" in parsed) {
       return NextResponse.json({ error: parsed.error }, { status: 400 });
     }
@@ -24,6 +26,24 @@ export async function POST(req: NextRequest) {
       ...parsed.payload,
       bookingRef: allocatePrePurchaseBookingRef(),
     };
+
+    if (requestFlow) {
+      await savePpiBooking(payload, "pending_payment").catch((err) => {
+        console.error("[ppi-booking] save failed:", err);
+      });
+      await notifyPrePurchaseBooking(payload, false);
+      await sendPrePurchaseCustomerConfirmationEmail(payload, {
+        requestAckOnly: true,
+      }).catch((err) => {
+        console.error("[ppi-booking] request ack email failed:", err);
+      });
+      const baseUrl = getBaseUrl();
+      return NextResponse.json({
+        ok: true,
+        bookingRef: payload.bookingRef,
+        successUrl: `${baseUrl}/inspections/pre-purchase/booking/success?ref=${encodeURIComponent(payload.bookingRef)}&requested=1`,
+      });
+    }
 
     const unitCents = Math.round(payload.priceIncGst * 100);
     if (unitCents <= 0) {

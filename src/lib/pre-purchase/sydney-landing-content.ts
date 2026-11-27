@@ -142,27 +142,43 @@ export const PPI_HOW_IT_WORKS = [
 export const PPI_FAQ = [
   {
     q: "What is a pre-purchase inspection?",
-    a: "An independent, on-site check of a used vehicle before you buy. It covers mechanical condition, body and paint, interior, underbody, electronics, compliance items, diagnostic scan and a road test where safe.",
+    a: "A pre-purchase inspection is an independent, on-site check of a used vehicle before you buy it. An inspector examines the mechanical condition, body and paint, interior, underbody, electronics and compliance details, runs a diagnostic scan and a road test, then provides a written report of everything found.",
   },
   {
     q: "What vehicles do you inspect?",
-    a: "Passenger cars and SUVs, light commercial (utes, vans, 4WDs), caravans and trailers, motorcycles and scooters, plus hybrids and electric vehicles.",
+    a: "We inspect passenger cars and SUVs, light commercial vehicles such as utes, vans and 4WDs, caravans and trailers, and motorcycles and scooters. Each vehicle type follows a checklist specific to its construction and the faults that matter most.",
   },
   {
     q: "How long does an inspection take?",
-    a: "Most passenger vehicles take 60 to 90 minutes. Commercial vehicles, caravans and motorcycles can take up to two hours.",
+    a: "Most passenger vehicles take 60 to 90 minutes on site. Light commercial vehicles, caravans and motorcycles can take up to two hours depending on size and access.",
   },
   {
     q: "Do you come to the vehicle?",
-    a: "Yes. We travel to the seller's home, dealership, storage facility or caravan park across Greater Sydney.",
+    a: "Yes. The inspection happens where the vehicle is stored — the seller's home, a dealership yard, a storage facility or a caravan park. You do not need to move the vehicle or be present.",
   },
   {
     q: "What is included in the report?",
-    a: "Body and paint, mechanical, chassis, suspension, brakes, tyres, interior, electrics, diagnostic codes, compliance checks (VIN, PPSR, odometer) and road test results. Findings are graded, photographed and explained.",
+    a: "The report covers body and paint condition, mechanical systems, chassis and suspension, brakes and tyres, interior and electrics, diagnostic fault codes, compliance checks including VIN, PPSR and odometer verification, and the results of a road test. Each finding is graded, photographed and explained in plain English.",
   },
   {
     q: "Can the report help me negotiate the price?",
-    a: "Yes. Findings can support a lower offer where repairs, defects or items for further review are identified.",
+    a: "Yes. Use our findings to negotiate on the price where any repairs, defects or items for review are identified that could affect the cost of bringing the vehicle to roadworthy or good condition.",
+  },
+  {
+    q: "Do you check for accident damage and odometer tampering?",
+    a: "Yes. Paint depth readings expose repaired or replaced panels, underbody inspection looks for structural repair, and we cross-check the odometer against service records and the PPSR report.",
+  },
+  {
+    q: "How much does a pre-purchase inspection cost?",
+    a: "All passenger cars and SUVs are a fixed price of $290 incl. GST. Other vehicle types are priced based on size and location, and we will confirm a fixed price before you commit.",
+  },
+  {
+    q: "How soon can you inspect a vehicle?",
+    a: "Most inspections are booked within one to two business days, and urgent inspections can often be arranged sooner. Availability depends on the seller's access and your location.",
+  },
+  {
+    q: "What if the seller will not allow an inspection?",
+    a: "Treat it as a warning sign. A genuine seller with nothing to hide will usually welcome an independent inspection. If access is refused, we recommend walking away rather than buying blind.",
   },
 ] as const;
 
