@@ -109,9 +109,9 @@ export function SydneyPrePurchaseSite() {
           <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-accent-400 sm:text-xs sm:tracking-[0.2em]">
             Pre-purchase inspections · Sydney wide
           </p>
-          <h1 className="mt-5 text-[1.875rem] font-extrabold leading-[1.1] tracking-tight text-white sm:mt-6 sm:text-4xl lg:text-[2.85rem] lg:leading-[1.08] xl:text-[3.35rem]">
-            Buy with confidence with a comprehensive mobile pre-purchase
-            inspection
+          <h1 className="mt-5 text-[1.65rem] font-extrabold leading-[1.12] tracking-tight text-pretty text-white sm:mt-6 sm:text-[1.85rem] md:text-[2rem] lg:text-[2.65rem] lg:leading-[1.08] xl:text-[3rem]">
+            Buy with confidence with a comprehensive mobile{" "}
+            <span className="whitespace-nowrap">pre-purchase</span> inspection
           </h1>
           <p className="mt-6 max-w-[36rem] text-base leading-[1.65] text-slate-400 sm:text-lg sm:leading-relaxed">
             A qualified inspector travels to the vehicle, completes an identity
