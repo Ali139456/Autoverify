@@ -3,13 +3,14 @@ import {
   INSPECTION_ANGLE_IDS,
   INSPECTION_LINK_TTL_HOURS,
   INSPECTION_PHOTO_BUCKET,
-  getInspectionAngleLabel,
+  getInspectionAngleLabelForReport,
   isValidInspectionAngleId,
   sortInspectionPhotos,
 } from "./inspection-angles";
 import { createServerClient } from "./supabase/server";
 import { isSupabaseServerConfigured } from "./supabase/server";
 import { mergeInspectionPhotosByAngle } from "./merge-inspection-photos";
+import { getReport } from "./store";
 import { InspectionPhoto, InspectionSession, InspectionStatus } from "./types";
 
 type InspectionRow = {
@@ -310,9 +311,11 @@ export async function uploadInspectionPhoto(input: {
     throw new Error(`${uploadError.message}${hint}`);
   }
 
+  const report = await getReport(input.inspection.reportId);
+
   const photo: InspectionPhoto = {
     angle: input.angle,
-    label: getInspectionAngleLabel(input.angle),
+    label: getInspectionAngleLabelForReport(input.angle, report),
     storagePath,
     uploadedAt: new Date().toISOString(),
     capturedAt: input.capturedAt ?? null,

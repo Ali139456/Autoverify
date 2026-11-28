@@ -1,5 +1,5 @@
 import {
-  getInspectionAngleLabel,
+  getInspectionAngleLabelForReport,
   LAV_DIGITAL_INSPECTION_ANGLES,
 } from "@/lib/inspection-angles";
 import type { DamageAnalysis, InspectionPhoto, VehicleReport } from "@/lib/types";
@@ -20,6 +20,8 @@ function sampleWalkaroundPath(file: string): string {
   return `/sample/walkaround/${file}`;
 }
 
+const LAV_SAMPLE_LABEL_CONTEXT = { lavContext: {} } as const;
+
 export function buildLavCarSamplePhotos(): InspectionPhoto[] {
   return LAV_DIGITAL_INSPECTION_ANGLES.filter(({ id }) =>
     Boolean(SAMPLE_WALKAROUND_FILES[id]),
@@ -28,7 +30,7 @@ export function buildLavCarSamplePhotos(): InspectionPhoto[] {
     const url = sampleWalkaroundPath(file);
     return {
       angle: id,
-      label: getInspectionAngleLabel(id),
+      label: getInspectionAngleLabelForReport(id, LAV_SAMPLE_LABEL_CONTEXT),
       storagePath: url,
       externalUrl: url,
       uploadedAt: LAV_SAMPLE_CAPTURED_AT,

@@ -128,6 +128,18 @@ export function splitInspectionAngleLabelLines(label: string): {
   return { primary: label };
 }
 
+/** Resolve tile/capture label for a report type (LAV before shared Insights+ ids). */
+export function getInspectionAngleLabelForReport(
+  id: string,
+  report: { lavContext?: unknown } | null | undefined,
+): string {
+  if (isLavDigitalInspectionReport(report ?? null)) {
+    const fromLav = LAV_DIGITAL_INSPECTION_ANGLES.find((angle) => angle.id === id);
+    if (fromLav) return fromLav.label;
+  }
+  return getInspectionAngleLabel(id);
+}
+
 export function getInspectionAngleLabel(id: string): string {
   if (id === "odometer") return "Odometer";
   if (id === "wheels") return "Wheels";

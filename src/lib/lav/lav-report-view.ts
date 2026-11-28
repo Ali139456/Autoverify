@@ -3,7 +3,10 @@ import {
   formatReportReference,
   getInspectionPhotoUrl,
 } from "@/lib/report-design";
-import { LAV_DIGITAL_INSPECTION_ANGLES } from "@/lib/inspection-angles";
+import {
+  formatInspectionPhotoTileLabel,
+  LAV_DIGITAL_INSPECTION_ANGLES,
+} from "@/lib/inspection-angles";
 import type {
   DamageAnalysis,
   InspectionPhoto,
@@ -28,18 +31,24 @@ export type LavReportPhotoSlot = {
   photo: InspectionPhoto | null;
 };
 
-const WALKAROUND_ANGLES = [
-  { id: "front", title: "Front" },
-  { id: "left_side", title: "Passenger side" },
-  { id: "rear", title: "Rear" },
-  { id: "right_side", title: "Driver side" },
+const LAV_WALKAROUND_ANGLE_IDS = [
+  "front",
+  "left_side",
+  "rear",
+  "right_side",
 ] as const;
 
-const ID_ANGLES = [
-  { id: "dashboard", title: "Odometer reading" },
-  { id: "vin_plate", title: "VIN identification" },
-  { id: "service_record", title: "Registration papers" },
+const LAV_IDENTIFICATION_ANGLE_IDS = [
+  "dashboard",
+  "vin_plate",
+  "service_record",
 ] as const;
+
+function lavReportPhotoTitle(angleId: string): string {
+  const def = LAV_DIGITAL_INSPECTION_ANGLES.find((a) => a.id === angleId);
+  const label = def?.label ?? angleId;
+  return formatInspectionPhotoTileLabel(label, angleId);
+}
 
 export const LAV_REPORT_TITLE = "Lender Asset Verification Report";
 
@@ -122,17 +131,21 @@ export function buildLavReportViewModel(
     photos.find((p) => getInspectionPhotoUrl(p)) ??
     null;
 
-  const walkaround: LavReportPhotoSlot[] = WALKAROUND_ANGLES.map((slot) => ({
-    angleId: slot.id,
-    title: slot.title,
-    photo: photoForAngle(photos, slot.id),
-  }));
+  const walkaround: LavReportPhotoSlot[] = LAV_WALKAROUND_ANGLE_IDS.map(
+    (angleId) => ({
+      angleId,
+      title: lavReportPhotoTitle(angleId),
+      photo: photoForAngle(photos, angleId),
+    }),
+  );
 
-  const identification: LavReportPhotoSlot[] = ID_ANGLES.map((slot) => ({
-    angleId: slot.id,
-    title: slot.title,
-    photo: photoForAngle(photos, slot.id),
-  }));
+  const identification: LavReportPhotoSlot[] = LAV_IDENTIFICATION_ANGLE_IDS.map(
+    (angleId) => ({
+      angleId,
+      title: lavReportPhotoTitle(angleId),
+      photo: photoForAngle(photos, angleId),
+    }),
+  );
 
   const expectedAngles = LAV_DIGITAL_INSPECTION_ANGLES.length;
   const uploadedAngles = new Set(
